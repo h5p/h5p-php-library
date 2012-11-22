@@ -5,6 +5,9 @@ the following interfaces in order for the h5p libraries to work:
 
  - TODO: Fill in here
 
-In addition frameworks need to implement:
+In addition frameworks need to do the following:
 
- - TODO: Fill in here
+ - Provide a form for uploading h5p packages.
+ - Place the uploaded h5p packages in a temporary directory
+
+See existing implementations for details. For instance the Drupal h5p module located on drupal.org/project/h5p
