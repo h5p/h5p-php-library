@@ -20,8 +20,8 @@ class h5p {
     require_once 'Archive/Tar.php';
 
     // Create a temporary dir to extract package in.
-    $tmp_dir = $this->h5pFramework->getTempDir();
-    $tmp_path = $this->h5pFramework->getTempPath();
+    $tmp_dir = $this->h5pFramework->getUploadedH5pDir();
+    $tmp_path = $this->h5pFramework->getUploadedH5pPath();
 
     // Extract and then remove the package file.
     $tar = new Archive_Tar($tmp_path, 'bz2');
@@ -34,47 +34,52 @@ class h5p {
 
     // Process content and libraries
     $contents = array();
-    $tars = scandir($tmp_dir);
-    for ($i = 2, $s = count($tars); $i < $s; $i++) {
-      if (substr($tars[$i], -4) == '.tar') {
-        $tar_file = $tmp_dir . DIRECTORY_SEPARATOR . $tars[$i];
-        $tar_name = substr($tars[$i], 0, -4);
-        $tar_id = md5_file($tar_file);
-        $tar_time = filemtime($tar_file);
+    $files = scandir($tmp_dir);
 
-        $content_path = $files_path . DIRECTORY_SEPARATOR . $tar_id;
+    $json_exists = $image_exists = $content_exists = FALSE;
+    foreach ($files as $file) {
+      if (in_array($file, array('.', '..'))) {
+        continue;
+      }
+      $file_path = $tmp_dir . DIRECTORY_SEPARATOR . $file;
+      if (strtolower($file) == 'h5p.json') {
+        $json_exists = TRUE;
+      }
 
-        // Extract content to our files dir.
-        if (is_dir($content_path)) {
-          continue; // We already have this content/library.
-        }
+      elseif (strtolower($file) == 'h5p.jpg') {
+        $image_exists = TRUE;
+      }
+      elseif ($file == 'content') {
+        $content_exists = TRUE;
+        // TODO: Validate content
+      }
+      
+      elseif (strpos($file, '.') !== FALSE) {
+        // Illegal file fond. This is ignored.
+        continue;
+      }
 
-        mkdir($content_path);
-        $tar = new Archive_Tar($tar_file);
-        if (!$tar->extract($content_path)) {
-          continue; // Wasn't a valid tar file.
-        }
-
-        if (preg_match('/[^a-z0-9\-]/', $tar_name)) {
-          $this->setErrorMessage($this->t('Invalid name: %name', array('%name' => $tar_name)));
+      else {
+        // TODO: Validate library
+        if (preg_match('/[^a-z0-9\-]/', $file)) {
+          $this->setErrorMessage($this->t('Invalid name: %name', array('%name' => $file)));
           $this->rRmdir($content_path);
           continue;
         }
-
-        // Go to extracted stuff and check it.
-        $json = file_get_contents($content_path . DIRECTORY_SEPARATOR . 'index.js');
+        $json = file_get_contents($file_path . DIRECTORY_SEPARATOR . 'h5p.json');
         if (!$json) {
-          $this->setErrorMessage($this->t('Could not find index.js file: %name', array('%name' => $tar_name)));
-          $this->rRmdir($content_path);
+          $this->setErrorMessage($this->t('Could not find h5p.json file: %name', array('%name' => $file)));
+          $this->rRmdir($file_path);
           continue;
         }
-
         $content = json_decode($json);
         if (!$content) {
-          $this->setErrorMessage($this->t('Invalid index.js file format: %name', array('%name' => $tar_name)));
-          $this->rRmdir($content_path);
+          $this->setErrorMessage($this->t('Invalid h5p.json file format: %name', array('%name' => $file)));
+          $this->rRmdir($file_path);
           continue;
         }
+
+      }
 
         if ($content->type != H5P_CONTENT && $content->type != H5P_LIBRARY) {
           $this->setErrorMessage($this->t('Invalid content type: %name', array('%name' => $tar_name)));
