@@ -8,7 +8,7 @@ interface h5pFramework {
   public function getUploadedH5pPath();
 }
 
-class h5p {
+class h5pValidator {
   public $h5pF;
   
   // Schemas used to validate the h5p files
@@ -92,9 +92,8 @@ class h5p {
       }
 
       else {
-        // TODO: Validate library
         if (preg_match('/[^a-z0-9\-]/', $file)) {
-          $this->setErrorMessage($this->t('Invalid name: %name', array('%name' => $file)));
+          $this->setErrorMessage($this->t('Invalid library name: %name', array('%name' => $file)));
           $this->rRmdir($content_path);
           continue;
         }
@@ -104,96 +103,48 @@ class h5p {
           $this->rRmdir($file_path);
           continue;
         }
-        $content = json_decode($json);
-        if (!$content) {
+        $h5pData = json_decode($json);
+        if (!$h5pData) {
           $this->setErrorMessage($this->t('Invalid h5p.json file format: %name', array('%name' => $file)));
           $this->rRmdir($file_path);
           continue;
         }
-        // We have decoded the json! Check for required properties
+        $errors = $this->validateH5pData($h5pData);
+        if ($errors !== FALSE) {
+          // TODO: Print the (themed) errors
+          return;
+        }
         
+        if (isset($h5pData->preloadedJs)) {
+          if (!$this->isExcistingFiles($h5pData->preloadedJs, $tmp_dir, $file)) {
+            // TODO: Handle the fact that we are missing js files
+          }
+        }
+        if (isset($h5pData->preloadedCss)) {
+          if (!$this->isExcistingFiles($h5pData->preloadedCss, $tmp_dir, $file)) {
+            // TODO: Handle the fact that we are missing js files
+          }
+        }
       }
-
-        if ($content->type != H5P_CONTENT && $content->type != H5P_LIBRARY) {
-          $this->setErrorMessage($this->t('Invalid content type: %name', array('%name' => $tar_name)));
-          $this->rRmdir($content_path);
-          continue;
-        }
-
-        if ($content->type == H5P_CONTENT) {
-          if (!isset($content->options)) {
-            $this->setErrorMessage($this->t('Missing start options: %name', array('%name' => $tar_name)));
-            $this->rRmdir($content_path);
-            continue;
-          }
-          if (!isset($content->class)) {
-            $this->setErrorMessage($this->t('Missing start class: %name', array('%name' => $tar_name)));
-            $this->rRmdir($content_path);
-            continue;
-          }
-          if (preg_match('/^[A-Z][A-Za-z0-9]*$/', $content->class)) {
-            $this->setErrorMessage($this->t('Invalid class name: %name', array('%name' => $content->class)));
-            $this->rRmdir($content_path);
-            continue;
-          }
-          $content->options = json_encode($content->options);
-        }
-        else {
-          if (!isset($content->js) || !empty($content->js)) {
-            $this->setErrorMessage($this->t('Library without any JS files: %name', array('%name' => $tar_name)));
-            $this->rRmdir($content_path);
-            continue;
-          }
-
-          // Check if JS files exist.
-          for ($j = 0, $l = count($content->js); $j < $l; $j++) {
-            $content->js[$j] = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $content->js[$j]);
-            if (!file_exists($content_path . DIRECTORY_SEPARATOR . $content->js[$j])) {
-              $this->setErrorMessage($this->t('The JS file %file is missing from library: %name', array('%file' => $content->js[$j], '%name' => $tar_name)));
-              $this->rRmdir($content_path);
-              continue;
-            }
-          }
-
-          // Check if CSS files exist.
-          for ($j = 0, $l = count($content->css); $j < $l; $j++) {
-            $content->css[$j] = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $content->css[$j]);
-            if (!file_exists($content_path . DIRECTORY_SEPARATOR . $content->css[$j])) {
-              $this->setErrorMessage($this->t('The CSS file %file is missing from library: %name', array('%file' => $content->css[$j], '%name' => $tar_name)));
-              $this->rRmdir($content_path);
-              continue;
-            }
-          }
-        }
-
-        $content->id = $tar_id;
-        $content->name = $tar_name;
-        $content->time = $tar_time;
-
-        $contents[$content->id] = $content;
+      // TODO: Store library info in array
+    }
+    // TODO: Check dependencies
+  }
+  
+  private function isExcistingFiles($files, $tmp_dir, $library) {
+    foreach ($files as $file_path) {
+      $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $file_path);
+      if (!file_exists($tmp_dir . DIRECTORY_SEPARATOR . $path)) {
+        $this->setErrorMessage($this->t('The JS file %file is missing from library: %name', array('%file' => $file_path, '%name' => $library)));
+        $this->rRmdir($tmp_dir);
+        return FALSE;
       }
     }
-    
-
-    $this->rRmdir($tmp_dir);
-
-    foreach ($contents as &$content) {
-      if ($content->type == H5P_CONTENT) {
-        // Check dependencies for content
-        $name = strtolower(preg_replace('/.+([A-Z])/', '-$0', $content->class));
-        $missing_dependencies = h5p_find_missing_dependencies($contents, $name);
-        if ($missing_dependencies) {
-          $this->setErrorMessage($this->t('%name is missing the following dependencies: %dependencies', array('%name' => $content->name, '%dependencies' => implode(',', $missing_dependencies))));
-        }
-        else {
-          // TODO: Insert stuff?
-          // TODO: Insert into database
-          // TODO: Insert all files into files table.
-        }
-      }
-    }
-
-    // TODO: rmdir for libraries that doesn't have db records.
+    return TRUE;
+  }
+  
+  private function validateH5pData($h5pData) {
+    // TODO: Use the validation arrays
   }
 
   /**
