@@ -109,7 +109,7 @@ class h5pValidator {
           $this->rRmdir($file_path);
           continue;
         }
-        $errors = $this->validateH5pData($h5pData);
+        $errors = $this->validateH5pData($h5pData, $file);
         if ($errors !== FALSE) {
           // TODO: Print the (themed) errors
           return;
@@ -143,8 +143,70 @@ class h5pValidator {
     return TRUE;
   }
   
-  private function validateH5pData($h5pData) {
-    // TODO: Use the validation arrays
+  private function validateH5pData($h5pData, $library_name) {
+    $errors = $this->validateRequiredH5pData($h5pData, $this->h5pRequired, $library_name);
+    array_push($errors, $this->validateOptionalH5pData($h5pData, $this->h5pOptional, $library_name));
+    if (!empty($errors)) {
+      return $errors;
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  private function validateOptionalH5pData($h5pData, $requirements, $library_name) {
+    $errors = array();
+
+    foreach ($h5pData as $key => $value) {
+      if (isset($requirements[$key])) {
+        array_merge($errors, validateRequirement($h5pData, $requirement, $library_name, $property_name));
+      }
+      // Else: ignore, a package can have parameters that this library doesn't care about, but that library
+      // specific implementations does care about...
+    }
+
+    return $errors;
+  }
+
+  private function validateRequirement($h5pData, $requirement, $library_name, $property_name) {
+    $errors = array();
+    if (is_string($requirement)) {
+      // The requirement is a regexp, match it against the data
+      if (is_string($h5pData)) {
+        if (preg_match($requirement, $h5pData) === 0) {
+          $errors[] = $this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name));
+        }
+      }
+      else {
+        $errors[] = $this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name));
+      }
+    }
+    elseif (is_array($requirement)) {
+      // We have sub requirements
+      if (is_array($h5pData)) {
+        array_merge($errors, $this->validateRequiredH5pData($h5pData, $requirement, $library_name));
+      }
+      else {
+        $errors[] = $this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name));
+      }
+    }
+    else {
+      $errors[] = $this->t("Can't read the property %property in %library", array('%property' => $property_name, '%library' => $library_name));
+    }
+    return $errors;
+  }
+
+  private function validateRequiredH5pData($h5pData, $requirements, $library_name) {
+    $errors = array();
+    foreach ($requirements as $required => $requirement) {
+      if (isset($h5pData[$required])) {
+        array_merge($errors, validateRequirement($h5pData[$required], $requirement, $library_name, $required));
+      }
+      else {
+        $errors[] = $this->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name));
+      }
+    }
+    return $errors;
   }
 
   /**
