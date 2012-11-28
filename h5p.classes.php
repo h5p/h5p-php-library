@@ -67,7 +67,7 @@ class h5pValidator {
     unlink($tmp_path);
 
     // Process content and libraries
-    $contents = array();
+    $libraries = array();
     $files = scandir($tmp_dir);
 
     $json_exists = $image_exists = $content_exists = FALSE;
@@ -84,7 +84,6 @@ class h5pValidator {
         $image_exists = TRUE;
       }
       elseif ($file == 'content') {
-        $content_exists = TRUE;
         $json = file_get_contents($file_path . DIRECTORY_SEPARATOR . 'content.json');
         if (!$json) {
           $this->h5pF->setErrorMessage($this->t('Could not find content.json file'));
@@ -97,6 +96,7 @@ class h5pValidator {
           $valid = FALSE;
           continue;
         }
+        $content_exists = TRUE;
         // In the future we might let the librarys provide validation functions for content.json
       }
       
@@ -123,18 +123,25 @@ class h5pValidator {
           $valid = FALSE;
           continue;
         }
-        $valid = $this->isValidH5pData($h5pData, $file) && $valid;
-        
+        $validLibrary = $this->isValidH5pData($h5pData, $file) && $valid;
+
         if (isset($h5pData->preloadedJs)) {
-          $valid = $this->isExcistingFiles($h5pData->preloadedJs, $tmp_dir, $file) && $valid;
+          $validLibrary = $this->isExcistingFiles($h5pData->preloadedJs, $tmp_dir, $file) && $validLibrary;
         }
         if (isset($h5pData->preloadedCss)) {
-          $valid = $this->isExcistingFiles($h5pData->preloadedCss, $tmp_dir, $file) && $valid;
+          $validLibrary = $this->isExcistingFiles($h5pData->preloadedCss, $tmp_dir, $file) && $validLibrary;
         }
+        if ($validLibrary) {
+          $libraries[$file][$h5pData['mainVersion']] = TRUE;
+        }
+        $valid = $validLibrary && $valid;
       }
-      // TODO: Store library info in array
     }
-    // TODO: Check dependencies
+    if ($valid) {
+      // TODO: Load info about excisting libraries from database
+      // TODO: validate dependencies
+    }
+    // TODO: Handle invalid packages(delete them and communicate it to the framework)
   }
   
   private function isExcistingFiles($files, $tmp_dir, $library) {
