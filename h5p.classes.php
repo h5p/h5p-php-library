@@ -55,10 +55,12 @@ class h5pValidator {
     $tmp_dir = $this->h5pFramework->getUploadedH5pDir();
     $tmp_path = $this->h5pFramework->getUploadedH5pPath();
 
+    $valid = TRUE;
+
     // Extract and then remove the package file.
     $tar = new Archive_Tar($tmp_path, 'bz2');
     if (!$tar->extract($tmp_dir)) {
-      $this->setErrorMessage($this->t('The file you uploaded is not a valid HTML5 Pack.'));
+      $this->h5pF->setErrorMessage($this->t('The file you uploaded is not a valid HTML5 Pack.'));
       $this->rRmdir($tmp_dir);
       return;
     }
@@ -83,7 +85,19 @@ class h5pValidator {
       }
       elseif ($file == 'content') {
         $content_exists = TRUE;
-        // TODO: Validate content
+        $json = file_get_contents($file_path . DIRECTORY_SEPARATOR . 'content.json');
+        if (!$json) {
+          $this->h5pF->setErrorMessage($this->t('Could not find content.json file'));
+          $valid = FALSE;
+          continue;
+        }
+        $contentData = json_decode($json);
+        if (!$contentData) {
+          $this->h5pF->setErrorMessage('Invalid content.json file format. Json is required');
+          $valid = FALSE;
+          continue;
+        }
+        // In the future we might let the librarys provide validation functions for content.json
       }
       
       elseif (strpos($file, '.') !== FALSE) {
@@ -92,38 +106,30 @@ class h5pValidator {
       }
 
       else {
-        if (preg_match('/[^a-z0-9\-]/', $file)) {
-          $this->setErrorMessage($this->t('Invalid library name: %name', array('%name' => $file)));
-          $this->rRmdir($content_path);
+        if (preg_match('/[^a-z0-9\-]/', $file) === 0) {
+          $this->h5pF->setErrorMessage($this->t('Invalid library name: %name', array('%name' => $file)));
+          $valid = FALSE;
           continue;
         }
         $json = file_get_contents($file_path . DIRECTORY_SEPARATOR . 'h5p.json');
         if (!$json) {
-          $this->setErrorMessage($this->t('Could not find h5p.json file: %name', array('%name' => $file)));
-          $this->rRmdir($file_path);
+          $this->h5pF->setErrorMessage($this->t('Could not find h5p.json file: %name', array('%name' => $file)));
+          $valid = FALSE;
           continue;
         }
         $h5pData = json_decode($json);
         if (!$h5pData) {
-          $this->setErrorMessage($this->t('Invalid h5p.json file format: %name', array('%name' => $file)));
-          $this->rRmdir($file_path);
+          $this->h5pF->setErrorMessage($this->t('Invalid h5p.json file format: %name', array('%name' => $file)));
+          $valid = FALSE;
           continue;
         }
-        $errors = $this->validateH5pData($h5pData, $file);
-        if ($errors !== FALSE) {
-          // TODO: Print the (themed) errors
-          return;
-        }
+        $valid = $this->isValidH5pData($h5pData, $file) && $valid;
         
         if (isset($h5pData->preloadedJs)) {
-          if (!$this->isExcistingFiles($h5pData->preloadedJs, $tmp_dir, $file)) {
-            // TODO: Handle the fact that we are missing js files
-          }
+          $valid = $this->isExcistingFiles($h5pData->preloadedJs, $tmp_dir, $file) && $valid;
         }
         if (isset($h5pData->preloadedCss)) {
-          if (!$this->isExcistingFiles($h5pData->preloadedCss, $tmp_dir, $file)) {
-            // TODO: Handle the fact that we are missing css files
-          }
+          $valid = $this->isExcistingFiles($h5pData->preloadedCss, $tmp_dir, $file) && $valid;
         }
       }
       // TODO: Store library info in array
@@ -135,92 +141,93 @@ class h5pValidator {
     foreach ($files as $file_path) {
       $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $file_path);
       if (!file_exists($tmp_dir . DIRECTORY_SEPARATOR . $path)) {
-        $this->setErrorMessage($this->t('The JS file %file is missing from library: %name', array('%file' => $file_path, '%name' => $library)));
-        $this->rRmdir($tmp_dir);
+        $this->h5pF->setErrorMessage('The JS file %file is missing from library: %name', array('%file' => $file_path, '%name' => $library));
         return FALSE;
       }
     }
     return TRUE;
   }
   
-  private function validateH5pData($h5pData, $library_name) {
-    $errors = $this->validateRequiredH5pData($h5pData, $this->h5pRequired, $library_name);
-    array_push($errors, $this->validateOptionalH5pData($h5pData, $this->h5pOptional, $library_name));
-    if (!empty($errors)) {
-      return $errors;
-    }
-    else {
-      return FALSE;
-    }
+  private function isValidH5pData($h5pData, $library_name) {
+    $valid = $this->isValidRequiredH5pData($h5pData, $this->h5pRequired, $library_name);
+    $valid = $this->isValidOptionalH5pData($h5pData, $this->h5pOptional, $library_name) && $valid;
+    return $valid;
   }
 
-  private function validateOptionalH5pData($h5pData, $requirements, $library_name) {
-    $errors = array();
+  private function isValidOptionalH5pData($h5pData, $requirements, $library_name) {
+    $valid = TRUE;
 
     foreach ($h5pData as $key => $value) {
       if (isset($requirements[$key])) {
-        array_merge($errors, validateRequirement($h5pData, $requirement, $library_name, $property_name));
+        $valid = isValidRequirement($h5pData, $requirement, $library_name, $property_name) && $valid;
       }
       // Else: ignore, a package can have parameters that this library doesn't care about, but that library
       // specific implementations does care about...
     }
 
-    return $errors;
+    return $valid;
   }
 
-  private function validateRequirement($h5pData, $requirement, $library_name, $property_name) {
-    $errors = array();
+  private function isValidRequirement($h5pData, $requirement, $library_name, $property_name) {
+    $valid = TRUE;
+
     if (is_string($requirement)) {
       // The requirement is a regexp, match it against the data
       if (is_string($h5pData)) {
         if (preg_match($requirement, $h5pData) === 0) {
-          $errors[] = $this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name));
+           $this->h5pF->setErrorMessage($this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+           $valid = FALSE;
         }
       }
       else {
-        $errors[] = $this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name));
+        $this->h5pF->setErrorMessage($this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+        $valid = FALSE;
       }
     }
     elseif (is_array($requirement)) {
       // We have sub requirements
       if (is_array($h5pData)) {
-        array_merge($errors, $this->validateRequiredH5pData($h5pData, $requirement, $library_name));
+        $valid = $this->isValidRequiredH5pData($h5pData, $requirement, $library_name) && $valid;
       }
       else {
-        $errors[] = $this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name));
+        $this->h5pF->setErrorMessage($this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+        $valid = FALSE;
       }
     }
     else {
-      $errors[] = $this->t("Can't read the property %property in %library", array('%property' => $property_name, '%library' => $library_name));
+      $this->h5pF->setErrorMessage($this->t("Can't read the property %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+      $valid = FALSE;
     }
-    return $errors;
+    return $valid;
   }
 
-  private function validateRequiredH5pData($h5pData, $requirements, $library_name) {
-    $errors = array();
+  private function isValidRequiredH5pData($h5pData, $requirements, $library_name) {
+    $valid = TRUE;
     foreach ($requirements as $required => $requirement) {
       if (is_int($required)) {
         // We have an array of allowed options
-        return validateH5pDataOptions($h5pData, $requirements, $library_name);
+        return isValidH5pDataOptions($h5pData, $requirements, $library_name);
       }
       if (isset($h5pData[$required])) {
-        array_merge($errors, validateRequirement($h5pData[$required], $requirement, $library_name, $required));
+        $valid = validateRequirement($h5pData[$required], $requirement, $library_name, $required) && $valid;
       }
       else {
-        $errors[] = $this->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name));
+        $this->h5pF->setErrorMessage($this->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name)));
+        $valid = FALSE;
       }
     }
-    return $errors;
+    return $valid;
   }
 
-  private function validateH5pDataOptions($selected, $allowed, $library_name) {
-    $errors = array();
+  private function isValidH5pDataOptions($selected, $allowed, $library_name) {
+    $valid = TRUE;
     foreach ($selected as $value) {
       if (!in_array($value, $allowed)) {
-        $errors[] = $this->t('Illegal option %option in %library', array('%option' => $value, '%library' => $library_name));
+        $this->h5pF->setErrorMessage($this->t('Illegal option %option in %library', array('%option' => $value, '%library' => $library_name)));
+        $valid = FALSE;
       }
     }
-    return $errors;
+    return $valid;
   }
 
   /**
