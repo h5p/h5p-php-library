@@ -6,6 +6,7 @@ interface h5pFramework {
   public function getUploadedH5pDir();
   public function getTempPath();
   public function getUploadedH5pPath();
+  public function isStoredLibrary($machineName, $minimumVersion);
 }
 
 class h5pValidator {
@@ -78,6 +79,8 @@ class h5pValidator {
       $file_path = $tmp_dir . DIRECTORY_SEPARATOR . $file;
       if (strtolower($file) == 'h5p.json') {
         $json_exists = TRUE;
+        // TODO: Validate this main h5p.json file
+        // TODO: Make sure preloadedDependencies isn't required in the libraries
       }
 
       elseif (strtolower($file) == 'h5p.jpg') {
@@ -132,16 +135,53 @@ class h5pValidator {
           $validLibrary = $this->isExcistingFiles($h5pData->preloadedCss, $tmp_dir, $file) && $validLibrary;
         }
         if ($validLibrary) {
-          $libraries[$file][$h5pData['mainVersion']] = TRUE;
+          $libraries[$file][$h5pData['mainVersion']] = $h5pData;
         }
         $valid = $validLibrary && $valid;
       }
     }
     if ($valid) {
-      // TODO: Load info about excisting libraries from database
-      // TODO: validate dependencies
+      // TODO: Also validate the main h5p.json file
+      $missingLibraries = $this->getMissingLibraries($libraries);
+      foreach ($missingLibraries as $missing) {
+        if ($this->h5pF->isStoredLibrary($missing['machineName'], $missing['minimumVersion'])) {
+          unset($missingLibraries[$missing['machineName']]);
+        }
+      }
+      $valid = empty($missingLibraries) && $valid;
     }
-    // TODO: Handle invalid packages(delete them and communicate it to the framework)
+    if (!$valid) {
+      $this->delTree($tmp_dir);
+    }
+    return $valid;
+  }
+  
+  private function getMissingLibraries($libraries) {
+    $missing = array();
+    foreach ($libraries as $library) {
+      if (isset($library['preloadedDependencies'])) {
+        array_merge($missing, $this->getMissingDependencies($library['preloadedDependencies'], $libraries));
+      }
+      if (isset($library['dynamicDependencies'])) {
+        array_merge($missing, $this->getMissingDependencies($library['dynamicDependencies'], $libraries));
+      }
+    }
+    return $missing;
+  }
+  
+  private function getMissingDependencies($dependencies, $libraries) {
+    $missing = array();
+    foreach ($library['preloadedDependencies'] as $dependency) {
+      if (isset($libraries[$dependency['machineName']])) {
+        if ($libraries[$dependency['machineName']]['minimumVersion'] < $dependency['minimumVersion']) {
+          $missing[$dependency['machineName']] = $dependency;
+        }
+      }
+      else {
+        $missing[$dependency['machineName']] = $dependency;
+      }
+    }
+    return $missing;
   }
   
   private function isExcistingFiles($files, $tmp_dir, $library) {
@@ -243,21 +283,12 @@ class h5pValidator {
    * @param string $dir Directory.
    * @return boolean Indicates if the directory existed.
    */
-  private function rRmdir($dir) {
-     if (is_dir($dir)) {
-       $files = scandir($dir);
-       for ($i = 2, $s = count($files); $i < $s; $i++) {
-         $file = $dir . DIRECTORY_SEPARATOR . $files[$i];
-         if (!$this->rRmdir($file)) {
-           unlink($file);
-         }
-       }
-       rmdir($dir);
-       return TRUE;
-     }
-     else {
-       return FALSE;
-     }
-  }
+  public static function delTree($dir) {
+    $files = array_diff(scandir($dir), array('.','..'));
+    foreach ($files as $file) {
+      (is_dir("$dir/$file")) ? delTree("$dir/$file") : unlink("$dir/$file");
+    }
+    return rmdir($dir);
+  } 
 }
 ?>
