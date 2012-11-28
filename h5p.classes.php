@@ -40,7 +40,7 @@ class h5pValidator {
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     'metaKeywords' => '/^.{1,}$/',
-    'metaDescription' => '/^.{1,}$/',
+    'metaDescription' => '/^.{1,}$/k',
   );
 
   public function __construct($h5pFramework) {
@@ -122,7 +122,7 @@ class h5pValidator {
         }
         if (isset($h5pData->preloadedCss)) {
           if (!$this->isExcistingFiles($h5pData->preloadedCss, $tmp_dir, $file)) {
-            // TODO: Handle the fact that we are missing js files
+            // TODO: Handle the fact that we are missing css files
           }
         }
       }
@@ -199,11 +199,25 @@ class h5pValidator {
   private function validateRequiredH5pData($h5pData, $requirements, $library_name) {
     $errors = array();
     foreach ($requirements as $required => $requirement) {
+      if (is_int($required)) {
+        // We have an array of allowed options
+        return validateH5pDataOptions($h5pData, $requirements, $library_name);
+      }
       if (isset($h5pData[$required])) {
         array_merge($errors, validateRequirement($h5pData[$required], $requirement, $library_name, $required));
       }
       else {
         $errors[] = $this->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name));
+      }
+    }
+    return $errors;
+  }
+
+  private function validateH5pDataOptions($selected, $allowed, $library_name) {
+    $errors = array();
+    foreach ($selected as $value) {
+      if (!in_array($value, $allowed)) {
+        $errors[] = $this->t('Illegal option %option in %library', array('%option' => $value, '%library' => $library_name));
       }
     }
     return $errors;
