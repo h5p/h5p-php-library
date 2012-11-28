@@ -13,34 +13,34 @@ class h5pValidator {
   
   // Schemas used to validate the h5p files
   private $h5pRequired = array(
-    'title' => '^.{1,255}$',
-    'mainVersion' => '^[0-9]{1,5}$',
-    'language' => '^[a-z]{1,5}$',
-    'machineName' => '^[a-z0-9\-]{1,255}$',
+    'title' => '/^.{1,255}$/',
+    'mainVersion' => '/^[0-9]{1,5}$/',
+    'language' => '/^[a-z]{1,5}$/',
+    'machineName' => '/^[a-z0-9\-]{1,255}$/',
     'preloadedDependencies' => array(
-      'machineName' => '^[a-z0-9\-]{1,255}$',
-      'minimumVersion' => '^[0-9]{1,5}$',
+      'machineName' => '/^[a-z0-9\-]{1,255}$/',
+      'minimumVersion' => '/^[0-9]{1,5}$/',
     ),
-    'init' => '^[$A-Z_][0-9A-Z_\.$]{1,254}$',
+    'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'embedTypes' => array('iframe', 'div'),
   );
   
   private $h5pOptional = array(
-    'contentType' => '^.{1,255}$',
-    'utilization' => '^.{1,}$',
-    'subVersion' => '^[0-9]{1,5}$',
-    'author' => '^.{1,255}$',
-    'lisence' => '^(iframe|div)$',
+    'contentType' => '/^.{1,255}$/',
+    'utilization' => '/^.{1,}$/',
+    'subVersion' => '/^[0-9]{1,5}$/',
+    'author' => '/^.{1,255}$/',
+    'lisence' => '/^(iframe|div)$/',
     'dynamicDependencies' => array(
-      'machineName' => '^[a-z0-9\-]{1,255}$',
-      'minimumVersion' => '^[0-9]{1,5}$',
+      'machineName' => '/^[a-z0-9\-]{1,255}$/',
+      'minimumVersion' => '/^[0-9]{1,5}$/',
     ),
-    'preloadedJs' => '^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$',
-    'preloadedCss' => '^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$',
-    'w' => '^[0-9]{1,4}$',
-    'h' => '^[0-9]{1,4}$',
-    'metaKeywords' => '^.{1,}$',
-    'metaDescription' => '^.{1,}$',
+    'preloadedJs' => '/^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$/',
+    'preloadedCss' => '/^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$/',
+    'w' => '/^[0-9]{1,4}$/',
+    'h' => '/^[0-9]{1,4}$/',
+    'metaKeywords' => '/^.{1,}$/',
+    'metaDescription' => '/^.{1,}$/',
   );
 
   public function __construct($h5pFramework) {
