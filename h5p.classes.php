@@ -48,6 +48,12 @@ class h5pValidator {
   private $h5pLibraryRequired;
   private $h5pLibraryOptional;
 
+  /**
+   * Constructor for the h5pValidator
+   *
+   * @param object $h5pFramework
+   *  The frameworks implementation of the h5pFramework interface
+   */
   public function __construct($h5pFramework) {
     $this->h5pF = $h5pFramework;
     $this->h5pLibraryRequired = $this->arrayCopy($this->h5pLibraryRequired);
@@ -57,6 +63,12 @@ class h5pValidator {
     $this->h5pLibraryOptional['requiredDependencies'] = $requiredDependencies;
   }
 
+  /**
+   * Validates a .h5p file
+   *
+   * @return boolean
+   *  TRUE if the .h5p file is valid
+   */
   public function validatePackage() {
     // Requires PEAR
     require_once 'Archive/Tar.php';
@@ -79,7 +91,7 @@ class h5pValidator {
     // Process content and libraries
     $libraries = array();
     $files = scandir($tmp_dir);
-
+    $mainH5pData;
     $mainH5pExists = $imageExists = $contentExists = FALSE;
     foreach ($files as $file) {
       if (in_array($file, array('.', '..'))) {
@@ -87,13 +99,13 @@ class h5pValidator {
       }
       $file_path = $tmp_dir . DIRECTORY_SEPARATOR . $file;
       if (strtolower($file) == 'h5p.json') {
-        $h5pData = $this->getJsonData($file_path);
-        if ($h5pData === FALSE) {
+        $mainH5pData = $this->getJsonData($file_path);
+        if ($mainH5pData === FALSE) {
           $valid = FALSE;
           $this->h5pF->setErrorMessage($this->t('Could not find or parse the main h5p.json file'));
         }
         else {
-          $validH5p = $this->isValidH5pData($h5pData, $file, $this->h5pRequired, $this->h5pOptional);
+          $validH5p = $this->isValidH5pData($mainH5pData, $file, $this->h5pRequired, $this->h5pOptional);
           if ($validH5p) {
             $mainH5pExists = TRUE;
           }
@@ -152,15 +164,6 @@ class h5pValidator {
         $valid = $validLibrary && $valid;
       }
     }
-    if ($valid) {
-      $missingLibraries = $this->getMissingLibraries($libraries);
-      foreach ($missingLibraries as $missing) {
-        if ($this->h5pF->isStoredLibrary($missing['machineName'], $missing['minimumVersion'])) {
-          unset($missingLibraries[$missing['machineName']]);
-        }
-      }
-      $valid = empty($missingLibraries) && $valid;
-    }
     if (!$contentExists) {
       $this->h5pF->setErrorMessage($this->h5pF->t('A valid content folder is missing'));
       $valid = FALSE;
@@ -169,12 +172,31 @@ class h5pValidator {
       $this->h5pF->setErrorMessage($this->h5pF->t('A valid main h5p.json file is missing'));
       $valid = FALSE;
     }
+    if ($valid) {
+      $libraries[] = $mainH5pData;
+      $missingLibraries = $this->getMissingLibraries($libraries);
+      foreach ($missingLibraries as $missing) {
+        if ($this->h5pF->isStoredLibrary($missing['machineName'], $missing['minimumVersion'])) {
+          unset($missingLibraries[$missing['machineName']]);
+        }
+      }
+      $valid = empty($missingLibraries) && $valid;
+    }
     if (!$valid) {
       $this->delTree($tmp_dir);
     }
     return $valid;
   }
-  
+
+  /**
+   * Use the dependency declarations to find any missing libraries
+   *
+   * @param array $libraries
+   *  A multidimensional array of libraries keyed with machineName first and mainVersion second
+   * @return array
+   *  A list of libraries that are missing keyed with machineName and holds objects with
+   *  machineName and minimumVersion properties
+   */
   private function getMissingLibraries($libraries) {
     $missing = array();
     foreach ($libraries as $library) {
@@ -187,7 +209,19 @@ class h5pValidator {
     }
     return $missing;
   }
-  
+
+  /**
+   * Helper function for getMissingLibraries, searches for dependency required libraries in
+   * the provided list of libraries
+   *
+   * @param array $dependencies
+   *  A list of objects with machineName and minimumVersion properties
+   * @param array $libraries
+   *  A multidimensional array of libraries keyed with machineName first and mainVersion second
+   * @return
+   *  A list of libraries that are missing keyed with machineName and holds objects with
+   *  machineName and minimumVersion properties
+   */
   private function getMissingDependencies($dependencies, $libraries) {
     $missing = array();
     foreach ($library['preloadedDependencies'] as $dependency) {
@@ -202,7 +236,21 @@ class h5pValidator {
     }
     return $missing;
   }
-  
+
+  /**
+   * Figure out if the provided file paths exists
+   *
+   * Triggers error messages if files doesn't exist
+   *
+   * @param array $files
+   *  List of file paths relative to $tmp_dir
+   * @param string $tmp_dir
+   *  Path to the directory where the $files are stored.
+   * @param string $library
+   *  Name of the library we are processing
+   * @return boolean
+   *  TRUE if all the files excists
+   */
   private function isExcistingFiles($files, $tmp_dir, $library) {
     foreach ($files as $file_path) {
       $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $file_path);
@@ -213,13 +261,45 @@ class h5pValidator {
     }
     return TRUE;
   }
-  
+
+  /**
+   * Validates h5p.json data
+   *
+   * Error messages are triggered if the data isn't valid
+   *
+   * @param array $h5pData
+   *  h5p data
+   * @param string $library_name
+   *  Name of the library we are processing
+   * @param array $required
+   *  Validation pattern for required properties
+   * @param array $optional
+   *  Validation pattern for optional properties
+   * @return boolean
+   *  TRUE if the $h5pData is valid
+   */
   private function isValidH5pData($h5pData, $library_name, $required, $optional) {
     $valid = $this->isValidRequiredH5pData($h5pData, $required, $library_name);
     $valid = $this->isValidOptionalH5pData($h5pData, $optional, $library_name) && $valid;
     return $valid;
   }
 
+  /**
+   * Helper function for isValidH5pData
+   *
+   * Validates the optional part of the h5pData
+   *
+   * Triggers error messages
+   *
+   * @param array $h5pData
+   *  h5p data
+   * @param array $requirements
+   *  Validation pattern
+   * @param string $library_name
+   *  Name of the library we are processing
+   * @return boolean
+   *  TRUE if the optional part of the $h5pData is valid
+   */
   private function isValidOptionalH5pData($h5pData, $requirements, $library_name) {
     $valid = TRUE;
 
@@ -234,6 +314,15 @@ class h5pValidator {
     return $valid;
   }
 
+  /**
+   * 
+   *
+   * @param <type> $h5pData
+   * @param <type> $requirement
+   * @param <type> $library_name
+   * @param <type> $property_name
+   * @return boolean 
+   */
   private function isValidRequirement($h5pData, $requirement, $library_name, $property_name) {
     $valid = TRUE;
 
