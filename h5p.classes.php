@@ -11,6 +11,7 @@ interface h5pFramework {
 
 class h5pValidator {
   public $h5pF;
+  public $h5pC;
   
   // Schemas used to validate the h5p files
   private $h5pRequired = array(
@@ -54,8 +55,10 @@ class h5pValidator {
    * @param object $h5pFramework
    *  The frameworks implementation of the h5pFramework interface
    */
-  public function __construct($h5pFramework) {
+  public function __construct($h5pFramework, $h5pCore) {
     $this->h5pF = $h5pFramework;
+    $this->h5pC = $h5pCore;
+    
     $this->h5pLibraryRequired = $this->arrayCopy($this->h5pLibraryRequired);
     $requiredDependencies = $this->h5pLibraryRequired['requiredDependencies'];
     unset($this->h5pLibraryRequired['requiredDependencies']);
@@ -82,8 +85,8 @@ class h5pValidator {
     // Extract and then remove the package file.
     $tar = new Archive_Tar($tmp_path, 'bz2');
     if (!$tar->extract($tmp_dir)) {
-      $this->h5pF->setErrorMessage($this->t('The file you uploaded is not a valid HTML5 Pack.'));
-      $this->rRmdir($tmp_dir);
+      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Pack.'));
+      $this->delTree($tmp_dir);
       return;
     }
     unlink($tmp_path);
@@ -102,7 +105,7 @@ class h5pValidator {
         $mainH5pData = $this->getJsonData($file_path);
         if ($mainH5pData === FALSE) {
           $valid = FALSE;
-          $this->h5pF->setErrorMessage($this->t('Could not find or parse the main h5p.json file'));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the main h5p.json file'));
         }
         else {
           $validH5p = $this->isValidH5pData($mainH5pData, $file, $this->h5pRequired, $this->h5pOptional);
@@ -111,7 +114,7 @@ class h5pValidator {
           }
           else {
             $valid = FALSE;
-            $this->h5pF->setErrorMessage($this->t('Could not find or parse the main h5p.json file'));
+            $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the main h5p.json file'));
           }
         }
       }
@@ -122,7 +125,7 @@ class h5pValidator {
       elseif ($file == 'content') {
         $jsonData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'content.json');
         if ($jsonData === FALSE) {
-          $this->h5pF->setErrorMessage($this->t('Could not find or parse the content.json file'));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the content.json file'));
           $valid = FALSE;
           continue;
         }
@@ -139,13 +142,13 @@ class h5pValidator {
 
       else {
         if (preg_match('/[^a-z0-9\-]/', $file) === 0) {
-          $this->h5pF->setErrorMessage($this->t('Invalid library name: %name', array('%name' => $file)));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library name: %name', array('%name' => $file)));
           $valid = FALSE;
           continue;
         }
         $h5pData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'h5p.json');
         if ($h5pData === FALSE) {
-          $this->h5pF->setErrorMessage($this->t('Could not find h5p.json file with valid json format for library %name', array('%name' => $file)));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find h5p.json file with valid json format for library %name', array('%name' => $file)));
           $valid = FALSE;
           continue;
         }
@@ -173,7 +176,7 @@ class h5pValidator {
       $valid = FALSE;
     }
     if ($valid) {
-      $libraries[] = $mainH5pData;
+      $libraries['mainH5pData'][] = $mainH5pData;
       $missingLibraries = $this->getMissingLibraries($libraries);
       foreach ($missingLibraries as $missing) {
         if ($this->h5pF->isStoredLibrary($missing['machineName'], $missing['minimumVersion'])) {
@@ -185,6 +188,7 @@ class h5pValidator {
     if (!$valid) {
       $this->delTree($tmp_dir);
     }
+    $this->h5pC->setParsedLibraries($libraries);
     return $valid;
   }
 
@@ -200,6 +204,7 @@ class h5pValidator {
   private function getMissingLibraries($libraries) {
     $missing = array();
     foreach ($libraries as $library) {
+      $library = end($library);
       if (isset($library['preloadedDependencies'])) {
         array_merge($missing, $this->getMissingDependencies($library['preloadedDependencies'], $libraries));
       }
@@ -330,12 +335,12 @@ class h5pValidator {
       // The requirement is a regexp, match it against the data
       if (is_string($h5pData)) {
         if (preg_match($requirement, $h5pData) === 0) {
-           $this->h5pF->setErrorMessage($this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+           $this->h5pF->setErrorMessage($this->h5pF->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
            $valid = FALSE;
         }
       }
       else {
-        $this->h5pF->setErrorMessage($this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+        $this->h5pF->setErrorMessage($this->h5pF->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
         $valid = FALSE;
       }
     }
@@ -345,12 +350,12 @@ class h5pValidator {
         $valid = $this->isValidRequiredH5pData($h5pData, $requirement, $library_name) && $valid;
       }
       else {
-        $this->h5pF->setErrorMessage($this->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+        $this->h5pF->setErrorMessage($this->h5pF->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
         $valid = FALSE;
       }
     }
     else {
-      $this->h5pF->setErrorMessage($this->t("Can't read the property %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+      $this->h5pF->setErrorMessage($this->h5pF->t("Can't read the property %property in %library", array('%property' => $property_name, '%library' => $library_name)));
       $valid = FALSE;
     }
     return $valid;
@@ -367,7 +372,7 @@ class h5pValidator {
         $valid = validateRequirement($h5pData[$required], $requirement, $library_name, $required) && $valid;
       }
       else {
-        $this->h5pF->setErrorMessage($this->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name)));
+        $this->h5pF->setErrorMessage($this->h5pF->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name)));
         $valid = FALSE;
       }
     }
@@ -378,7 +383,7 @@ class h5pValidator {
     $valid = TRUE;
     foreach ($selected as $value) {
       if (!in_array($value, $allowed)) {
-        $this->h5pF->setErrorMessage($this->t('Illegal option %option in %library', array('%option' => $value, '%library' => $library_name)));
+        $this->h5pF->setErrorMessage($this->h5pF->t('Illegal option %option in %library', array('%option' => $value, '%library' => $library_name)));
         $valid = FALSE;
       }
     }
@@ -426,5 +431,60 @@ class h5pValidator {
     }
     return rmdir($dir);
   } 
+}
+
+class h5pSaver {
+  
+  public $h5pF;
+  public $h5pC;
+
+  /**
+   * Constructor for the h5pSaver
+   *
+   * @param object $h5pFramework
+   *  The frameworks implementation of the h5pFramework interface
+   */
+  public function __construct($h5pFramework, $h5pCore) {
+    $this->h5pF = $h5pFramework;
+    $this->h5pC = $h5pCore;
+  }
+  
+  public function savePackage() {
+    $jsonData = $this->h5pC->getJsonData();
+    foreach ($jsonData as $key => $value) {
+      if ($key == 'mainH5pData') {
+        // TODO: Figure out what to do with this data
+      }
+      else {
+        // TODO: Move the library folder
+        // TODO: Store jsonData to the database
+      }
+    }
+    // TODO: Move library folder
+    // TODO: Store content.json in the database
+  }
+}
+
+class h5pCore {
+  public $h5pF;
+  private $jsonData;
+
+  /**
+   * Constructor for the h5pSaver
+   *
+   * @param object $h5pFramework
+   *  The frameworks implementation of the h5pFramework interface
+   */
+  public function __construct($h5pFramework) {
+    $this->h5pF = $h5pFramework;
+  }
+  
+  public function setJsonData($jsonData) {
+    $this->$jsonData = $jsonData;
+  }
+  
+  public function getJsonData() {
+    return $jsonData;
+  }
 }
 ?>
