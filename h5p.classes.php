@@ -44,8 +44,17 @@ class h5pValidator {
     'metaDescription' => '/^.{1,}$/k',
   );
 
+  // These are the same as above, except the preloadedDependencies are optional. Created in the constructor.
+  private $h5pLibraryRequired;
+  private $h5pLibraryOptional;
+
   public function __construct($h5pFramework) {
     $this->h5pF = $h5pFramework;
+    $this->h5pLibraryRequired = $this->arrayCopy($this->h5pLibraryRequired);
+    $requiredDependencies = $this->h5pLibraryRequired['requiredDependencies'];
+    unset($this->h5pLibraryRequired['requiredDependencies']);
+    $this->h5pLibraryOptional = $this->arrayCopy($this->h5pLibraryRequired);
+    $this->h5pLibraryOptional['requiredDependencies'] = $requiredDependencies;
   }
 
   public function validatePackage() {
@@ -79,28 +88,37 @@ class h5pValidator {
       $file_path = $tmp_dir . DIRECTORY_SEPARATOR . $file;
       if (strtolower($file) == 'h5p.json') {
         $json_exists = TRUE;
-        // TODO: Validate this main h5p.json file
-        // TODO: Make sure preloadedDependencies isn't required in the libraries
+        $h5pData = $this->getJsonData($file_path);
+        if ($h5pData === FALSE) {
+          $valid = FALSE;
+          $this->h5pF->setErrorMessage($this->t('Could not find or parse the main h5p.json file'));
+        }
+        else {
+          $validH5p = $this->isValidH5pData($h5pData, $file, $this->h5pRequired, $this->h5pOptional);
+          if ($validH5p) {
+            $mainH5pExists = TRUE;
+          }
+          else {
+            $valid = FALSE;
+            $this->h5pF->setErrorMessage($this->t('Could not find or parse the main h5p.json file'));
+          }
+        }
       }
 
       elseif (strtolower($file) == 'h5p.jpg') {
         $image_exists = TRUE;
       }
       elseif ($file == 'content') {
-        $json = file_get_contents($file_path . DIRECTORY_SEPARATOR . 'content.json');
-        if (!$json) {
-          $this->h5pF->setErrorMessage($this->t('Could not find content.json file'));
+        $jsonData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'content.json');
+        if ($jsonData === FALSE) {
+          $this->h5pF->setErrorMessage($this->t('Could not find or parse the content.json file'));
           $valid = FALSE;
           continue;
         }
-        $contentData = json_decode($json);
-        if (!$contentData) {
-          $this->h5pF->setErrorMessage('Invalid content.json file format. Json is required');
-          $valid = FALSE;
-          continue;
+        else {
+          $content_exists = TRUE;
+          // In the future we might let the librarys provide validation functions for content.json
         }
-        $content_exists = TRUE;
-        // In the future we might let the librarys provide validation functions for content.json
       }
       
       elseif (strpos($file, '.') !== FALSE) {
@@ -114,19 +132,14 @@ class h5pValidator {
           $valid = FALSE;
           continue;
         }
-        $json = file_get_contents($file_path . DIRECTORY_SEPARATOR . 'h5p.json');
-        if (!$json) {
-          $this->h5pF->setErrorMessage($this->t('Could not find h5p.json file: %name', array('%name' => $file)));
+        $h5pData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'h5p.json');
+        if ($h5pData === FALSE) {
+          $this->h5pF->setErrorMessage($this->t('Could not find h5p.json file with valid json format for library %name', array('%name' => $file)));
           $valid = FALSE;
           continue;
         }
-        $h5pData = json_decode($json);
-        if (!$h5pData) {
-          $this->h5pF->setErrorMessage($this->t('Invalid h5p.json file format: %name', array('%name' => $file)));
-          $valid = FALSE;
-          continue;
-        }
-        $validLibrary = $this->isValidH5pData($h5pData, $file) && $valid;
+        
+        $validLibrary = $this->isValidH5pData($h5pData, $library_name, $this->h5pLibraryRequired, $this->h5pLibraryOptional);
 
         if (isset($h5pData->preloadedJs)) {
           $validLibrary = $this->isExcistingFiles($h5pData->preloadedJs, $tmp_dir, $file) && $validLibrary;
@@ -141,7 +154,6 @@ class h5pValidator {
       }
     }
     if ($valid) {
-      // TODO: Also validate the main h5p.json file
       $missingLibraries = $this->getMissingLibraries($libraries);
       foreach ($missingLibraries as $missing) {
         if ($this->h5pF->isStoredLibrary($missing['machineName'], $missing['minimumVersion'])) {
@@ -195,9 +207,9 @@ class h5pValidator {
     return TRUE;
   }
   
-  private function isValidH5pData($h5pData, $library_name) {
-    $valid = $this->isValidRequiredH5pData($h5pData, $this->h5pRequired, $library_name);
-    $valid = $this->isValidOptionalH5pData($h5pData, $this->h5pOptional, $library_name) && $valid;
+  private function isValidH5pData($h5pData, $library_name, $required, $optional) {
+    $valid = $this->isValidRequiredH5pData($h5pData, $required, $library_name);
+    $valid = $this->isValidOptionalH5pData($h5pData, $optional, $library_name) && $valid;
     return $valid;
   }
 
@@ -275,6 +287,34 @@ class h5pValidator {
       }
     }
     return $valid;
+  }
+
+  private function getJsonData($file_path) {
+    $json = file_get_contents($file_path);
+    if (!$json) {
+      return FALSE;
+    }
+    $jsonData = json_decode($json);
+    if (!$jsonData) {
+      return FALSE;
+    }
+    return $jsonData;
+  }
+
+  private function arrayCopy(array $array) {
+    $result = array();
+    foreach ($array as $key => $val) {
+      if (is_array($val)) {
+        $result[$key] = arrayCopy($val);
+      }
+      elseif (is_object($val)) {
+        $result[$key] = clone $val;
+      }
+      else {
+        $result[$key] = $val;
+      }
+    }
+    return $result;
   }
 
   /**
