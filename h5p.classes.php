@@ -80,14 +80,13 @@ class h5pValidator {
     $libraries = array();
     $files = scandir($tmp_dir);
 
-    $json_exists = $image_exists = $content_exists = FALSE;
+    $mainH5pExists = $imageExists = $contentExists = FALSE;
     foreach ($files as $file) {
       if (in_array($file, array('.', '..'))) {
         continue;
       }
       $file_path = $tmp_dir . DIRECTORY_SEPARATOR . $file;
       if (strtolower($file) == 'h5p.json') {
-        $json_exists = TRUE;
         $h5pData = $this->getJsonData($file_path);
         if ($h5pData === FALSE) {
           $valid = FALSE;
@@ -106,7 +105,7 @@ class h5pValidator {
       }
 
       elseif (strtolower($file) == 'h5p.jpg') {
-        $image_exists = TRUE;
+        $imageExists = TRUE;
       }
       elseif ($file == 'content') {
         $jsonData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'content.json');
@@ -116,7 +115,7 @@ class h5pValidator {
           continue;
         }
         else {
-          $content_exists = TRUE;
+          $contentExists = TRUE;
           // In the future we might let the librarys provide validation functions for content.json
         }
       }
@@ -161,6 +160,14 @@ class h5pValidator {
         }
       }
       $valid = empty($missingLibraries) && $valid;
+    }
+    if (!$contentExists) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('A valid content folder is missing'));
+      $valid = FALSE;
+    }
+    if (!$mainH5pExists) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('A valid main h5p.json file is missing'));
+      $valid = FALSE;
     }
     if (!$valid) {
       $this->delTree($tmp_dir);
