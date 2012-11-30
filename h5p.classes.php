@@ -492,7 +492,7 @@ class h5pSaver {
           'mainVersion' => key($this->h5pC->librariesJsonData[$preloadedDependency['machineName']]),
           'preloaded' => $dynamic ? 0 : 1,
         );
-        $this->saveLibraryUsage($librariesInUse, end($this->h5pC->librariesJsonData[$preloadedDependency['machineName']]), $dynamic);
+        $this->getLibraryUsage($librariesInUse, end($this->h5pC->librariesJsonData[$preloadedDependency['machineName']]), $dynamic);
       }
     }
     if (isset($jsonData['dynamicDependencies'])) {
@@ -503,7 +503,7 @@ class h5pSaver {
             'preloaded' => 0,
           );
         }
-        $this->saveLibraryUsage($librariesInUse, end($this->h5pC->librariesJsonData[$dynamicDependency['machineName']]), TRUE);
+        $this->getLibraryUsage($librariesInUse, end($this->h5pC->librariesJsonData[$dynamicDependency['machineName']]), TRUE);
       }
     }
   }
