@@ -3,10 +3,13 @@ interface h5pFramework {
   public function setErrorMessage($message);
   public function setInfoMessage($message);
   public function t($message, $replacements);
-  public function getUploadedH5pDir();
-  public function getTempPath();
+  public function getUploadedH5pFolderPath();
+  public function getH5pPath();
   public function getUploadedH5pPath();
   public function isStoredLibrary($machineName, $minimumVersion);
+  public function storeLibraryData($libraryData);
+  public function storeContentData($contentId, $contentJson, $mainJsonData);
+  public function saveLibraryUsage($contentId, $librariesInUse);
 }
 
 class h5pValidator {
@@ -37,8 +40,12 @@ class h5pValidator {
       'machineName' => '/^[a-z0-9\-]{1,255}$/',
       'minimumVersion' => '/^[0-9]{1,5}$/',
     ),
-    'preloadedJs' => '/^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$/',
-    'preloadedCss' => '/^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$/',
+    'preloadedJs' => array(
+      'path' => '/^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$/',
+    ),
+    'preloadedCss' => array(
+      'path' => '/^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$/',
+    ),
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     'metaKeywords' => '/^.{1,}$/',
@@ -72,12 +79,12 @@ class h5pValidator {
    * @return boolean
    *  TRUE if the .h5p file is valid
    */
-  public function validatePackage() {
+  public function isValidPackage() {
     // Requires PEAR
     require_once 'Archive/Tar.php';
 
     // Create a temporary dir to extract package in.
-    $tmp_dir = $this->h5pFramework->getUploadedH5pDir();
+    $tmp_dir = $this->h5pFramework->getUploadedH5pFolderPath();
     $tmp_path = $this->h5pFramework->getUploadedH5pPath();
 
     $valid = TRUE;
@@ -95,6 +102,7 @@ class h5pValidator {
     $libraries = array();
     $files = scandir($tmp_dir);
     $mainH5pData;
+    $libraryJsonData;
     $mainH5pExists = $imageExists = $contentExists = FALSE;
     foreach ($files as $file) {
       if (in_array($file, array('.', '..'))) {
@@ -123,8 +131,8 @@ class h5pValidator {
         $imageExists = TRUE;
       }
       elseif ($file == 'content') {
-        $jsonData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'content.json');
-        if ($jsonData === FALSE) {
+        $contentJsonData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'content.json');
+        if ($contentJsonData === FALSE) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the content.json file'));
           $valid = FALSE;
           continue;
@@ -176,6 +184,10 @@ class h5pValidator {
       $valid = FALSE;
     }
     if ($valid) {
+      $this->h5pC->librariesJsonData = $libraries;
+      $this->h5pC->mainJsonData = $mainH5pData;
+      $this->h5pC->contentJsonData = $contentJsonData;
+      
       $libraries['mainH5pData'][] = $mainH5pData;
       $missingLibraries = $this->getMissingLibraries($libraries);
       foreach ($missingLibraries as $missing) {
@@ -188,7 +200,6 @@ class h5pValidator {
     if (!$valid) {
       $this->delTree($tmp_dir);
     }
-    $this->h5pC->setParsedLibraries($libraries);
     return $valid;
   }
 
@@ -369,6 +380,7 @@ class h5pValidator {
         return isValidH5pDataOptions($h5pData, $requirements, $library_name);
       }
       if (isset($h5pData[$required])) {
+        // TODO: Make sure this works with multiple css files.
         $valid = validateRequirement($h5pData[$required], $requirement, $library_name, $required) && $valid;
       }
       else {
@@ -449,25 +461,59 @@ class h5pSaver {
     $this->h5pC = $h5pCore;
   }
   
-  public function savePackage() {
-    $jsonData = $this->h5pC->getJsonData();
-    foreach ($jsonData as $key => $value) {
-      if ($key == 'mainH5pData') {
-        // TODO: Figure out what to do with this data
-      }
-      else {
-        // TODO: Move the library folder
-        // TODO: Store jsonData to the database
+  public function savePackage($contentId) {
+    foreach ($this->h5pC->librariesJsonData as $key => $value) {
+      if (!$this->h5pF->isStoredLibrary($key, key($value))) {
+        $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
+        $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $key;
+        rename($current_path, $destination_path);
+
+        $this->h5pF->storeLibraryData(end($value));
+
+        // @todo: Handle cases where we have a copy of this library, but of an older version
       }
     }
-    // TODO: Move library folder
-    // TODO: Store content.json in the database
+    $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . 'content';
+    $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
+    rename($current_path, $destination_path);
+    
+    $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . $contentId . DIRECTORY_SEPARATOR . 'content.json');
+    $this->h5pF->storeContentData($contentId, $contentJson, $this->h5pC->mainJsonData);
+
+    $librariesInUse = array();
+    $this->getLibraryUsage($librariesInUse, $this->h5pC->mainJsonData);
+    $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
+  }
+
+  public function getLibraryUsage(&$librariesInUse, $jsonData, $dynamic = FALSE) {
+    if (isset($jsonData['preloadedDependencies'])) {
+      foreach ($jsonData['preloadedDependencies'] as $preloadedDependency) {
+        $librariesInUse[$preloadedDependency['machineName']] = array(
+          'mainVersion' => key($this->h5pC->librariesJsonData[$preloadedDependency['machineName']]),
+          'preloaded' => $dynamic ? 0 : 1,
+        );
+        $this->saveLibraryUsage($librariesInUse, end($this->h5pC->librariesJsonData[$preloadedDependency['machineName']]), $dynamic);
+      }
+    }
+    if (isset($jsonData['dynamicDependencies'])) {
+      foreach ($jsonData['dynamicDependencies'] as $dynamicDependency) {
+        if (!isset($librariesInUse[$dynamicDependency['machineName']])) {
+          $librariesInUse[$dynamicDependency['machineName']] = array(
+            'mainVersion' => key($this->h5pC->librariesJsonData[$dynamicDependency['machineName']]),
+            'preloaded' => 0,
+          );
+        }
+        $this->saveLibraryUsage($librariesInUse, end($this->h5pC->librariesJsonData[$dynamicDependency['machineName']]), TRUE);
+      }
+    }
   }
 }
 
 class h5pCore {
   public $h5pF;
-  private $jsonData;
+  public $librariesJsonData;
+  public $contentJsonData;
+  public $mainJsonData;
 
   /**
    * Constructor for the h5pSaver
@@ -477,14 +523,6 @@ class h5pCore {
    */
   public function __construct($h5pFramework) {
     $this->h5pF = $h5pFramework;
-  }
-  
-  public function setJsonData($jsonData) {
-    $this->$jsonData = $jsonData;
-  }
-  
-  public function getJsonData() {
-    return $jsonData;
   }
 }
 ?>
