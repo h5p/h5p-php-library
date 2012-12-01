@@ -10,6 +10,7 @@ interface h5pFramework {
   public function storeLibraryData($libraryData);
   public function storeContentData($contentId, $contentJson, $mainJsonData);
   public function saveLibraryUsage($contentId, $librariesInUse);
+  public function loadLibrary($machineName, $minimumVersion);
 }
 
 class h5pValidator {
@@ -488,23 +489,43 @@ class h5pSaver {
   public function getLibraryUsage(&$librariesInUse, $jsonData, $dynamic = FALSE) {
     if (isset($jsonData['preloadedDependencies'])) {
       foreach ($jsonData['preloadedDependencies'] as $preloadedDependency) {
+        $library = $this->getLibrary($preloadedDependency['machineName'], $preloadedDependency['minimumVersion']);
         $librariesInUse[$preloadedDependency['machineName']] = array(
-          'mainVersion' => key($this->h5pC->librariesJsonData[$preloadedDependency['machineName']]),
+          'library' => $library,
           'preloaded' => $dynamic ? 0 : 1,
         );
-        $this->getLibraryUsage($librariesInUse, end($this->h5pC->librariesJsonData[$preloadedDependency['machineName']]), $dynamic);
+        $this->getLibraryUsage($librariesInUse, $library, $dynamic);
       }
     }
     if (isset($jsonData['dynamicDependencies'])) {
       foreach ($jsonData['dynamicDependencies'] as $dynamicDependency) {
         if (!isset($librariesInUse[$dynamicDependency['machineName']])) {
+          $library = $this->getLibrary($dynamicDependency['machineName'], $dynamicDependency['minimumVersion']);
           $librariesInUse[$dynamicDependency['machineName']] = array(
-            'mainVersion' => key($this->h5pC->librariesJsonData[$dynamicDependency['machineName']]),
+            'library' => $library,
             'preloaded' => 0,
           );
         }
-        $this->getLibraryUsage($librariesInUse, end($this->h5pC->librariesJsonData[$dynamicDependency['machineName']]), TRUE);
+        $this->getLibraryUsage($librariesInUse, $library, TRUE);
       }
+    }
+  }
+  /**
+   * Searches for a suiting library in any uploaded package first, and then in the database
+   * 
+   * @param string $machineName
+   *  The libraries machineName
+   * @param int $minimumVersion
+   *  The minimum version for this library
+   * @return array
+   *  Assosiative array with library information
+   */
+  private function getLibrary($machineName, $minimumVersion) {
+    if (isset($this->h5pC->librariesJsonData[$machineName]) && key($this->h5pC->librariesJsonData[$machineName]) >= $minimumVersion) {
+      return current($this->h5pC->librariesJsonData[$machineName]);
+    }
+    else {
+      $this->h5pF->loadLibrary($machineName, $minimumVersion);
     }
   }
 }
