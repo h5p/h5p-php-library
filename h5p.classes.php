@@ -462,7 +462,7 @@ class h5pSaver {
   }
   
   public function savePackage($contentId) {
-    foreach ($this->h5pC->librariesJsonData as $key => $value) {
+    foreach ($this->h5pC->librariesJsonData as $key => &$value) {
       if (!$this->h5pF->isStoredLibrary($key, key($value))) {
         $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
         $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $key;
