@@ -33,11 +33,38 @@ class h5pValidator {
   
   private $h5pOptional = array(
     'contentType' => '/^.{1,255}$/',
-    'utilization' => '/^.{1,}$/',
+    'description' => '/^.{1,}$/',
     'subVersion' => '/^[0-9]{1,5}$/',
     'author' => '/^.{1,255}$/',
-    'lisence' => '/^(iframe|div)$/',
+    'lisence' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
     'dynamicDependencies' => array(
+      'machineName' => '/^[a-z0-9\-]{1,255}$/',
+      'minimumVersion' => '/^[0-9]{1,5}$/',
+    ),
+    'w' => '/^[0-9]{1,4}$/',
+    'h' => '/^[0-9]{1,4}$/',
+    'metaKeywords' => '/^.{1,}$/',
+    'metaDescription' => '/^.{1,}$/k',
+  );
+
+  
+  private $libraryRequired = array(
+    'title' => '/^.{1,255}$/',
+    'mainVersion' => '/^[0-9]{1,5}$/',
+    'machineName' => '/^[a-z0-9\-]{1,255}$/',
+  );
+  
+  private $libraryOptional  = array(
+    'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
+    'subVersion' => '/^[0-9]{1,5}$/',
+    'author' => '/^.{1,255}$/',
+    'lisence' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
+    'description' => '/^.{1,}$/',
+    'dynamicDependencies' => array(
+      'machineName' => '/^[a-z0-9\-]{1,255}$/',
+      'minimumVersion' => '/^[0-9]{1,5}$/',
+    ),    
+    'preloadedDependencies' => array(
       'machineName' => '/^[a-z0-9\-]{1,255}$/',
       'minimumVersion' => '/^[0-9]{1,5}$/',
     ),
@@ -49,13 +76,8 @@ class h5pValidator {
     ),
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
-    'metaKeywords' => '/^.{1,}$/',
-    'metaDescription' => '/^.{1,}$/k',
+    'embedTypes' => array('iframe', 'div'),
   );
-
-  // These are the same as above, except the preloadedDependencies are optional. Created in the constructor.
-  private $h5pLibraryRequired;
-  private $h5pLibraryOptional;
 
   /**
    * Constructor for the h5pValidator
@@ -66,12 +88,6 @@ class h5pValidator {
   public function __construct($h5pFramework, $h5pCore) {
     $this->h5pF = $h5pFramework;
     $this->h5pC = $h5pCore;
-    
-    $this->h5pLibraryRequired = $this->arrayCopy($this->h5pLibraryRequired);
-    $requiredDependencies = $this->h5pLibraryRequired['requiredDependencies'];
-    unset($this->h5pLibraryRequired['requiredDependencies']);
-    $this->h5pLibraryOptional = $this->arrayCopy($this->h5pLibraryRequired);
-    $this->h5pLibraryOptional['requiredDependencies'] = $requiredDependencies;
   }
 
   /**
@@ -155,14 +171,14 @@ class h5pValidator {
           $valid = FALSE;
           continue;
         }
-        $h5pData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'h5p.json');
+        $h5pData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'library.json');
         if ($h5pData === FALSE) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find h5p.json file with valid json format for library %name', array('%name' => $file)));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find library.json file with valid json format for library %name', array('%name' => $file)));
           $valid = FALSE;
           continue;
         }
         
-        $validLibrary = $this->isValidH5pData($h5pData, $library_name, $this->h5pLibraryRequired, $this->h5pLibraryOptional);
+        $validLibrary = $this->isValidH5pData($h5pData, $library_name, $this->libraryRequired, $this->libraryOptional);
 
         if (isset($h5pData->preloadedJs)) {
           $validLibrary = $this->isExcistingFiles($h5pData->preloadedJs, $tmp_dir, $file) && $validLibrary;
@@ -280,7 +296,7 @@ class h5pValidator {
   }
 
   /**
-   * Validates h5p.json data
+   * Validates h5p.json and library.json data
    *
    * Error messages are triggered if the data isn't valid
    *
