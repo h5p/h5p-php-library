@@ -2,12 +2,12 @@
 interface h5pFramework {
   public function setErrorMessage($message);
   public function setInfoMessage($message);
-  public function t($message, $replacements);
+  public function t($message, $replacements = array());
   public function getUploadedH5pFolderPath();
   public function getH5pPath();
   public function getUploadedH5pPath();
   public function isStoredLibrary($machineName, $minimumVersion);
-  public function storeLibraryData($libraryData);
+  public function storeLibraryData(&$libraryData);
   public function storeContentData($contentId, $contentJson, $mainJsonData);
   public function saveLibraryUsage($contentId, $librariesInUse);
   public function loadLibrary($machineName, $minimumVersion);
@@ -97,18 +97,19 @@ class h5pValidator {
    *  TRUE if the .h5p file is valid
    */
   public function isValidPackage() {
-    // Requires PEAR
-    require_once 'Archive/Tar.php';
-
     // Create a temporary dir to extract package in.
-    $tmp_dir = $this->h5pFramework->getUploadedH5pFolderPath();
-    $tmp_path = $this->h5pFramework->getUploadedH5pPath();
+    $tmp_dir = $this->h5pF->getUploadedH5pFolderPath();
+    $tmp_path = $this->h5pF->getUploadedH5pPath();
 
     $valid = TRUE;
 
     // Extract and then remove the package file.
-    $tar = new Archive_Tar($tmp_path, 'bz2');
-    if (!$tar->extract($tmp_dir)) {
+    $zip = new ZipArchive;
+    if ($zip->open($tmp_path) === true) {
+      $zip->extractTo($tmp_dir);
+      $zip->close();
+    }
+    else {
       $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Pack.'));
       $this->delTree($tmp_dir);
       return;
@@ -338,7 +339,7 @@ class h5pValidator {
 
     foreach ($h5pData as $key => $value) {
       if (isset($requirements[$key])) {
-        $valid = isValidRequirement($h5pData, $requirement, $library_name, $property_name) && $valid;
+        $valid = $this->isValidRequirement($h5pData, $requirement, $library_name, $property_name) && $valid;
       }
       // Else: ignore, a package can have parameters that this library doesn't care about, but that library
       // specific implementations does care about...
@@ -361,7 +362,7 @@ class h5pValidator {
 
     if (is_string($requirement)) {
       // The requirement is a regexp, match it against the data
-      if (is_string($h5pData)) {
+      if (is_string($h5pData) || is_int($h5pData)) {
         if (preg_match($requirement, $h5pData) === 0) {
            $this->h5pF->setErrorMessage($this->h5pF->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
            $valid = FALSE;
@@ -394,11 +395,11 @@ class h5pValidator {
     foreach ($requirements as $required => $requirement) {
       if (is_int($required)) {
         // We have an array of allowed options
-        return isValidH5pDataOptions($h5pData, $requirements, $library_name);
+        return $this->isValidH5pDataOptions($h5pData, $requirements, $library_name);
       }
       if (isset($h5pData[$required])) {
         // TODO: Make sure this works with multiple css files.
-        $valid = validateRequirement($h5pData[$required], $requirement, $library_name, $required) && $valid;
+        $valid = $this->isValidRequirement($h5pData[$required], $requirement, $library_name, $required) && $valid;
       }
       else {
         $this->h5pF->setErrorMessage($this->h5pF->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name)));
@@ -424,8 +425,10 @@ class h5pValidator {
     if (!$json) {
       return FALSE;
     }
-    $jsonData = json_decode($json);
+    dpm($json);
+    $jsonData = json_decode($json, TRUE);
     if (!$jsonData) {
+      dpm('!jsonData');
       return FALSE;
     }
     return $jsonData;
@@ -453,10 +456,13 @@ class h5pValidator {
    * @param string $dir Directory.
    * @return boolean Indicates if the directory existed.
    */
-  public static function delTree($dir) {
+  public function delTree($dir) {
+    if (!is_dir($dir)) {
+      return;
+    }
     $files = array_diff(scandir($dir), array('.','..'));
     foreach ($files as $file) {
-      (is_dir("$dir/$file")) ? delTree("$dir/$file") : unlink("$dir/$file");
+      (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
     }
     return rmdir($dir);
   } 
