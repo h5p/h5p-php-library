@@ -20,7 +20,7 @@ class h5pValidator {
   // Schemas used to validate the h5p files
   private $h5pRequired = array(
     'title' => '/^.{1,255}$/',
-    'mainVersion' => '/^[0-9]{1,5}$/',
+    'majorVersion' => '/^[0-9]{1,5}$/',
     'language' => '/^[a-z]{1,5}$/',
     'preloadedDependencies' => array(
       'machineName' => '/^[a-z0-9\-]{1,255}$/i',
@@ -49,7 +49,7 @@ class h5pValidator {
   
   private $libraryRequired = array(
     'title' => '/^.{1,255}$/',
-    'mainVersion' => '/^[0-9]{1,5}$/',
+    'majorVersion' => '/^[0-9]{1,5}$/',
     'machineName' => '/^[a-z0-9\-]{1,255}$/i',
   );
   
@@ -187,7 +187,7 @@ class h5pValidator {
           $validLibrary = $this->isExcistingFiles($h5pData['preloadedCss'], $tmp_dir, $file) && $validLibrary;
         }
         if ($validLibrary) {
-          $libraries[$file][$h5pData['mainVersion']] = $h5pData;
+          $libraries[$file][$h5pData['majorVersion']] = $h5pData;
         }
         $valid = $validLibrary && $valid;
       }
@@ -224,7 +224,7 @@ class h5pValidator {
    * Use the dependency declarations to find any missing libraries
    *
    * @param array $libraries
-   *  A multidimensional array of libraries keyed with machineName first and mainVersion second
+   *  A multidimensional array of libraries keyed with machineName first and majorVersion second
    * @return array
    *  A list of libraries that are missing keyed with machineName and holds objects with
    *  machineName and minimumVersion properties
@@ -250,7 +250,7 @@ class h5pValidator {
    * @param array $dependencies
    *  A list of objects with machineName and minimumVersion properties
    * @param array $libraries
-   *  A multidimensional array of libraries keyed with machineName first and mainVersion second
+   *  A multidimensional array of libraries keyed with machineName first and majorVersion second
    * @return
    *  A list of libraries that are missing keyed with machineName and holds objects with
    *  machineName and minimumVersion properties
