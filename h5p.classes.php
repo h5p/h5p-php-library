@@ -22,9 +22,8 @@ class h5pValidator {
     'title' => '/^.{1,255}$/',
     'mainVersion' => '/^[0-9]{1,5}$/',
     'language' => '/^[a-z]{1,5}$/',
-    'machineName' => '/^[a-z0-9\-]{1,255}$/',
     'preloadedDependencies' => array(
-      'machineName' => '/^[a-z0-9\-]{1,255}$/',
+      'machineName' => '/^[a-z0-9\-]{1,255}$/i',
       'minimumVersion' => '/^[0-9]{1,5}$/',
     ),
     'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
@@ -38,7 +37,7 @@ class h5pValidator {
     'author' => '/^.{1,255}$/',
     'lisence' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
     'dynamicDependencies' => array(
-      'machineName' => '/^[a-z0-9\-]{1,255}$/',
+      'machineName' => '/^[a-z0-9\-]{1,255}$/i',
       'minimumVersion' => '/^[0-9]{1,5}$/',
     ),
     'w' => '/^[0-9]{1,4}$/',
@@ -51,7 +50,7 @@ class h5pValidator {
   private $libraryRequired = array(
     'title' => '/^.{1,255}$/',
     'mainVersion' => '/^[0-9]{1,5}$/',
-    'machineName' => '/^[a-z0-9\-]{1,255}$/',
+    'machineName' => '/^[a-z0-9\-]{1,255}$/i',
   );
   
   private $libraryOptional  = array(
@@ -61,18 +60,18 @@ class h5pValidator {
     'lisence' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
     'description' => '/^.{1,}$/',
     'dynamicDependencies' => array(
-      'machineName' => '/^[a-z0-9\-]{1,255}$/',
+      'machineName' => '/^[a-z0-9\-]{1,255}$/i',
       'minimumVersion' => '/^[0-9]{1,5}$/',
     ),    
     'preloadedDependencies' => array(
-      'machineName' => '/^[a-z0-9\-]{1,255}$/',
+      'machineName' => '/^[a-z0-9\-]{1,255}$/i',
       'minimumVersion' => '/^[0-9]{1,5}$/',
     ),
     'preloadedJs' => array(
-      'path' => '/^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$/',
+      'path' => '/^((\\\|\/)?[a-z_\-\s0-9]+)+\.js$/i',
     ),
     'preloadedCss' => array(
-      'path' => '/^(\\[a-z_\-\s0-9\.]+)+\.(?i)(js)$/',
+      'path' => '/^((\\\|\/)?[a-z_\-\s0-9]+)+\.css$/i',
     ),
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
@@ -167,7 +166,7 @@ class h5pValidator {
       }
 
       else {
-        if (preg_match('/[^a-z0-9\-]/', $file) === 0) {
+        if (preg_match('/^[a-z0-9\-]{1,255}$/i', $file) === 0) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library name: %name', array('%name' => $file)));
           $valid = FALSE;
           continue;
@@ -179,13 +178,13 @@ class h5pValidator {
           continue;
         }
         
-        $validLibrary = $this->isValidH5pData($h5pData, $library_name, $this->libraryRequired, $this->libraryOptional);
+        $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
 
-        if (isset($h5pData->preloadedJs)) {
-          $validLibrary = $this->isExcistingFiles($h5pData->preloadedJs, $tmp_dir, $file) && $validLibrary;
+        if (isset($h5pData['preloadedJs'])) {
+          $validLibrary = $this->isExcistingFiles($h5pData['preloadedJs'], $tmp_dir, $file) && $validLibrary;
         }
-        if (isset($h5pData->preloadedCss)) {
-          $validLibrary = $this->isExcistingFiles($h5pData->preloadedCss, $tmp_dir, $file) && $validLibrary;
+        if (isset($h5pData['preloadedCss'])) {
+          $validLibrary = $this->isExcistingFiles($h5pData['preloadedCss'], $tmp_dir, $file) && $validLibrary;
         }
         if ($validLibrary) {
           $libraries[$file][$h5pData['mainVersion']] = $h5pData;
@@ -258,7 +257,7 @@ class h5pValidator {
    */
   private function getMissingDependencies($dependencies, $libraries) {
     $missing = array();
-    foreach ($library['preloadedDependencies'] as $dependency) {
+    foreach ($dependencies as $dependency) {
       if (isset($libraries[$dependency['machineName']])) {
         if ($libraries[$dependency['machineName']]['minimumVersion'] < $dependency['minimumVersion']) {
           $missing[$dependency['machineName']] = $dependency;
@@ -286,10 +285,10 @@ class h5pValidator {
    *  TRUE if all the files excists
    */
   private function isExcistingFiles($files, $tmp_dir, $library) {
-    foreach ($files as $file_path) {
-      $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $file_path);
-      if (!file_exists($tmp_dir . DIRECTORY_SEPARATOR . $path)) {
-        $this->h5pF->setErrorMessage('The JS file %file is missing from library: %name', array('%file' => $file_path, '%name' => $library));
+    foreach ($files as $file) {
+      $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $file['path']);
+      if (!file_exists($tmp_dir . DIRECTORY_SEPARATOR . $library . DIRECTORY_SEPARATOR . $path)) {
+        $this->h5pF->setErrorMessage($this->h5pF->t('The JS file %file is missing from library: %name', array('%file' => $file_path, '%name' => $library)));
         return FALSE;
       }
     }
@@ -339,7 +338,7 @@ class h5pValidator {
 
     foreach ($h5pData as $key => $value) {
       if (isset($requirements[$key])) {
-        $valid = $this->isValidRequirement($h5pData, $requirement, $library_name, $property_name) && $valid;
+        $valid = $this->isValidRequirement($value, $requirements[$key], $library_name, $key) && $valid;
       }
       // Else: ignore, a package can have parameters that this library doesn't care about, but that library
       // specific implementations does care about...
@@ -376,7 +375,14 @@ class h5pValidator {
     elseif (is_array($requirement)) {
       // We have sub requirements
       if (is_array($h5pData)) {
-        $valid = $this->isValidRequiredH5pData($h5pData, $requirement, $library_name) && $valid;
+        if (is_array(current($h5pData))) {
+          foreach ($h5pData as $sub_h5pData) {
+            $valid = $this->isValidRequiredH5pData($sub_h5pData, $requirement, $library_name) && $valid;
+          }
+        }
+        else {
+          $valid = $this->isValidRequiredH5pData($h5pData, $requirement, $library_name) && $valid;
+        }
       }
       else {
         $this->h5pF->setErrorMessage($this->h5pF->t("Invalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
@@ -425,10 +431,8 @@ class h5pValidator {
     if (!$json) {
       return FALSE;
     }
-    dpm($json);
     $jsonData = json_decode($json, TRUE);
     if (!$jsonData) {
-      dpm('!jsonData');
       return FALSE;
     }
     return $jsonData;
@@ -500,18 +504,19 @@ class h5pSaver {
     $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
     rename($current_path, $destination_path);
     
-    $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . $contentId . DIRECTORY_SEPARATOR . 'content.json');
+    $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
     $this->h5pF->storeContentData($contentId, $contentJson, $this->h5pC->mainJsonData);
 
     $librariesInUse = array();
     $this->getLibraryUsage($librariesInUse, $this->h5pC->mainJsonData);
     $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
+    // TODO: Remove folder from temp...
   }
 
   public function getLibraryUsage(&$librariesInUse, $jsonData, $dynamic = FALSE) {
     if (isset($jsonData['preloadedDependencies'])) {
       foreach ($jsonData['preloadedDependencies'] as $preloadedDependency) {
-        $library = $this->getLibrary($preloadedDependency['machineName'], $preloadedDependency['minimumVersion']);
+        $library = $this->h5pF->loadLibrary($preloadedDependency['machineName'], $preloadedDependency['minimumVersion']);
         $librariesInUse[$preloadedDependency['machineName']] = array(
           'library' => $library,
           'preloaded' => $dynamic ? 0 : 1,
@@ -522,7 +527,7 @@ class h5pSaver {
     if (isset($jsonData['dynamicDependencies'])) {
       foreach ($jsonData['dynamicDependencies'] as $dynamicDependency) {
         if (!isset($librariesInUse[$dynamicDependency['machineName']])) {
-          $library = $this->getLibrary($dynamicDependency['machineName'], $dynamicDependency['minimumVersion']);
+          $library = $this->h5pF->loadLibrary($dynamicDependency['machineName'], $dynamicDependency['minimumVersion']);
           $librariesInUse[$dynamicDependency['machineName']] = array(
             'library' => $library,
             'preloaded' => 0,
@@ -530,24 +535,6 @@ class h5pSaver {
         }
         $this->getLibraryUsage($librariesInUse, $library, TRUE);
       }
-    }
-  }
-  /**
-   * Searches for a suiting library in any uploaded package first, and then in the database
-   * 
-   * @param string $machineName
-   *  The libraries machineName
-   * @param int $minimumVersion
-   *  The minimum version for this library
-   * @return array
-   *  Assosiative array with library information
-   */
-  private function getLibrary($machineName, $minimumVersion) {
-    if (isset($this->h5pC->librariesJsonData[$machineName]) && key($this->h5pC->librariesJsonData[$machineName]) >= $minimumVersion) {
-      return current($this->h5pC->librariesJsonData[$machineName]);
-    }
-    else {
-      $this->h5pF->loadLibrary($machineName, $minimumVersion);
     }
   }
 }
