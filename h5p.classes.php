@@ -262,7 +262,7 @@ class h5pValidator {
     $missing = array();
     foreach ($dependencies as $dependency) {
       if (isset($libraries[$dependency['machineName']])) {
-        if ($this->h5pC->isSameVersion($libraries[$dependency['machineName']], $dependency)) {
+        if (!$this->h5pC->isSameVersion($libraries[$dependency['machineName']], $dependency)) {
           $missing[$dependency['machineName']] = $dependency;
         }
       }
@@ -407,7 +407,6 @@ class h5pValidator {
         return $this->isValidH5pDataOptions($h5pData, $requirements, $library_name);
       }
       if (isset($h5pData[$required])) {
-        // TODO: Make sure this works with multiple css files.
         $valid = $this->isValidRequirement($h5pData[$required], $requirement, $library_name, $required) && $valid;
       }
       else {
@@ -494,11 +493,11 @@ class h5pSaver {
   public function savePackage($contentId) {
     foreach ($this->h5pC->librariesJsonData as $key => &$value) {
       if (!$this->h5pF->isStoredLibrary($key, key($value))) {
-        $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
-        $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $key;
-        rename($current_path, $destination_path);
-
         $this->h5pF->storeLibraryData(end($value));
+        
+        $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
+        $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $value['libraryId'];
+        rename($current_path, $destination_path);
 
         // @todo: Handle cases where we have a copy of this library, but of an older version
       }
