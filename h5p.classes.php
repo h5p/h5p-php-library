@@ -1,4 +1,7 @@
 <?php
+// TODO: Validate folders(is_dir)
+// TODO: Make sure newest patchVersion is used
+// TODO: Update .h5p file
 interface h5pFramework {
   public function setErrorMessage($message);
   public function setInfoMessage($message);
