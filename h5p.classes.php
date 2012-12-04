@@ -35,7 +35,7 @@ class h5pValidator {
     'description' => '/^.{1,}$/',
     'subVersion' => '/^[0-9]{1,5}$/',
     'author' => '/^.{1,255}$/',
-    'lisence' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
+    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
     'dynamicDependencies' => array(
       'machineName' => '/^[a-z0-9\-]{1,255}$/i',
       'minimumVersion' => '/^[0-9]{1,5}$/',
@@ -57,7 +57,7 @@ class h5pValidator {
     'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'subVersion' => '/^[0-9]{1,5}$/',
     'author' => '/^.{1,255}$/',
-    'lisence' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
+    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
     'description' => '/^.{1,}$/',
     'dynamicDependencies' => array(
       'machineName' => '/^[a-z0-9\-]{1,255}$/i',
