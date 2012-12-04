@@ -379,7 +379,7 @@ class h5pValidator {
         $valid = $this->isValidRequiredH5pData($h5pData, $requirement, $library_name) && $valid;
       }
       else {
-        $this->h5pF->setErrorMessage($this->h5pF->t("Ivalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+        $this->h5pF->setErrorMessage($this->h5pF->t("Invalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
         $valid = FALSE;
       }
     }
