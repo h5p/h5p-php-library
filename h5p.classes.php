@@ -33,7 +33,7 @@ class h5pValidator {
   private $h5pOptional = array(
     'contentType' => '/^.{1,255}$/',
     'description' => '/^.{1,}$/',
-    'subVersion' => '/^[0-9]{1,5}$/',
+    'minorVersion' => '/^[0-9]{1,5}$/',
     'author' => '/^.{1,255}$/',
     'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
     'dynamicDependencies' => array(
@@ -55,7 +55,7 @@ class h5pValidator {
   
   private $libraryOptional  = array(
     'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
-    'subVersion' => '/^[0-9]{1,5}$/',
+    'minorVersion' => '/^[0-9]{1,5}$/',
     'author' => '/^.{1,255}$/',
     'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
     'description' => '/^.{1,}$/',
