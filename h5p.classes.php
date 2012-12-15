@@ -504,6 +504,11 @@ class h5pSaver {
 
         // @todo: Handle cases where we have a copy of this library, but of an older version
       }
+      elseif ($this->h5pF->isPatchedLibrary($key, key($value))) {
+        // TODO: change the librariesJsonData to be two dim instead of three
+        // TODO: Replace library
+        // TODO: Refactor this code and the previous block
+      }
     }
     $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . 'content';
     $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
