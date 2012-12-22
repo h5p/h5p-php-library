@@ -1,7 +1,5 @@
 <?php
-// TODO: Validate folders(is_dir)
-// TODO: Make sure newest patchVersion is used
-// TODO: Update .h5p file
+
 interface h5pFramework {
   public function setErrorMessage($message);
   public function setInfoMessage($message);
@@ -9,7 +7,8 @@ interface h5pFramework {
   public function getUploadedH5pFolderPath();
   public function getH5pPath();
   public function getUploadedH5pPath();
-  public function isStoredLibrary($machineName, $majorVersion, $minorVersion);
+  public function getLibraryId($machineName, $majorVersion, $minorVersion);
+  public function isPatchedLibrary($library);
   public function storeLibraryData(&$libraryData);
   public function storeContentData($contentId, $contentJson, $mainJsonData);
   public function saveLibraryUsage($contentId, $librariesInUse);
@@ -71,7 +70,7 @@ class h5pValidator {
     'preloadedDependencies' => array(
       'machineName' => '/^[a-z0-9\-]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
-      'patchVersion' => '/^[0-9]{1,5}$/',
+      'minorVersion' => '/^[0-9]{1,5}$/',
     ),
     'preloadedJs' => array(
       'path' => '/^((\\\|\/)?[a-z_\-\s0-9]+)+\.js$/i',
@@ -116,7 +115,7 @@ class h5pValidator {
     }
     else {
       $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Pack.'));
-      $this->delTree($tmp_dir);
+      $this->h5pC->delTree($tmp_dir);
       return;
     }
     unlink($tmp_path);
@@ -154,6 +153,11 @@ class h5pValidator {
         $imageExists = TRUE;
       }
       elseif ($file == 'content') {
+        if (!is_dir($file_path)) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid content folder'));
+          $valid = FALSE;
+          continue;
+        }
         $contentJsonData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'content.json');
         if ($contentJsonData === FALSE) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the content.json file'));
@@ -172,6 +176,11 @@ class h5pValidator {
       }
 
       else {
+         if (!is_dir($file_path)) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library folder: %name', array('%name' => $file)));
+          $valid = FALSE;
+          continue;
+        }
         if (preg_match('/^[a-z0-9\-]{1,255}$/i', $file) === 0) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library name: %name', array('%name' => $file)));
           $valid = FALSE;
@@ -193,7 +202,7 @@ class h5pValidator {
           $validLibrary = $this->isExcistingFiles($h5pData['preloadedCss'], $tmp_dir, $file) && $validLibrary;
         }
         if ($validLibrary) {
-          $libraries[$file][$h5pData['majorVersion']] = $h5pData;
+          $libraries[$file] = $h5pData;
         }
         $valid = $validLibrary && $valid;
       }
@@ -211,17 +220,17 @@ class h5pValidator {
       $this->h5pC->mainJsonData = $mainH5pData;
       $this->h5pC->contentJsonData = $contentJsonData;
       
-      $libraries['mainH5pData'][] = $mainH5pData;
+      $libraries['mainH5pData'] = $mainH5pData;
       $missingLibraries = $this->getMissingLibraries($libraries);
       foreach ($missingLibraries as $missing) {
-        if ($this->h5pF->isStoredLibrary($missing['machineName'], $missing['majorVersion'], $missing['minorVersion'])) {
+        if ($this->h5pF->getLibraryId($missing['machineName'], $missing['majorVersion'], $missing['minorVersion'])) {
           unset($missingLibraries[$missing['machineName']]);
         }
       }
       $valid = empty($missingLibraries) && $valid;
     }
     if (!$valid) {
-      $this->delTree($tmp_dir);
+      $this->h5pC->delTree($tmp_dir);
     }
     return $valid;
   }
@@ -238,7 +247,6 @@ class h5pValidator {
   private function getMissingLibraries($libraries) {
     $missing = array();
     foreach ($libraries as $library) {
-      $library = end($library);
       if (isset($library['preloadedDependencies'])) {
         array_merge($missing, $this->getMissingDependencies($library['preloadedDependencies'], $libraries));
       }
@@ -256,7 +264,7 @@ class h5pValidator {
    * @param array $dependencies
    *  A list of objects with machineName, majorVersion and minorVersion properties
    * @param array $libraries
-   *  A multidimensional array of libraries keyed with machineName first and majorVersion second
+   *  An array of libraries keyed with machineName
    * @return
    *  A list of libraries that are missing keyed with machineName and holds objects with
    *  machineName, majorVersion and minorVersion properties
@@ -458,23 +466,6 @@ class h5pValidator {
     }
     return $result;
   }
-
-  /**
-   * Recursive function for removing directories.
-   *
-   * @param string $dir Directory.
-   * @return boolean Indicates if the directory existed.
-   */
-  public function delTree($dir) {
-    if (!is_dir($dir)) {
-      return;
-    }
-    $files = array_diff(scandir($dir), array('.','..'));
-    foreach ($files as $file) {
-      (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
-    }
-    return rmdir($dir);
-  } 
 }
 
 class h5pSaver {
@@ -494,21 +485,25 @@ class h5pSaver {
   }
   
   public function savePackage($contentId) {
-    foreach ($this->h5pC->librariesJsonData as $key => &$value) {
-      if (!$this->h5pF->isStoredLibrary($key, key($value))) {
-        $this->h5pF->storeLibraryData(end($value));
-        
-        $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
-        $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $value['libraryId'];
-        rename($current_path, $destination_path);
-
-        // @todo: Handle cases where we have a copy of this library, but of an older version
+    foreach ($this->h5pC->librariesJsonData as $key => &$library) {
+      $libraryId = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
+      if (!$libraryId) {
+        $new = TRUE;
       }
-      elseif ($this->h5pF->isPatchedLibrary($key, key($value))) {
-        // TODO: change the librariesJsonData to be two dim instead of three
-        // TODO: Replace library
-        // TODO: Refactor this code and the previous block
+      elseif ($this->h5pF->isPatchedLibrary($library)) {
+        $new = FALSE;
+        $library['libraryId'] = $libraryId;
       }
+      else {
+        // We already have the same or a newer version of this library
+        continue;
+      }
+      $this->h5pF->storeLibraryData($library, $new);
+      dpm($library);
+      $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
+      $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $library['libraryId'];
+      $this->h5pC->delTree($destination_path);
+      rename($current_path, $destination_path);
     }
     $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . 'content';
     $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
@@ -520,7 +515,7 @@ class h5pSaver {
     $librariesInUse = array();
     $this->getLibraryUsage($librariesInUse, $this->h5pC->mainJsonData);
     $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
-    // TODO: Remove folder from temp...
+    $this->h5pC->delTree($this->h5pF->getUploadedH5pFolderPath());
   }
 
   public function getLibraryUsage(&$librariesInUse, $jsonData, $dynamic = FALSE) {
@@ -573,6 +568,23 @@ class h5pCore {
       return FALSE;
     }
     return TRUE;
+  }
+
+  /**
+   * Recursive function for removing directories.
+   *
+   * @param string $dir Directory.
+   * @return boolean Indicates if the directory existed.
+   */
+  public function delTree($dir) {
+    if (!is_dir($dir)) {
+      return;
+    }
+    $files = array_diff(scandir($dir), array('.','..'));
+    foreach ($files as $file) {
+      (is_dir("$dir/$file")) ? $this->delTree("$dir/$file") : unlink("$dir/$file");
+    }
+    return rmdir($dir);
   }
 }
 ?>
