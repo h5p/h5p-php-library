@@ -499,7 +499,7 @@ class h5pSaver {
         continue;
       }
       $this->h5pF->storeLibraryData($library, $new);
-      dpm($library);
+      
       $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
       $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $library['libraryId'];
       $this->h5pC->delTree($destination_path);
