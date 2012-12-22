@@ -10,7 +10,8 @@ interface h5pFramework {
   public function getLibraryId($machineName, $majorVersion, $minorVersion);
   public function isPatchedLibrary($library);
   public function storeLibraryData(&$libraryData);
-  public function storeContentData($contentId, $contentJson, $mainJsonData);
+  public function storeContentData($contentId, $contentJson, $mainJsonData, $contentMainId = NULL);
+  public function deleteContentData($contentId);
   public function saveLibraryUsage($contentId, $librariesInUse);
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
 }
@@ -484,7 +485,7 @@ class h5pSaver {
     $this->h5pC = $h5pCore;
   }
   
-  public function savePackage($contentId) {
+  public function savePackage($contentId, $contentMainId = NULL) {
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
       $libraryId = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
       if (!$libraryId) {
@@ -510,12 +511,17 @@ class h5pSaver {
     rename($current_path, $destination_path);
     
     $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
-    $this->h5pF->storeContentData($contentId, $contentJson, $this->h5pC->mainJsonData);
+    $this->h5pF->storeContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $contentMainId);
 
     $librariesInUse = array();
     $this->getLibraryUsage($librariesInUse, $this->h5pC->mainJsonData);
     $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
     $this->h5pC->delTree($this->h5pF->getUploadedH5pFolderPath());
+  }
+
+  public function deletePackage($contentId) {
+    $this->h5pC->delTree($this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId);
+    $this->h5pF->deleteContentData($contentId);
   }
 
   public function getLibraryUsage(&$librariesInUse, $jsonData, $dynamic = FALSE) {
