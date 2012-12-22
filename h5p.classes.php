@@ -11,6 +11,7 @@ interface h5pFramework {
   public function isPatchedLibrary($library);
   public function storeLibraryData(&$libraryData);
   public function storeContentData($contentId, $contentJson, $mainJsonData, $contentMainId = NULL);
+  public function copyContentData($contentId, $copyFromId, $contentMainId = NULL);
   public function deleteContentData($contentId);
   public function saveLibraryUsage($contentId, $librariesInUse);
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
@@ -524,6 +525,19 @@ class h5pSaver {
     $this->h5pF->deleteContentData($contentId);
   }
 
+  public function updatePackage($contentId, $contentMainId = NULL) {
+    $this->deletePackage($contentId);
+    $this->savePackage($contentId, $contentMainId);
+  }
+
+  public function copyPackage($contentId, $copyFromId, $contentMainId = NULL) {
+    $source_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $copyFromId;
+    $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
+    $this->h5pC->copyTree($source_path, $destination_path);
+
+    $this->h5pF->copyContentData($contentId, $copyFromId, $contentMainId);
+  }
+
   public function getLibraryUsage(&$librariesInUse, $jsonData, $dynamic = FALSE) {
     if (isset($jsonData['preloadedDependencies'])) {
       foreach ($jsonData['preloadedDependencies'] as $preloadedDependency) {
@@ -592,5 +606,21 @@ class h5pCore {
     }
     return rmdir($dir);
   }
+
+  public function copyTree($source, $destination) {
+    $dir = opendir($source);
+    @mkdir($destination);
+    while (false !== ($file = readdir($dir))) {
+        if (($file != '.') && ($file != '..')) {
+            if (is_dir($source . '/' . $file)) {
+              copyTree($source . '/' . $file, $destination . '/' . $file);
+            }
+            else {
+                copy($source . '/' . $file,$destination . '/' . $file);
+            }
+        }
+    }
+    closedir($dir);
+}
 }
 ?>
