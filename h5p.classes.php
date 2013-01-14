@@ -1,15 +1,107 @@
 <?php
-
+/**
+ * Interface defining functions the h5p library needs the framework to implement
+ */
 interface h5pFramework {
+  /**
+   * Show the user an error message
+   * 
+   * @param string $message
+   *  The error message
+   */
   public function setErrorMessage($message);
+  
+  /**
+   * Show the user an information message
+   * 
+   * @param string $message
+   *  The error message
+   */
   public function setInfoMessage($message);
+
+  /**
+   * Translation function
+   * 
+   * @param string $message
+   *  The english string to be translated. 
+   * @param type $replacements
+   *   An associative array of replacements to make after translation. Incidences
+   *   of any key in this array are replaced with the corresponding value. Based
+   *   on the first character of the key, the value is escaped and/or themed:
+   *    - !variable: inserted as is
+   *    - @variable: escape plain text to HTML
+   *    - %variable: escape text and theme as a placeholder for user-submitted
+   *      content
+   * @return string Translated string
+   */
   public function t($message, $replacements = array());
+  
+  /**
+   * Get the Path to the last uploaded h5p
+   * 
+   * @return string Path to the folder where the last uploaded h5p for this session is located.
+   */
   public function getUploadedH5pFolderPath();
+  
+  /**
+   * @return string Path to the folder where all h5p files are stored
+   */
   public function getH5pPath();
+  
+  /**
+   * Get the path to the last uploaded h5p file
+   * 
+   * @return string Path to the last uploaded h5p
+   */
   public function getUploadedH5pPath();
+  
+  /**
+   * Get id to an excisting library
+   * 
+   * @param string $machineName
+   *  The librarys machine name
+   * @param int $majorVersion
+   *  The librarys major version
+   * @param int $minorVersion
+   *  The librarys minor version
+   * @return int
+   *  The id of the specified library or FALSE
+   */
   public function getLibraryId($machineName, $majorVersion, $minorVersion);
+  
+  /**
+   * Is the library a patched version of an excisting library?
+   * 
+   * @param object $library
+   *  The library data for a library we are checking
+   * @return boolean
+   *  TRUE if the library is a patched version of an excisting library
+   *  FALSE otherwise
+   */
   public function isPatchedLibrary($library);
+  
+  /**
+   * Store data about a library
+   * 
+   * Also fills in the libraryId in the libraryData object if the object is new
+   * 
+   * @param object $libraryData
+   *  Object holding the information that is to be stored
+   */
   public function storeLibraryData(&$libraryData);
+  
+  /**
+   * Ask the framework to store contentData
+   * 
+   * @param int $contentId
+   *  Framework specific id identifying the content
+   * @param string $contentJson
+   *  The content data that is to be stored
+   * @param array $mainJsonData
+   *  The data extracted from the h5p.json file
+   * @param int $contentMainId
+   *  Any contentMainId defined by the framework, for instance to support revisioning
+   */
   public function storeContentData($contentId, $contentJson, $mainJsonData, $contentMainId = NULL);
   public function copyContentData($contentId, $copyFromId, $contentMainId = NULL);
   public function deleteContentData($contentId);
@@ -50,7 +142,7 @@ class h5pValidator {
     'metaDescription' => '/^.{1,}$/k',
   );
 
-  
+  // Schemas used to validate the library files
   private $libraryRequired = array(
     'title' => '/^.{1,255}$/',
     'majorVersion' => '/^[0-9]{1,5}$/',
