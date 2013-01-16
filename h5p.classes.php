@@ -222,7 +222,7 @@ class h5pValidator {
     $mainH5pExists = $imageExists = $contentExists = FALSE;
     foreach ($files as $file) {
       // TODO: Any reason not to just drop anything starting with .?
-      if (in_array($file, array('.', '..'))) {
+      if (in_array(substr($file, 0, 1), array('.', '_'))) {
         continue;
       }
       $file_path = $tmp_dir . DIRECTORY_SEPARATOR . $file;
