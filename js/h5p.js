@@ -13,6 +13,7 @@ H5P.init = function () {
 };
 
 H5P.getContentPath = function(contentId) {
+  // TODO: Rewrite or remove... H5P.getContentPath = H5PIntegration.getContentPath would probably work f.i.
   H5PIntegration.getContentPath(contentId);
 }
 
