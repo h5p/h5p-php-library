@@ -4,12 +4,17 @@ window.H5P = window.H5P || {};
 // Initialize H5P content
 // Scans for ".h5p-content"
 H5P.init = function () {
-  $(".h5p-content").each(function (idx, el) {
+  H5P.jQuery(".h5p-content").each(function (idx, el) {
     var $el = H5P.jQuery(el);
-    var obj = new (H5P.classFromName($el.data('class')))(H5P.jQuery.parseJSON(Drupal.settings.h5p.jsonContent));
+    var contentId = $el.data('content-id');
+    var obj = new (H5P.classFromName($el.data('class')))(H5P.jQuery.parseJSON(H5PIntegration.getJsonContent(contentId)), contentId);
     obj.attach($el);
   });
 };
+
+H5P.getContentPath = function(contentId) {
+  H5PIntegration.getContentPath(contentId);
+}
 
 //
 // Used from libraries to construct instances of other libraries' objects by
