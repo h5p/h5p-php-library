@@ -2,7 +2,7 @@
 /**
  * Interface defining functions the h5p library needs the framework to implement
  */
-interface h5pFramework {
+interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonly known as a interface for classes to implement, not a framework as the name might suggest.
   /**
    * Show the user an error message
    * 
