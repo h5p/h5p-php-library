@@ -136,6 +136,13 @@ class h5pValidator {
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
+    'externalResources' => array(
+      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'majorVersion' => '/^[0-9]{1,5}$/',
+      'minorVersion' => '/^[0-9]{1,5}$/',
+      'url' => '/^http:\/\/[a-z_\-\.0-9]+\.[a-z]{2, 10}$/i',
+      'type' => '/^(css|js)$/',
+    ),
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     'metaKeywords' => '/^.{1,}$/',
@@ -149,7 +156,7 @@ class h5pValidator {
     'minorVersion' => '/^[0-9]{1,5}$/',
     'patchVersion' => '/^[0-9]{1,5}$/',
     'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
-    'runable' => '/^(0|1)$/'
+    'runable' => '/^(0|1)$/',
   );
 
   private $libraryOptional  = array(
@@ -166,6 +173,13 @@ class h5pValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
+    ),
+    'externalResources' => array(
+      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'majorVersion' => '/^[0-9]{1,5}$/',
+      'minorVersion' => '/^[0-9]{1,5}$/',
+      'url' => '/^http:\/\/[a-z_\-\.0-9]+\.[a-z]{2, 10}$/i',
+      'type' => '/^(css|js)$/',
     ),
     'preloadedJs' => array(
       'path' => '/^((\\\|\/)?[a-z_\-\s0-9]+)+\.js$/i',
@@ -268,16 +282,9 @@ class h5pValidator {
         }
       }
 
-      // elseif (strpos($file, '.') !== FALSE) {
-      //   // Illegal file fond. This is ignored.
-      //   continue;
-      // }
-
       // The rest should be library folders
       else {
          if (!is_dir($file_path)) {
-          // $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library folder: %name', array('%name' => $file)));
-          // $valid = FALSE;
           // Ignore this. Probably a file that shouldn't have been included.
           continue;
         }
