@@ -112,27 +112,27 @@ interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonl
 class h5pValidator {
   public $h5pF;
   public $h5pC;
-  
+
   // Schemas used to validate the h5p files
   private $h5pRequired = array(
     'title' => '/^.{1,255}$/',
     'language' => '/^[a-z]{1,5}$/',
     'preloadedDependencies' => array(
-      'machineName' => '/^[a-z0-9\-]{1,255}$/i',
+      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
-    'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
+    // 'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'embedTypes' => array('iframe', 'div'),
   );
-  
+
   private $h5pOptional = array(
     'contentType' => '/^.{1,255}$/',
     'description' => '/^.{1,}$/',
     'author' => '/^.{1,255}$/',
-    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
+    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT)$/',
     'dynamicDependencies' => array(
-      'machineName' => '/^[a-z0-9\-]{1,255}$/i',
+      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
@@ -148,21 +148,21 @@ class h5pValidator {
     'majorVersion' => '/^[0-9]{1,5}$/',
     'minorVersion' => '/^[0-9]{1,5}$/',
     'patchVersion' => '/^[0-9]{1,5}$/',
-    'machineName' => '/^[a-z0-9\-]{1,255}$/i',
+    'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
   );
-  
+
   private $libraryOptional  = array(
-    'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
+    // 'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'author' => '/^.{1,255}$/',
-    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr)$/',
+    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT)$/',
     'description' => '/^.{1,}$/',
     'dynamicDependencies' => array(
-      'machineName' => '/^[a-z0-9\-]{1,255}$/i',
+      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
-    ),    
+    ),
     'preloadedDependencies' => array(
-      'machineName' => '/^[a-z0-9\-]{1,255}$/i',
+      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
@@ -221,10 +221,12 @@ class h5pValidator {
     $libraryJsonData;
     $mainH5pExists = $imageExists = $contentExists = FALSE;
     foreach ($files as $file) {
-      if (in_array($file, array('.', '..'))) {
+      // TODO: Any reason not to just drop anything starting with .?
+      if (in_array(substr($file, 0, 1), array('.', '_'))) {
         continue;
       }
       $file_path = $tmp_dir . DIRECTORY_SEPARATOR . $file;
+      // Check for h5p.json file.
       if (strtolower($file) == 'h5p.json') {
         $mainH5pData = $this->getJsonData($file_path);
         if ($mainH5pData === FALSE) {
@@ -242,10 +244,11 @@ class h5pValidator {
           }
         }
       }
-
+      // Check for h5p.jpg?
       elseif (strtolower($file) == 'h5p.jpg') {
         $imageExists = TRUE;
       }
+      // Content directory holds content.
       elseif ($file == 'content') {
         if (!is_dir($file_path)) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Invalid content folder'));
@@ -263,19 +266,21 @@ class h5pValidator {
           // In the future we might let the librarys provide validation functions for content.json
         }
       }
-      
-      elseif (strpos($file, '.') !== FALSE) {
-        // Illegal file fond. This is ignored.
-        continue;
-      }
 
+      // elseif (strpos($file, '.') !== FALSE) {
+      //   // Illegal file fond. This is ignored.
+      //   continue;
+      // }
+
+      // The rest should be library folders
       else {
          if (!is_dir($file_path)) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library folder: %name', array('%name' => $file)));
-          $valid = FALSE;
+          // $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library folder: %name', array('%name' => $file)));
+          // $valid = FALSE;
+          // Ignore this. Probably a file that shouldn't have been included.
           continue;
         }
-        if (preg_match('/^[a-z0-9\-]{1,255}$/i', $file) === 0) {
+        if (preg_match('/^[\w0-9\-\.]{1,255}$/i', $file) === 0) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library name: %name', array('%name' => $file)));
           $valid = FALSE;
           continue;
@@ -290,10 +295,10 @@ class h5pValidator {
         $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
 
         if (isset($h5pData['preloadedJs'])) {
-          $validLibrary = $this->isExcistingFiles($h5pData['preloadedJs'], $tmp_dir, $file) && $validLibrary;
+          $validLibrary = $this->isExistingFiles($h5pData['preloadedJs'], $tmp_dir, $file) && $validLibrary;
         }
         if (isset($h5pData['preloadedCss'])) {
-          $validLibrary = $this->isExcistingFiles($h5pData['preloadedCss'], $tmp_dir, $file) && $validLibrary;
+          $validLibrary = $this->isExistingFiles($h5pData['preloadedCss'], $tmp_dir, $file) && $validLibrary;
         }
         if ($validLibrary) {
           $libraries[$file] = $h5pData;
@@ -392,11 +397,11 @@ class h5pValidator {
    * @return boolean
    *  TRUE if all the files excists
    */
-  private function isExcistingFiles($files, $tmp_dir, $library) {
+  private function isExistingFiles($files, $tmp_dir, $library) {
     foreach ($files as $file) {
       $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $file['path']);
       if (!file_exists($tmp_dir . DIRECTORY_SEPARATOR . $library . DIRECTORY_SEPARATOR . $path)) {
-        $this->h5pF->setErrorMessage($this->h5pF->t('The JS file %file is missing from library: %name', array('%file' => $file_path, '%name' => $library)));
+        $this->h5pF->setErrorMessage($this->h5pF->t('The file "%file" is missing from library: "%name"', array('%file' => $path, '%name' => $library)));
         return FALSE;
       }
     }
