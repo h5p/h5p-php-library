@@ -156,7 +156,7 @@ class h5pValidator {
     'minorVersion' => '/^[0-9]{1,5}$/',
     'patchVersion' => '/^[0-9]{1,5}$/',
     'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
-    'runable' => '/^(0|1)$/',
+    'runnable' => '/^(0|1)$/',
   );
 
   private $libraryOptional  = array(
