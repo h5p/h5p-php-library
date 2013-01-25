@@ -299,6 +299,20 @@ class h5pValidator {
           $valid = FALSE;
           continue;
         }
+
+        // validate json if a schema file is provided
+        $schemaPath = $file_path . DIRECTORY_SEPARATOR . 'schema.json';
+        if (file_exists($schemaPath)) {
+          $schema = $this->getJsonData($schemaPath);
+          if ($schema === FALSE) {
+            $this->h5pF->setErrorMessage($this->h5pF->t('Invalid schema.json file has been included in the library %name', array('%name' => $file)));
+            $valid = FALSE;
+            continue;
+          }
+          else {
+            $h5pData->schema = $schema;
+          }
+        }
         
         $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
 
