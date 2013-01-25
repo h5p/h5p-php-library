@@ -53,7 +53,7 @@ H5P.Coords = function(x, y, w, h) {
     }
     if (h !== undefined) {
       this.h = h;
-      }
+    }
   }
   return this;
 };
@@ -64,25 +64,25 @@ Array.prototype.shuffle = function() {
   var i = this.length, j, tempi, tempj;
   if ( i === 0 ) return false;
   while ( --i ) {
-     j       = Math.floor( Math.random() * ( i + 1 ) );
-     tempi   = this[i];
-     tempj   = this[j];
-     this[i] = tempj;
-     this[j] = tempi;
+    j       = Math.floor( Math.random() * ( i + 1 ) );
+    tempi   = this[i];
+    tempj   = this[j];
+    this[i] = tempj;
+    this[j] = tempi;
   }
   return this;
 };
 
 // Add indexOf to browsers that lack them. (IEs)
 if(!Array.prototype.indexOf) {
-    Array.prototype.indexOf = function(needle) {
-        for(var i = 0; i < this.length; i++) {
-            if(this[i] === needle) {
-                return i;
-            }
-        }
-        return -1;
-    };
+  Array.prototype.indexOf = function(needle) {
+    for(var i = 0; i < this.length; i++) {
+      if(this[i] === needle) {
+        return i;
+      }
+    }
+    return -1;
+  };
 }
 
 // Simple 'contains' function. Easier to use than keep testing indexOf to -1.
@@ -92,9 +92,9 @@ Array.prototype.contains = function (needle) {
 
 // We want our own jQuery version, regardless of what the containing page is
 // up to.
+// TODO: Does not work properly in <IE10
 (function () {
   document.writeln('<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>');
   document.writeln('<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>');
-  document.writeln('<script>H5P.jQuery = jQuery.noConflict(); H5P.jQuery(document).ready(function(){H5P.init();});</script>');
+  document.writeln('<script>H5P.jQuery = jQuery.noConflict(true); H5P.jQuery(document).ready(function(){H5P.init();});</script>');
 })();
-
