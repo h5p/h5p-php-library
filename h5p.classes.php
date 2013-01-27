@@ -122,7 +122,7 @@ class h5pValidator {
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
-    // 'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
+    'mainLibrary' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'embedTypes' => array('iframe', 'div'),
   );
 
@@ -160,7 +160,6 @@ class h5pValidator {
   );
 
   private $libraryOptional  = array(
-    // 'init' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'author' => '/^.{1,255}$/',
     'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT)$/',
     'description' => '/^.{1,}$/',
@@ -300,17 +299,17 @@ class h5pValidator {
           continue;
         }
 
-        // validate json if a schema file is provided
-        $schemaPath = $file_path . DIRECTORY_SEPARATOR . 'schema.json';
-        if (file_exists($schemaPath)) {
-          $schema = $this->getJsonData($schemaPath);
-          if ($schema === FALSE) {
-            $this->h5pF->setErrorMessage($this->h5pF->t('Invalid schema.json file has been included in the library %name', array('%name' => $file)));
+        // validate json if a semantics file is provided
+        $semanticsPath = $file_path . DIRECTORY_SEPARATOR . 'semantics.json';
+        if (file_exists($semanticsPath)) {
+          $semantics = $this->getJsonData($semanticsPath, TRUE);
+          if ($semantics === FALSE) {
+            $this->h5pF->setErrorMessage($this->h5pF->t('Invalid semantics.json file has been included in the library %name', array('%name' => $file)));
             $valid = FALSE;
             continue;
           }
           else {
-            $h5pData->schema = $schema;
+            $h5pData['semantics'] = $semantics;
           }
         }
         
@@ -560,7 +559,7 @@ class h5pValidator {
     return $valid;
   }
 
-  private function getJsonData($file_path) {
+  private function getJsonData($file_path, $return_as_string = FALSE) {
     $json = file_get_contents($file_path);
     if (!$json) {
       return FALSE;
@@ -569,7 +568,7 @@ class h5pValidator {
     if (!$jsonData) {
       return FALSE;
     }
-    return $jsonData;
+    return $return_as_string ? $json : $jsonData;
   }
 
   private function arrayCopy(array $array) {
