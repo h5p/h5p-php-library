@@ -731,10 +731,10 @@ class h5pCore {
     while (false !== ($file = readdir($dir))) {
         if (($file != '.') && ($file != '..')) {
             if (is_dir($source . '/' . $file)) {
-              copyTree($source . '/' . $file, $destination . '/' . $file);
+              $this->copyTree($source . '/' . $file, $destination . '/' . $file);
             }
             else {
-                copy($source . '/' . $file,$destination . '/' . $file);
+              copy($source . '/' . $file,$destination . '/' . $file);
             }
         }
     }
