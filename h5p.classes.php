@@ -173,6 +173,11 @@ class h5pValidator {
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
+    'editorDependencies' => array(
+      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'majorVersion' => '/^[0-9]{1,5}$/',
+      'minorVersion' => '/^[0-9]{1,5}$/',
+    ),
     'externalResources' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
