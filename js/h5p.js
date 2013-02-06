@@ -90,11 +90,7 @@ Array.prototype.contains = function (needle) {
   return (this.indexOf(needle) > -1);
 };
 
-// We want our own jQuery version, regardless of what the containing page is
-// up to.
-// TODO: Does not work properly in <IE10
-(function () {
-  document.writeln('<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>');
-  document.writeln('<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.js"></script>');
-  document.writeln('<script>H5P.jQuery = jQuery.noConflict(true); H5P.jQuery(document).ready(function(){H5P.init();});</script>');
-})();
+// Finally, we want to run init when document is ready.
+H5P.jQuery(document).ready(function(){
+  H5P.init();
+});
