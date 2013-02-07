@@ -15,7 +15,7 @@ H5P.init = function () {
 H5P.getContentPath = function(contentId) {
   // TODO: Rewrite or remove... H5P.getContentPath = H5PIntegration.getContentPath would probably work f.i.
   return H5PIntegration.getContentPath(contentId);
-}
+};
 
 //
 // Used from libraries to construct instances of other libraries' objects by
@@ -56,6 +56,57 @@ H5P.Coords = function(x, y, w, h) {
     }
   }
   return this;
+};
+
+// Play a video. $target is jQuery object to attach video to. (Appended).
+// Params are video-params from content. cp is content path. onEnded is
+// function to call when finished.
+//
+// TODO: Try to get rid of content path.
+H5P.playVideo = function ($target, params, cp, onEnded) {
+  var $ = H5P.jQuery;
+
+  var $container = $('<div class="video-container"></div>').css({
+    position: "absolute",
+    top: "0px",
+    left: "0px",
+    "z-index": "500"
+  });
+  var $video;
+  var sources = '';
+  for (var key in params) {
+    sources += '<source src="' + cp + params[key] + '" type="' + key + '">';
+  }
+  // TODO: Width/height from somewhere.
+  // TODO: Embed media player fallback for IE.
+  $video = $('<video width="635" height="500">' + sources + '</video>');
+  if ($video[0].canPlayType === undefined) {
+    // Video is not supported. Skip to result page.
+    onEnded();
+    return;
+  }
+  // $video[0].autoplay = false;
+  // $video[0].load();
+  $container.append($video);
+
+  if (params.skippable) {
+    var text = params.skipButtonText ? params.skipButtonText : "Skip video";
+    var $skipButton = $('<a class="button skip">' + text + '</a>').click(function (ev) {
+      $container.remove();
+      onEnded();
+    });
+    $container.append($skipButton);
+  }
+
+  // Finally, append to target.
+  $target.append($container);
+  $video.on('ended', function(ev) {
+    // On animation finished:
+    $container.remove();
+    onEnded();
+  });
+  // Press play on tape!
+  $video[0].play();
 };
 
 // We have several situations where we want to shuffle an array, extend array
