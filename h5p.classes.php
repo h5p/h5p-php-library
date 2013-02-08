@@ -378,6 +378,9 @@ class h5pValidator {
       if (isset($library['dynamicDependencies'])) {
         array_merge($missing, $this->getMissingDependencies($library['dynamicDependencies'], $libraries));
       }
+      if (isset($library['editorDependencies'])) {
+        array_merge($missing, $this->getMissingDependencies($library['editorDependencies'], $libraries));
+      }
     }
     return $missing;
   }
