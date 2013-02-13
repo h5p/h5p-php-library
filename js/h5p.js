@@ -66,33 +66,73 @@ H5P.Coords = function(x, y, w, h) {
 H5P.playVideo = function ($target, params, cp, onEnded) {
   var $ = H5P.jQuery;
 
+  var width = 635,  // TODO: These should come from some dimension setting.
+    height = 500;
+
   var $container = $('<div class="video-container"></div>').css({
     position: "absolute",
     top: "0px",
     left: "0px",
-    "z-index": "500"
+    "z-index": "500",
+    width: width,
+    height: height
   });
-  var $video;
+
   var sources = '';
-  for (var key in params) {
-    sources += '<source src="' + cp + params[key] + '" type="' + key + '">';
+  var willWork = false; // Used for testing if video tag is supported, AND for testing if we can play back our given formats
+
+  var $video = $('<video width="' + width + '" height="' + height + '" autoplay></video>');
+  if ($video[0].canPlayType !== undefined) {
+    for (var key in params) {
+      sources += '<source src="' + cp + params[key] + '" type="' + key + '">';
+      willWork = willWork || $video[0].canPlayType(key);
+    }
+    $video.html(sources);
+
+    if (willWork) {
+      $container.append($video);
+    }
   }
-  // TODO: Width/height from somewhere.
-  // TODO: Embed media player fallback for IE.
-  $video = $('<video width="635" height="500">' + sources + '</video>');
-  if ($video[0].canPlayType === undefined) {
-    // Video is not supported. Skip to result page.
+
+  var fplayer = undefined;
+  if (!willWork) {
+    // use flowplayer fallback
+    var fp_container = document.createElement("div");
+    fplayer = flowplayer(fp_container, {
+      src: "http://releases.flowplayer.org/swf/flowplayer-3.2.16.swf",
+      wmode: "opaque"
+    }, {
+      buffering: true,
+      clip: {
+        url: window.location.protocol + '//' + window.location.host + cp + params['video/mp4'],
+        autoPlay: true,
+        autoBuffering: true,
+        onFinish: function (ev) {
+          onEnded();
+        },
+        onError: function () {
+          onEnded();
+        }
+      }
+    });
+
+    willWork = true;
+    $container.append(fp_container);
+  }
+
+  if (!willWork) {
+    // Video tag is not supported and flash player failed too.
     onEnded();
     return;
   }
-  // $video[0].autoplay = false;
-  // $video[0].load();
-  $container.append($video);
 
-  if (params.skippable) {
-    var text = params.skipButtonText ? params.skipButtonText : "Skip video";
-    var $skipButton = $('<a class="button skip">' + text + '</a>').click(function (ev) {
-      $container.remove();
+  if (params.skipButtonText) {
+    var $skipButton = $('<a class="button skip">' + params.skipButtonText + '</a>').click(function (ev) {
+      if (fplayer !== undefined) {
+        // Must stop this first. Errorama if we don't
+        fplayer.stop().close().unload();
+      }
+      $container.hide();
       onEnded();
     });
     $container.append($skipButton);
@@ -100,13 +140,6 @@ H5P.playVideo = function ($target, params, cp, onEnded) {
 
   // Finally, append to target.
   $target.append($container);
-  $video.on('ended', function(ev) {
-    // On animation finished:
-    $container.remove();
-    onEnded();
-  });
-  // Press play on tape!
-  $video[0].play();
 };
 
 // We have several situations where we want to shuffle an array, extend array
