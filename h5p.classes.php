@@ -91,7 +91,7 @@ interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonl
   public function storeLibraryData(&$libraryData);
   
   /**
-   * Ask the framework to store contentData
+   * Stores contentData
    * 
    * @param int $contentId
    *  Framework specific id identifying the content
@@ -103,9 +103,52 @@ interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonl
    *  Any contentMainId defined by the framework, for instance to support revisioning
    */
   public function storeContentData($contentId, $contentJson, $mainJsonData, $contentMainId = NULL);
+
+  /**
+   * Copies content data
+   *
+   * @param int $contentId
+   *  Framework specific id identifying the content
+   * @param int $copyFromId
+   *  Framework specific id identifying the content to be copied
+   * @param int $contentMainId
+   *  Framework specific main id for the content, typically used in frameworks
+   *  That supports versioning. (In this case the content id will typically be
+   *  the version id, and the contentMainId will be the frameworks content id
+   */
   public function copyContentData($contentId, $copyFromId, $contentMainId = NULL);
+
+  /**
+   * Deletes content data
+   *
+   * @param int $contentId
+   *  Framework specific id identifying the content
+   */
   public function deleteContentData($contentId);
+
+  /**
+   * Saves what libraries the content uses
+   *
+   * @param int $contentId
+   *  Framework specific id identifying the content
+   * @param array $librariesInUse
+   *  List of libraries the content uses. Libraries consist of arrays with:
+   *   - libraryId stored in $librariesInUse[<place>]['library']['libraryId']
+   *   - libraryId stored in $librariesInUse[<place>]['preloaded']
+   */
   public function saveLibraryUsage($contentId, $librariesInUse);
+
+
+  /**
+   * Loads a library
+   *
+   * @param string $machineName
+   * @param int $majorVersion
+   * @param int $minorVersion
+   * @return array|FALSE
+   *  Array representing the library with dependency descriptions
+   *  FALSE if the library doesn't exist
+   */
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
 }
 
