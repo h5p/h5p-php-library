@@ -2,7 +2,7 @@
 /**
  * Interface defining functions the h5p library needs the framework to implement
  */
-interface H5PFramework { // TODO: I suspect this is a "skeleton" or more commonly known as a interface for classes to implement, not a framework as the name might suggest.
+interface H5PFrameworkInterface {
   /**
    * Show the user an error message
    * 
@@ -243,7 +243,7 @@ class H5PValidator {
    * Constructor for the H5PValidator
    *
    * @param object $H5PFramework
-   *  The frameworks implementation of the H5PFramework interface
+   *  The frameworks implementation of the H5PFrameworkInterface
    */
   public function __construct($H5PFramework, $H5PCore) {
     $this->h5pF = $H5PFramework;
@@ -648,7 +648,7 @@ class H5PStorage {
    * Constructor for the H5PStorage
    *
    * @param object $H5PFramework
-   *  The frameworks implementation of the H5PFramework interface
+   *  The frameworks implementation of the H5PFrameworkInterface
    */
   public function __construct($H5PFramework, $H5PCore) {
     $this->h5pF = $H5PFramework;
@@ -743,7 +743,7 @@ class H5PCore {
    * Constructor for the H5PCore
    *
    * @param object $H5PFramework
-   *  The frameworks implementation of the H5PFramework interface
+   *  The frameworks implementation of the H5PFrameworkInterface
    */
   public function __construct($H5PFramework) {
     $this->h5pF = $H5PFramework;
