@@ -2,7 +2,7 @@
 /**
  * Interface defining functions the h5p library needs the framework to implement
  */
-interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonly known as a interface for classes to implement, not a framework as the name might suggest.
+interface H5PFramework { // TODO: I suspect this is a "skeleton" or more commonly known as a interface for classes to implement, not a framework as the name might suggest.
   /**
    * Show the user an error message
    * 
@@ -152,7 +152,7 @@ interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonl
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
 }
 
-class h5pValidator {
+class H5PValidator {
   public $h5pF;
   public $h5pC;
 
@@ -240,14 +240,14 @@ class h5pValidator {
   );
 
   /**
-   * Constructor for the h5pValidator
+   * Constructor for the H5PValidator
    *
-   * @param object $h5pFramework
-   *  The frameworks implementation of the h5pFramework interface
+   * @param object $H5PFramework
+   *  The frameworks implementation of the H5PFramework interface
    */
-  public function __construct($h5pFramework, $h5pCore) {
-    $this->h5pF = $h5pFramework;
-    $this->h5pC = $h5pCore;
+  public function __construct($H5PFramework, $H5PCore) {
+    $this->h5pF = $H5PFramework;
+    $this->h5pC = $H5PCore;
   }
 
   /**
@@ -639,20 +639,20 @@ class h5pValidator {
   }
 }
 
-class h5pSaver {
+class H5PStorage {
   
   public $h5pF;
   public $h5pC;
 
   /**
-   * Constructor for the h5pSaver
+   * Constructor for the H5PStorage
    *
-   * @param object $h5pFramework
-   *  The frameworks implementation of the h5pFramework interface
+   * @param object $H5PFramework
+   *  The frameworks implementation of the H5PFramework interface
    */
-  public function __construct($h5pFramework, $h5pCore) {
-    $this->h5pF = $h5pFramework;
-    $this->h5pC = $h5pCore;
+  public function __construct($H5PFramework, $H5PCore) {
+    $this->h5pF = $H5PFramework;
+    $this->h5pC = $H5PCore;
   }
   
   public function savePackage($contentId, $contentMainId = NULL) {
@@ -733,20 +733,20 @@ class h5pSaver {
   }
 }
 
-class h5pCore {
+class H5PCore {
   public $h5pF;
   public $librariesJsonData;
   public $contentJsonData;
   public $mainJsonData;
 
   /**
-   * Constructor for the h5pSaver
+   * Constructor for the H5PCore
    *
-   * @param object $h5pFramework
-   *  The frameworks implementation of the h5pFramework interface
+   * @param object $H5PFramework
+   *  The frameworks implementation of the H5PFramework interface
    */
-  public function __construct($h5pFramework) {
-    $this->h5pF = $h5pFramework;
+  public function __construct($H5PFramework) {
+    $this->h5pF = $H5PFramework;
   }
   
   public function isSameVersion($library, $dependency) {
