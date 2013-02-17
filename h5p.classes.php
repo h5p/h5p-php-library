@@ -88,7 +88,7 @@ interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonl
    * @param object $libraryData
    *  Object holding the information that is to be stored
    */
-  public function storeLibraryData(&$libraryData);
+  public function saveLibraryData(&$libraryData);
   
   /**
    * Stores contentData
@@ -102,7 +102,7 @@ interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonl
    * @param int $contentMainId
    *  Any contentMainId defined by the framework, for instance to support revisioning
    */
-  public function storeContentData($contentId, $contentJson, $mainJsonData, $contentMainId = NULL);
+  public function saveContentData($contentId, $contentJson, $mainJsonData, $contentMainId = NULL);
 
   /**
    * Copies content data
@@ -669,7 +669,7 @@ class h5pSaver {
         // We already have the same or a newer version of this library
         continue;
       }
-      $this->h5pF->storeLibraryData($library, $new);
+      $this->h5pF->saveLibraryData($library, $new);
       
       $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
       $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $library['libraryId'];
@@ -681,7 +681,7 @@ class h5pSaver {
     rename($current_path, $destination_path);
     
     $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
-    $this->h5pF->storeContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $contentMainId);
+    $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $contentMainId);
 
     $librariesInUse = array();
     $this->getLibraryUsage($librariesInUse, $this->h5pC->mainJsonData);
