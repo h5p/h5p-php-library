@@ -283,7 +283,6 @@ class H5PValidator {
     $libraryJsonData;
     $mainH5pExists = $imageExists = $contentExists = FALSE;
     foreach ($files as $file) {
-      // TODO: Any reason not to just drop anything starting with .?
       if (in_array(substr($file, 0, 1), array('.', '_'))) {
         continue;
       }
