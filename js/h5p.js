@@ -81,16 +81,30 @@ H5P.playVideo = function ($target, params, cp, onEnded) {
   var sources = '';
   var willWork = false; // Used for testing if video tag is supported, AND for testing if we can play back our given formats
 
-  var $video = $('<video width="' + width + '" height="' + height + '" autoplay></video>');
-  if ($video[0].canPlayType !== undefined) {
+  var video = document.createElement('video');
+  video.autoplay = true;
+  video.width = width;
+  video.height = height;
+
+  if (video.canPlayType !== undefined) {
     for (var key in params) {
-      sources += '<source src="' + cp + params[key] + '" type="' + key + '">';
-      willWork = willWork || $video[0].canPlayType(key);
+      // TODO: The files should probably be in their own group.
+      if (key.indexOf('video') === 0) {
+        if (video.canPlayType(key)) {
+          var source = document.createElement('source');
+          source.src = cp + params[key];
+          source.type = key;
+          video.appendChild(source);
+          willWork = willWork || true;
+        }
+      }
     }
-    $video.html(sources);
 
     if (willWork) {
-      $container.append($video);
+      $container.append(video);
+      $(video).on('ended', function() {
+        onEnded();
+      });
     }
   }
 
@@ -98,9 +112,13 @@ H5P.playVideo = function ($target, params, cp, onEnded) {
   if (!willWork) {
     // use flowplayer fallback
     var fp_container = document.createElement("div");
+    fp_container.width = "100%";
+    fp_container.height = "100%";
     fplayer = flowplayer(fp_container, {
       src: "http://releases.flowplayer.org/swf/flowplayer-3.2.16.swf",
-      wmode: "opaque"
+      wmode: "opaque",
+      width: width,
+      height: height
     }, {
       buffering: true,
       clip: {
