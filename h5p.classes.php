@@ -2,7 +2,7 @@
 /**
  * Interface defining functions the h5p library needs the framework to implement
  */
-interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonly known as a interface for classes to implement, not a framework as the name might suggest.
+interface H5PFrameworkInterface {
   /**
    * Show the user an error message
    * 
@@ -88,10 +88,10 @@ interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonl
    * @param object $libraryData
    *  Object holding the information that is to be stored
    */
-  public function storeLibraryData(&$libraryData);
+  public function saveLibraryData(&$libraryData);
   
   /**
-   * Ask the framework to store contentData
+   * Stores contentData
    * 
    * @param int $contentId
    *  Framework specific id identifying the content
@@ -102,14 +102,57 @@ interface h5pFramework { // TODO: I suspect this is a "skeleton" or more commonl
    * @param int $contentMainId
    *  Any contentMainId defined by the framework, for instance to support revisioning
    */
-  public function storeContentData($contentId, $contentJson, $mainJsonData, $contentMainId = NULL);
+  public function saveContentData($contentId, $contentJson, $mainJsonData, $contentMainId = NULL);
+
+  /**
+   * Copies content data
+   *
+   * @param int $contentId
+   *  Framework specific id identifying the content
+   * @param int $copyFromId
+   *  Framework specific id identifying the content to be copied
+   * @param int $contentMainId
+   *  Framework specific main id for the content, typically used in frameworks
+   *  That supports versioning. (In this case the content id will typically be
+   *  the version id, and the contentMainId will be the frameworks content id
+   */
   public function copyContentData($contentId, $copyFromId, $contentMainId = NULL);
+
+  /**
+   * Deletes content data
+   *
+   * @param int $contentId
+   *  Framework specific id identifying the content
+   */
   public function deleteContentData($contentId);
+
+  /**
+   * Saves what libraries the content uses
+   *
+   * @param int $contentId
+   *  Framework specific id identifying the content
+   * @param array $librariesInUse
+   *  List of libraries the content uses. Libraries consist of arrays with:
+   *   - libraryId stored in $librariesInUse[<place>]['library']['libraryId']
+   *   - libraryId stored in $librariesInUse[<place>]['preloaded']
+   */
   public function saveLibraryUsage($contentId, $librariesInUse);
+
+
+  /**
+   * Loads a library
+   *
+   * @param string $machineName
+   * @param int $majorVersion
+   * @param int $minorVersion
+   * @return array|FALSE
+   *  Array representing the library with dependency descriptions
+   *  FALSE if the library doesn't exist
+   */
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
 }
 
-class h5pValidator {
+class H5PValidator {
   public $h5pF;
   public $h5pC;
 
@@ -197,14 +240,14 @@ class h5pValidator {
   );
 
   /**
-   * Constructor for the h5pValidator
+   * Constructor for the H5PValidator
    *
-   * @param object $h5pFramework
-   *  The frameworks implementation of the h5pFramework interface
+   * @param object $H5PFramework
+   *  The frameworks implementation of the H5PFrameworkInterface
    */
-  public function __construct($h5pFramework, $h5pCore) {
-    $this->h5pF = $h5pFramework;
-    $this->h5pC = $h5pCore;
+  public function __construct($H5PFramework, $H5PCore) {
+    $this->h5pF = $H5PFramework;
+    $this->h5pC = $H5PCore;
   }
 
   /**
@@ -240,7 +283,6 @@ class h5pValidator {
     $libraryJsonData;
     $mainH5pExists = $imageExists = $contentExists = FALSE;
     foreach ($files as $file) {
-      // TODO: Any reason not to just drop anything starting with .?
       if (in_array(substr($file, 0, 1), array('.', '_'))) {
         continue;
       }
@@ -596,20 +638,20 @@ class h5pValidator {
   }
 }
 
-class h5pSaver {
+class H5PStorage {
   
   public $h5pF;
   public $h5pC;
 
   /**
-   * Constructor for the h5pSaver
+   * Constructor for the H5PStorage
    *
-   * @param object $h5pFramework
-   *  The frameworks implementation of the h5pFramework interface
+   * @param object $H5PFramework
+   *  The frameworks implementation of the H5PFrameworkInterface
    */
-  public function __construct($h5pFramework, $h5pCore) {
-    $this->h5pF = $h5pFramework;
-    $this->h5pC = $h5pCore;
+  public function __construct($H5PFramework, $H5PCore) {
+    $this->h5pF = $H5PFramework;
+    $this->h5pC = $H5PCore;
   }
   
   public function savePackage($contentId, $contentMainId = NULL) {
@@ -626,7 +668,7 @@ class h5pSaver {
         // We already have the same or a newer version of this library
         continue;
       }
-      $this->h5pF->storeLibraryData($library, $new);
+      $this->h5pF->saveLibraryData($library, $new);
       
       $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
       $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $library['libraryId'];
@@ -638,7 +680,7 @@ class h5pSaver {
     rename($current_path, $destination_path);
     
     $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
-    $this->h5pF->storeContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $contentMainId);
+    $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $contentMainId);
 
     $librariesInUse = array();
     $this->getLibraryUsage($librariesInUse, $this->h5pC->mainJsonData);
@@ -690,20 +732,20 @@ class h5pSaver {
   }
 }
 
-class h5pCore {
+class H5PCore {
   public $h5pF;
   public $librariesJsonData;
   public $contentJsonData;
   public $mainJsonData;
 
   /**
-   * Constructor for the h5pSaver
+   * Constructor for the H5PCore
    *
-   * @param object $h5pFramework
-   *  The frameworks implementation of the h5pFramework interface
+   * @param object $H5PFramework
+   *  The frameworks implementation of the H5PFrameworkInterface
    */
-  public function __construct($h5pFramework) {
-    $this->h5pF = $h5pFramework;
+  public function __construct($H5PFramework) {
+    $this->h5pF = $H5PFramework;
   }
   
   public function isSameVersion($library, $dependency) {
