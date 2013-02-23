@@ -675,6 +675,18 @@ class H5PStorage {
       $this->h5pC->delTree($destination_path);
       rename($current_path, $destination_path);
     }
+    foreach ($this->h5pC->librariesJsonData as $key => &$library) {
+      // All libraries have been saved, we now save all the dependencies
+      if (isset($library['preloadedDependencies'])) {
+        $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['preloadedDependencies'], 'preloaded');
+      }
+      if (isset($library['dynamicDependencies'])) {
+        $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['dynamicDependencies'], 'dynamic');
+      }
+      if (isset($library['editorDependencies'])) {
+        $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['editorDependencies'], 'editor');
+      }
+    }
     $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . 'content';
     $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
     rename($current_path, $destination_path);
