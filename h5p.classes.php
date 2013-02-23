@@ -164,6 +164,7 @@ class H5PValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
+      'defaultStyles' => '/^(true|false)$/',
     ),
     'mainLibrary' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'embedTypes' => array('iframe', 'div'),
@@ -178,6 +179,7 @@ class H5PValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
+      'defaultStyles' => '/^(true|false)$/',
     ),
     'externalResources' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
