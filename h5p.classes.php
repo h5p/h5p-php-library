@@ -723,7 +723,7 @@ class H5PStorage {
         $librariesInUse[$preloadedDependency['machineName']] = array(
           'library' => $library,
           'preloaded' => $dynamic ? 0 : 1,
-          'default_styles' => $preloadedDependency['defaultStyles'] ? 1 : 0,
+          'default_styles' => isset($preloadedDependency['defaultStyles']) && $preloadedDependency['defaultStyles'] ? 1 : 0,
         );
         $this->getLibraryUsage($librariesInUse, $library, $dynamic);
       }
