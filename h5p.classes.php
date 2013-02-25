@@ -164,6 +164,7 @@ class H5PValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
+      'defaultStyles' => 'boolean',
     ),
     'mainLibrary' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'embedTypes' => array('iframe', 'div'),
@@ -178,6 +179,7 @@ class H5PValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
+      'defaultStyles' => 'boolean',
     ),
     'externalResources' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
@@ -544,16 +546,24 @@ class H5PValidator {
     $valid = TRUE;
 
     if (is_string($requirement)) {
-      // The requirement is a regexp, match it against the data
-      if (is_string($h5pData) || is_int($h5pData)) {
-        if (preg_match($requirement, $h5pData) === 0) {
-           $this->h5pF->setErrorMessage($this->h5pF->t("Invalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
-           $valid = FALSE;
+      if ($requirement == 'boolean') {
+        if (!is_bool($h5pData)) {
+         $this->h5pF->setErrorMessage($this->h5pF->t("Invalid data provided for %property in %library. Boolean expected.", array('%property' => $property_name, '%library' => $library_name)));
+         $valid = FALSE;
         }
       }
       else {
-        $this->h5pF->setErrorMessage($this->h5pF->t("Invalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
-        $valid = FALSE;
+        // The requirement is a regexp, match it against the data
+        if (is_string($h5pData) || is_int($h5pData)) {
+          if (preg_match($requirement, $h5pData) === 0) {
+             $this->h5pF->setErrorMessage($this->h5pF->t("Invalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+             $valid = FALSE;
+          }
+        }
+        else {
+          $this->h5pF->setErrorMessage($this->h5pF->t("Invalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
+          $valid = FALSE;
+        }
       }
     }
     elseif (is_array($requirement)) {
@@ -713,6 +723,7 @@ class H5PStorage {
         $librariesInUse[$preloadedDependency['machineName']] = array(
           'library' => $library,
           'preloaded' => $dynamic ? 0 : 1,
+          'default_styles' => $preloadedDependency['defaultStyles'] ? 1 : 0,
         );
         $this->getLibraryUsage($librariesInUse, $library, $dynamic);
       }
