@@ -63,7 +63,7 @@ H5P.Coords = function(x, y, w, h) {
 // function to call when finished.
 //
 // TODO: Try to get rid of content path.
-H5P.playVideo = function ($target, params, cp, onEnded) {
+H5P.playVideo = function ($target, params, skipButtonText, cp, onEnded) {
   var $ = H5P.jQuery;
 
   var width = 635,  // TODO: These should come from some dimension setting.
@@ -87,13 +87,14 @@ H5P.playVideo = function ($target, params, cp, onEnded) {
   video.height = height;
 
   if (video.canPlayType !== undefined) {
-    for (var key in params) {
+    for (var i = 0; i < params.length; i++) {
+      var file = params[i];
       // TODO: The files should probably be in their own group.
-      if (key.indexOf('video') === 0) {
-        if (video.canPlayType(key)) {
+      if (file.mime.indexOf('video') === 0) {
+        if (video.canPlayType(file.mime)) {
           var source = document.createElement('source');
-          source.src = cp + params[key];
-          source.type = key;
+          source.src = cp + file.path;
+          source.type = file.mime;
           video.appendChild(source);
           willWork = willWork || true;
         }
@@ -107,7 +108,7 @@ H5P.playVideo = function ($target, params, cp, onEnded) {
       });
     }
   }
-
+  
   var fplayer = undefined;
   if (!willWork) {
     // use flowplayer fallback
@@ -122,10 +123,10 @@ H5P.playVideo = function ($target, params, cp, onEnded) {
     }, {
       buffering: true,
       clip: {
-        url: window.location.protocol + '//' + window.location.host + cp + params['video/mp4'],
+        url: window.location.protocol + '//' + window.location.host + cp + params[0].path,
         autoPlay: true,
         autoBuffering: true,
-        onFinish: function (ev) {
+        onFinish: function () {
           onEnded();
         },
         onError: function () {
@@ -144,8 +145,8 @@ H5P.playVideo = function ($target, params, cp, onEnded) {
     return;
   }
 
-  if (params.skipButtonText) {
-    var $skipButton = $('<a class="button skip">' + params.skipButtonText + '</a>').click(function (ev) {
+  if (skipButtonText) {
+    var $skipButton = $('<a class="button skip">' + skipButtonText + '</a>').click(function (ev) {
       if (fplayer !== undefined) {
         // Must stop this first. Errorama if we don't
         fplayer.stop().close().unload();
