@@ -164,7 +164,6 @@ class H5PValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
-      'defaultStyles' => 'boolean',
     ),
     'mainLibrary' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'embedTypes' => array('iframe', 'div'),
@@ -179,7 +178,6 @@ class H5PValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
-      'defaultStyles' => 'boolean',
     ),
     'externalResources' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
@@ -236,6 +234,9 @@ class H5PValidator {
     'preloadedCss' => array(
       'path' => '/^((\\\|\/)?[a-z_\-\s0-9]+)+\.css$/i',
     ),
+    'dropLibraryCss' => array(
+      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+    ),
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     'embedTypes' => array('iframe', 'div'),
@@ -272,7 +273,7 @@ class H5PValidator {
       $zip->close();
     }
     else {
-      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Pack.'));
+      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package.'));
       $this->h5pC->delTree($tmp_dir);
       return;
     }
@@ -723,7 +724,6 @@ class H5PStorage {
         $librariesInUse[$preloadedDependency['machineName']] = array(
           'library' => $library,
           'preloaded' => $dynamic ? 0 : 1,
-          'default_styles' => isset($preloadedDependency['defaultStyles']) && $preloadedDependency['defaultStyles'] ? 1 : 0,
         );
         $this->getLibraryUsage($librariesInUse, $library, $dynamic);
       }
