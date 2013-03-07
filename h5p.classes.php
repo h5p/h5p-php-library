@@ -105,7 +105,7 @@ interface H5PFrameworkInterface {
   public function saveContentData($contentId, $contentJson, $mainJsonData, $mainLibraryId, $contentMainId = NULL);
 
   /**
-   * Copies content data
+   * Copies library usage
    *
    * @param int $contentId
    *  Framework specific id identifying the content
@@ -116,7 +116,7 @@ interface H5PFrameworkInterface {
    *  That supports versioning. (In this case the content id will typically be
    *  the version id, and the contentMainId will be the frameworks content id
    */
-  public function copyContentData($contentId, $copyFromId, $contentMainId = NULL);
+  public function copyLibraryUsage($contentId, $copyFromId, $contentMainId = NULL);
 
   /**
    * Deletes content data
@@ -727,7 +727,7 @@ class H5PStorage {
     $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
     $this->h5pC->copyTree($source_path, $destination_path);
 
-    $this->h5pF->copyContentData($contentId, $copyFromId, $contentMainId);
+    $this->h5pF->copyLibraryUsage($contentId, $copyFromId, $contentMainId);
   }
 
   public function getLibraryUsage(&$librariesInUse, $jsonData, $dynamic = FALSE) {
