@@ -58,7 +58,7 @@ interface H5PFrameworkInterface {
   /**
    * Get id to an excisting library
    * 
-   * @param string $machineName
+   * @param string $name
    *  The librarys machine name
    * @param int $majorVersion
    *  The librarys major version
@@ -67,7 +67,7 @@ interface H5PFrameworkInterface {
    * @return int
    *  The id of the specified library or FALSE
    */
-  public function getLibraryId($machineName, $majorVersion, $minorVersion);
+  public function getLibraryId($name, $majorVersion, $minorVersion);
   
   /**
    * Is the library a patched version of an excisting library?
@@ -142,14 +142,14 @@ interface H5PFrameworkInterface {
   /**
    * Loads a library
    *
-   * @param string $machineName
+   * @param string $name
    * @param int $majorVersion
    * @param int $minorVersion
    * @return array|FALSE
    *  Array representing the library with dependency descriptions
    *  FALSE if the library doesn't exist
    */
-  public function loadLibrary($machineName, $majorVersion, $minorVersion);
+  public function loadLibrary($name, $majorVersion, $minorVersion);
 }
 
 class H5PValidator {
@@ -161,11 +161,11 @@ class H5PValidator {
     'title' => '/^.{1,255}$/',
     'language' => '/^[a-z]{1,5}$/',
     'preloadedDependencies' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'name' => '/^[a-z0-9\-]{1,255}$/',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
-    'mainLibrary' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
+    'library_name' => '/^[a-z0-9\-]{1,255}$/',
     'embedTypes' => array('iframe', 'div'),
   );
 
@@ -175,19 +175,20 @@ class H5PValidator {
     'author' => '/^.{1,255}$/',
     'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT)$/',
     'dynamicDependencies' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'name' => '/^[a-z0-9\-]{1,255}$/',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
     'externalResources' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'name' => '/^[a-z0-9\-]{1,255}$/',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
       'url' => '/^http:\/\/[a-z_\-\.0-9]+\.[a-z]{2, 10}$/i',
       'type' => '/^(css|js)$/',
     ),
-    'w' => '/^[0-9]{1,4}$/',
-    'h' => '/^[0-9]{1,4}$/',
+    'width' => '/^[0-9]{1,4}$/',
+    'height' => '/^[0-9]{1,4}$/',
+    'fullscreen' => 'boolean',
     'metaKeywords' => '/^.{1,}$/',
     'metaDescription' => '/^.{1,}$/k',
   );
@@ -198,7 +199,8 @@ class H5PValidator {
     'majorVersion' => '/^[0-9]{1,5}$/',
     'minorVersion' => '/^[0-9]{1,5}$/',
     'patchVersion' => '/^[0-9]{1,5}$/',
-    'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+    'name' => '/^[a-z0-9\-]{1,255}$/',
+    'class' => '/^[a-z0-9\.]{1,255}$/i',
     'runnable' => '/^(0|1)$/',
   );
 
@@ -207,22 +209,22 @@ class H5PValidator {
     'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT)$/',
     'description' => '/^.{1,}$/',
     'dynamicDependencies' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'name' => '/^[a-z0-9\-]{1,255}$/',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
     'preloadedDependencies' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'name' => '/^[a-z0-9\-]{1,255}$/',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
     'editorDependencies' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'name' => '/^[a-z0-9\-]{1,255}$/',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
     'externalResources' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'name' => '/^[a-z0-9\-]{1,255}$/',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
       'url' => '/^http:\/\/[a-z_\-\.0-9]+\.[a-z]{2, 10}$/i',
@@ -235,10 +237,11 @@ class H5PValidator {
       'path' => '/^((\\\|\/)?[a-z_\-\s0-9]+)+\.css$/i',
     ),
     'dropLibraryCss' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'name' => '/^[a-z0-9\-]{1,255}$/',
     ),
-    'w' => '/^[0-9]{1,4}$/',
-    'h' => '/^[0-9]{1,4}$/',
+    'width' => '/^[0-9]{1,4}$/',
+    'height' => '/^[0-9]{1,4}$/',
+    'fullscreen' => 'boolean',
     'embedTypes' => array('iframe', 'div'),
   );
 
@@ -393,8 +396,8 @@ class H5PValidator {
       $libraries['mainH5pData'] = $mainH5pData;
       $missingLibraries = $this->getMissingLibraries($libraries);
       foreach ($missingLibraries as $missing) {
-        if ($this->h5pF->getLibraryId($missing['machineName'], $missing['majorVersion'], $missing['minorVersion'])) {
-          unset($missingLibraries[$missing['machineName']]);
+        if ($this->h5pF->getLibraryId($missing['name'], $missing['majorVersion'], $missing['minorVersion'])) {
+          unset($missingLibraries[$missing['name']]);
         }
       }
       $valid = empty($missingLibraries) && $valid;
@@ -409,10 +412,10 @@ class H5PValidator {
    * Use the dependency declarations to find any missing libraries
    *
    * @param array $libraries
-   *  A multidimensional array of libraries keyed with machineName first and majorVersion second
+   *  A multidimensional array of libraries keyed with name first and majorVersion second
    * @return array
-   *  A list of libraries that are missing keyed with machineName and holds objects with
-   *  machineName, majorVersion and minorVersion properties
+   *  A list of libraries that are missing keyed with name and holds objects with
+   *  name, majorVersion and minorVersion properties
    */
   private function getMissingLibraries($libraries) {
     $missing = array();
@@ -435,23 +438,23 @@ class H5PValidator {
    * the provided list of libraries
    *
    * @param array $dependencies
-   *  A list of objects with machineName, majorVersion and minorVersion properties
+   *  A list of objects with name, majorVersion and minorVersion properties
    * @param array $libraries
-   *  An array of libraries keyed with machineName
+   *  An array of libraries keyed with name
    * @return
-   *  A list of libraries that are missing keyed with machineName and holds objects with
-   *  machineName, majorVersion and minorVersion properties
+   *  A list of libraries that are missing keyed with name and holds objects with
+   *  name, majorVersion and minorVersion properties
    */
   private function getMissingDependencies($dependencies, $libraries) {
     $missing = array();
     foreach ($dependencies as $dependency) {
-      if (isset($libraries[$dependency['machineName']])) {
-        if (!$this->h5pC->isSameVersion($libraries[$dependency['machineName']], $dependency)) {
-          $missing[$dependency['machineName']] = $dependency;
+      if (isset($libraries[$dependency['name']])) {
+        if (!$this->h5pC->isSameVersion($libraries[$dependency['name']], $dependency)) {
+          $missing[$dependency['name']] = $dependency;
         }
       }
       else {
-        $missing[$dependency['machineName']] = $dependency;
+        $missing[$dependency['name']] = $dependency;
       }
     }
     return $missing;
@@ -720,8 +723,8 @@ class H5PStorage {
   public function getLibraryUsage(&$librariesInUse, $jsonData, $dynamic = FALSE) {
     if (isset($jsonData['preloadedDependencies'])) {
       foreach ($jsonData['preloadedDependencies'] as $preloadedDependency) {
-        $library = $this->h5pF->loadLibrary($preloadedDependency['machineName'], $preloadedDependency['majorVersion'], $preloadedDependency['minorVersion']);
-        $librariesInUse[$preloadedDependency['machineName']] = array(
+        $library = $this->h5pF->loadLibrary($preloadedDependency['name'], $preloadedDependency['majorVersion'], $preloadedDependency['minorVersion']);
+        $librariesInUse[$preloadedDependency['name']] = array(
           'library' => $library,
           'preloaded' => $dynamic ? 0 : 1,
         );
@@ -730,9 +733,9 @@ class H5PStorage {
     }
     if (isset($jsonData['dynamicDependencies'])) {
       foreach ($jsonData['dynamicDependencies'] as $dynamicDependency) {
-        if (!isset($librariesInUse[$dynamicDependency['machineName']])) {
-          $library = $this->h5pF->loadLibrary($dynamicDependency['machineName'], $dynamicDependency['majorVersion'], $dynamicDependency['minorVersion']);
-          $librariesInUse[$dynamicDependency['machineName']] = array(
+        if (!isset($librariesInUse[$dynamicDependency['name']])) {
+          $library = $this->h5pF->loadLibrary($dynamicDependency['name'], $dynamicDependency['majorVersion'], $dynamicDependency['minorVersion']);
+          $librariesInUse[$dynamicDependency['name']] = array(
             'library' => $library,
             'preloaded' => 0,
           );
