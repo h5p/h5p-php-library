@@ -58,6 +58,27 @@ H5P.Coords = function(x, y, w, h) {
   return this;
 };
 
+/**
+ *@param {string} library
+ *  library in the format machineName majorVersion.minorVersion
+ * @returns
+ *  library as an object with machineName, majorVersion and minorVersion properties
+ *  return false if the library parameter is invalid
+ */
+H5P.libraryFromString = function (library) {
+  var regExp = /(.+)\s(\d)+\.(\d)$/g;
+  var res = regExp.exec(library);
+  if (res !== null) {
+    return {
+      'machineName': res[1],
+      'majorVersion': res[2],
+      'minorVersion': res[3]
+    };
+  }
+  else {
+    return false;
+  }
+};
 // Play a video. $target is jQuery object to attach video to. (Appended).
 // Params are video-params from content. cp is content path. onEnded is
 // function to call when finished.
