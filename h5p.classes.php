@@ -102,7 +102,7 @@ interface H5PFrameworkInterface {
    * @param int $contentMainId
    *  Any contentMainId defined by the framework, for instance to support revisioning
    */
-  public function saveContentData($contentId, $contentJson, $mainJsonData, $contentMainId = NULL);
+  public function saveContentData($contentId, $contentJson, $mainJsonData, $mainLibraryId, $contentMainId = NULL);
 
   /**
    * Copies content data
@@ -164,7 +164,6 @@ class H5PValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
-      'defaultStyles' => 'boolean',
     ),
     'mainLibrary' => '/^[$a-z_][0-9a-z_\.$]{1,254}$/i',
     'embedTypes' => array('iframe', 'div'),
@@ -179,7 +178,6 @@ class H5PValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
-      'defaultStyles' => 'boolean',
     ),
     'externalResources' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
@@ -700,14 +698,15 @@ class H5PStorage {
     $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . 'content';
     $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
     rename($current_path, $destination_path);
-    
-    $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
-    $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $contentMainId);
 
     $librariesInUse = array();
     $this->getLibraryUsage($librariesInUse, $this->h5pC->mainJsonData);
     $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
     $this->h5pC->delTree($this->h5pF->getUploadedH5pFolderPath());
+    
+    $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
+    $mainLibraryId = $librariesInUse[$this->h5pC->mainJsonData['mainLibrary']]['library']['libraryId'];
+    $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $mainLibraryId, $contentMainId);
   }
 
   public function deletePackage($contentId) {
@@ -735,7 +734,6 @@ class H5PStorage {
         $librariesInUse[$preloadedDependency['machineName']] = array(
           'library' => $library,
           'preloaded' => $dynamic ? 0 : 1,
-          'default_styles' => isset($preloadedDependency['defaultStyles']) && $preloadedDependency['defaultStyles'] ? 1 : 0,
         );
         $this->getLibraryUsage($librariesInUse, $library, $dynamic);
       }
