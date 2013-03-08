@@ -102,7 +102,7 @@ interface H5PFrameworkInterface {
    * @param int $contentMainId
    *  Any contentMainId defined by the framework, for instance to support revisioning
    */
-  public function saveContentData($contentId, $contentJson, $mainJsonData, $mainLibraryId, $contentMainId = NULL);
+  public function saveContentData($contentId, $contentJson, $mainJsonData, $libraryId, $contentMainId = NULL);
 
   /**
    * Copies library usage
@@ -605,6 +605,9 @@ class H5PValidator {
         $valid = $this->isValidRequirement($h5pData[$required], $requirement, $library_name, $required) && $valid;
       }
       else {
+        var_dump($h5pData);
+        var_dump($required);
+        exit;
         $this->h5pF->setErrorMessage($this->h5pF->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name)));
         $valid = FALSE;
       }
@@ -670,13 +673,13 @@ class H5PStorage {
   
   public function savePackage($contentId, $contentMainId = NULL) {
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
-      $library_id = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
-      if (!$library_id) {
+      $libraryId = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
+      if (!$libraryId) {
         $new = TRUE;
       }
       elseif ($this->h5pF->isPatchedLibrary($library)) {
         $new = FALSE;
-        $library['id'] = $library_id;
+        $library['id'] = $libraryId;
       }
       else {
         // We already have the same or a newer version of this library
@@ -711,8 +714,8 @@ class H5PStorage {
     $this->h5pC->delTree($this->h5pF->getUploadedH5pFolderPath());
     
     $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
-    $library_id = $librariesInUse[$this->h5pC->mainJsonData['mainLibrary']]['library']['id'];
-    $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $library_id, $contentMainId);
+    $libraryId = $librariesInUse[$this->h5pC->mainJsonData['library_name']]['library']['id'];
+    $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $libraryId, $contentMainId);
   }
 
   public function deletePackage($contentId) {
