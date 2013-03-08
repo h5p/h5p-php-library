@@ -670,13 +670,13 @@ class H5PStorage {
   
   public function savePackage($contentId, $contentMainId = NULL) {
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
-      $library_id = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
-      if (!$library_id) {
+      $libraryId = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
+      if (!$libraryId) {
         $new = TRUE;
       }
       elseif ($this->h5pF->isPatchedLibrary($library)) {
         $new = FALSE;
-        $library['id'] = $library_id;
+        $library['libraryId'] = $libraryId;
       }
       else {
         // We already have the same or a newer version of this library
@@ -685,20 +685,20 @@ class H5PStorage {
       $this->h5pF->saveLibraryData($library, $new);
       
       $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
-      $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $library['id'];
+      $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $library['libraryId'];
       $this->h5pC->delTree($destination_path);
       rename($current_path, $destination_path);
     }
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
       // All libraries have been saved, we now save all the dependencies
       if (isset($library['preloadedDependencies'])) {
-        $this->h5pF->saveLibraryDependencies($library['id'], $library['preloadedDependencies'], 'preloaded');
+        $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['preloadedDependencies'], 'preloaded');
       }
       if (isset($library['dynamicDependencies'])) {
-        $this->h5pF->saveLibraryDependencies($library['id'], $library['dynamicDependencies'], 'dynamic');
+        $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['dynamicDependencies'], 'dynamic');
       }
       if (isset($library['editorDependencies'])) {
-        $this->h5pF->saveLibraryDependencies($library['id'], $library['editorDependencies'], 'editor');
+        $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['editorDependencies'], 'editor');
       }
     }
     $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . 'content';
@@ -711,8 +711,8 @@ class H5PStorage {
     $this->h5pC->delTree($this->h5pF->getUploadedH5pFolderPath());
     
     $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
-    $library_id = $librariesInUse[$this->h5pC->mainJsonData['mainLibrary']]['library']['id'];
-    $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $library_id, $contentMainId);
+    $mainLibraryId = $librariesInUse[$this->h5pC->mainJsonData['mainLibrary']]['library']['libraryId'];
+    $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $mainLibraryId, $contentMainId);
   }
 
   public function deletePackage($contentId) {
