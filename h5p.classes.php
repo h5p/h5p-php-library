@@ -152,6 +152,9 @@ interface H5PFrameworkInterface {
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
 }
 
+/**
+ * This class is used for validating H5P files
+ */
 class H5PValidator {
   public $h5pF;
   public $h5pC;
@@ -535,13 +538,18 @@ class H5PValidator {
   }
 
   /**
-   * 
+   * Va(lidate a requirement given as regexp or an array of requirements
    *
-   * @param <type> $h5pData
-   * @param <type> $requirement
-   * @param <type> $library_name
-   * @param <type> $property_name
-   * @return boolean 
+   * @param mixed $h5pData
+   *  The data to be validated
+   * @param mixed $requirement
+   *  The requirement the data is to be validated against, regexp or array of requirements
+   * @param string $library_name
+   *  Name of the library we are validating(used in error messages)
+   * @param string $property_name
+   *  Name of the property we are validating(used in error messages)
+   * @return boolean
+   *  TRUE if valid, FALSE if invalid
    */
   private function isValidRequirement($h5pData, $requirement, $library_name, $property_name) {
     $valid = TRUE;
@@ -591,6 +599,18 @@ class H5PValidator {
     return $valid;
   }
 
+  /**
+   * Validates the required h5p data in libraray.json and h5p.json
+   * 
+   * @param mixed $h5pData
+   *  Data to be validated
+   * @param array $requirements
+   *  Array with regexp to validate the data against
+   * @param string $library_name
+   *  Name of the library we are validating (used in error messages)
+   * @return boolean
+   *  TRUE if all the required data exists and is valid, FALSE otherwise
+   */
   private function isValidRequiredH5pData($h5pData, $requirements, $library_name) {
     $valid = TRUE;
     foreach ($requirements as $required => $requirement) {
@@ -609,6 +629,18 @@ class H5PValidator {
     return $valid;
   }
 
+  /**
+   * Validates h5p data against a set of allowed values(options)
+   * 
+   * @param array $selected
+   *  The option(s) that has been specified
+   * @param array $allowed
+   *  The allowed options
+   * @param string $library_name
+   *  Name of the library we are validating (used in error messages)
+   * @return boolean
+   *  TRUE if the specified data is valid, FALSE otherwise
+   */
   private function isValidH5pDataOptions($selected, $allowed, $library_name) {
     $valid = TRUE;
     foreach ($selected as $value) {
@@ -620,6 +652,19 @@ class H5PValidator {
     return $valid;
   }
 
+  /**
+   * Fetch json data from file
+   * 
+   * @param string $file_path
+   *  Path to the file holding the json string
+   * @param boolean $return_as_string
+   *  If true the json data will be decoded in order to validate it, but will be
+   *  returned as string
+   * @return mixed
+   *  FALSE if the file can't be read or the contents can't be decoded
+   *  string if the $return as string parameter is set
+   *  array otherwise
+   */
   private function getJsonData($file_path, $return_as_string = FALSE) {
     $json = file_get_contents($file_path);
     if (!$json) {
@@ -632,6 +677,14 @@ class H5PValidator {
     return $return_as_string ? $json : $jsonData;
   }
 
+  /**
+   * Helper function that copies an array
+   * 
+   * @param array $array
+   *  The array to be copied
+   * @return array
+   *  Copy of $array. All objects are cloned
+   */
   private function arrayCopy(array $array) {
     $result = array();
     foreach ($array as $key => $val) {
@@ -649,6 +702,9 @@ class H5PValidator {
   }
 }
 
+/**
+ * This class is used for saving H5P files
+ */
 class H5PStorage {
   
   public $h5pF;
@@ -665,7 +721,17 @@ class H5PStorage {
     $this->h5pC = $H5PCore;
   }
   
+  /**
+   * Saves a H5P file
+   * 
+   * @param int $contentId
+   *  The id of the content we are saving
+   * @param int $contentMainId
+   *  The main id for the content we are saving. This is used if the framework
+   *  we're integrating with uses content id's and version id's
+   */
   public function savePackage($contentId, $contentMainId = NULL) {
+    // Save the libraries we processed during validation
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
       $libraryId = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
       if (!$libraryId) {
@@ -686,8 +752,8 @@ class H5PStorage {
       $this->h5pC->delTree($destination_path);
       rename($current_path, $destination_path);
     }
+    // All libraries have been saved, we now save all the dependencies
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
-      // All libraries have been saved, we now save all the dependencies
       if (isset($library['preloadedDependencies'])) {
         $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['preloadedDependencies'], 'preloaded');
       }
@@ -698,30 +764,60 @@ class H5PStorage {
         $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['editorDependencies'], 'editor');
       }
     }
+    // Move the content folder
     $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . 'content';
     $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
     rename($current_path, $destination_path);
 
+    // Save what libraries is beeing used by this package/content
     $librariesInUse = array();
     $this->getLibraryUsage($librariesInUse, $this->h5pC->mainJsonData);
     $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
     $this->h5pC->delTree($this->h5pF->getUploadedH5pFolderPath());
     
+    // Save the data in content.json
     $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
     $mainLibraryId = $librariesInUse[$this->h5pC->mainJsonData['mainLibrary']]['library']['libraryId'];
     $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $mainLibraryId, $contentMainId);
   }
 
+  /**
+   * Delete an H5P package
+   * 
+   * @param int $contentId
+   *  The content id
+   */
   public function deletePackage($contentId) {
     $this->h5pC->delTree($this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId);
     $this->h5pF->deleteContentData($contentId);
   }
 
+  /**
+   * Update an H5P package
+   * 
+   * @param int $contentId
+   *  The content id
+   * @param int $contentMainId
+   *  The content main id (used by frameworks supporting revisioning)
+   */
   public function updatePackage($contentId, $contentMainId = NULL) {
     $this->deletePackage($contentId);
     $this->savePackage($contentId, $contentMainId);
   }
 
+  /**
+   * Copy/clone an H5P package
+   * 
+   * May for instance be used if the content is beeing revisioned without
+   * uploading a new H5P package
+   * 
+   * @param int $contentId
+   *  The new content id
+   * @param int $copyFromId
+   *  The content id of the content that should be cloned
+   * @param int $contentMainId
+   *  The main id of the new content (used in frameworks that support revisioning)
+   */
   public function copyPackage($contentId, $copyFromId, $contentMainId = NULL) {
     $source_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $copyFromId;
     $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
@@ -730,6 +826,16 @@ class H5PStorage {
     $this->h5pF->copyLibraryUsage($contentId, $copyFromId, $contentMainId);
   }
 
+  /**
+   * Identify what libraries are beeing used taking all dependencies into account
+   * 
+   * @param array $librariesInUse
+   *  List of libraries in use, indexed by machineName
+   * @param array $jsonData
+   *  library.json og h5p.json data holding dependency information
+   * @param boolean $dynamic
+   *  Whether or not the current library is a dynamic dependency
+   */
   public function getLibraryUsage(&$librariesInUse, $jsonData, $dynamic = FALSE) {
     if (isset($jsonData['preloadedDependencies'])) {
       foreach ($jsonData['preloadedDependencies'] as $preloadedDependency) {
@@ -756,6 +862,9 @@ class H5PStorage {
   }
 }
 
+/**
+ * Functions and storage shared by the other H5P classes
+ */
 class H5PCore {
   public $h5pF;
   public $librariesJsonData;
@@ -772,6 +881,19 @@ class H5PCore {
     $this->h5pF = $H5PFramework;
   }
   
+  /**
+   * Check if a library is of the version we're looking for
+   * 
+   * Same verision means that the majorVersion and minorVersion is the same
+   * 
+   * @param array $library
+   *  Data from library.json
+   * @param array $dependency
+   *  Definition of what library we're looking for
+   * @return boolean
+   *  TRUE if the library is the same version as the dependency
+   *  FALSE otherwise
+   */
   public function isSameVersion($library, $dependency) {
     if ($library['majorVersion'] != $dependency['majorVersion']) {
       return FALSE;
@@ -785,8 +907,10 @@ class H5PCore {
   /**
    * Recursive function for removing directories.
    *
-   * @param string $dir Directory.
-   * @return boolean Indicates if the directory existed.
+   * @param string $dir
+   *  Path to the directory we'll be deleting
+   * @return boolean
+   *  Indicates if the directory existed.
    */
   public function delTree($dir) {
     if (!is_dir($dir)) {
@@ -799,6 +923,14 @@ class H5PCore {
     return rmdir($dir);
   }
 
+  /**
+   * Recursive function for copying directories.
+   *
+   * @param string $source
+   *  Path to the directory we'll be copying
+   * @return boolean
+   *  Indicates if the directory existed.
+   */
   public function copyTree($source, $destination) {
     $dir = opendir($source);
     @mkdir($destination);
@@ -813,6 +945,6 @@ class H5PCore {
         }
     }
     closedir($dir);
-}
+  }
 }
 ?>
