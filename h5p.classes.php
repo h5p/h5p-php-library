@@ -103,6 +103,18 @@ interface H5PFrameworkInterface {
    *  Any contentMainId defined by the framework, for instance to support revisioning
    */
   public function saveContentData($contentId, $contentJson, $mainJsonData, $mainLibraryId, $contentMainId = NULL);
+  
+  /**
+   * Save what libraries a library is dependending on
+   * 
+   * @param int $libraryId
+   *  Library Id for the library we're saving dependencies for
+   * @param array $dependencies
+   *  List of dependencies in the format used in library.json
+   * @param string $dependency_type
+   *  What type of dependency this is, for instance it might be an editor dependency
+   */
+  public function saveLibraryDependencies($libraryId, $dependencies, $dependency_type);
 
   /**
    * Copies library usage
@@ -126,6 +138,14 @@ interface H5PFrameworkInterface {
    */
   public function deleteContentData($contentId);
 
+  /**
+   * Delete what libraries a content item is using
+   * 
+   * @param int $contentId
+   *  Content Id of the content we'll be deleting library usage for
+   */
+  public function deleteLibraryUsage($contentId);
+  
   /**
    * Saves what libraries the content uses
    *
