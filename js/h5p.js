@@ -1,4 +1,4 @@
-window.H5P = window.H5P || {};
+var H5P = H5P || {};
 
 //
 // Initialize H5P content
@@ -36,7 +36,7 @@ H5P.Coords = function(x, y, w, h) {
   this.w = 1;
   this.h = 1;
 
-  if (typeof(x) == 'object') {
+  if (typeof(x) === 'object') {
     this.x = x.x;
     this.y = x.y;
     this.w = x.w;
