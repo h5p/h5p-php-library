@@ -886,6 +886,13 @@ class H5PStorage {
  * Functions and storage shared by the other H5P classes
  */
 class H5PCore {
+  
+  public static $scripts = array(
+    'js/jquery.js',
+    'js/h5p.js',
+    'js/flowplayer-3.2.12.min.js',
+  );
+  
   public $h5pF;
   public $librariesJsonData;
   public $contentJsonData;
