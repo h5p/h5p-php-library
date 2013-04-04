@@ -182,6 +182,30 @@ H5P.playVideo = function ($target, params, skipButtonText, cp, onEnded) {
   $target.append($container);
 };
 
+/**
+ * Recursivly clone the given object.
+ * 
+ * @param {object} object Object to clone.
+ * @param {type} recursive
+ * @returns {object} A clone of object.
+ */
+H5P.cloneObject = function (object, recursive) {
+  var clone = {};
+  
+  for (var i in object) {
+    if (object.hasOwnProperty(i)) {
+      if (recursive !== undefined && recursive && typeof object[i] === 'object') {
+        clone[i] = object[i] instanceof Array ? object[i].slice() : H5P.cloneObject(object[i]);
+      }
+      else {
+        clone[i] = object[i];
+      }
+    }
+   }
+   
+   return clone;
+};
+
 // We have several situations where we want to shuffle an array, extend array
 // to do so.
 Array.prototype.shuffle = function() {
