@@ -4,12 +4,68 @@ var H5P = H5P || {};
 // Initialize H5P content
 // Scans for ".h5p-content"
 H5P.init = function () {
+  if (H5P.$window === undefined) {
+    H5P.$window = H5P.jQuery(window);
+  }
+  if (H5P.$body === undefined) {
+    H5P.$body = H5P.jQuery('body');
+  }
+  
   H5P.jQuery(".h5p-content").each(function (idx, el) {
     var $el = H5P.jQuery(el);
     var contentId = $el.data('content-id');
     var obj = new (H5P.classFromName($el.data('class')))(H5P.jQuery.parseJSON(H5PIntegration.getJsonContent(contentId)), contentId);
     obj.attach($el);
+    
+    if (true/* fullscreen */) {
+      H5P.jQuery('<div class="h5p-content-controls"><a href="#" class="h5p-enable-fullscreen">Enable fullscreen</a><div>').insertBefore($el).children().click(function () {
+        if (H5P.enableFullScreen($el[0]) === false) {
+          // Create semi fullscreen.
+          $el.add(H5P.$body).addClass('h5p-semi-fullscreen');
+          var $disable = H5P.jQuery('<a href="#" class="h5p-disable-fullscreen">Disable fullscreen</a>').appendTo($el);
+          var keyup, disableSemiFullscreen = function () {
+            $el.add(H5P.$body).removeClass('h5p-semi-fullscreen');
+            $disable.remove();
+            H5P.$body.unbind('keyup', keyup);
+            
+            if (obj.resize !== undefined) {
+              obj.resize(false);
+            }
+              
+            return false;
+          };
+          keyup = function (event) {
+            if (event.keyCode === 27) {
+              disableSemiFullscreen();
+            }
+          };
+          $disable.click(disableSemiFullscreen);
+          H5P.$body.keyup(keyup);
+        }
+        if (obj.resize !== undefined) {
+          obj.resize(true);
+        }
+        
+        return false;
+      });
+    }
   });
+};
+
+H5P.enableFullScreen = function (element) { //return false;
+  if (element.requestFullScreen) {
+    return element.requestFullScreen();
+  }
+  if (element.webkitRequestFullScreen) {
+    return element.webkitRequestFullScreen();
+  }
+  if (element.mozRequestFullScreen) {
+    return element.mozRequestFullScreen();
+  }
+  if (element.msRequestFullScreen) {
+    return element.msRequestFullScreen();
+  }
+  return false;
 };
 
 H5P.getContentPath = function(contentId) {

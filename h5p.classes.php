@@ -887,6 +887,9 @@ class H5PStorage {
  */
 class H5PCore {
   
+  public static $styles = array(
+    'styles/h5p.css',
+  );
   public static $scripts = array(
     'js/jquery.js',
     'js/h5p.js',
