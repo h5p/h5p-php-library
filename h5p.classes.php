@@ -263,6 +263,7 @@ class H5PValidator {
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     'embedTypes' => array('iframe', 'div'),
+    'fullscreen' => '/^(0|1)$/',
   );
 
   /**
