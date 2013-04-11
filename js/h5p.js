@@ -32,7 +32,7 @@ H5P.init = function () {
     var obj = new (H5P.classFromName($el.data('class')))(H5P.jQuery.parseJSON(H5PIntegration.getJsonContent(contentId)), contentId);
     obj.attach($el);
     
-    if (true/* fullscreen */) {
+    if (H5PIntegration.getFullscreen(contentId)) {
       H5P.jQuery('<div class="h5p-content-controls"><a href="#" class="h5p-enable-fullscreen">Enable fullscreen</a><div>').insertBefore($el).children().click(function () {
         H5P.fullScreen($el, obj);
         return false;
