@@ -170,6 +170,14 @@ interface H5PFrameworkInterface {
    *  FALSE if the library doesn't exist
    */
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
+
+  /**
+   * Delete all dependencies belonging to given library
+   *
+   * @param int $libraryId
+   *  Library Id
+   */
+  public function deleteLibraryDependencies($libraryId);
 }
 
 /**
@@ -760,6 +768,7 @@ class H5PStorage {
     // Save the libraries we processed during validation
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
       $libraryId = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
+      $library['saveDependencies'] = TRUE;
       if (!$libraryId) {
         $new = TRUE;
       }
@@ -768,7 +777,9 @@ class H5PStorage {
         $library['libraryId'] = $libraryId;
       }
       else {
+        $library['libraryId'] = $libraryId;
         // We already have the same or a newer version of this library
+        $library['saveDependencies'] = FALSE;
         continue;
       }
       $this->h5pF->saveLibraryData($library, $new);
@@ -778,16 +789,19 @@ class H5PStorage {
       $this->h5pC->delTree($destination_path);
       rename($current_path, $destination_path);
     }
-    // All libraries have been saved, we now save all the dependencies
+
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
-      if (isset($library['preloadedDependencies'])) {
-        $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['preloadedDependencies'], 'preloaded');
-      }
-      if (isset($library['dynamicDependencies'])) {
-        $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['dynamicDependencies'], 'dynamic');
-      }
-      if (isset($library['editorDependencies'])) {
-        $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['editorDependencies'], 'editor');
+      if ($library['saveDependencies']) {
+        $this->h5pF->deleteLibraryDependencies($library['libraryId']);
+        if (isset($library['preloadedDependencies'])) {
+          $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['preloadedDependencies'], 'preloaded');
+        }
+        if (isset($library['dynamicDependencies'])) {
+          $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['dynamicDependencies'], 'dynamic');
+        }
+        if (isset($library['editorDependencies'])) {
+          $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['editorDependencies'], 'editor');
+        }
       }
     }
     // Move the content folder
