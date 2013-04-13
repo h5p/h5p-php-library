@@ -414,11 +414,16 @@ class H5PValidator {
       $this->h5pC->mainJsonData = $mainH5pData;
       $this->h5pC->contentJsonData = $contentJsonData;
       
-      $libraries['mainH5pData'] = $mainH5pData;
+      $libraries['mainH5pData'] = $mainH5pData; // Check for the dependencies in h5p.json as well as in the libraries
       $missingLibraries = $this->getMissingLibraries($libraries);
       foreach ($missingLibraries as $missing) {
         if ($this->h5pF->getLibraryId($missing['machineName'], $missing['majorVersion'], $missing['minorVersion'])) {
           unset($missingLibraries[$missing['machineName']]);
+        }
+      }
+      if (!empty($missingLibraries)) {
+        foreach ($missingLibraries as $library) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $this->h5pC->libraryToString($library))));
         }
       }
       $valid = empty($missingLibraries) && $valid;
@@ -442,13 +447,13 @@ class H5PValidator {
     $missing = array();
     foreach ($libraries as $library) {
       if (isset($library['preloadedDependencies'])) {
-        array_merge($missing, $this->getMissingDependencies($library['preloadedDependencies'], $libraries));
+        $missing = array_merge($missing, $this->getMissingDependencies($library['preloadedDependencies'], $libraries));
       }
       if (isset($library['dynamicDependencies'])) {
-        array_merge($missing, $this->getMissingDependencies($library['dynamicDependencies'], $libraries));
+        $missing = array_merge($missing, $this->getMissingDependencies($library['dynamicDependencies'], $libraries));
       }
       if (isset($library['editorDependencies'])) {
-        array_merge($missing, $this->getMissingDependencies($library['editorDependencies'], $libraries));
+        $missing = array_merge($missing, $this->getMissingDependencies($library['editorDependencies'], $libraries));
       }
     }
     return $missing;
@@ -976,6 +981,18 @@ class H5PCore {
         }
     }
     closedir($dir);
+  }
+
+  /**
+   * Writes library data as string on the form {machineName} {majorVersion}.{minorVersion}
+   *
+   * @param array $library
+   *  With keys machineName, majorVersion and minorVersion
+   * @return string
+   *  On the form {machineName} {majorVersion}.{minorVersion}
+   */
+  public function libraryToString($library) {
+    return $library['machineName'] . ' ' . $library['majorVersion'] . '.' . $library['minorVersion'];
   }
 }
 ?>
