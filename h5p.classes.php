@@ -1006,7 +1006,7 @@ class H5PCore {
    *  On the form {machineName} {majorVersion}.{minorVersion}
    */
   public function libraryToString($library, $folderName = FALSE) {
-    return $library['machineName'] . ($folderName ? '_' : ' ') . $library['majorVersion'] . '.' . $library['minorVersion'];
+    return $library['machineName'] . ($folderName ? '-' : ' ') . $library['majorVersion'] . '.' . $library['minorVersion'];
   }
 }
 ?>
