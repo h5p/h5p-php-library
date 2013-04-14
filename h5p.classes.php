@@ -260,10 +260,10 @@ class H5PValidator {
       'type' => '/^(css|js)$/',
     ),
     'preloadedJs' => array(
-      'path' => '/^((\\\|\/)?[a-z_\-\s0-9]+)+\.js$/i',
+      'path' => '/^((\\\|\/)?[a-z_\-\s0-9\.]+)+\.js$/i',
     ),
     'preloadedCss' => array(
-      'path' => '/^((\\\|\/)?[a-z_\-\s0-9]+)+\.css$/i',
+      'path' => '/^((\\\|\/)?[a-z_\-\s0-9\.]+)+\.css$/i',
     ),
     'dropLibraryCss' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
