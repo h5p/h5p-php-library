@@ -5,6 +5,7 @@ body.h5p-semi-fullscreen {
   width: 100%;
   height: 100%;
   background: #fefefe;
+  font-size: 16px;
 }
 div.h5p-semi-fullscreen {
   position: fixed;
