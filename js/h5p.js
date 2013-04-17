@@ -281,7 +281,7 @@ H5P.cloneObject = function (object, recursive) {
   for (var i in object) {
     if (object.hasOwnProperty(i)) {
       if (recursive !== undefined && recursive && typeof object[i] === 'object') {
-        clone[i] = object[i] instanceof Array ? object[i].slice() : H5P.cloneObject(object[i]);
+        clone[i] = object[i] instanceof Array ? object[i].slice() : H5P.cloneObject(object[i], recursive);
       }
       else {
         clone[i] = object[i];
