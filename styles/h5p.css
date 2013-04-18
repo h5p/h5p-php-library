@@ -13,14 +13,31 @@ div.h5p-semi-fullscreen {
   left: 0;
   z-index: 101;
 }
+
 .h5p-content-controls {
-  overflow: hidden;
+  margin-bottom: 10px;
 }
+.h5p-content-controls > div:last-child {
+  clear: both;
+}
+
+.h5p-content-controls > a:link, .h5p-content-controls > a:visited, a.h5p-disable-fullscreen:link, a.h5p-disable-fullscreen:visited {
+  color: #e5eef6;
+}
+  
 .h5p-enable-fullscreen, .h5p-disable-fullscreen {
   float: right;
   display: block;
-  padding: 8px 10px;
-  background: #fefefe;
+  padding: 6px 12px;
+  background: #539ad7;
+  background-image: -webkit-linear-gradient(bottom, #4584ba, #539ad7);
+  background-image: -moz-linear-gradient(top, #4584ba, #539ad7);
+  background-image: -o-linear-gradient(top, #4584ba, #539ad7);
+  background-image: -ms-linear-gradient(top, #4584ba, #539ad7);
+  background-image: linear-gradient(to bottom, #4584ba, #539ad7);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4584ba', endColorstr='#539ad7',GradientType=0);
+  font-size: 12px;
+  box-shadow: 0 0 8px #bebebe;
   opacity: 0.8;
   filter: alpha(opacity = 80);
 }
@@ -29,4 +46,9 @@ div.h5p-semi-fullscreen {
   right: 0;
   top: 0;
   z-index: 201;
+}
+.h5p-enable-fullscreen:hover, .h5p-disable-fullscreen:hover {
+  text-decoration: none;
+  opacity: 0.9;
+  filter: alpha(opacity = 90);
 }
