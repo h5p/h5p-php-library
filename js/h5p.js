@@ -190,6 +190,16 @@ H5P.cloneObject = function (object, recursive, array) {
   return clone;
 };
 
+/**
+ * Remove all empty spaces before and after the value.
+ *
+ * @param {String} value
+ * @returns {@exp;value@call;replace}
+ */
+H5P.trim = function (value) {
+  return value.replace(/^\s+|\s+$/g, '');
+};
+
 // We have several situations where we want to shuffle an array, extend array
 // to do so.
 Array.prototype.shuffle = function() {
