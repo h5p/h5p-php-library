@@ -321,10 +321,10 @@ class H5PValidator {
       if (in_array(substr($file, 0, 1), array('.', '_'))) {
         continue;
       }
-      $file_path = $tmp_dir . DIRECTORY_SEPARATOR . $file;
+      $filePath = $tmp_dir . DIRECTORY_SEPARATOR . $file;
       // Check for h5p.json file.
       if (strtolower($file) == 'h5p.json') {
-        $mainH5pData = $this->getJsonData($file_path);
+        $mainH5pData = $this->getJsonData($filePath);
         if ($mainH5pData === FALSE) {
           $valid = FALSE;
           $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the main h5p.json file'));
@@ -346,12 +346,12 @@ class H5PValidator {
       }
       // Content directory holds content.
       elseif ($file == 'content') {
-        if (!is_dir($file_path)) {
+        if (!is_dir($filePath)) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Invalid content folder'));
           $valid = FALSE;
           continue;
         }
-        $contentJsonData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'content.json');
+        $contentJsonData = $this->getJsonData($filePath . DIRECTORY_SEPARATOR . 'content.json');
         if ($contentJsonData === FALSE) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the content.json file'));
           $valid = FALSE;
@@ -365,48 +365,19 @@ class H5PValidator {
 
       // The rest should be library folders
       else {
-         if (!is_dir($file_path)) {
+         if (!is_dir($filePath)) {
           // Ignore this. Probably a file that shouldn't have been included.
           continue;
         }
-        if (preg_match('/^[\w0-9\-\.]{1,255}$/i', $file) === 0) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library name: %name', array('%name' => $file)));
-          $valid = FALSE;
-          continue;
-        }
-        $h5pData = $this->getJsonData($file_path . DIRECTORY_SEPARATOR . 'library.json');
-        if ($h5pData === FALSE) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find library.json file with valid json format for library %name', array('%name' => $file)));
-          $valid = FALSE;
-          continue;
-        }
-
-        // validate json if a semantics file is provided
-        $semanticsPath = $file_path . DIRECTORY_SEPARATOR . 'semantics.json';
-        if (file_exists($semanticsPath)) {
-          $semantics = $this->getJsonData($semanticsPath, TRUE);
-          if ($semantics === FALSE) {
-            $this->h5pF->setErrorMessage($this->h5pF->t('Invalid semantics.json file has been included in the library %name', array('%name' => $file)));
-            $valid = FALSE;
-            continue;
-          }
-          else {
-            $h5pData['semantics'] = $semantics;
-          }
-        }
         
-        $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
+        $libraryH5PData = getLibraryData($file, $filePath);
 
-        if (isset($h5pData['preloadedJs'])) {
-          $validLibrary = $this->isExistingFiles($h5pData['preloadedJs'], $tmp_dir, $file) && $validLibrary;
-        }
-        if (isset($h5pData['preloadedCss'])) {
-          $validLibrary = $this->isExistingFiles($h5pData['preloadedCss'], $tmp_dir, $file) && $validLibrary;
-        }
-        if ($validLibrary) {
+        if ($h5pData) {
           $libraries[$file] = $h5pData;
         }
-        $valid = $validLibrary && $valid;
+        else {
+          $valid = FALSE;
+        }
       }
     }
     if (!$contentExists) {
@@ -440,6 +411,61 @@ class H5PValidator {
       $this->h5pC->delTree($tmp_dir);
     }
     return $valid;
+  }
+
+  /**
+   * Validates a H5P library
+   *
+   * @param string $file
+   *  Name of the library folder
+   * @param string $filePath
+   *  Path to the library folder
+   * @return object|boolean
+   *  H5P data from library.json and semantics if the library is valid
+   *  FALSE if the library isn't valid
+   */
+  public function getLibraryData($file, $filePath) {
+    $validLibrary = true;
+    if (preg_match('/^[\w0-9\-\.]{1,255}$/i', $file) === 0) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library name: %name', array('%name' => $file)));
+      $validLibrary = FALSE;
+      continue;
+    }
+    $h5pData = $this->getJsonData($filePath . DIRECTORY_SEPARATOR . 'library.json');
+    if ($h5pData === FALSE) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Could not find library.json file with valid json format for library %name', array('%name' => $file)));
+      $validLibrary = FALSE;
+      continue;
+    }
+
+    // validate json if a semantics file is provided
+    $semanticsPath = $filePath . DIRECTORY_SEPARATOR . 'semantics.json';
+    if (file_exists($semanticsPath)) {
+      $semantics = $this->getJsonData($semanticsPath, TRUE);
+      if ($semantics === FALSE) {
+        $this->h5pF->setErrorMessage($this->h5pF->t('Invalid semantics.json file has been included in the library %name', array('%name' => $file)));
+        $validLibrary = FALSE;
+        continue;
+      }
+      else {
+        $h5pData['semantics'] = $semantics;
+      }
+    }
+
+    $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
+
+    if (isset($h5pData['preloadedJs'])) {
+      $validLibrary = $this->isExistingFiles($h5pData['preloadedJs'], $tmp_dir, $file) && $validLibrary;
+    }
+    if (isset($h5pData['preloadedCss'])) {
+      $validLibrary = $this->isExistingFiles($h5pData['preloadedCss'], $tmp_dir, $file) && $validLibrary;
+    }
+    if ($validLibrary) {
+      return $h5pData;
+    }
+    else {
+      return FALSE;
+    }
   }
 
   /**
@@ -689,7 +715,7 @@ class H5PValidator {
   /**
    * Fetch json data from file
    * 
-   * @param string $file_path
+   * @param string $filePath
    *  Path to the file holding the json string
    * @param boolean $return_as_string
    *  If true the json data will be decoded in order to validate it, but will be
@@ -699,8 +725,8 @@ class H5PValidator {
    *  string if the $return as string parameter is set
    *  array otherwise
    */
-  private function getJsonData($file_path, $return_as_string = FALSE) {
-    $json = file_get_contents($file_path);
+  private function getJsonData($filePath, $return_as_string = FALSE) {
+    $json = file_get_contents($filePath);
     if (!$json) {
       return FALSE;
     }
