@@ -450,6 +450,25 @@ class H5PValidator {
       }
     }
 
+    // validate language folder if it exists
+    $languagePath = $filePath . DIRECTORY_SEPARATOR . 'language';
+    if (is_dir($languagePath)) {
+      $languageFiles = scandir($languagePath);
+      foreach ($languageFiles as $languageFile) {
+        if (preg_match('/^(-?[a-z]+){1,7}\.json$/i', $file) === 0) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid language file %file in library %library', array('%file' => $languageFile, '%library' => $file)));
+          return FALSE;
+        }
+        $languageJson = $this->getJsonData($languageFile, TRUE);
+        if ($languageJson === FALSE) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid language file %languageFile has been included in the library %name', array('%languageFile' => $languageFile, '%name' => $file)));
+          return FALSE;
+        }
+        $parts = explode('.', $languageFile); // $parts[0] is the language code
+        $h5pData['language'][$parts[0]] = $languageJson;
+      }
+    }
+
     $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
 
     if (isset($h5pData['preloadedJs'])) {
