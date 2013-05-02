@@ -24,13 +24,13 @@ div.h5p-semi-fullscreen {
 .h5p-content-controls > a:link, .h5p-content-controls > a:visited, a.h5p-disable-fullscreen:link, a.h5p-disable-fullscreen:visited {
   color: #e5eef6;
 }
-  
+
 .h5p-enable-fullscreen, .h5p-disable-fullscreen {
   float: right;
   display: block;
   padding: 6px 12px;
   background: #539ad7;
-  background-image: -webkit-linear-gradient(bottom, #4584ba, #539ad7);
+  background-image: -webkit-linear-gradient(top, #4584ba, #539ad7);
   background-image: -moz-linear-gradient(top, #4584ba, #539ad7);
   background-image: -o-linear-gradient(top, #4584ba, #539ad7);
   background-image: -ms-linear-gradient(top, #4584ba, #539ad7);
