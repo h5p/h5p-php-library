@@ -455,11 +455,14 @@ class H5PValidator {
     if (is_dir($languagePath)) {
       $languageFiles = scandir($languagePath);
       foreach ($languageFiles as $languageFile) {
-        if (preg_match('/^(-?[a-z]+){1,7}\.json$/i', $file) === 0) {
+        if (in_array($languageFile, array('.', '..'))) {
+          continue;
+        }
+        if (preg_match('/^(-?[a-z]+){1,7}\.json$/i', $languageFile) === 0) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Invalid language file %file in library %library', array('%file' => $languageFile, '%library' => $file)));
           return FALSE;
         }
-        $languageJson = $this->getJsonData($languageFile, TRUE);
+        $languageJson = $this->getJsonData($languagePath . DIRECTORY_SEPARATOR . $languageFile, TRUE);
         if ($languageJson === FALSE) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Invalid language file %languageFile has been included in the library %name', array('%languageFile' => $languageFile, '%name' => $file)));
           return FALSE;
