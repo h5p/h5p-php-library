@@ -210,13 +210,6 @@ class H5PValidator {
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
-    'externalResources' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
-      'majorVersion' => '/^[0-9]{1,5}$/',
-      'minorVersion' => '/^[0-9]{1,5}$/',
-      'url' => '/^http:\/\/[a-z_\-\.0-9]+\.[a-z]{2, 10}$/i',
-      'type' => '/^(css|js)$/',
-    ),
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     'metaKeywords' => '/^.{1,}$/',
@@ -251,13 +244,6 @@ class H5PValidator {
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
-    ),
-    'externalResources' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
-      'majorVersion' => '/^[0-9]{1,5}$/',
-      'minorVersion' => '/^[0-9]{1,5}$/',
-      'url' => '/^http:\/\/[a-z_\-\.0-9]+\.[a-z]{2, 10}$/i',
-      'type' => '/^(css|js)$/',
     ),
     'preloadedJs' => array(
       'path' => '/^((\\\|\/)?[a-z_\-\s0-9\.]+)+\.js$/i',
