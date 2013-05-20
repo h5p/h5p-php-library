@@ -80,6 +80,7 @@ H5P.fullScreen = function ($el, obj) {
         return;
       }
       $el.add(H5P.$body).removeClass('h5p-fullscreen');
+      obj.resize(false);
       document.removeEventListener(eventName, arguments.callee, false);
     });
 
