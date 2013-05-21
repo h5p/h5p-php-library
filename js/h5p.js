@@ -12,16 +12,16 @@ H5P.init = function () {
   }
 
   if (H5P.fullScreenBrowserPrefix === undefined) {
-    if (document.cancelFullScreen) {
+    if (document.documentElement.requestFullScreen) {
       H5P.fullScreenBrowserPrefix = '';
     }
-    else if (document.webkitCancelFullScreen) {
+    else if (document.documentElement.webkitRequestFullScreen && navigator.userAgent.indexOf('Android') === -1) { // Skip Android
       H5P.fullScreenBrowserPrefix = 'webkit';
     }
-    else if (document.mozCancelFullScreen) {
+    else if (document.documentElement.mozRequestFullScreen) {
       H5P.fullScreenBrowserPrefix = 'moz';
     }
-    else if (document.msCancelFullScreen) {
+    else if (document.documentElement.msRequestFullScreen) {
       H5P.fullScreenBrowserPrefix = 'ms';
     }
   }
@@ -80,7 +80,9 @@ H5P.fullScreen = function ($el, obj) {
         return;
       }
       $el.add(H5P.$body).removeClass('h5p-fullscreen');
-      obj.resize(false);
+      if (obj.resize !== undefined) {
+        obj.resize(false);
+      }
       document.removeEventListener(eventName, arguments.callee, false);
     });
 
