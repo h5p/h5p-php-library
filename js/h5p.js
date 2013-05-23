@@ -176,13 +176,13 @@ H5P.libraryFromString = function (library) {
  * @param {type} recursive
  * @returns {object} A clone of object.
  */
-H5P.cloneObject = function (object, recursive, array) {
-  var clone = array !== undefined && array ? [] : {};
+H5P.cloneObject = function (object, recursive) {
+  var clone = object instanceof Array ? [] : {};
 
   for (var i in object) {
     if (object.hasOwnProperty(i)) {
       if (recursive !== undefined && recursive && typeof object[i] === 'object') {
-        clone[i] = H5P.cloneObject(object[i], recursive, object[i] instanceof Array);
+        clone[i] = H5P.cloneObject(object[i], recursive);
       }
       else {
         clone[i] = object[i];
