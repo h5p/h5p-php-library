@@ -203,6 +203,38 @@ H5P.trim = function (value) {
   return value.replace(/^\s+|\s+$/g, '');
 };
 
+/**
+ * Check if javascript path/key is loaded.
+ *
+ * @param {String} path
+ * @returns {Boolean}
+ */
+H5P.jsLoaded = function (path) {
+  for (var i = 0; i < H5P.loadedJs.length; i++) {
+    if (H5P.loadedJs[i] === path) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Check if styles path/key is loaded.
+ *
+ * @param {String} path
+ * @returns {Boolean}
+ */
+H5P.cssLoaded = function (path) {
+  for (var i = 0; i < H5P.loadedCss.length; i++) {
+    if (H5P.loadedCss[i] === path) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
 // We have several situations where we want to shuffle an array, extend array
 // to do so.
 Array.prototype.shuffle = function() {
