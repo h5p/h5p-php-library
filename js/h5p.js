@@ -90,7 +90,7 @@ H5P.fullScreen = function ($el, obj) {
       $el[0].requestFullScreen();
     }
     else {
-      $el[0][H5P.fullScreenBrowserPrefix + 'RequestFullScreen']();
+      $el[0][H5P.fullScreenBrowserPrefix + 'RequestFullScreen'](H5P.fullScreenBrowserPrefix === 'webkit' ? Element.ALLOW_KEYBOARD_INPUT : undefined);
     }
 
     $el.add(H5P.$body).addClass('h5p-fullscreen');
