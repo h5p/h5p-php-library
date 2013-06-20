@@ -101,6 +101,9 @@ H5P.fullScreen = function ($el, obj) {
   }
 };
 
+/**
+ * Find the path to the content files base on the id of the content.
+ */
 H5P.getContentPath = function(contentId) {
   // TODO: Rewrite or remove... H5P.getContentPath = H5PIntegration.getContentPath would probably work f.i.
   return H5PIntegration.getContentPath(contentId);
