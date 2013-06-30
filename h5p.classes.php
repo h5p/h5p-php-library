@@ -114,7 +114,18 @@ interface H5PFrameworkInterface {
    *  Any contentMainId defined by the framework, for instance to support revisioning
    */
   public function saveContentData($contentId, $contentJson, $mainJsonData, $mainLibraryId, $contentMainId = NULL);
-  
+
+  /**
+   * Validates content files
+   *
+   * @param string $contentPath
+   *  The path containg content files to validate.
+   * @return boolean
+   *  TRUE if all files are valid
+   *  FALSE if one or more files fail validation. Error message should be set accordingly by validator.
+   */
+  public function validateContentFiles($contentPath);
+
   /**
    * Save what libraries a library is dependending on
    * 
@@ -355,7 +366,11 @@ class H5PValidator {
         }
         else {
           $contentExists = TRUE;
-          // In the future we might let the librarys provide validation functions for content.json
+          // In the future we might let the libraries provide validation functions for content.json
+        }
+        if (!$this->h5pF->validateContentFiles($filePath)) {
+          $valid = FALSE;
+          continue;
         }
       }
 
