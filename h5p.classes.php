@@ -70,7 +70,7 @@ interface H5PFrameworkInterface {
   public function getLibraryId($machineName, $majorVersion, $minorVersion);
   
   /**
-   * Is the library a patched version of an excisting library?
+   * Is the library a patched version of an existing library?
    * 
    * @param object $library
    *  The library data for a library we are checking
@@ -80,6 +80,17 @@ interface H5PFrameworkInterface {
    */
   public function isPatchedLibrary($library);
   
+  /**
+   * Is the current user allowed to update the library data?
+   *
+   * @param object $library
+   *  The library data for a library we are checking
+   * @return boolean
+   *  TRUE if the user us allowed to update with the given library data OR the library already exists with the current version levels.
+   *  FALSE if the user is not allowed to update or create the library.
+   */
+  public function isAllowedLibraryUpdate($library);
+
   /**
    * Store data about a library
    * 
@@ -419,6 +430,12 @@ class H5PValidator {
     $h5pData = $this->getJsonData($filePath . DIRECTORY_SEPARATOR . 'library.json');
     if ($h5pData === FALSE) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Could not find library.json file with valid json format for library %name', array('%name' => $file)));
+      return FALSE;
+    }
+
+    // check if allowed to update this library
+    if (! $this->h5pF->isAllowedLibraryUpdate($h5pData)) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Not allowed to update library %name', array('%name' => $h5pData['machineName'])));
       return FALSE;
     }
 
@@ -813,6 +830,12 @@ class H5PStorage {
         $library['saveDependencies'] = FALSE;
         continue;
       }
+      // If we're not allowed to save, we should not be here at all. But just
+      // in case, we check again.
+      if (! $this->h5pF->isAllowedLibraryUpdate($library)) {
+        continue;
+      }
+
       $this->h5pF->saveLibraryData($library, $new);
       
       $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
