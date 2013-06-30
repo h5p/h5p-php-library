@@ -354,7 +354,7 @@ class H5PValidator {
           // Ignore this. Probably a file that shouldn't have been included.
           continue;
         }
-        
+
         $libraryH5PData = $this->getLibraryData($file, $filePath, $tmpDir);
 
         if ($libraryH5PData) {
@@ -1017,11 +1017,11 @@ class H5PCore {
     @mkdir($destination);
     while (false !== ($file = readdir($dir))) {
         if (($file != '.') && ($file != '..')) {
-            if (is_dir($source . '/' . $file)) {
-              $this->copyTree($source . '/' . $file, $destination . '/' . $file);
+            if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
+              $this->copyTree($source . DIRECTORY_SEPARATOR . $file, $destination . DIRECTORY_SEPARATOR . $file);
             }
             else {
-              copy($source . '/' . $file,$destination . '/' . $file);
+              copy($source . DIRECTORY_SEPARATOR . $file,$destination . DIRECTORY_SEPARATOR . $file);
             }
         }
     }
