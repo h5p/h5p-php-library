@@ -120,7 +120,9 @@ H5P.getPath = function (path, contentId) {
 };
 
 /**
- * Find the path to the content files folder based on the id of the content
+ * THIS FUNCTION IS DEPRECATED, USE getPath INSTEAD
+ *
+ *  Find the path to the content files folder based on the id of the content
  *
  *  @param contentId
  *  Id of the content requesting a path
