@@ -102,7 +102,14 @@ H5P.fullScreen = function ($el, obj) {
 };
 
 /**
- * Find the path to the content files base on the id of the content.
+ * Find the path to the content files based on the id of the content
+ *
+ * Also identifies and returns absolute paths
+ *
+ * @param string path
+ *  Absolute path to a file, or relative path to a file in the content folder
+ * @param contentId
+ *  Id of the content requesting a path
  */
 H5P.getPath = function (path, contentId) {
   if (path.substr(0, 7) === 'http://' || path.substr(0, 8) === 'https://') {
@@ -111,6 +118,17 @@ H5P.getPath = function (path, contentId) {
 
   return H5PIntegration.getContentPath(contentId) + path;
 };
+
+/**
+ * Find the path to the content files folder based on the id of the content
+ *
+ *  @param contentId
+ *  Id of the content requesting a path
+ */
+H5P.getContentPath = function (contentId) {
+  return H5PIntegration.getContentPath(contentId);
+};
+
 
 //
 // Used from libraries to construct instances of other libraries' objects by
