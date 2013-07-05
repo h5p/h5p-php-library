@@ -1071,11 +1071,267 @@ class H5PCore {
    *
    * @param array $library
    *  With keys machineName, majorVersion and minorVersion
+   * @param boolean $folderName
+   *  Use hyphen instead of space in returned string.
    * @return string
    *  On the form {machineName} {majorVersion}.{minorVersion}
    */
   public function libraryToString($library, $folderName = FALSE) {
     return $library['machineName'] . ($folderName ? '-' : ' ') . $library['majorVersion'] . '.' . $library['minorVersion'];
   }
+
+  /**
+   * Writes library data as string on the form {machineName} {majorVersion}.{minorVersion}
+   *
+   * @param string $libraryString
+   *  On the form {machineName} {majorVersion}.{minorVersion}
+   * @return array|FALSE
+   *  With keys machineName, majorVersion and minorVersion.
+   *  Returns FALSE only if string is not parsable in the normal library
+   *  string formats "Lib.Name-x.y" or "Lib.Name x.y"
+   */
+  public function libraryFromString($libraryString) {
+    $re = '/^([\w0-9\-\.]{1,255})[\-\ ]([0-9]{1,5})\.([0-9]{1,5})$/i';
+    $matches = array();
+    $res = preg_match($re, $libraryString, $matches);
+    if ($res) {
+      return array(
+        'machineName' => $matches[1],
+        'majorVersion' => $matches[2],
+        'minorVersion' => $matches[3]
+      );
+    }
+    return FALSE;
+  }
 }
+
+/**
+ * Functions for validating basic types from H5P library semantics.
+ */
+class H5PContentValidator {
+  public $h5pF;
+  public $h5pC;
+  private $typeMap;
+  private $semanticsCache;
+
+  /**
+   * Constructor for the H5PContentValidator
+   *
+   * @param object $H5PFramework
+   *  The frameworks implementation of the H5PFrameworkInterface
+   * @param object $H5PCore
+   *  The main H5PCore instance
+   */
+  public function __construct($H5PFramework, $H5PCore) {
+    $this->h5pF = $H5PFramework;
+    $this->h5pC = $H5PCore;
+    $this->typeMap = array(
+      'text' => 'validateText',
+      'number' => 'validateNumber',
+      'boolean' => 'validateBoolean',
+      'list' => 'validateList',
+      'group' => 'validateGroup',
+      'image' => 'validateImage',
+      'video' => 'validateVideo',
+      'audio' => 'validateAudio',
+      'select' => 'validateSelect',
+      'library' => 'validateLibrary',
+    );
+    // Cache for semantics used within this validation to avoid unneccessary
+    // json_decodes if a library is used multiple times.
+    $this->semanticsCache = array();
+  }
+
+  /**
+   * Validate the given value from content with the matching semantics
+   * object from semantics
+   *
+   * Function will recurse via external functions for container objects like
+   * 'list', 'group' and 'library'.
+   *
+   * @param object $value
+   *   Object to be verified. May be a string or an array. (normal or keyed)
+   * @param object $semantics
+   *   Semantics object from semantics.json for main library. Further
+   *   semantics will be loaded from H5PFramework if any libraries are
+   *   found within the value data.
+   */
+  public function validateBySemantics(&$value, $semantics) {
+    // dd('validateBySemantics');
+    $fakebaseobject = (object) array(
+      'type' => 'group',
+      'fields' => $semantics,
+    );
+    $this->validateGroup($value, $fakebaseobject);
+  }
+
+  /**
+   * Validate given text value against text semantics.
+   */
+  public function validateText(&$text, $semantics) {
+    // dd('validateText');
+    if ($semantics->widget && $semantics->widget == 'html') {
+      // FIXME: Implicit tags added in javascript are NOT vissible in
+      // $semantics->tags (such as mathml etc)
+      $allowedtags = implode('', array_map(array($this, 'bracketTags'), $semantics->tags));
+      // Strip invalid HTML tags.
+      $text = strip_tags($text, $allowedtags);
+    }
+    else {
+      // Filter text to plain text.
+      $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    }
+    // TODO: Check if string is within allowed length
+    // TODO: Check if string is according to optional regexp in semantics
+  }
+  private function bracketTags($tag) {
+    return '<'.$tag.'>';
+  }
+
+  /**
+   * Validate given value against number semantics
+   */
+  public function validateNumber(&$number, $semantics) {
+    // Validate that $number is indeed a number
+    if (!is_numeric($number)) {
+      $number = 0;
+    }
+    // TODO: Check if number is within valid bounds.
+    // TODO: Check if number is within allowed bounds even if step value is set.
+    // TODO: Check if number has proper number of decimals.
+  }
+
+  /**
+   * Validate given value against boolean semantics
+   */
+  public function validateBoolean(&$bool, $semantics) {
+    if (!is_bool($bool)) {
+      $bool = FALSE;
+    }
+  }
+
+   /**
+   * Validate select values
+   */
+  public function validateSelect(&$select, $semantics) {
+    if (!in_array($select, array_map(array($this, 'map_object_value'), $semantics->options))) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Invalid selected option in select.'));
+      $select = $semantics->options[0]->value;
+    }
+  }
+  private function map_object_value($o) {
+    return $o->value;
+  }
+
+  /**
+   * Validate given list value agains list semantics.
+   * Will recurse into validating each item in the list according to the type.
+   */
+  public function validateList(&$list, $semantics) {
+    // dd('validateList');
+    $field = $semantics->field;
+    // WTF happens in content with lists of libraries?
+    if ($semantics->field->type == 'group' 
+      && $semantics->field->fields[0]->type == 'library') {
+      $field = $semantics->field->fields[0];
+    }
+
+    $function = $this->typeMap[$field->type];
+
+    foreach ($list as $key => $value) {
+      $this->$function($value, $field);
+    }
+    // TODO: Check that list is not longer than allowed length
+  }
+
+  /**
+   * Validate given image data
+   */
+  public function validateImage(&$image, $semantics) {
+    $image->path = htmlspecialchars($image->path);
+    if ($image->mime && substr($image->mime, 0, 5) !== 'image') {
+      unset($image->mime);
+    }
+  }
+
+  /**
+   * Validate given video data
+   */
+  public function validateVideo(&$video, $semantics) {
+    $video->path = htmlspecialchars($video->path);
+    if ($video->mime && substr($video->mime, 0, 5) !== 'video') {
+      unset($video->mime);
+    }
+  }
+
+  /**
+   * Validate given audio data
+   */
+  public function validateAudio(&$audio, $semantics) {
+    $audio->path = htmlspecialchars($audio->path);
+    if ($audio->mime && substr($audio->mime, 0, 5) !== 'audio') {
+      unset($audio->mime);
+    }
+  }
+
+  /**
+   * Validate given group value against group semantics.
+   * Will recurse into validating each group member.
+   */
+  public function validateGroup(&$group, $semantics) {
+    // dd('validateGroup');
+    // dd(print_r($group, TRUE));
+    // dd(print_r($semantics, TRUE));
+    foreach ($group as $key => &$value) {
+      // dd("time for $key");
+      // Find semantics for name=$key
+      $found = FALSE;
+      foreach ($semantics->fields as $field) {
+        if ($field->name == $key) {
+          $function = $this->typeMap[$field->type];
+          $found = TRUE;
+          // dd(print_r($field, TRUE));
+          // dd("calling dr. $function");
+          break;
+        }
+      }
+      if ($found) {
+        $this->$function($value, $field);
+      }
+      else {
+        $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: no validator exists for ' . $key));
+        // dd('WTF!?');
+        // dd(print_r($group, TRUE));
+      }
+    }
+  }
+
+  /**
+   * Validate given library value against library semantics.
+   *
+   * Will recurse into validating the library's semantics too.
+   */
+  public function validateLibrary(&$value, $semantics) {
+    // dd('validLibrary');
+    // Check if provided library is within allowed options
+    if (in_array($value->library, $semantics->options)) {
+      if (isset($semanticsCache[$value->library])) {
+        $librarySemantics = $semanticsCache[$value->library];
+      }
+      else {
+        $libspec = $this->h5pC->libraryFromString($value->library);
+        $library = $this->h5pF->loadLibrary($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
+        $librarySemantics = json_decode($library['semantics']);
+        $semanticsCache[$value->library] = $librarySemantics;
+      }
+      return $this->validateBySemantics($value->params, $librarySemantics);
+    }
+    else {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Library used in content is not a valid library according to semantics'));
+      // dd('Value: '.print_r($value, TRUE));
+      // dd('Semantics: '.print_r($semantics, TRUE));
+    }
+  }
+}
+
 ?>
