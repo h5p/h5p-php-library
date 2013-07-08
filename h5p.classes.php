@@ -845,14 +845,9 @@ class H5PStorage {
         $library['saveDependencies'] = FALSE;
         continue;
       }
-      // If we're not allowed to save, we should not be here at all. But just
-      // in case, we check again.
-      if (! $this->h5pF->isAllowedLibraryUpdate($library)) {
-        continue;
-      }
 
       $this->h5pF->saveLibraryData($library, $new);
-      
+
       $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
       $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $this->h5pC->libraryToString($library, TRUE);
       $this->h5pC->delTree($destination_path);
