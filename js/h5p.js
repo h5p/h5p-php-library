@@ -176,6 +176,16 @@ H5P.libraryFromString = function (library) {
 };
 
 /**
+ * Get the path to the library
+ * 
+ * @param {string} machineName The machine name of the library
+ * @returns {string} The full path to the library
+ */
+H5P.getLibraryPath = function(machineName) {
+  return H5PIntegration.getLibraryPath(machineName);
+};
+
+/**
  * Recursivly clone the given object.
  *
  * @param {object} object Object to clone.
