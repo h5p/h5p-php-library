@@ -1182,8 +1182,21 @@ class H5PContentValidator {
       // Filter text to plain text.
       $text = htmlspecialchars($text);
     }
-    // TODO: Check if string is within allowed length
-    // TODO: Check if string is according to optional regexp in semantics
+    // Check if string is within allowed length
+    if (isset($semantics->maxLength)) {
+      $text = mb_substr($text, 0, $semantics->maxLength);
+    }
+    // Check if string is according to optional regexp in semantics
+    if (isset($semantics->regexp)) {
+      $pattern = $semantics->regexp->pattern;
+      $pattern .= isset($semantics->regexp->modifiers) ? $semantics->regexp->modifiers : '';
+      if (preg_match($pattern, $text) === 0) {
+        // Note: explicitly ignore return value FALSE, to avoid removing text
+        // if regexp is invalid...
+        $this->h5pF->setErrorMessage($this->h5pF->t('Provided string is not valid according to regexp in semantics.'));
+        $text = '';
+      }
+    }
   }
   private function bracketTags($tag) {
     return '<'.$tag.'>';
@@ -1197,9 +1210,25 @@ class H5PContentValidator {
     if (!is_numeric($number)) {
       $number = 0;
     }
-    // TODO: Check if number is within valid bounds.
-    // TODO: Check if number is within allowed bounds even if step value is set.
-    // TODO: Check if number has proper number of decimals.
+    // Check if number is within valid bounds. Move within bounds if not.
+    if (isset($semantics->min) && $number < $semantics->min) {
+      $number = $semantics->min;
+    }
+    if (isset($semantics->max) && $number > $semantics->max) {
+      $number = $semantics->max;
+    }
+    // Check if number is within allowed bounds even if step value is set.
+    if (isset($semantics->step)) {
+      $testnumber = $number - (isset($semantics->min) ? $semantics->min : 0);
+      $rest = $testnumber % $semantics->step;
+      if ($rest !== 0) {
+        $number -= $rest;
+      }
+    }
+    // Check if number has proper number of decimals.
+    if (isset($semantics->decimals)) {
+      $number = round($number, $semantics->decimals);
+    }
   }
 
   /**
@@ -1239,13 +1268,18 @@ class H5PContentValidator {
    */
   public function validateList(&$list, $semantics) {
     $field = $semantics->field;
-
     $function = $this->typeMap[$field->type];
 
+    // Check that list is not longer than allowed length. We do this before
+    // iterating to avoid unneccessary work.
+    if (isset($semantics->max)) {
+      array_splice($list, $semantics->max);
+    }
+
+    // Validate each element in list.
     foreach ($list as $key => $value) {
       $this->$function($value, $field);
     }
-    // TODO: Check that list is not longer than allowed length
   }
 
   /**
