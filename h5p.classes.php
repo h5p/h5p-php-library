@@ -826,9 +826,14 @@ class H5PStorage {
    * @param int $contentMainId
    *  The main id for the content we are saving. This is used if the framework
    *  we're integrating with uses content id's and version id's
+   * @return boolean
+   *  TRUE if one or more libraries were updated
+   *  FALSE otherwise
    */
   public function savePackage($contentId, $contentMainId = NULL) {
     // Save the libraries we processed during validation
+    $library_saved = FALSE;
+    
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
       $libraryId = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
       $library['saveDependencies'] = TRUE;
@@ -857,6 +862,8 @@ class H5PStorage {
       $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . $this->h5pC->libraryToString($library, TRUE);
       $this->h5pC->delTree($destination_path);
       rename($current_path, $destination_path);
+      
+      $library_saved = TRUE;
     }
 
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
@@ -888,6 +895,8 @@ class H5PStorage {
     $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
     $mainLibraryId = $librariesInUse[$this->h5pC->mainJsonData['mainLibrary']]['library']['libraryId'];
     $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $mainLibraryId, $contentMainId);
+    
+    return $library_saved;
   }
 
   /**
@@ -908,10 +917,13 @@ class H5PStorage {
    *  The content id
    * @param int $contentMainId
    *  The content main id (used by frameworks supporting revisioning)
+   * @return boolean
+   *  TRUE if one or more libraries were updated
+   *  FALSE otherwise
    */
   public function updatePackage($contentId, $contentMainId = NULL) {
     $this->deletePackage($contentId);
-    $this->savePackage($contentId, $contentMainId);
+    return $this->savePackage($contentId, $contentMainId);
   }
 
   /**
