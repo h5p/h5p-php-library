@@ -491,6 +491,8 @@ class H5PValidator {
 
     $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
 
+    $validLibrary = $this->h5pF->validateContentFiles($filePath, TRUE) && $validLibrary;
+
     if (isset($h5pData['preloadedJs'])) {
       $validLibrary = $this->isExistingFiles($h5pData['preloadedJs'], $tmpDir, $file) && $validLibrary;
     }
