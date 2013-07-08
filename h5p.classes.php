@@ -1169,12 +1169,27 @@ class H5PContentValidator {
    */
   public function validateText(&$text, $semantics) {
     if ($semantics->widget && $semantics->widget == 'html') {
-      // FIXME: Implicit tags added in javascript are NOT vissible in
-      // $semantics->tags (such as mathml etc). Need to include defaults.
-      $allowedtags = '<div>';
-      if ($semantics->tags) {
-        $allowedtags = implode('', array_map(array($this, 'bracketTags'), $semantics->tags));
+      // Build allowed tag list, based in $semantics->tags and known defaults.
+      // These four are always allowed.
+      $tags = array('div', 'span', 'p', 'br');
+      if (isset($semantics->tags)) {
+        $tags = array_merge($tags, $semantics->tags);
+        // Add related tags for table etc.
+        if (in_array('table', $semantics->tags)) {
+          $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'thead', 'tbody', 'tfoot'));
+        }
+        if (in_array('b', $semantics->tags)) {
+          $tags[] = 'strong';
+        }
+        if (in_array('i', $semantics->tags)) {
+          $tags[] = 'em';
+        }
+        if (in_array('ul', $semantics->tags) || in_array('ol', $semantics->tags)) {
+          $tags[] = 'li';
+        }
       }
+      $allowedtags = implode('', array_map(array($this, 'bracketTags'), $tags));
+
       // Strip invalid HTML tags.
       $text = strip_tags($text, $allowedtags);
     }
