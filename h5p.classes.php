@@ -1157,29 +1157,30 @@ class H5PContentValidator {
    *   found within the value data.
    */
   public function validateBySemantics(&$value, $semantics) {
-    // dd('validateBySemantics');
     $fakebaseobject = (object) array(
       'type' => 'group',
       'fields' => $semantics,
     );
-    $this->validateGroup($value, $fakebaseobject);
+    $this->validateGroup($value, $fakebaseobject, FALSE);
   }
 
   /**
    * Validate given text value against text semantics.
    */
   public function validateText(&$text, $semantics) {
-    // dd('validateText');
     if ($semantics->widget && $semantics->widget == 'html') {
       // FIXME: Implicit tags added in javascript are NOT vissible in
-      // $semantics->tags (such as mathml etc)
-      $allowedtags = implode('', array_map(array($this, 'bracketTags'), $semantics->tags));
+      // $semantics->tags (such as mathml etc). Need to include defaults.
+      $allowedtags = '<div>';
+      if ($semantics->tags) {
+        $allowedtags = implode('', array_map(array($this, 'bracketTags'), $semantics->tags));
+      }
       // Strip invalid HTML tags.
       $text = strip_tags($text, $allowedtags);
     }
     else {
       // Filter text to plain text.
-      $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+      $text = htmlspecialchars($text);
     }
     // TODO: Check if string is within allowed length
     // TODO: Check if string is according to optional regexp in semantics
@@ -1214,7 +1215,16 @@ class H5PContentValidator {
    * Validate select values
    */
   public function validateSelect(&$select, $semantics) {
-    if (!in_array($select, array_map(array($this, 'map_object_value'), $semantics->options))) {
+    // Special case for dynamicCheckboxes (valid options are generated live)
+    if ($semantics->widget == 'dynamicCheckboxes') {
+      // No practical way to guess valid parameters. Just make sure we don't
+      // have special chars here. Also, dynamicCheckboxes will insert an
+      // array, so iterate it.
+      foreach ($select as $key => $value) {
+        $select[$key] = htmlspecialchars($value);
+      }
+    }
+    else if (!in_array($select, array_map(array($this, 'map_object_value'), $semantics->options))) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Invalid selected option in select.'));
       $select = $semantics->options[0]->value;
     }
@@ -1228,13 +1238,7 @@ class H5PContentValidator {
    * Will recurse into validating each item in the list according to the type.
    */
   public function validateList(&$list, $semantics) {
-    // dd('validateList');
     $field = $semantics->field;
-    // WTF happens in content with lists of libraries?
-    if ($semantics->field->type == 'group' 
-      && $semantics->field->fields[0]->type == 'library') {
-      $field = $semantics->field->fields[0];
-    }
 
     $function = $this->typeMap[$field->type];
 
@@ -1258,9 +1262,11 @@ class H5PContentValidator {
    * Validate given video data
    */
   public function validateVideo(&$video, $semantics) {
-    $video->path = htmlspecialchars($video->path);
-    if ($video->mime && substr($video->mime, 0, 5) !== 'video') {
-      unset($video->mime);
+    foreach ($video as $variant) {
+      $variant->path = htmlspecialchars($variant->path);
+      if ($variant->mime && substr($variant->mime, 0, 5) !== 'video') {
+        unset($variant->mime);
+      }
     }
   }
 
@@ -1268,9 +1274,11 @@ class H5PContentValidator {
    * Validate given audio data
    */
   public function validateAudio(&$audio, $semantics) {
-    $audio->path = htmlspecialchars($audio->path);
-    if ($audio->mime && substr($audio->mime, 0, 5) !== 'audio') {
-      unset($audio->mime);
+    foreach ($audio as $variant) {
+      $variant->path = htmlspecialchars($variant->path);
+      if ($variant->mime && substr($variant->mime, 0, 5) !== 'audio') {
+        unset($variant->mime);
+      }
     }
   }
 
@@ -1278,30 +1286,35 @@ class H5PContentValidator {
    * Validate given group value against group semantics.
    * Will recurse into validating each group member.
    */
-  public function validateGroup(&$group, $semantics) {
-    // dd('validateGroup');
-    // dd(print_r($group, TRUE));
-    // dd(print_r($semantics, TRUE));
-    foreach ($group as $key => &$value) {
-      // dd("time for $key");
-      // Find semantics for name=$key
-      $found = FALSE;
-      foreach ($semantics->fields as $field) {
-        if ($field->name == $key) {
-          $function = $this->typeMap[$field->type];
-          $found = TRUE;
-          // dd(print_r($field, TRUE));
-          // dd("calling dr. $function");
-          break;
+  public function validateGroup(&$group, $semantics, $flatten = TRUE) {
+    // Groups with just one field are compressed in the editor to only output
+    // the child content. (Exemption for fake groups created by
+    // "validateBySemantics" above)
+    if (count($semantics->fields) == 1 && $flatten) {
+      $field = $semantics->fields[0];
+      $function = $this->typeMap[$field->type];
+      $this->$function($group, $field);
+    }
+    else {
+      foreach ($group as $key => &$value) {
+        // Find semantics for name=$key
+        $found = FALSE;
+        foreach ($semantics->fields as $field) {
+          if ($field->name == $key) {
+            $function = $this->typeMap[$field->type];
+            $found = TRUE;
+            break;
+          }
         }
-      }
-      if ($found) {
-        $this->$function($value, $field);
-      }
-      else {
-        $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: no validator exists for ' . $key));
-        // dd('WTF!?');
-        // dd(print_r($group, TRUE));
+        if ($found) {
+          $this->$function($value, $field);
+        }
+        else {
+          // If validator is not found, something exists in content that does
+          // not have a corresponding semantics field. Remove it.
+          $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: no validator exists for ' . $key));
+          unset($group->$key);
+        }
       }
     }
   }
@@ -1312,7 +1325,6 @@ class H5PContentValidator {
    * Will recurse into validating the library's semantics too.
    */
   public function validateLibrary(&$value, $semantics) {
-    // dd('validLibrary');
     // Check if provided library is within allowed options
     if (in_array($value->library, $semantics->options)) {
       if (isset($semanticsCache[$value->library])) {
@@ -1324,14 +1336,11 @@ class H5PContentValidator {
         $librarySemantics = json_decode($library['semantics']);
         $semanticsCache[$value->library] = $librarySemantics;
       }
-      return $this->validateBySemantics($value->params, $librarySemantics);
+      $this->validateBySemantics($value->params, $librarySemantics);
     }
     else {
       $this->h5pF->setErrorMessage($this->h5pF->t('Library used in content is not a valid library according to semantics'));
-      // dd('Value: '.print_r($value, TRUE));
-      // dd('Semantics: '.print_r($semantics, TRUE));
     }
   }
 }
-
 ?>
