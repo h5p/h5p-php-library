@@ -1177,7 +1177,7 @@ class H5PContentValidator {
    * Validate given text value against text semantics.
    */
   public function validateText(&$text, $semantics) {
-    if ($semantics->widget && $semantics->widget == 'html') {
+    if (isset($semantics->widget) && $semantics->widget == 'html') {
       // Build allowed tag list, based in $semantics->tags and known defaults.
       // These four are always allowed.
       $tags = array('div', 'span', 'p', 'br');
@@ -1269,7 +1269,7 @@ class H5PContentValidator {
    */
   public function validateSelect(&$select, $semantics) {
     // Special case for dynamicCheckboxes (valid options are generated live)
-    if ($semantics->widget == 'dynamicCheckboxes') {
+    if (isset($semantics->widget) && $semantics->widget == 'dynamicCheckboxes') {
       // No practical way to guess valid parameters. Just make sure we don't
       // have special chars here. Also, dynamicCheckboxes will insert an
       // array, so iterate it.
@@ -1311,7 +1311,7 @@ class H5PContentValidator {
    */
   public function validateImage(&$image, $semantics) {
     $image->path = htmlspecialchars($image->path);
-    if ($image->mime && substr($image->mime, 0, 5) !== 'image') {
+    if (isset($image->mime) && substr($image->mime, 0, 5) !== 'image') {
       unset($image->mime);
     }
   }
@@ -1322,7 +1322,7 @@ class H5PContentValidator {
   public function validateVideo(&$video, $semantics) {
     foreach ($video as $variant) {
       $variant->path = htmlspecialchars($variant->path);
-      if ($variant->mime && substr($variant->mime, 0, 5) !== 'video') {
+      if (isset($variant->mime) && substr($variant->mime, 0, 5) !== 'video') {
         unset($variant->mime);
       }
     }
@@ -1334,7 +1334,7 @@ class H5PContentValidator {
   public function validateAudio(&$audio, $semantics) {
     foreach ($audio as $variant) {
       $variant->path = htmlspecialchars($variant->path);
-      if ($variant->mime && substr($variant->mime, 0, 5) !== 'audio') {
+      if (isset($variant->mime) && substr($variant->mime, 0, 5) !== 'audio') {
         unset($variant->mime);
       }
     }
