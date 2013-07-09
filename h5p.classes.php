@@ -180,7 +180,6 @@ interface H5PFrameworkInterface {
    */
   public function saveLibraryUsage($contentId, $librariesInUse);
 
-
   /**
    * Loads a library
    *
@@ -192,6 +191,18 @@ interface H5PFrameworkInterface {
    *  FALSE if the library doesn't exist
    */
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
+
+  /**
+   * Loads and decodes library semantics.
+   *
+   * @param string $machineName
+   * @param int $majorVersion
+   * @param int $minorVersion
+   * @return array|FALSE
+   *  Array representing the library with dependency descriptions
+   *  FALSE if the library doesn't exist
+   */
+  public function getLibrarySemantics($machineName, $majorVersion, $minorVersion);
 
   /**
    * Delete all dependencies belonging to given library
@@ -1398,8 +1409,7 @@ class H5PContentValidator {
       }
       else {
         $libspec = $this->h5pC->libraryFromString($value->library);
-        $library = $this->h5pF->loadLibrary($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
-        $librarySemantics = json_decode($library['semantics']);
+        $librarySemantics = $this->h5pF->getLibrarySemantics($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
         $semanticsCache[$value->library] = $librarySemantics;
       }
       $this->validateBySemantics($value->params, $librarySemantics);
