@@ -180,6 +180,7 @@ interface H5PFrameworkInterface {
    */
   public function saveLibraryUsage($contentId, $librariesInUse);
 
+
   /**
    * Loads a library
    *
@@ -1404,13 +1405,13 @@ class H5PContentValidator {
   public function validateLibrary(&$value, $semantics) {
     // Check if provided library is within allowed options
     if (in_array($value->library, $semantics->options)) {
-      if (isset($semanticsCache[$value->library])) {
-        $librarySemantics = $semanticsCache[$value->library];
+      if (isset($this->semanticsCache[$value->library])) {
+        $librarySemantics = $this->semanticsCache[$value->library];
       }
       else {
         $libspec = $this->h5pC->libraryFromString($value->library);
         $librarySemantics = $this->h5pF->getLibrarySemantics($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
-        $semanticsCache[$value->library] = $librarySemantics;
+        $this->semanticsCache[$value->library] = $librarySemantics;
       }
       $this->validateBySemantics($value->params, $librarySemantics);
     }
