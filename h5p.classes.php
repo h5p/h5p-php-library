@@ -1393,14 +1393,14 @@ class H5PContentValidator {
   public function validateLibrary(&$value, $semantics) {
     // Check if provided library is within allowed options
     if (in_array($value->library, $semantics->options)) {
-      if (isset($semanticsCache[$value->library])) {
-        $librarySemantics = $semanticsCache[$value->library];
+      if (isset($this->semanticsCache[$value->library])) {
+        $librarySemantics = $this->semanticsCache[$value->library];
       }
       else {
         $libspec = $this->h5pC->libraryFromString($value->library);
         $library = $this->h5pF->loadLibrary($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
         $librarySemantics = json_decode($library['semantics']);
-        $semanticsCache[$value->library] = $librarySemantics;
+        $this->semanticsCache[$value->library] = $librarySemantics;
       }
       $this->validateBySemantics($value->params, $librarySemantics);
     }
