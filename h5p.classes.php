@@ -1090,7 +1090,7 @@ class H5PCore {
   }
 
   /**
-   * Writes library data as string on the form {machineName} {majorVersion}.{minorVersion}
+   * Parses library data from a string on the form {machineName} {majorVersion}.{minorVersion}
    *
    * @param string $libraryString
    *  On the form {machineName} {majorVersion}.{minorVersion}
