@@ -1209,6 +1209,10 @@ class H5PContentValidator {
           $tags[] = 'li';
         }
       }
+      else {
+        // Add defaults used in javascript.
+        $tags = array_merge($tags, array('strong', 'em', 'del', 'h2', 'h3', 'a', 'ul', 'ol', 'table', 'hr'));
+      }
       $allowedtags = implode('', array_map(array($this, 'bracketTags'), $tags));
 
       // Strip invalid HTML tags.
