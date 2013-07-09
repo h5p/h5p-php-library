@@ -298,6 +298,14 @@ if(!Array.prototype.indexOf) {
   };
 }
 
+// Need to define trim() since this is not available on older IEs,
+// and trim is used in several libs
+if(String.prototype.trim === undefined) {
+  String.prototype.trim = function () {
+    return H5P.trim(this);
+  };
+}
+
 // Simple 'contains' function. Easier to use than keep testing indexOf to -1.
 Array.prototype.contains = function (needle) {
   return (this.indexOf(needle) > -1);
