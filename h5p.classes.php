@@ -1353,7 +1353,7 @@ class H5PContentValidator {
       unset($image->mime);
     }
     else {
-      $file->mime = htmlspecialchars($file->mime);
+      $image->mime = htmlspecialchars($image->mime);
     }
 
     // Remove attributes that should not exist, they may contain JSON escape
