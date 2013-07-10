@@ -1152,6 +1152,7 @@ class H5PContentValidator {
       'boolean' => 'validateBoolean',
       'list' => 'validateList',
       'group' => 'validateGroup',
+      'file' => 'validateFile',
       'image' => 'validateImage',
       'video' => 'validateVideo',
       'audio' => 'validateAudio',
@@ -1193,25 +1194,26 @@ class H5PContentValidator {
       // Build allowed tag list, based in $semantics->tags and known defaults.
       // These four are always allowed.
       $tags = array('div', 'span', 'p', 'br');
-      if (isset($semantics->tags)) {
-        $tags = array_merge($tags, $semantics->tags);
-        // Add related tags for table etc.
-        if (in_array('table', $semantics->tags)) {
-          $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'thead', 'tbody', 'tfoot'));
-        }
-        if (in_array('b', $semantics->tags)) {
-          $tags[] = 'strong';
-        }
-        if (in_array('i', $semantics->tags)) {
-          $tags[] = 'em';
-        }
-        if (in_array('ul', $semantics->tags) || in_array('ol', $semantics->tags)) {
-          $tags[] = 'li';
-        }
-      }
-      else {
+      if (! isset($semantics->tags)) {
         // Add defaults used in javascript.
         $tags = array_merge($tags, array('strong', 'em', 'del', 'h2', 'h3', 'a', 'ul', 'ol', 'table', 'hr'));
+      }
+      else {
+        $tags = array_merge($tags, $semantics->tags);
+      }
+
+      // Add related tags for table etc.
+      if (in_array('table', $semantics->tags)) {
+        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'thead', 'tbody', 'tfoot'));
+      }
+      if (in_array('b', $semantics->tags)) {
+        $tags[] = 'strong';
+      }
+      if (in_array('i', $semantics->tags)) {
+        $tags[] = 'em';
+      }
+      if (in_array('ul', $semantics->tags) || in_array('ol', $semantics->tags)) {
+        $tags[] = 'li';
       }
       $allowedtags = implode('', array_map(array($this, 'bracketTags'), $tags));
 
@@ -1323,12 +1325,47 @@ class H5PContentValidator {
   }
 
   /**
+   * Validate given file data
+   */
+  public function validateFile(&$file, $semantics) {
+    $file->path = htmlspecialchars($file->path);
+    $file->mime = htmlspecialchars($file->mime);
+
+    // Remove attributes that should not exist, they may contain JSON escape
+    // code.
+    $validkeys = array('path', 'mime');
+    if (isset($semantics->extraAttributes)) {
+      $validkeys = array_merge($validkeys, $semantics->extraAttributes);
+    }
+    foreach ($image as $key => $value) {
+      if (!in_array($key, $validkeys)) {
+        unset($image->$key);
+      }
+    }
+  }
+
+  /**
    * Validate given image data
    */
   public function validateImage(&$image, $semantics) {
     $image->path = htmlspecialchars($image->path);
     if (isset($image->mime) && substr($image->mime, 0, 5) !== 'image') {
       unset($image->mime);
+    }
+    else {
+      $file->mime = htmlspecialchars($file->mime);
+    }
+
+    // Remove attributes that should not exist, they may contain JSON escape
+    // code.
+    $validkeys = array('path', 'mime', 'width', 'height');
+    if (isset($semantics->extraAttributes)) {
+      $validkeys = array_merge($validkeys, $semantics->extraAttributes);
+    }
+    foreach ($image as $key => $value) {
+      if (!in_array($key, $validkeys)) {
+        unset($image->$key);
+      }
     }
   }
 
@@ -1341,6 +1378,21 @@ class H5PContentValidator {
       if (isset($variant->mime) && substr($variant->mime, 0, 5) !== 'video') {
         unset($variant->mime);
       }
+      else {
+        $variant->mime = htmlspecialchars($variant->mime);
+      }
+
+      // Remove attributes that should not exist, they may contain JSON escape
+      // code.
+      $validkeys = array('path', 'mime', 'width', 'height');
+      if (isset($semantics->extraAttributes)) {
+        $validkeys = array_merge($validkeys, $semantics->extraAttributes);
+      }
+      foreach ($variant as $key => $value) {
+        if (!in_array($key, $validkeys)) {
+          unset($variant->$key);
+        }
+      }
     }
   }
 
@@ -1352,6 +1404,21 @@ class H5PContentValidator {
       $variant->path = htmlspecialchars($variant->path);
       if (isset($variant->mime) && substr($variant->mime, 0, 5) !== 'audio') {
         unset($variant->mime);
+      }
+      else {
+        $variant->mime = htmlspecialchars($variant->mime);
+      }
+
+      // Remove attributes that should not exist, they may contain JSON escape
+      // code.
+      $validkeys = array('path', 'mime');
+      if (isset($semantics->extraAttributes)) {
+        $validkeys = array_merge($validkeys, $semantics->extraAttributes);
+      }
+      foreach ($variant as $key => $value) {
+        if (!in_array($key, $validkeys)) {
+          unset($variant->$key);
+        }
       }
     }
   }
