@@ -1216,7 +1216,7 @@ class H5PContentValidator {
     }
     else {
       // Filter text to plain text.
-      $text = htmlspecialchars($text);
+      $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
     }
 
     // Check if string is within allowed length
@@ -1288,7 +1288,7 @@ class H5PContentValidator {
       // have special chars here. Also, dynamicCheckboxes will insert an
       // array, so iterate it.
       foreach ($select as $key => $value) {
-        $select[$key] = htmlspecialchars($value);
+        $select[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
       }
     }
     else if (!in_array($select, array_map(array($this, 'map_object_value'), $semantics->options))) {
@@ -1320,49 +1320,39 @@ class H5PContentValidator {
     }
   }
 
+  // Validate a filelike object, such as video, image, audio and file.
+  private function _validateFilelike(&$file, $semantics, $typevalidkeys = array()) {
+    // Make sure path and mime does not have any special chars
+    $file->path = htmlspecialchars($file->path, ENT_QUOTES, 'UTF-8');
+    if (isset($file->mime)) {
+      $file->mime = htmlspecialchars($file->mime, ENT_QUOTES, 'UTF-8');
+    }
+
+    // Remove attributes that should not exist, they may contain JSON escape
+    // code.
+    $validkeys = array_merge(array('path', 'mime'), $typevalidkeys);
+    if (isset($semantics->extraAttributes)) {
+      $validkeys = array_merge($validkeys, $semantics->extraAttributes);
+    }
+    foreach ($file as $key => $value) {
+      if (!in_array($key, $validkeys)) {
+        unset($file->$key);
+      }
+    }
+  }
+
   /**
    * Validate given file data
    */
   public function validateFile(&$file, $semantics) {
-    $file->path = htmlspecialchars($file->path);
-    $file->mime = htmlspecialchars($file->mime);
-
-    // Remove attributes that should not exist, they may contain JSON escape
-    // code.
-    $validkeys = array('path', 'mime');
-    if (isset($semantics->extraAttributes)) {
-      $validkeys = array_merge($validkeys, $semantics->extraAttributes);
-    }
-    foreach ($image as $key => $value) {
-      if (!in_array($key, $validkeys)) {
-        unset($image->$key);
-      }
-    }
+    $this->_validateFilelike($file, $semantics);
   }
 
   /**
    * Validate given image data
    */
   public function validateImage(&$image, $semantics) {
-    $image->path = htmlspecialchars($image->path);
-    if (isset($image->mime) && substr($image->mime, 0, 5) !== 'image') {
-      unset($image->mime);
-    }
-    else {
-      $image->mime = htmlspecialchars($image->mime);
-    }
-
-    // Remove attributes that should not exist, they may contain JSON escape
-    // code.
-    $validkeys = array('path', 'mime', 'width', 'height');
-    if (isset($semantics->extraAttributes)) {
-      $validkeys = array_merge($validkeys, $semantics->extraAttributes);
-    }
-    foreach ($image as $key => $value) {
-      if (!in_array($key, $validkeys)) {
-        unset($image->$key);
-      }
-    }
+    $this->_validateFilelike($image, $semantics, array('width', 'height'));
   }
 
   /**
@@ -1370,25 +1360,7 @@ class H5PContentValidator {
    */
   public function validateVideo(&$video, $semantics) {
     foreach ($video as $variant) {
-      $variant->path = htmlspecialchars($variant->path);
-      if (isset($variant->mime) && substr($variant->mime, 0, 5) !== 'video') {
-        unset($variant->mime);
-      }
-      else {
-        $variant->mime = htmlspecialchars($variant->mime);
-      }
-
-      // Remove attributes that should not exist, they may contain JSON escape
-      // code.
-      $validkeys = array('path', 'mime', 'width', 'height');
-      if (isset($semantics->extraAttributes)) {
-        $validkeys = array_merge($validkeys, $semantics->extraAttributes);
-      }
-      foreach ($variant as $key => $value) {
-        if (!in_array($key, $validkeys)) {
-          unset($variant->$key);
-        }
-      }
+      $this->_validateFilelike($variant, $semantics, array('width', 'height'));
     }
   }
 
@@ -1397,25 +1369,7 @@ class H5PContentValidator {
    */
   public function validateAudio(&$audio, $semantics) {
     foreach ($audio as $variant) {
-      $variant->path = htmlspecialchars($variant->path);
-      if (isset($variant->mime) && substr($variant->mime, 0, 5) !== 'audio') {
-        unset($variant->mime);
-      }
-      else {
-        $variant->mime = htmlspecialchars($variant->mime);
-      }
-
-      // Remove attributes that should not exist, they may contain JSON escape
-      // code.
-      $validkeys = array('path', 'mime');
-      if (isset($semantics->extraAttributes)) {
-        $validkeys = array_merge($validkeys, $semantics->extraAttributes);
-      }
-      foreach ($variant as $key => $value) {
-        if (!in_array($key, $validkeys)) {
-          unset($variant->$key);
-        }
-      }
+      $this->_validateFilelike($variant, $semantics);
     }
   }
 
