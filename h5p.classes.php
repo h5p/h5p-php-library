@@ -1449,7 +1449,7 @@ class H5PContentValidator {
         else {
           // If validator is not found, something exists in content that does
           // not have a corresponding semantics field. Remove it.
-          $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: no validator exists for ' . $key));
+          $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: no validator exists for @key', array('@key' => $key)));
           unset($group->$key);
         }
       }
