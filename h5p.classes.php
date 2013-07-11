@@ -1203,16 +1203,16 @@ class H5PContentValidator {
       }
 
       // Add related tags for table etc.
-      if (in_array('table', $semantics->tags)) {
+      if (in_array('table', $tags)) {
         $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'thead', 'tbody', 'tfoot'));
       }
-      if (in_array('b', $semantics->tags)) {
+      if (in_array('b', $tags)) {
         $tags[] = 'strong';
       }
-      if (in_array('i', $semantics->tags)) {
+      if (in_array('i', $tags)) {
         $tags[] = 'em';
       }
-      if (in_array('ul', $semantics->tags) || in_array('ol', $semantics->tags)) {
+      if (in_array('ul', $tags) || in_array('ol', $tags)) {
         $tags[] = 'li';
       }
       $allowedtags = implode('', array_map(array($this, 'bracketTags'), $tags));
