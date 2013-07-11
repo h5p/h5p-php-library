@@ -1190,31 +1190,25 @@ class H5PContentValidator {
    * Validate given text value against text semantics.
    */
   public function validateText(&$text, $semantics) {
-    if (isset($semantics->widget) && $semantics->widget == 'html') {
-      // Build allowed tag list, based in $semantics->tags and known defaults.
-      // These four are always allowed.
-      $tags = array('div', 'span', 'p', 'br');
-      if (! isset($semantics->tags)) {
-        // Add defaults used in javascript.
-        $tags = array_merge($tags, array('strong', 'em', 'del', 'h2', 'h3', 'a', 'ul', 'ol', 'table', 'hr'));
-      }
-      else {
-        $tags = array_merge($tags, $semantics->tags);
-      }
+    if (isset($semantics->tags)) {
+      // Not testing for empty array allows us to use the 4 defaults without
+      // specifying them in semantics.
+      $tags = array_merge(array('div', 'span', 'p', 'br'), $semantics->tags);
 
       // Add related tags for table etc.
       if (in_array('table', $tags)) {
         $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'thead', 'tbody', 'tfoot'));
       }
-      if (in_array('b', $tags)) {
+      if (in_array('b', $tags) && ! in_array('strong', $tags)) {
         $tags[] = 'strong';
       }
-      if (in_array('i', $tags)) {
+      if (in_array('i', $tags) && ! in_array('em', $tags)) {
         $tags[] = 'em';
       }
-      if (in_array('ul', $tags) || in_array('ol', $tags)) {
+      if (in_array('ul', $tags) || in_array('ol', $tags) && ! in_array('li', $tags)) {
         $tags[] = 'li';
       }
+      // Convert array of tagNames to string of bracketed tags
       $allowedtags = implode('', array_map(array($this, 'bracketTags'), $tags));
 
       // Strip invalid HTML tags.
@@ -1224,10 +1218,12 @@ class H5PContentValidator {
       // Filter text to plain text.
       $text = htmlspecialchars($text);
     }
+
     // Check if string is within allowed length
     if (isset($semantics->maxLength)) {
       $text = mb_substr($text, 0, $semantics->maxLength);
     }
+
     // Check if string is according to optional regexp in semantics
     if (isset($semantics->regexp)) {
       $pattern = '|' . $semantics->regexp->pattern . '|';
