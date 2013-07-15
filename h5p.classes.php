@@ -92,15 +92,13 @@ interface H5PFrameworkInterface {
   public function isPatchedLibrary($library);
 
   /**
-   * Is the current user allowed to update the library data?
+   * Is the current user allowed to update libraries?
    *
-   * @param object $library
-   *  The library data for a library we are checking
    * @return boolean
-   *  TRUE if the user us allowed to update with the given library data OR the library already exists with the current version levels.
-   *  FALSE if the user is not allowed to update or create the library.
+   *  TRUE if the user is allowed to update libraries
+   *  FALSE if the user is not allowed to update libraries
    */
-  public function isAllowedLibraryUpdate($library);
+  public function mayUpdateLibraries();
 
   /**
    * Store data about a library
@@ -389,7 +387,7 @@ class H5PValidator {
       }
 
       // The rest should be library folders
-      else {
+      elseif ($this->h5pF->mayUpdateLibraries()) {
          if (!is_dir($filePath)) {
           // Ignore this. Probably a file that shouldn't have been included.
           continue;
@@ -429,6 +427,9 @@ class H5PValidator {
         foreach ($missingLibraries as $library) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $this->h5pC->libraryToString($library))));
         }
+        if (!$this->h5pF->mayUpdateLibraries()) {
+           $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
+        }
       }
       $valid = empty($missingLibraries) && $valid;
     }
@@ -459,12 +460,6 @@ class H5PValidator {
     $h5pData = $this->getJsonData($filePath . DIRECTORY_SEPARATOR . 'library.json');
     if ($h5pData === FALSE) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Could not find library.json file with valid json format for library %name', array('%name' => $file)));
-      return FALSE;
-    }
-
-    // check if allowed to update this library
-    if (! $this->h5pF->isAllowedLibraryUpdate($h5pData)) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Not allowed to update library %name', array('%name' => $h5pData['machineName'])));
       return FALSE;
     }
 
@@ -849,7 +844,7 @@ class H5PStorage {
   public function savePackage($contentId, $contentMainId = NULL) {
     // Save the libraries we processed during validation
     $library_saved = FALSE;
-
+    $mayUpdateLibraries = $this->h5pF->mayUpdateLibraries();
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
       $libraryId = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
       $library['saveDependencies'] = TRUE;
@@ -864,6 +859,11 @@ class H5PStorage {
         $library['libraryId'] = $libraryId;
         // We already have the same or a newer version of this library
         $library['saveDependencies'] = FALSE;
+        continue;
+      }
+
+      if (!$mayUpdateLibraries) {
+        // This shouldn't happen, but just to be safe...
         continue;
       }
 
