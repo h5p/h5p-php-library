@@ -1279,22 +1279,36 @@ class H5PContentValidator {
    * Validate select values
    */
   public function validateSelect(&$select, $semantics) {
-    // Special case for dynamicCheckboxes (valid options are generated live)
-    if (isset($semantics->widget) && $semantics->widget == 'dynamicCheckboxes') {
-      // No practical way to guess valid parameters. Just make sure we don't
-      // have special chars here. Also, dynamicCheckboxes will insert an
-      // array, so iterate it.
-      foreach ($select as $key => $value) {
-        $select[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+    $strict = FALSE;
+    if (isset($semantics->options) && !empty($semantics->options)) {
+      // We have a strict set of options to choose from.
+      $strict = TRUE;
+      $options = array();
+      foreach ($semantics->options as $option) {
+        $options[$option->value] = TRUE;
       }
     }
-    else if (!in_array($select, array_map(array($this, 'map_object_value'), $semantics->options))) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Invalid selected option in select.'));
-      $select = $semantics->options[0]->value;
+
+    // Multichoice generates array of values. Test each one against valid
+    // options, if we are strict.
+    if (is_array($select)) {
+      foreach ($select as $key => $value) {
+        if ($strict && !isset($options[$value])) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid selected option in multiselect.'));
+          unset($select[$key]);
+        }
+        else {
+          $select[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+        }
+      }
     }
-  }
-  private function map_object_value($o) {
-    return $o->value;
+    else {
+      if ($strict && !isset($options[$select])) {
+        $this->h5pF->setErrorMessage($this->h5pF->t('Invalid selected option in select.'));
+        $select = $semantics->options[0]->value;
+      }
+      $select = htmlspecialchars($select, ENT_QUOTES, 'UTF-8');
+    }
   }
 
   /**
@@ -1395,7 +1409,15 @@ class H5PContentValidator {
           }
         }
         if ($found) {
-          $this->$function($value, $field);
+          if ($function) {
+            $this->$function($value, $field);
+          }
+          else {
+            // We have a field type in semantics for which we don't have a
+            // known validator.
+            $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: unknown content type "@type" in semantics. Removing content!', array('@type' => $field->type)));
+            unset($group->$key);
+          }
         }
         else {
           // If validator is not found, something exists in content that does
