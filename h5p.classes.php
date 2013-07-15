@@ -68,12 +68,12 @@ interface H5PFrameworkInterface {
    *  The id of the specified library or FALSE
    */
   public function getLibraryId($machineName, $majorVersion, $minorVersion);
-  
+
   /**
    * Get file extension whitelist
-   * 
+   *
    * The default extension list is part of h5p, but admins should be allowed to modify it
-   * 
+   *
    * @param boolean $isLibrary
    * @param string $defaultContentWhitelist
    * @param string $defaultLibraryWhitelist
@@ -381,7 +381,7 @@ class H5PValidator {
           $contentExists = TRUE;
           // In the future we might let the libraries provide validation functions for content.json
         }
-        
+
         if (!$this->h5pCV->validateContentFiles($filePath)) {
           $valid = FALSE;
           continue;
@@ -1007,7 +1007,7 @@ class H5PCore {
     'js/h5p.js',
     'js/flowplayer-3.2.12.min.js',
   );
-  
+
   public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
@@ -1238,7 +1238,7 @@ class H5PContentValidator {
       }
     }
   }
-  
+
   /**
    * Validates content files
    *
@@ -1275,7 +1275,7 @@ class H5PContentValidator {
     }
     return $valid;
   }
-  
+
   private function bracketTags($tag) {
     return '<'.$tag.'>';
   }
@@ -1332,9 +1332,14 @@ class H5PContentValidator {
       }
     }
 
-    // Multichoice generates array of values. Test each one against valid
-    // options, if we are strict.
-    if (is_array($select)) {
+    if (isset($semantics->multiple) && $semantics->multiple) {
+      // Multichoice generates array of values. Test each one against valid
+      // options, if we are strict.  First make sure we are working on an
+      // array.
+      if (!is_array($select)) {
+        $select = array($select);
+      }
+
       foreach ($select as $key => $value) {
         if ($strict && !isset($options[$value])) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Invalid selected option in multiselect.'));
@@ -1346,6 +1351,12 @@ class H5PContentValidator {
       }
     }
     else {
+      // Single mode.  If we get an array in here, we chop off the first
+      // element and use that instead.
+      if (is_array($select)) {
+        $select = $select[0];
+      }
+
       if ($strict && !isset($options[$select])) {
         $this->h5pF->setErrorMessage($this->h5pF->t('Invalid selected option in select.'));
         $select = $semantics->options[0]->value;
