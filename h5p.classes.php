@@ -68,6 +68,17 @@ interface H5PFrameworkInterface {
    *  The id of the specified library or FALSE
    */
   public function getLibraryId($machineName, $majorVersion, $minorVersion);
+  
+  /**
+   * Get file extension whitelist
+   * 
+   * The default extension list is part of h5p, but admins should be allowed to modify it
+   * 
+   * @param boolean $isLibrary
+   * @param string $defaultContentWhitelist
+   * @param string $defaultLibraryWhitelist
+   */
+  public function getWhitelist($isLibrary, $defaultContentWhitelist, $defaultLibraryWhitelist);
 
   /**
    * Is the library a patched version of an existing library?
@@ -114,17 +125,6 @@ interface H5PFrameworkInterface {
    *  Any contentMainId defined by the framework, for instance to support revisioning
    */
   public function saveContentData($contentId, $contentJson, $mainJsonData, $mainLibraryId, $contentMainId = NULL);
-
-  /**
-   * Validates content files
-   *
-   * @param string $contentPath
-   *  The path containg content files to validate.
-   * @return boolean
-   *  TRUE if all files are valid
-   *  FALSE if one or more files fail validation. Error message should be set accordingly by validator.
-   */
-  public function validateContentFiles($contentPath);
 
   /**
    * Save what libraries a library is dependending on
@@ -302,6 +302,7 @@ class H5PValidator {
   public function __construct($H5PFramework, $H5PCore) {
     $this->h5pF = $H5PFramework;
     $this->h5pC = $H5PCore;
+    $this->h5pCV = new H5PContentValidator($this->h5pF, $this->h5pC);
   }
 
   /**
@@ -380,7 +381,8 @@ class H5PValidator {
           $contentExists = TRUE;
           // In the future we might let the libraries provide validation functions for content.json
         }
-        if (!$this->h5pF->validateContentFiles($filePath)) {
+        
+        if (!$this->h5pCV->validateContentFiles($filePath)) {
           $valid = FALSE;
           continue;
         }
@@ -503,7 +505,7 @@ class H5PValidator {
 
     $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
 
-    $validLibrary = $this->h5pF->validateContentFiles($filePath, TRUE) && $validLibrary;
+    $validLibrary = $this->h5pCV->validateContentFiles($filePath, TRUE) && $validLibrary;
 
     if (isset($h5pData['preloadedJs'])) {
       $validLibrary = $this->isExistingFiles($h5pData['preloadedJs'], $tmpDir, $file) && $validLibrary;
@@ -1005,6 +1007,9 @@ class H5PCore {
     'js/h5p.js',
     'js/flowplayer-3.2.12.min.js',
   );
+  
+  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf';
+  public static $defaultLibraryWhitelistExtras = 'js css';
 
   public $h5pF;
   public $librariesJsonData;
@@ -1233,6 +1238,44 @@ class H5PContentValidator {
       }
     }
   }
+  
+  /**
+   * Validates content files
+   *
+   * @param string $contentPath
+   *  The path containg content files to validate.
+   * @return boolean
+   *  TRUE if all files are valid
+   *  FALSE if one or more files fail validation. Error message should be set accordingly by validator.
+   */
+  public function validateContentFiles($contentPath, $isLibrary = FALSE) {
+    // Scan content directory for files, recurse into sub directories.
+    $files = array_diff(scandir($contentPath), array('.','..'));
+    $valid = TRUE;
+    $whitelist = $this->h5pF->getWhitelist($isLibrary, H5PCore::$defaultContentWhitelist, H5PCore::$defaultLibraryWhitelistExtras);
+
+    $wl_regex = '/\.(' . preg_replace('/ +/i', '|', preg_quote($whitelist)) . ')$/i';
+
+    foreach ($files as $file) {
+      $filePath = $contentPath . DIRECTORY_SEPARATOR . $file;
+      if (is_dir($filePath)) {
+        $valid = $this->validateContentFiles($filePath, $isLibrary) && $valid;
+      }
+      else {
+        // Snipped from drupal 6 "file_validate_extensions".  Using own code
+        // to avoid 1. creating a file-like object just to test for the known
+        // file name, 2. testing against a returned error array that could
+        // never be more than 1 element long anyway, 3. recreating the regex
+        // for every file.
+        if (!preg_match($wl_regex, mb_strtolower($file))) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('File "%filename" not allowed. Only files with the following extensions are allowed: %files-allowed.', array('%filename' => $file, '%files-allowed' => $whitelist)), 'error');
+          $valid = FALSE;
+        }
+      }
+    }
+    return $valid;
+  }
+  
   private function bracketTags($tag) {
     return '<'.$tag.'>';
   }
