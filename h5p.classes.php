@@ -1340,7 +1340,7 @@ class H5PContentValidator {
         $select = array($select);
       }
 
-      foreach ($select as $key => $value) {
+      foreach ($select as $key => &$value) {
         if ($strict && !isset($options[$value])) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Invalid selected option in multiselect.'));
           unset($select[$key]);
@@ -1407,11 +1407,7 @@ class H5PContentValidator {
     if (isset($semantics->extraAttributes)) {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes);
     }
-    foreach ($file as $key => $value) {
-      if (!in_array($key, $validkeys)) {
-        unset($file->$key);
-      }
-    }
+    $this->filterParams($file, $validkeys);
   }
 
   /**
@@ -1432,7 +1428,7 @@ class H5PContentValidator {
    * Validate given video data
    */
   public function validateVideo(&$video, $semantics) {
-    foreach ($video as $variant) {
+    foreach ($video as &$variant) {
       $this->_validateFilelike($variant, $semantics, array('width', 'height'));
     }
   }
@@ -1441,7 +1437,7 @@ class H5PContentValidator {
    * Validate given audio data
    */
   public function validateAudio(&$audio, $semantics) {
-    foreach ($audio as $variant) {
+    foreach ($audio as &$variant) {
       $this->_validateFilelike($variant, $semantics);
     }
   }
