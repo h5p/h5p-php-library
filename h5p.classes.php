@@ -1379,8 +1379,16 @@ class H5PContentValidator {
       array_splice($list, $semantics->max);
     }
 
+    if (!is_array($list)) {
+      $list = array();
+    }
+
     // Validate each element in list.
-    foreach ($list as $key => $value) {
+    foreach ($list as $key => &$value) {
+      if (!is_int($key)) {
+        unset($list[$key]);
+        continue;
+      }
       $this->$function($value, $field);
     }
   }
@@ -1508,12 +1516,27 @@ class H5PContentValidator {
         $this->semanticsCache[$value->library] = $librarySemantics;
       }
       $this->validateBySemantics($value->params, $librarySemantics);
+      $this->filterParams($value, array('library', 'params'));
     }
     else {
       $this->h5pF->setErrorMessage($this->h5pF->t('Library used in content is not a valid library according to semantics'));
+      $value = new stdClass();
     }
   }
 
+  /**
+   * Check params for a whitelist of allowed properties
+   *
+   * @param array/object $params
+   * @param array $whitelist
+   */
+  public function filterParams(&$params, $whitelist) {
+    foreach ($params as $key => $value) {
+      if (!in_array($key, $whitelist)) {
+        unset($params->{$key});
+      }
+    }
+  }
 
   // XSS filters copied from drupal 7 common.inc. Some modifications done to
   // replace Drupal one-liner functions with corresponding flat PHP.
