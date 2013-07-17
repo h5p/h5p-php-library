@@ -1218,7 +1218,7 @@ class H5PContentValidator {
     }
     else {
       // Filter text to plain text.
-      $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+      $text = htmlspecialchars($text, ENT_QUOTES, 'UTF-8', FALSE);
     }
 
     // Check if string is within allowed length
@@ -1346,7 +1346,7 @@ class H5PContentValidator {
           unset($select[$key]);
         }
         else {
-          $select[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+          $select[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8', FALSE);
         }
       }
     }
@@ -1361,7 +1361,7 @@ class H5PContentValidator {
         $this->h5pF->setErrorMessage($this->h5pF->t('Invalid selected option in select.'));
         $select = $semantics->options[0]->value;
       }
-      $select = htmlspecialchars($select, ENT_QUOTES, 'UTF-8');
+      $select = htmlspecialchars($select, ENT_QUOTES, 'UTF-8', FALSE);
     }
   }
 
@@ -1396,9 +1396,9 @@ class H5PContentValidator {
   // Validate a filelike object, such as video, image, audio and file.
   private function _validateFilelike(&$file, $semantics, $typevalidkeys = array()) {
     // Make sure path and mime does not have any special chars
-    $file->path = htmlspecialchars($file->path, ENT_QUOTES, 'UTF-8');
+    $file->path = htmlspecialchars($file->path, ENT_QUOTES, 'UTF-8', FALSE);
     if (isset($file->mime)) {
-      $file->mime = htmlspecialchars($file->mime, ENT_QUOTES, 'UTF-8');
+      $file->mime = htmlspecialchars($file->mime, ENT_QUOTES, 'UTF-8', FALSE);
     }
 
     // Remove attributes that should not exist, they may contain JSON escape
@@ -1798,7 +1798,7 @@ class H5PContentValidator {
     if ($decode) {
       $string = html_entity_decode($string, ENT_QUOTES, 'UTF-8');
     }
-    return check_plain($this->_strip_dangerous_protocols($string));
+    return htmlspecialchars($this->_strip_dangerous_protocols($string), ENT_QUOTES, 'UTF-8', FALSE);
   }
 
   /**
