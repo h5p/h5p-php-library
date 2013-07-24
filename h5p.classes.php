@@ -1195,6 +1195,9 @@ class H5PContentValidator {
    * Validate given text value against text semantics.
    */
   public function validateText(&$text, $semantics) {
+    if (!is_string($text)) {
+      $text = '';
+    }
     if (isset($semantics->tags)) {
       // Not testing for empty array allows us to use the 4 defaults without
       // specifying them in semantics.
