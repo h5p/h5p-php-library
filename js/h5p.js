@@ -284,17 +284,17 @@ H5P.cssLoaded = function (path) {
 
 // We have several situations where we want to shuffle an array, extend array
 // to do so.
-Array.prototype.shuffle = function() {
-  var i = this.length, j, tempi, tempj;
+H5P.shuffleArray = function(array) {
+  var i = array.length, j, tempi, tempj;
   if ( i === 0 ) return false;
   while ( --i ) {
     j       = Math.floor( Math.random() * ( i + 1 ) );
-    tempi   = this[i];
-    tempj   = this[j];
-    this[i] = tempj;
-    this[j] = tempi;
+    tempi   = array[i];
+    tempj   = array[j];
+    array[i] = tempj;
+    array[j] = tempi;
   }
-  return this;
+  return array;
 };
 
 // Add indexOf to browsers that lack them. (IEs)
