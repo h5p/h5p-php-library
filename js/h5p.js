@@ -317,11 +317,6 @@ if(String.prototype.trim === undefined) {
   };
 }
 
-// Simple 'contains' function. Easier to use than keep testing indexOf to -1.
-Array.prototype.contains = function (needle) {
-  return (this.indexOf(needle) > -1);
-};
-
 // Finally, we want to run init when document is ready.
 H5P.jQuery(document).ready(function(){
   H5P.init();
