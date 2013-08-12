@@ -90,6 +90,15 @@ interface H5PFrameworkInterface {
    *  FALSE otherwise
    */
   public function isPatchedLibrary($library);
+  
+  /**
+   * Is H5P in development mode?
+   * 
+   * @return boolean
+   *  TRUE if H5P development mode is active
+   *  FALSE otherwise
+   */
+  public function isInDevMode();
 
   /**
    * Is the current user allowed to update libraries?
