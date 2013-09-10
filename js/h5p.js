@@ -63,9 +63,15 @@ H5P.fullScreen = function ($el, obj) {
   if (H5P.fullScreenBrowserPrefix === undefined) {
     // Create semi fullscreen.
     $el.add(H5P.$body).addClass('h5p-semi-fullscreen');
+    // Move H5P content to top of body to make sure it is above other page
+    // content.  Insert placeholder in original position to be able to move it
+    // back.
+    $el.after('<div id="h5pfullscreenreplacementplaceholder"></div>').prependTo(H5P.$body);
+
     var $disable = H5P.jQuery('<a href="#" class="h5p-disable-fullscreen">Disable fullscreen</a>').appendTo($el);
     var keyup, disableSemiFullscreen = function () {
       $el.add(H5P.$body).removeClass('h5p-semi-fullscreen');
+      $('#h5pfullscreenreplacementplaceholder').before($el).remove();
       $disable.remove();
       H5P.$body.unbind('keyup', keyup);
 

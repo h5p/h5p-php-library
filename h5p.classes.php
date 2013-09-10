@@ -117,7 +117,7 @@ interface H5PFrameworkInterface {
    * @param object $libraryData
    *  Object holding the information that is to be stored
    */
-  public function saveLibraryData(&$libraryData);
+  public function saveLibraryData(&$libraryData, $new = TRUE);
 
   /**
    * Stores contentData
