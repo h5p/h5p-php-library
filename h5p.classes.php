@@ -116,6 +116,8 @@ interface H5PFrameworkInterface {
    *
    * @param object $libraryData
    *  Object holding the information that is to be stored
+   *
+   * @todo Describe object structure and members so new implementors know what to look for
    */
   public function saveLibraryData(&$libraryData, $new = TRUE);
 
