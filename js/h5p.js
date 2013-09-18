@@ -303,6 +303,19 @@ H5P.shuffleArray = function(array) {
   return array;
 };
 
+/**
+ * Post finished results for user.
+ *
+ * @param {Number} contentId
+ * @param {Number} points
+ * @param {Number} maxPoints
+ */
+H5P.setFinished = function (contentId, points, maxPoints) {
+  if (H5P.postUserStatistics === true) {
+    H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {contentId: contentId, points: points, maxPoints: maxPoints});
+  }
+};
+
 // Add indexOf to browsers that lack them. (IEs)
 if(!Array.prototype.indexOf) {
   Array.prototype.indexOf = function(needle) {
