@@ -90,10 +90,10 @@ interface H5PFrameworkInterface {
    *  FALSE otherwise
    */
   public function isPatchedLibrary($library);
-  
+
   /**
    * Is H5P in development mode?
-   * 
+   *
    * @return boolean
    *  TRUE if H5P development mode is active
    *  FALSE otherwise
@@ -784,12 +784,12 @@ class H5PValidator {
    */
   private function getJsonData($filePath, $return_as_string = FALSE) {
     $json = file_get_contents($filePath);
-    if (!$json) {
-      return FALSE;
+    if ($json === FALSE) {
+      return FALSE; // Cannot read from file.
     }
     $jsonData = json_decode($json, TRUE);
-    if (!$jsonData) {
-      return FALSE;
+    if ($jsonData === NULL) {
+      return FALSE; // JSON cannot be decoded or the recursion limit has been reached.
     }
     return $return_as_string ? $json : $jsonData;
   }

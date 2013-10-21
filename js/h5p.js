@@ -44,7 +44,7 @@ H5P.init = function () {
     obj.attach($el);
 
     if (H5PIntegration.getFullscreen(contentId)) {
-      H5P.jQuery('<div class="h5p-content-controls"><a href="#" class="h5p-enable-fullscreen">' + H5PIntegration.fullscreenText + '</a><div>').insertBefore($el).children().click(function () {
+      H5P.jQuery('<div class="h5p-content-controls"><a href="#" class="h5p-enable-fullscreen">' + H5PIntegration.fullscreenText + '</a></div>').insertBefore($el).children().click(function () {
         H5P.fullScreen($el, obj);
         return false;
       });
@@ -301,6 +301,20 @@ H5P.shuffleArray = function(array) {
     array[j] = tempi;
   }
   return array;
+};
+
+/**
+ * Post finished results for user.
+ *
+ * @param {Number} contentId
+ * @param {Number} points
+ * @param {Number} maxPoints
+ */
+H5P.setFinished = function (contentId, points, maxPoints) {
+  return; // Not yet implemented for Drupal!
+  if (H5P.postUserStatistics === true) {
+    H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {contentId: contentId, points: points, maxPoints: maxPoints});
+  }
 };
 
 // Add indexOf to browsers that lack them. (IEs)
