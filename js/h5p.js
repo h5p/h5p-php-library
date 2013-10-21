@@ -311,7 +311,6 @@ H5P.shuffleArray = function(array) {
  * @param {Number} maxPoints
  */
 H5P.setFinished = function (contentId, points, maxPoints) {
-  return; // Not yet implemented for Drupal!
   if (H5P.postUserStatistics === true) {
     H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {contentId: contentId, points: points, maxPoints: maxPoints});
   }
