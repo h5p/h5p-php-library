@@ -1,7 +1,7 @@
 var H5P = H5P || {};
 
 // This needs to be determined before init is run.
-H5P.isFramed = (window.parent !== window);
+H5P.isFramed = (window.self !== window.top); // (window.parent !== window);
 
 // Initialize H5P content
 // Scans for ".h5p-content"
@@ -80,18 +80,19 @@ H5P.init = function () {
     // Add scripts required for this iFrame from settings
     H5PIntegration.addFilesToIframe($iframe, contentId);
   });
-  if ($h5pIframes.length > 0) {
+  if ($h5pIframes.length !== 0) {
     // TODO: This seems very hacky... why can't we just use the resize event? What happens if we ain't done before the next interval starts?
-    setInterval(function h5pIframeResizer() {
+    setInterval(function () {
       $h5pIframes.each(function (idx, iframe) {
-        var contentHeight = iframe.contentDocument.body.offsetHeight;
-        var frameHeight = H5P.jQuery(iframe).innerHeight();
+        var $iframe = H5P.jQuery(iframe);
+        var contentHeight = $iframe.contents().height();
+        var frameHeight = $iframe.innerHeight();
 
         if (frameHeight !== contentHeight) {
-          H5P.resizeIframe(H5P.jQuery(iframe).data('content-id'), contentHeight);
+          H5P.resizeIframe($iframe.data('content-id'), contentHeight);
         }
       });
-    }, 100);
+    }, 250);
   }
 };
 
