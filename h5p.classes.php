@@ -1240,7 +1240,7 @@ class H5PContentValidator {
 
     // Check if string is according to optional regexp in semantics
     if (isset($semantics->regexp)) {
-      $pattern = '|' . $semantics->regexp->pattern . '|';
+      $pattern = '/' . $semantics->regexp->pattern . '/';
       $pattern .= isset($semantics->regexp->modifiers) ? $semantics->regexp->modifiers : '';
       if (preg_match($pattern, $text) === 0) {
         // Note: explicitly ignore return value FALSE, to avoid removing text
