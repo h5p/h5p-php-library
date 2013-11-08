@@ -1,6 +1,8 @@
 var H5P = H5P || {};
 
-//
+// This needs to be determined before init is run.
+H5P.isFramed = (window.self !== window.top); // (window.parent !== window);
+
 // Initialize H5P content
 // Scans for ".h5p-content"
 H5P.init = function () {
@@ -11,11 +13,18 @@ H5P.init = function () {
     H5P.$body = H5P.jQuery('body');
   }
 
+  // Is this H5P being run in a frame?
+  if (H5P.isFramed) {
+    H5P.$body.addClass('h5p-iframe-content');
+  }
+
   if (H5P.fullScreenBrowserPrefix === undefined) {
     if (document.documentElement.requestFullScreen) {
       H5P.fullScreenBrowserPrefix = '';
     }
-    else if (document.documentElement.webkitRequestFullScreen && navigator.userAgent.indexOf('Android') === -1) { // Skip Android
+    else if (document.documentElement.webkitRequestFullScreen
+             && navigator.userAgent.indexOf('Android') === -1 // Skip Android
+             ) {
       // Safari has stopped working as of v6.0.3.  (Specifying keyboard input
       // makes webkitRequestFullScreen silently fail.)  The following code
       // assumes that the Safari developers figure out how to properly handle
@@ -37,12 +46,17 @@ H5P.init = function () {
     }
   }
 
+  // H5Ps added in normal DIV.
   H5P.jQuery(".h5p-content").each(function (idx, el) {
-    var $el = H5P.jQuery(el);
-    var contentId = $el.data('content-id');
-    var obj = new (H5P.classFromName($el.data('class')))(H5P.jQuery.parseJSON(H5PIntegration.getJsonContent(contentId)), contentId);
+    var $el = H5P.jQuery(el),
+      contentId = $el.data('content-id'),
+      mainLibrary = $el.data('class'),
+      obj = new (H5P.classFromName(mainLibrary))(H5P.jQuery.parseJSON(H5PIntegration.getJsonContent(contentId)), contentId);
+
+    // Render H5P in container.
     obj.attach($el);
 
+    // Add Fullscreen button if relevant.
     if (H5PIntegration.getFullscreen(contentId)) {
       H5P.jQuery('<div class="h5p-content-controls"><a href="#" class="h5p-enable-fullscreen">' + H5PIntegration.fullscreenText + '</a></div>').insertBefore($el).children().click(function () {
         H5P.fullScreen($el, obj);
@@ -50,6 +64,47 @@ H5P.init = function () {
       });
     }
   });
+
+  // H5Ps living in iframes. Note: Fullscreen button will be added
+  // inside iFrame if relevant
+  var $h5pIframes = H5P.jQuery(".h5p-iframe");
+  if ($h5pIframes.length !== 0) {
+    $h5pIframes.each(function (idx, iframe) {
+      var $iframe = H5P.jQuery(iframe),
+        contentId = $iframe.data('content-id'),
+        mainLibrary = $iframe.data('class');
+
+      iframe.contentDocument.open();
+      iframe.contentDocument.write('<!doctype html><html><head>' + H5PIntegration.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-class="' + mainLibrary + '" data-content-id="' + contentId + '"/></body></html>');
+      iframe.contentDocument.close();
+    });
+
+    // TODO: This seems very hacky... why can't we just use the resize event? What happens if we ain't done before the next interval starts?
+    setInterval(function () {
+      $h5pIframes.each(function (idx, iframe) {
+        var $iframe = H5P.jQuery(iframe);
+        var contentHeight = $iframe.contents().height();
+        var frameHeight = $iframe.innerHeight();
+
+        if (frameHeight !== contentHeight) {
+          H5P.resizeIframe($iframe.data('content-id'), contentHeight);
+        }
+      });
+    }, 250);
+  }
+};
+
+H5P.fullScreenIframe = function (contentId, obj, exitCallback) {
+  H5P.fullScreen(H5P.jQuery('#iframe-wrapper-' + contentId), obj, exitCallback);
+};
+
+H5P.resizeIframe = function (contentId, height) {
+  var iframe = document.getElementById('iframe-' + contentId);
+  // Don't allow iFrame to grow beyond window height;
+  if (height > window.innerHeight) {
+    height = window.innerHeight;
+  }
+  iframe.style.height = (H5P.isFullscreen) ? '100%' : height + 'px';
 };
 
 /**
@@ -59,21 +114,43 @@ H5P.init = function () {
  * @param {object} obj H5P
  * @returns {undefined}
  */
-H5P.fullScreen = function ($el, obj) {
+H5P.fullScreen = function ($el, obj, exitCallback) {
+  if (H5P.isFramed) {
+    var $classes = H5P.jQuery('html').add(H5P.$body).add($el);
+    $classes.addClass('h5p-fullscreen');
+    window.parent.H5P.fullScreenIframe($el.data('content-id'), obj, function () {
+      $classes.removeClass('h5p-fullscreen');
+    });
+
+    return;
+  }
+
   if (H5P.fullScreenBrowserPrefix === undefined) {
     // Create semi fullscreen.
     $el.add(H5P.$body).addClass('h5p-semi-fullscreen');
     // Move H5P content to top of body to make sure it is above other page
     // content.  Insert placeholder in original position to be able to move it
     // back.
-    $el.after('<div id="h5pfullscreenreplacementplaceholder"></div>').prependTo(H5P.$body);
+    // THIS DOES NOT WORK WITH IFRAMED CONTENT, iframe will reload/fail.
+    // $el.after('<div id="h5pfullscreenreplacementplaceholder"></div>').prependTo(H5P.$body);
+
+    H5P.isFullscreen = true;
 
     var $disable = H5P.jQuery('<a href="#" class="h5p-disable-fullscreen">Disable fullscreen</a>').appendTo($el);
     var keyup, disableSemiFullscreen = function () {
       $el.add(H5P.$body).removeClass('h5p-semi-fullscreen');
-      $('#h5pfullscreenreplacementplaceholder').before($el).remove();
+      // H5P.jQuery('#h5pfullscreenreplacementplaceholder').before($el).remove();
       $disable.remove();
+      H5P.isFullscreen = false;
       H5P.$body.unbind('keyup', keyup);
+
+      H5P.jQuery(".h5p-iframe").each(function (idx, el) {
+        H5P.resizeIframe(H5P.jQuery(el).data('content-id'), 0);
+      });
+
+      if (exitCallback) {
+        exitCallback();
+      }
 
       if (obj.resize !== undefined) {
         obj.resize(false);
@@ -91,12 +168,23 @@ H5P.fullScreen = function ($el, obj) {
   }
   else {
     var first, eventName = H5P.fullScreenBrowserPrefix + 'fullscreenchange';
+    H5P.isFullscreen = true;
     document.addEventListener(eventName, function () {
       if (first === undefined) {
         first = false;
         return;
       }
+      H5P.isFullscreen = false;
       $el.add(H5P.$body).removeClass('h5p-fullscreen');
+
+      H5P.jQuery(".h5p-iframe").each(function (idx, el) {
+        H5P.resizeIframe(H5P.jQuery(el).data('content-id'), 0);
+      });
+
+      if (exitCallback) {
+        exitCallback();
+      }
+
       if (obj.resize !== undefined) {
         obj.resize(false);
       }
@@ -112,7 +200,9 @@ H5P.fullScreen = function ($el, obj) {
 
     $el.add(H5P.$body).addClass('h5p-fullscreen');
   }
-
+  H5P.jQuery(".h5p-iframe").each(function (idx, el) {
+    H5P.resizeIframe(H5P.jQuery(el).data('content-id'), 0);
+  });
   if (obj.resize !== undefined) {
     obj.resize(true);
   }
@@ -317,10 +407,10 @@ H5P.setFinished = function (contentId, points, maxPoints) {
 };
 
 // Add indexOf to browsers that lack them. (IEs)
-if(!Array.prototype.indexOf) {
-  Array.prototype.indexOf = function(needle) {
-    for(var i = 0; i < this.length; i++) {
-      if(this[i] === needle) {
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function (needle) {
+    for (var i = 0; i < this.length; i++) {
+      if (this[i] === needle) {
         return i;
       }
     }
@@ -330,13 +420,19 @@ if(!Array.prototype.indexOf) {
 
 // Need to define trim() since this is not available on older IEs,
 // and trim is used in several libs
-if(String.prototype.trim === undefined) {
+if (String.prototype.trim === undefined) {
   String.prototype.trim = function () {
     return H5P.trim(this);
   };
 }
 
-// Finally, we want to run init when document is ready.
-H5P.jQuery(document).ready(function(){
-  H5P.init();
-});
+// Finally, we want to run init when document is ready. But not if we're
+// in an iFrame. Then we wait for parent to start init().
+if (H5P.jQuery) {
+  H5P.jQuery(document).ready(function () {
+    if (!H5P.initialized) {
+      H5P.initialized = true;
+      H5P.init();
+    }
+  });
+}
