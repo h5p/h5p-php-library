@@ -1225,6 +1225,9 @@ class H5PContentValidator {
       if (in_array('ul', $tags) || in_array('ol', $tags) && ! in_array('li', $tags)) {
         $tags[] = 'li';
       }
+      if (in_array('del', $tags) || in_array('strike', $tags) && ! in_array('s', $tags)) {
+        $tags[] = 's';
+      }
       // Strip invalid HTML tags.
       $text = $this->filter_xss($text, $tags);
     }
