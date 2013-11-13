@@ -244,7 +244,7 @@ class H5PValidator {
   private $h5pOptional = array(
     'contentType' => '/^.{1,255}$/',
     'author' => '/^.{1,255}$/',
-    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT)$/',
+    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
     'dynamicDependencies' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
@@ -268,7 +268,7 @@ class H5PValidator {
 
   private $libraryOptional  = array(
     'author' => '/^.{1,255}$/',
-    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3)$/',
+    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
     'description' => '/^.{1,}$/',
     'dynamicDependencies' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
@@ -1224,6 +1224,9 @@ class H5PContentValidator {
       }
       if (in_array('ul', $tags) || in_array('ol', $tags) && ! in_array('li', $tags)) {
         $tags[] = 'li';
+      }
+      if (in_array('del', $tags) || in_array('strike', $tags) && ! in_array('s', $tags)) {
+        $tags[] = 's';
       }
       // Strip invalid HTML tags.
       $text = $this->filter_xss($text, $tags);

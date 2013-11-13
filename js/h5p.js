@@ -68,19 +68,17 @@ H5P.init = function () {
   // H5Ps living in iframes. Note: Fullscreen button will be added
   // inside iFrame if relevant
   var $h5pIframes = H5P.jQuery(".h5p-iframe");
-  $h5pIframes.each(function (idx, iframe) {
-    var $iframe = H5P.jQuery(iframe),
-      contentId = $iframe.data('content-id'),
-      mainLibrary = $iframe.data('class');
-
-    // Get iFrame body, and reset it to contain only the normal H5P DIV.
-    $iframe.contents().find('body')
-      .html('<div class="h5p-content" data-class="' + mainLibrary + '" data-content-id="' + contentId + '"/>');
-
-    // Add scripts required for this iFrame from settings
-    H5PIntegration.addFilesToIframe($iframe, contentId);
-  });
   if ($h5pIframes.length !== 0) {
+    $h5pIframes.each(function (idx, iframe) {
+      var $iframe = H5P.jQuery(iframe),
+        contentId = $iframe.data('content-id'),
+        mainLibrary = $iframe.data('class');
+
+      iframe.contentDocument.open();
+      iframe.contentDocument.write('<!doctype html><html><head>' + H5PIntegration.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-class="' + mainLibrary + '" data-content-id="' + contentId + '"/></body></html>');
+      iframe.contentDocument.close();
+    });
+
     // TODO: This seems very hacky... why can't we just use the resize event? What happens if we ain't done before the next interval starts?
     setInterval(function () {
       $h5pIframes.each(function (idx, iframe) {
@@ -430,7 +428,7 @@ if (String.prototype.trim === undefined) {
 
 // Finally, we want to run init when document is ready. But not if we're
 // in an iFrame. Then we wait for parent to start init().
-if (H5P.jQuery && !H5P.isFramed) {
+if (H5P.jQuery) {
   H5P.jQuery(document).ready(function () {
     if (!H5P.initialized) {
       H5P.initialized = true;
