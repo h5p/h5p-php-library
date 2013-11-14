@@ -62,6 +62,10 @@ H5P.init = function () {
         H5P.fullScreen($el, obj);
         return false;
       });
+    };
+
+    if (H5PIntegration.getExport()) {
+      H5P.jQuery('<div class="h5p-export"><a href="' + window.location + '/h5p-export">Last ned H5P</a></div>').insertAfter($el).children();
     }
   });
 
