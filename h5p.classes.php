@@ -221,12 +221,26 @@ interface H5PFrameworkInterface {
   public function deleteLibraryDependencies($libraryId);
 
   /**
-   * Get the paths we need to export
+   * Get all the data we need to export H5P
    *
    * @param int $contentId
+   * ContentID of the node we are going to export
    * @param string $title
+   * Title of the node to export
    * @param string $language
-   * @return export object
+   * Language of the node to export
+   * @return array
+   * An array with all the data needed to export the h5p in the following format:
+   *  'title' => string,
+   *  'contentId' => string/int,
+   *  'mainLibrary' => string (machine name for main library),
+   *  'embed_type' => string,
+   *  'libraries' => array(
+   *    'machine_name' => string,
+   *    'major_version' => int,
+   *    'minor_version' => int,
+   *    'preloaded' => int(0|1),
+   *  'language' => string,
    */
   public function getExportData($contentId, $title, $language);
   /**
