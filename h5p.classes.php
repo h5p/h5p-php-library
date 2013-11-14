@@ -234,11 +234,11 @@ interface H5PFrameworkInterface {
    *  'title' => string,
    *  'contentId' => string/int,
    *  'mainLibrary' => string (machine name for main library),
-   *  'embed_type' => string,
+   *  'embedType' => string,
    *  'libraries' => array(
-   *    'machine_name' => string,
-   *    'major_version' => int,
-   *    'minor_version' => int,
+   *    'machineName' => string,
+   *    'majorVersion' => int,
+   *    'minorVersion' => int,
    *    'preloaded' => int(0|1),
    *  'language' => string,
    */
@@ -284,27 +284,27 @@ Class H5PExport {
       $this->h5pC->copyTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $exports['contentId'], $tempPath . DIRECTORY_SEPARATOR . 'content');
       // Copies libraries to temp dir and create mention in h5p.json
       foreach($exports['libraries'] as $library) {
-        $source = $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . $library['machine_name'] . '-' . $library['major_version'] . '.' . $library['minor_version'];
-        $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machine_name'];
+        $source = $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
         $this->h5pC->copyTree($source, $destination);
 
         // Set preloaded and dynamic dependencies
         if ($library['preloaded']) {
           $preloadedDependencies[] = array(
-            'machineName' => $library['machine_name'],
-            'majorVersion' => $library['major_version'],
-            'minorVersion' => $library['minor_version'],
+            'machineName' => $library['machineName'],
+            'majorVersion' => $library['majorVersion'],
+            'minorVersion' => $library['minorVersion'],
           );
         } else {
           $dynamicDependencies[] = array(
-            'machineName' => $library['machine_name'],
-            'majorVersion' => $library['major_version'],
-            'minorVersion' => $library['minor_version'],
+            'machineName' => $library['machineName'],
+            'majorVersion' => $library['majorVersion'],
+            'minorVersion' => $library['minorVersion'],
           );
         }
       }
       // Make embedTypes into an array
-      $embedTypes = explode(', ', $exports['embed_type']);
+      $embedTypes = explode(', ', $exports['embedType']);
 
       // Build h5p.json
       $h5pJson = array (
