@@ -219,6 +219,34 @@ interface H5PFrameworkInterface {
    *  Library Id
    */
   public function deleteLibraryDependencies($libraryId);
+
+  /**
+   * Get all the data we need to export H5P
+   *
+   * @param int $contentId
+   * ContentID of the node we are going to export
+   * @param string $title
+   * Title of the node to export
+   * @param string $language
+   * Language of the node to export
+   * @return array
+   * An array with all the data needed to export the h5p in the following format:
+   *  'title' => string,
+   *  'contentId' => string/int,
+   *  'mainLibrary' => string (machine name for main library),
+   *  'embedType' => string,
+   *  'libraries' => array(
+   *    'machineName' => string,
+   *    'majorVersion' => int,
+   *    'minorVersion' => int,
+   *    'preloaded' => int(0|1),
+   *  'language' => string,
+   */
+  public function getExportData($contentId, $title, $language);
+  /**
+   * Check if export is enabled.
+   */
+  public function isExportEnabled();
 }
 
 /**
@@ -244,7 +272,7 @@ class H5PValidator {
   private $h5pOptional = array(
     'contentType' => '/^.{1,255}$/',
     'author' => '/^.{1,255}$/',
-    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT)$/',
+    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
     'dynamicDependencies' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
@@ -268,7 +296,7 @@ class H5PValidator {
 
   private $libraryOptional  = array(
     'author' => '/^.{1,255}$/',
-    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3)$/',
+    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
     'description' => '/^.{1,}$/',
     'dynamicDependencies' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
@@ -1004,6 +1032,110 @@ class H5PStorage {
 }
 
 /**
+* This class is used for exporting zips
+*/
+Class H5PExport {
+  public $h5pF;
+  public $h5pC;
+
+  /**
+   * Constructor for the H5PExport
+   *
+   * @param object $H5PFramework
+   *  The frameworks implementation of the H5PFrameworkInterface
+   * @param H5PCore
+   *  Reference to an insance of H5PCore
+   */
+  public function __construct($H5PFramework, $H5PCore) {
+    $this->h5pF = $H5PFramework;
+    $this->h5pC = $H5PCore;
+  }
+  /**
+   * Create the H5P package
+   *
+   * @param object $exportData
+   * The data to be exported.
+   * @return H5P package.
+   */
+  public function exportToZip($exportData) {
+    $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
+    $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $exportData['contentId'];
+    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $exportData['contentId'] . '.h5p';
+    // Check if h5p-package already exists.
+    if (!file_exists($zipPath) == true) {
+      // Temp dir to put the h5p files in
+      @mkdir($tempPath);
+      $this->h5pC->copyTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $exportData['contentId'], $tempPath . DIRECTORY_SEPARATOR . 'content');
+      // Copies libraries to temp dir and create mention in h5p.json
+      foreach($exportData['libraries'] as $library) {
+        $source = $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
+        $this->h5pC->copyTree($source, $destination);
+
+        // Set preloaded and dynamic dependencies
+        if ($library['preloaded']) {
+          $preloadedDependencies[] = array(
+            'machineName' => $library['machineName'],
+            'majorVersion' => $library['majorVersion'],
+            'minorVersion' => $library['minorVersion'],
+          );
+        } else {
+          $dynamicDependencies[] = array(
+            'machineName' => $library['machineName'],
+            'majorVersion' => $library['majorVersion'],
+            'minorVersion' => $library['minorVersion'],
+          );
+        }
+      }
+      // Make embedTypes into an array
+      $embedTypes = explode(', ', $exportData['embedType']);
+
+      // Build h5p.json
+      $h5pJson = array (
+        'title' => $exportData['title'],
+        'language' => $exportData['language'],
+        'mainLibrary' => $exportData['mainLibrary'],
+        'embedTypes' => $embedTypes,
+      );
+      // Add preloaded and dynamic dependencies if they exist
+      if ($preloadedDependencies) { $h5pJson['preloadedDependencies'] = $preloadedDependencies; }
+      if ($dynamicDependencies) { $h5pJson['dynamicDependencies'] = $dynamicDependencies; }
+
+      // Save h5p.json
+      $results = print_r(json_encode($h5pJson), true);
+      file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'h5p.json', $results);
+
+      // Create new zip instance.
+      $zip = new ZipArchive();
+      $zip->open($zipPath, ZIPARCHIVE::CREATE);
+
+      // Get all files and folders in $tempPath
+      $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tempPath . DIRECTORY_SEPARATOR));
+      // Add files to zip
+      foreach ($iterator as $key=>$value) {
+        $test = '.';
+        // Do not add the folders '.' and '..' to the zip. This will make zip invalid.
+        if (substr_compare($key, $test, -strlen($test), strlen($test)) !== 0) {
+          // Get files path in $tempPath
+          $filePath = explode($tempPath . DIRECTORY_SEPARATOR, $key);
+          // Add files to the zip with the intended file-structure
+          $zip->addFile($key, $filePath[1]);
+        }
+      }
+      // Close zip and remove temp dir
+      $zip->close();
+      @rmdir($tempPath);
+    }
+
+    // Set headers for automagic download!!
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="' . $exportData['title'] . '.h5p"');
+    readfile ($zipPath);
+  }
+}
+
+/**
  * Functions and storage shared by the other H5P classes
  */
 class H5PCore {
@@ -1225,6 +1357,9 @@ class H5PContentValidator {
       if (in_array('ul', $tags) || in_array('ol', $tags) && ! in_array('li', $tags)) {
         $tags[] = 'li';
       }
+      if (in_array('del', $tags) || in_array('strike', $tags) && ! in_array('s', $tags)) {
+        $tags[] = 's';
+      }
       // Strip invalid HTML tags.
       $text = $this->filter_xss($text, $tags);
     }
@@ -1240,7 +1375,9 @@ class H5PContentValidator {
 
     // Check if string is according to optional regexp in semantics
     if (isset($semantics->regexp)) {
-      $pattern = '|' . $semantics->regexp->pattern . '|';
+      // Note: '|' used as regexp fence, to allow / in actual patterns.
+      // But also escaping '|' found in patterns, so that is valid too.
+      $pattern = '|' . str_replace('|', '\\|', $semantics->regexp->pattern) . '|';
       $pattern .= isset($semantics->regexp->modifiers) ? $semantics->regexp->modifiers : '';
       if (preg_match($pattern, $text) === 0) {
         // Note: explicitly ignore return value FALSE, to avoid removing text

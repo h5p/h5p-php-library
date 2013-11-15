@@ -60,7 +60,8 @@ div.h5p-semi-fullscreen {
   height: 100%;
 }
 .h5p-iframe-wrapper {
-  width: auto; height: auto;
+  width: auto;
+  height: auto;
 }
 
 .h5p-fullscreen .h5p-iframe-wrapper,
@@ -91,6 +92,8 @@ div.h5p-semi-fullscreen {
   width: 100%;
   height: 100%;
   z-index: 10;
+  overflow: hidden;
+  border: 0;
 }
 .h5p-iframe-wrapper.h5p-semi-fullscreen .buttons button:before {
   content: 'Exit ';
