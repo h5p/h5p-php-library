@@ -1057,7 +1057,7 @@ Class H5PExport {
    * The data to be exported.
    * @return H5P package.
    */
-  public function exportToZip($exportData) {
+  public function getExportPath($exportData) {
     $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
     $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $exportData['contentId'];
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $exportData['contentId'] . '.h5p';
@@ -1140,11 +1140,7 @@ Class H5PExport {
       $this->h5pC->delTree($tempPath);
     }
 
-    // Set headers for automagic download!!
-    header('Content-Description: File Transfer');
-    header('Content-Type: application/zip');
-    header('Content-Disposition: attachment; filename="' . $exportData['title'] . '.h5p"');
-    readfile ($zipPath);
+    return str_replace(DIRECTORY_SEPARATOR, '/', $zipPath);
   }
   
   private function addEditorLibraries($libraries) {
