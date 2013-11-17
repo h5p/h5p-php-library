@@ -1062,16 +1062,27 @@ Class H5PExport {
     $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $exportData['contentId'];
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $exportData['contentId'] . '.h5p';
     // Check if h5p-package already exists.
-    if (!file_exists($zipPath) == true) {
+    if (!file_exists($zipPath)) {
       // Temp dir to put the h5p files in
       @mkdir($tempPath);
+      
+      // Create content folder
       $this->h5pC->copyTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $exportData['contentId'], $tempPath . DIRECTORY_SEPARATOR . 'content');
+      file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json', $exportData['jsonContent']);
+      
+      // Make embedTypes into an array
+      $embedTypes = explode(', ', $exportData['embedType']);
+
+      // Build h5p.json
+      $h5pJson = array (
+        'title' => $exportData['title'],
+        'language' => $exportData['language'],
+        'mainLibrary' => $exportData['mainLibrary'],
+        'embedTypes' => $embedTypes,
+      );
+      
       // Copies libraries to temp dir and create mention in h5p.json
       foreach($exportData['libraries'] as $library) {
-        $source = $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
-        $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
-        $this->h5pC->copyTree($source, $destination);
-
         // Set preloaded and dynamic dependencies
         if ($library['preloaded']) {
           $preloadedDependencies[] = array(
@@ -1087,16 +1098,7 @@ Class H5PExport {
           );
         }
       }
-      // Make embedTypes into an array
-      $embedTypes = explode(', ', $exportData['embedType']);
-
-      // Build h5p.json
-      $h5pJson = array (
-        'title' => $exportData['title'],
-        'language' => $exportData['language'],
-        'mainLibrary' => $exportData['mainLibrary'],
-        'embedTypes' => $embedTypes,
-      );
+      
       // Add preloaded and dynamic dependencies if they exist
       if ($preloadedDependencies) { $h5pJson['preloadedDependencies'] = $preloadedDependencies; }
       if ($dynamicDependencies) { $h5pJson['dynamicDependencies'] = $dynamicDependencies; }
@@ -1104,6 +1106,17 @@ Class H5PExport {
       // Save h5p.json
       $results = print_r(json_encode($h5pJson), true);
       file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'h5p.json', $results);
+      
+      // Add the editor libraries to the list of libraries
+      // TODO: Add support for dependencies or editor libraries
+      $exportData['libraries'] = $this->addEditorLibraries($exportData['libraries']);
+      
+      // Copies libraries to temp dir and create mention in h5p.json
+      foreach($exportData['libraries'] as $library) {
+        $source = $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
+        $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
+        $this->h5pC->copyTree($source, $destination);
+      }
 
       // Create new zip instance.
       $zip = new ZipArchive();
@@ -1124,7 +1137,7 @@ Class H5PExport {
       }
       // Close zip and remove temp dir
       $zip->close();
-      @rmdir($tempPath);
+      $this->h5pC->delTree($tempPath);
     }
 
     // Set headers for automagic download!!
@@ -1132,6 +1145,17 @@ Class H5PExport {
     header('Content-Type: application/zip');
     header('Content-Disposition: attachment; filename="' . $exportData['title'] . '.h5p"');
     readfile ($zipPath);
+  }
+  
+  private function addEditorLibraries($libraries) {
+    foreach ($libraries as $library) {
+      if (isset($library['editorLibraries'])) {
+        foreach ($library['editorLibraries'] as $editorLibrary) {
+          $libraries[$editorLibrary['machineName']] = $editorLibrary;
+        }
+      }
+    }
+    return $libraries;
   }
 }
 
