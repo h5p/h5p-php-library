@@ -1155,6 +1155,14 @@ Class H5PExport {
 
     return str_replace(DIRECTORY_SEPARATOR, '/', $zipPath);
   }
+
+  public function deleteExport($contentId) {
+    $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
+    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $contentId . '.h5p';
+    if (file_exists($zipPath)) {
+      file_delete($zipPath);
+    }
+  }
   
   private function addEditorLibraries($libraries, $editorLibraries) {
     foreach ($editorLibraries as $editorLibrary) {
