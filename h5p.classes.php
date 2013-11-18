@@ -225,13 +225,8 @@ interface H5PFrameworkInterface {
    *
    * @param int $contentId
    * ContentID of the node we are going to export
-   * @param string $title
-   * Title of the node to export
-   * @param string $language
-   * Language of the node to export
    * @return array
    * An array with all the data needed to export the h5p in the following format:
-   *  'title' => string,
    *  'contentId' => string/int,
    *  'mainLibrary' => string (machine name for main library),
    *  'embedType' => string,
@@ -240,7 +235,11 @@ interface H5PFrameworkInterface {
    *    'majorVersion' => int,
    *    'minorVersion' => int,
    *    'preloaded' => int(0|1),
-   *  'language' => string,
+   * 'editorLibraries' => array(
+   *    'machineName' => string,
+   *    'majorVersion' => int,
+   *    'minorVersion' => int,
+   *    'preloaded' => int(0|1),
    */
   public function getExportData($contentId);
   /**
@@ -1062,12 +1061,20 @@ Class H5PExport {
     $this->h5pF = $H5PFramework;
     $this->h5pC = $H5PCore;
   }
+
   /**
-   * Create the H5P package
+   * Return path to h5p package.
    *
-   * @param object $exportData
-   * The data to be exported.
-   * @return H5P package.
+   * Creates package if not already created
+   *
+   * @param int/string $contentId
+   *  Identifier for this H5P
+   * @param String $title
+   *  Title of H5P
+   * @param string $language
+   *  Language code for H5P
+   * @return string
+   *  Path to .h5p file
    */
   public function getExportPath($contentId, $title, $language) {
     $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
@@ -1156,6 +1163,12 @@ Class H5PExport {
     return str_replace(DIRECTORY_SEPARATOR, '/', $zipPath);
   }
 
+  /**
+   * Delete .h5p file
+   *
+   * @param int/string $contentId
+   *  Identifier for the H5P
+   */
   public function deleteExport($contentId) {
     $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $contentId . '.h5p';
@@ -1163,7 +1176,19 @@ Class H5PExport {
       file_delete($zipPath);
     }
   }
-  
+
+  /**
+   * Add editor libraries to the list of libraries
+   *
+   * These aren't supposed to go into h5p.json, but must be included with the rest
+   * of the libraries
+   *
+   * @param array $libraries
+   *  List of libraries keyed by machineName
+   * @param array $editorLibraries
+   *  List of libraries keyed by machineName
+   * @return List of libraries keyed by machineName
+   */
   private function addEditorLibraries($libraries, $editorLibraries) {
     foreach ($editorLibraries as $editorLibrary) {
       $libraries[$editorLibrary['machineName']] = $editorLibrary;      
