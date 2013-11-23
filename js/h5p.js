@@ -58,7 +58,7 @@ H5P.init = function () {
 
     // Add Fullscreen button if relevant.
     if (H5PIntegration.getFullscreen(contentId)) {
-      H5P.jQuery('<div class="h5p-content-controls"><a href="#" class="h5p-enable-fullscreen">' + H5PIntegration.fullscreenText + '</a></div>').insertBefore($el).children().click(function () {
+      H5P.jQuery('<div class="h5p-content-controls"><div role="button" class="h5p-enable-fullscreen">' + H5PIntegration.fullscreenText + '</div></div>').insertBefore($el).children().click(function () {
         H5P.fullScreen($el, obj);
         return false;
       });
