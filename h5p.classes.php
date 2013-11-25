@@ -1439,7 +1439,7 @@ class H5PContentValidator {
     if (isset($semantics->regexp)) {
       // Note: '|' used as regexp fence, to allow / in actual patterns.
       // But also escaping '|' found in patterns, so that is valid too.
-      $pattern = '|' . str_replace('|', '\\|', $semantics->regexp->pattern) . '|';
+      $pattern = '/' . str_replace('/', '\/', $semantics->regexp->pattern) . '/';
       $pattern .= isset($semantics->regexp->modifiers) ? $semantics->regexp->modifiers : '';
       if (preg_match($pattern, $text) === 0) {
         // Note: explicitly ignore return value FALSE, to avoid removing text
