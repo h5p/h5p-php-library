@@ -3,8 +3,10 @@ var H5P = H5P || {};
 // This needs to be determined before init is run.
 H5P.isFramed = (window.self !== window.top); // (window.parent !== window);
 
-// Initialize H5P content
-// Scans for ".h5p-content"
+/**
+ * Initialize H5P content.
+ * Scans for ".h5p-content" in the document and initializes H5P instances where found.
+ */
 H5P.init = function () {
   if (H5P.$window === undefined) {
     H5P.$window = H5P.jQuery(window);
@@ -94,10 +96,25 @@ H5P.init = function () {
   }
 };
 
+/**
+ * Fullscreen iframe container
+ *
+ * @param {string} contentId Content id of H5P in iframe
+ * @param {object} obj H5P object
+ * @param {function} exitCallback Callback function called when user exits fullscreen.
+ * @returns {undefined}
+ */
 H5P.fullScreenIframe = function (contentId, obj, exitCallback) {
   H5P.fullScreen(H5P.jQuery('#iframe-wrapper-' + contentId), obj, exitCallback);
 };
 
+/**
+ * Resize iframe height.
+ *
+ * @param {string} contentId Content id of H5P in iframe
+ * @param {integer} height New height in pixels.
+ * @returns {undefined}
+ */
 H5P.resizeIframe = function (contentId, height) {
   var iframe = document.getElementById('iframe-' + contentId);
   // Don't allow iFrame to grow beyond window height;
@@ -112,6 +129,7 @@ H5P.resizeIframe = function (contentId, height) {
  *
  * @param {jQuery} $el Container
  * @param {object} obj H5P
+ * @param {function} exitCallback Callback function called when user exits fullscreen.
  * @returns {undefined}
  */
 H5P.fullScreen = function ($el, obj, exitCallback) {
@@ -238,18 +256,21 @@ H5P.getContentPath = function (contentId) {
   return H5PIntegration.getContentPath(contentId);
 };
 
-
-//
-// Used from libraries to construct instances of other libraries' objects by
-// name.
-//
-H5P.classFromName = function(name) {
+/**
+ * Get library class constructor from H5P by classname.
+ *
+ * Used from libraries to construct instances of other libraries' objects by name.
+ *
+ * @param {string} name Name of library
+ * @returns Class constructor
+ */
+H5P.classFromName = function (name) {
   var arr = name.split(".");
   return this[arr[arr.length-1]];
 };
 
 // Helper object for keeping coordinates in the same format all over.
-H5P.Coords = function(x, y, w, h) {
+H5P.Coords = function (x, y, w, h) {
   if ( !(this instanceof H5P.Coords) )
     return new H5P.Coords(x, y, w, h);
 
@@ -281,8 +302,10 @@ H5P.Coords = function(x, y, w, h) {
 };
 
 /**
- *@param {string} library
- *  library in the format machineName majorVersion.minorVersion
+ * Parse library string into values.
+ *
+ * @param {string} library
+ *  library in the format "machineName majorVersion.minorVersion"
  * @returns
  *  library as an object with machineName, majorVersion and minorVersion properties
  *  return false if the library parameter is invalid
@@ -305,11 +328,12 @@ H5P.libraryFromString = function (library) {
 /**
  * Get the path to the library
  *
- * @param {string} machineName The machine name of the library
+ * @param {string} library
+ *   The library identifier in the format "machineName-majorVersion.minorVersion"
  * @returns {string} The full path to the library
  */
-H5P.getLibraryPath = function(machineName) {
-  return H5PIntegration.getLibraryPath(machineName);
+H5P.getLibraryPath = function (library) {
+  return H5PIntegration.getLibraryPath(library);
 };
 
 /**
@@ -378,9 +402,17 @@ H5P.cssLoaded = function (path) {
   return false;
 };
 
-// We have several situations where we want to shuffle an array, extend array
-// to do so.
-H5P.shuffleArray = function(array) {
+/**
+ * Shuffle an array in place.
+ *
+ * @param {array} array Array to shuffle
+ * @returns {array} The passed array is returned for chaining.
+ */
+H5P.shuffleArray = function (array) {
+  if (! array instanceof Array) {
+    return;
+  }
+
   var i = array.length, j, tempi, tempj;
   if ( i === 0 ) return false;
   while ( --i ) {
