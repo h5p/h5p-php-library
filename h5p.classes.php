@@ -325,6 +325,10 @@ class H5PValidator {
     'h' => '/^[0-9]{1,4}$/',
     'embedTypes' => array('iframe', 'div'),
     'fullscreen' => '/^(0|1)$/',
+    'coreVersion' => array(
+      'majorVersion' => '/^[0-9]{1,5}$/',
+      'minorVersion' => '/^[0-9]{1,5}$/',
+    ),
   );
 
   /**
@@ -648,6 +652,25 @@ class H5PValidator {
   private function isValidH5pData($h5pData, $library_name, $required, $optional) {
     $valid = $this->isValidRequiredH5pData($h5pData, $required, $library_name);
     $valid = $this->isValidOptionalH5pData($h5pData, $optional, $library_name) && $valid;
+
+    // Test library core version requirement.  If no requirement is set,
+    // this implicitly means 1.0, which shall work on newer versions
+    // too.
+    if (isset($h5pData['coreVersion']) && !empty($h5pData['coreVersion'])) {
+      if (($h5pData['coreVersion']['majorVersion'] > H5PCore::$coreVersion['majorVersion']) ||
+          (($h5pData['coreVersion']['majorVersion'] == H5PCore::$coreVersion['majorVersion']) &&
+            ($h5pData['coreVersion']['minorVersion'] > H5PCore::$coreVersion['minorVersion'])))
+      {
+        $this->h5pF->setErrorMessage(
+          $this->h5pF->t('The library "%library_name" requires H5P %requiredVersion, but only H5P %coreVersion is installed.',
+          array(
+            '%library_name' => $library_name,
+            '%requiredVersion' => $h5pData['coreVersion']['majorVersion'] . '.' . $h5pData['coreVersion']['minorVersion'],
+            '%coreVersion' => H5PCore::$coreVersion['majorVersion'] . '.' . H5PCore::$coreVersion['minorVersion']
+          )));
+        $valid = false;
+      }
+    }
     return $valid;
   }
 
@@ -682,7 +705,7 @@ class H5PValidator {
   }
 
   /**
-   * Va(lidate a requirement given as regexp or an array of requirements
+   * Validate a requirement given as regexp or an array of requirements
    *
    * @param mixed $h5pData
    *  The data to be validated
@@ -1201,7 +1224,10 @@ Class H5PExport {
  * Functions and storage shared by the other H5P classes
  */
 class H5PCore {
-
+  public static $coreVersion = array(
+    'majorVersion' => 1,
+    'minorVersion' => 0
+  );
   public static $styles = array(
     'styles/h5p.css',
   );
