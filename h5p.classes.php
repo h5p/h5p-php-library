@@ -1641,9 +1641,32 @@ class H5PContentValidator {
     // code.
     $validkeys = array_merge(array('path', 'mime'), $typevalidkeys);
     if (isset($semantics->extraAttributes)) {
-      $validkeys = array_merge($validkeys, $semantics->extraAttributes);
+      $validkeys = array_merge($validkeys, $semantics->extraAttributes); // TODO: Validate extraAttributes
     }
     $this->filterParams($file, $validkeys);
+    
+    if (isset($file->width)) {
+      $file->width = intval($file->width);
+    }
+    
+    if (isset($file->height)) {
+      $file->height = intval($file->height);
+    }
+    
+    if (isset($file->codecs)) {
+      $file->codecs = htmlspecialchars($file->codecs, ENT_QUOTES, 'UTF-8', FALSE);
+    }
+    
+    if (isset($file->quality)) {
+      if (!is_object($file->quality) || !isset($file->quality->level) || !isset($file->quality->label)) {
+        unset($file->quality);
+      }
+      else {
+        $this->filterParams($file->quality, array('level', 'label'));
+        $file->quality->level = intval($file->quality->level);
+        $file->quality->label = htmlspecialchars($file->quality->label, ENT_QUOTES, 'UTF-8', FALSE);
+      }
+    }
   }
 
   /**
@@ -1665,7 +1688,7 @@ class H5PContentValidator {
    */
   public function validateVideo(&$video, $semantics) {
     foreach ($video as &$variant) {
-      $this->_validateFilelike($variant, $semantics, array('width', 'height'));
+      $this->_validateFilelike($variant, $semantics, array('width', 'height', 'codecs', 'quality'));
     }
   }
 
