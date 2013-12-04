@@ -104,8 +104,8 @@ H5P.init = function () {
  * @param {function} exitCallback Callback function called when user exits fullscreen.
  * @returns {undefined}
  */
-H5P.fullScreenIframe = function (contentId, obj, exitCallback) {
-  H5P.fullScreen(H5P.jQuery('#iframe-wrapper-' + contentId), obj, exitCallback);
+H5P.fullScreenIframe = function (contentId, obj, exitCallback, $body) {
+  H5P.fullScreen(H5P.jQuery('#h5p-iframe-' + contentId + '-wrapper'), obj, exitCallback, $body);
 };
 
 /**
@@ -116,7 +116,7 @@ H5P.fullScreenIframe = function (contentId, obj, exitCallback) {
  * @returns {undefined}
  */
 H5P.resizeIframe = function (contentId, height) {
-  var iframe = document.getElementById('iframe-' + contentId);
+  var iframe = document.getElementById('h5p-iframe-' + contentId);
   // Don't allow iFrame to grow beyond window height;
   if (height > window.innerHeight) {
     height = window.innerHeight;
@@ -132,13 +132,17 @@ H5P.resizeIframe = function (contentId, height) {
  * @param {function} exitCallback Callback function called when user exits fullscreen.
  * @returns {undefined}
  */
-H5P.fullScreen = function ($el, obj, exitCallback) {
+H5P.fullScreen = function ($el, obj, exitCallback, $body) {
+  if ($body === undefined)  {
+    $body = H5P.$body;
+  }
+  
   if (H5P.isFramed) {
     var $classes = H5P.jQuery('html').add(H5P.$body).add($el);
     $classes.addClass('h5p-fullscreen');
     window.parent.H5P.fullScreenIframe($el.data('content-id'), obj, function () {
       $classes.removeClass('h5p-fullscreen');
-    });
+    }, $body);
 
     return;
   }
@@ -160,7 +164,7 @@ H5P.fullScreen = function ($el, obj, exitCallback) {
       // H5P.jQuery('#h5pfullscreenreplacementplaceholder').before($el).remove();
       $disable.remove();
       H5P.isFullscreen = false;
-      H5P.$body.unbind('keyup', keyup);
+      $body.unbind('keyup', keyup);
 
       H5P.jQuery(".h5p-iframe").each(function (idx, el) {
         H5P.resizeIframe(H5P.jQuery(el).data('content-id'), 0);
@@ -182,7 +186,7 @@ H5P.fullScreen = function ($el, obj, exitCallback) {
       }
     };
     $disable.click(disableSemiFullscreen);
-    H5P.$body.keyup(keyup);
+    $body.keyup(keyup);
   }
   else {
     var first, eventName = H5P.fullScreenBrowserPrefix + 'fullscreenchange';
