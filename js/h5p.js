@@ -117,10 +117,6 @@ H5P.fullScreenIframe = function (contentId, obj, exitCallback, $body) {
  */
 H5P.resizeIframe = function (contentId, height) {
   var iframe = document.getElementById('h5p-iframe-' + contentId);
-  // Don't allow iFrame to grow beyond window height;
-  if (height > window.innerHeight) {
-    height = window.innerHeight;
-  }
   iframe.style.height = (H5P.isFullscreen) ? '100%' : height + 'px';
 };
 
