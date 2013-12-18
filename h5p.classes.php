@@ -280,7 +280,7 @@ class H5PValidator {
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     'metaKeywords' => '/^.{1,}$/',
-    'metaDescription' => '/^.{1,}$/k',
+    'metaDescription' => '/^.{1,}$/',
   );
 
   // Schemas used to validate the library files
