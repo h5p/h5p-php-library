@@ -280,7 +280,7 @@ class H5PValidator {
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     'metaKeywords' => '/^.{1,}$/',
-    'metaDescription' => '/^.{1,}$/k',
+    'metaDescription' => '/^.{1,}$/',
   );
 
   // Schemas used to validate the library files
@@ -1472,7 +1472,7 @@ class H5PContentValidator {
     // Check if string is according to optional regexp in semantics
     if (isset($semantics->regexp)) {
       // Escaping '/' found in patterns, so that it does not break regexp fencing.
-      $pattern = '/' . str_replace('/', '\\/', $semantics->regexp->pattern) . '/';
+      $pattern = '/' . preg_quote($semantics->regexp->pattern, '/') . '/';
       $pattern .= isset($semantics->regexp->modifiers) ? $semantics->regexp->modifiers : '';
       if (preg_match($pattern, $text) === 0) {
         // Note: explicitly ignore return value FALSE, to avoid removing text
