@@ -1109,7 +1109,9 @@ Class H5PExport {
       @mkdir($tempPath);
       $exportData = $this->h5pF->getExportData($contentId);
       // Create content folder
-      $this->h5pC->copyTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $contentId, $tempPath . DIRECTORY_SEPARATOR . 'content');
+      if ($this->h5pC->copyTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $contentId, $tempPath . DIRECTORY_SEPARATOR . 'content') === FALSE) {
+        return FALSE;
+      }
       file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json', $exportData['jsonContent']);
       
       // Make embedTypes into an array
@@ -1307,6 +1309,12 @@ class H5PCore {
    */
   public function copyTree($source, $destination) {
     $dir = opendir($source);
+
+    if ($dir === FALSE) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy tree, no such directory: @dir', array('@dir' => $source)));
+      return FALSE;
+    }
+
     @mkdir($destination);
     while (false !== ($file = readdir($dir))) {
         if (($file != '.') && ($file != '..')) {
