@@ -1236,7 +1236,6 @@ class H5PCore {
   public static $scripts = array(
     'js/jquery.js',
     'js/h5p.js',
-    'js/flowplayer-3.2.12.min.js',
   );
 
   public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf';
