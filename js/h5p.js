@@ -25,20 +25,10 @@ H5P.init = function () {
       H5P.fullScreenBrowserPrefix = '';
     }
     else if (document.documentElement.webkitRequestFullScreen
-             && navigator.userAgent.indexOf('Android') === -1 // Skip Android
-             ) {
-      // Safari has stopped working as of v6.0.3.  (Specifying keyboard input
-      // makes webkitRequestFullScreen silently fail.)  The following code
-      // assumes that the Safari developers figure out how to properly handle
-      // their own extension before reaching version 6.0.10.  Until then, we
-      // treat Safari as an old IE.  (Please note: Just looking for Safari in
-      // the UA string will also match Chrome.)
-      if (navigator.userAgent.match(/Version\/6\.0\.[3-9].*Safari/)) {
-        H5P.fullScreenBrowserPrefix = undefined;
-      }
-      else {
-        H5P.fullScreenBrowserPrefix = 'webkit';
-      }
+        && navigator.userAgent.indexOf('Android') === -1 // Skip Android
+        && navigator.userAgent.indexOf('Version/') === -1 // Skip Safari
+        ) {
+      H5P.fullScreenBrowserPrefix = 'webkit';
     }
     else if (document.documentElement.mozRequestFullScreen) {
       H5P.fullScreenBrowserPrefix = 'moz';
