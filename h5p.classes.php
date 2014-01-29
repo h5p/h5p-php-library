@@ -246,6 +246,16 @@ interface H5PFrameworkInterface {
    * Check if export is enabled.
    */
   public function isExportEnabled();
+  
+  /**
+   * Defines getEditorLibraries.
+   *
+   * @param $machineName Library identifier.
+   * @param $majorVersion Library identfier.
+   * @param $minorVersion Library identfier.
+   * @return array Editor libraries?
+   */
+  public function getEditorLibraries($machineName, $majorVersion, $minorVersion, $complete = FALSE);
 }
 
 /**
@@ -1121,7 +1131,7 @@ Class H5PExport {
       // Build h5p.json
       $h5pJson = array (
         'title' => $title,
-        'language' => $exportData['language'] ? $exportData['language'] : 'und',
+        'language' => $language ? $language : 'und',
         'mainLibrary' => $exportData['mainLibrary'],
         'embedTypes' => $embedTypes,
       );
@@ -1145,8 +1155,8 @@ Class H5PExport {
       }
       
       // Add preloaded and dynamic dependencies if they exist
-      if ($preloadedDependencies) { $h5pJson['preloadedDependencies'] = $preloadedDependencies; }
-      if ($dynamicDependencies) { $h5pJson['dynamicDependencies'] = $dynamicDependencies; }
+      if (isset($preloadedDependencies)) { $h5pJson['preloadedDependencies'] = $preloadedDependencies; }
+      if (isset($dynamicDependencies)) { $h5pJson['dynamicDependencies'] = $dynamicDependencies; }
 
       // Save h5p.json
       $results = print_r(json_encode($h5pJson), true);
@@ -1198,7 +1208,7 @@ Class H5PExport {
     $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $contentId . '.h5p';
     if (file_exists($zipPath)) {
-      file_delete($zipPath);
+      unlink($zipPath);
     }
   }
 

@@ -33,7 +33,7 @@ H5P.init = function () {
     else if (document.documentElement.mozRequestFullScreen) {
       H5P.fullScreenBrowserPrefix = 'moz';
     }
-    else if (document.documentElement.msRequestFullScreen) {
+    else if (document.documentElement.msRequestFullscreen) {
       H5P.fullScreenBrowserPrefix = 'ms';
     }
   }
@@ -65,24 +65,30 @@ H5P.init = function () {
       var $iframe = H5P.jQuery(iframe),
         contentId = $iframe.data('content-id'),
         mainLibrary = $iframe.data('class');
+        
+      $iframe.ready(function () {      
+        // This is a bit hacky but necessary until libraries runs callbacks or similar when "done" or resizing or something.
+        resizeIframeInterval = setInterval(function () {
+          var $doc = $iframe.contents(); 
+          var contentHeight = $doc.height();
+          var frameHeight = $iframe.innerHeight();
+          
+          if (frameHeight !== contentHeight) {
+            H5P.resizeIframe(contentId, contentHeight);
+            $doc[0].documentElement.style.margin = '0 0 1px 0';
+          }
+          else {
+            // Small trick to make scrollbars go away in ie.
+            $doc[0].documentElement.style.margin = '0 0 0 0';
+          }
+          
+        }, 300);
+      });
 
       iframe.contentDocument.open();
       iframe.contentDocument.write('<!doctype html><html><head>' + H5PIntegration.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-class="' + mainLibrary + '" data-content-id="' + contentId + '"/></body></html>');
       iframe.contentDocument.close();
     });
-
-    // TODO: This seems very hacky... why can't we just use the resize event? What happens if we ain't done before the next interval starts?
-    setInterval(function () {
-      $h5pIframes.each(function (idx, iframe) {
-        var $iframe = H5P.jQuery(iframe);
-        var contentHeight = $iframe.contents().height();
-        var frameHeight = $iframe.innerHeight();
-
-        if (frameHeight !== contentHeight) {
-          H5P.resizeIframe($iframe.data('content-id'), contentHeight);
-        }
-      });
-    }, 250);
   }
 };
 
@@ -175,7 +181,7 @@ H5P.fullScreen = function ($el, obj, exitCallback, $body) {
     $body.keyup(keyup);
   }
   else {
-    var first, eventName = H5P.fullScreenBrowserPrefix + 'fullscreenchange';
+    var first, eventName = (H5P.fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : H5P.fullScreenBrowserPrefix + 'fullscreenchange');
     H5P.isFullscreen = true;
     document.addEventListener(eventName, function () {
       if (first === undefined) {
@@ -203,7 +209,9 @@ H5P.fullScreen = function ($el, obj, exitCallback, $body) {
       $el[0].requestFullScreen();
     }
     else {
-      $el[0][H5P.fullScreenBrowserPrefix + 'RequestFullScreen'](H5P.fullScreenBrowserPrefix === 'webkit' ? Element.ALLOW_KEYBOARD_INPUT : undefined);
+      var method = (H5P.fullScreenBrowserPrefix === 'ms' ? 'msRequestFullscreen' : H5P.fullScreenBrowserPrefix + 'RequestFullScreen');
+      var params = (H5P.fullScreenBrowserPrefix === 'webkit' ? Element.ALLOW_KEYBOARD_INPUT : undefined);
+      $el[0][method](params);
     }
 
     $el.add(H5P.$body).addClass('h5p-fullscreen');
