@@ -1384,6 +1384,7 @@ class H5PCore {
    * @return string 'div' or 'iframe'.
    */
   public function loadLibrarySemantics($name, $majorVersion, $minorVersion) {
+    $semantics = NULL;
     if ($this->development_mode & H5PDevelopment::MODE_LIBRARY) {
       // Try to load from dev lib
       $semantics = $this->h5pD->getSemantics($name, $majorVersion, $minorVersion);
@@ -1408,6 +1409,7 @@ class H5PCore {
    * @return array or null.
    */
   public function loadLibrary($name, $majorVersion, $minorVersion) {
+    $library = NULL;
     if ($this->development_mode & H5PDevelopment::MODE_LIBRARY) {
       // Try to load from dev
       $library = $this->h5pD->getLibrary($name, $majorVersion, $minorVersion);
@@ -1432,7 +1434,7 @@ class H5PCore {
   public function findLibraryDependencies(&$dependencies, $library, $editor = FALSE) {
     foreach (array('dynamic', 'preloaded', 'editor') as $type) {
       $property = $type . 'Dependencies';
-      if ($library[$property] === NULL) {
+      if (!isset($library[$property])) {
         continue; // Skip, no such dependencies.
       }
       
