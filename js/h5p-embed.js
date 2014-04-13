@@ -117,7 +117,11 @@ var H5P = H5P || (function () {
           embedCode: content.embedCode
         };
       },
-      i18n: content.i18n
+      i18n: content.i18n,
+      showH5PIconInActionBar: function () {
+        // Always show H5P-icon when embedding
+        return true;
+      }
     };
   };
   
@@ -168,7 +172,7 @@ var H5P = H5P || (function () {
       $classes.addClass('h5p-semi-fullscreen');
       iframe.style.position = 'fixed';
 
-      var $disable = $element.prepend('<a href="#" class="h5p-disable-fullscreen">Disable fullscreen</a>').children(':first');
+      var $disable = $element.prepend('<a href="#" class="h5p-disable-fullscreen" title="Disable fullscreen"></a>').children(':first');
       var keyup, disableSemiFullscreen = function () {
         $disable.remove();
         $body.unbind('keyup', keyup);

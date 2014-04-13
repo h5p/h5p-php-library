@@ -399,12 +399,20 @@ class H5PValidator {
 
     // Extract and then remove the package file.
     $zip = new ZipArchive;
+    
+    // Only allow files with the .h5p extension:
+    if (strtolower(substr($tmpPath, -3)) !== 'h5p') {
+      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (It does not have the .h5p file extension)'));
+      H5PCore::deleteFileTree($tmpDir);
+      return;
+    }
+    
     if ($zip->open($tmpPath) === true) {
       $zip->extractTo($tmpDir);
       $zip->close();
     }
     else {
-      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package.'));
+      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (We are unable to unzip it)'));
       H5PCore::deleteFileTree($tmpDir);
       return;
     }
@@ -430,7 +438,7 @@ class H5PValidator {
         $mainH5pData = $this->getJsonData($filePath);
         if ($mainH5pData === FALSE) {
           $valid = FALSE;
-          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the main h5p.json file'));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Could not parse the main h5p.json file'));
         }
         else {
           $validH5p = $this->isValidH5pData($mainH5pData, $file, $this->h5pRequired, $this->h5pOptional);
@@ -439,7 +447,7 @@ class H5PValidator {
           }
           else {
             $valid = FALSE;
-            $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the main h5p.json file'));
+            $this->h5pF->setErrorMessage($this->h5pF->t('The main h5p.json file is not valid'));
           }
         }
       }
@@ -485,8 +493,15 @@ class H5PValidator {
 
         $libraryH5PData = $this->getLibraryData($file, $filePath, $tmpDir);
 
+        /* library's directory name and machineName in library.json must match */
+        if($libraryH5PData['machineName'] !== $file) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('Library directory name must match machineName in library.json. (Directory: %directoryName , machineName: %machineName)', array('%directoryName' => $file, '%machineName' => $libraryH5PData['machineName'])));
+          $valid = FALSE;
+          continue;
+        }
+        
         if ($libraryH5PData) {
-          $libraries[$file] = $libraryH5PData;
+          $libraries[$libraryH5PData['machineName']] = $libraryH5PData;
         }
         else {
           $valid = FALSE;
@@ -1997,7 +2012,7 @@ class H5PContentValidator {
    */
   public function validateLibrary(&$value, $semantics) {
     // Check if provided library is within allowed options
-    if (in_array($value->library, $semantics->options)) {
+    if (isset($value->library) && in_array($value->library, $semantics->options)) {
       if (isset($this->semanticsCache[$value->library])) {
         $librarySemantics = $this->semanticsCache[$value->library];
       }

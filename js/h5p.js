@@ -51,7 +51,7 @@ H5P.init = function () {
     
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1) {
-      H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="1" class="h5p-enable-fullscreen">' + H5P.t('fullscreen') + '</div></div>').insertBefore($container).children().click(function () {
+      H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="1" class="h5p-enable-fullscreen" title="' + H5P.t('fullscreen') + '"></div></div>').prependTo($container).children().click(function () {
         H5P.fullScreen($container, instance);
       });
     };
@@ -75,7 +75,9 @@ H5P.init = function () {
         H5P.openEmbedDialog($actions, contentData.embedCode);
       });
     }
-    H5P.jQuery('<li><a class="h5p-link" href="http://h5p.org" target="_blank" title="' + H5P.t('h5pDescription') + '"></a></li>').appendTo($actions);
+    if (H5PIntegration.showH5PIconInActionBar()) {
+      H5P.jQuery('<li><a class="h5p-link" href="http://h5p.org" target="_blank" title="' + H5P.t('h5pDescription') + '"></a></li>').appendTo($actions);
+    }
     $actions.insertAfter($container);
     
     if (H5P.isFramed) {
@@ -207,7 +209,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     $classes.addClass('h5p-semi-fullscreen');
     H5P.isFullscreen = true;
 
-    var $disable = $container.prepend('<a href="#" class="h5p-disable-fullscreen">Disable fullscreen</a>').children(':first');
+    var $disable = $container.prepend('<a href="#" class="h5p-disable-fullscreen" title="Disable fullscreen"></a>').children(':first');
     var keyup, disableSemiFullscreen = function () {
       $disable.remove();      
       $body.unbind('keyup', keyup);
