@@ -492,15 +492,14 @@ class H5PValidator {
         }
 
         $libraryH5PData = $this->getLibraryData($file, $filePath, $tmpDir);
-
-        /* library's directory name and machineName in library.json must match */
-        if($libraryH5PData['machineName'] !== $file) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Library directory name must match machineName in library.json. (Directory: %directoryName , machineName: %machineName)', array('%directoryName' => $file, '%machineName' => $libraryH5PData['machineName'])));
-          $valid = FALSE;
-          continue;
-        }
         
-        if ($libraryH5PData) {
+        if ($libraryH5PData !== FALSE) {
+          // Library's directory name and machineName in library.json must match
+          if ($libraryH5PData['machineName'] !== $file) {
+            $this->h5pF->setErrorMessage($this->h5pF->t('Library directory name must match machineName in library.json. (Directory: %directoryName , machineName: %machineName)', array('%directoryName' => $file, '%machineName' => $libraryH5PData['machineName'])));
+            $valid = FALSE;
+            continue;
+          }
           $libraries[$libraryH5PData['machineName']] = $libraryH5PData;
         }
         else {
@@ -1384,7 +1383,7 @@ class H5PCore {
           $files['scripts'][] = $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file);
         }
       }
-      if ($dependency['dropCss'] !== '1' && !empty($dependency['preloadedCss']) && $dependency['preloadedCss'][0] !== '') {
+      if ((!isset($dependency['dropCss']) || $dependency['dropCss'] !== '1') && !empty($dependency['preloadedCss']) && $dependency['preloadedCss'][0] !== '') {
         foreach ($dependency['preloadedCss'] as $file) {
           $files['styles'][] = $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file);
         }
@@ -1465,11 +1464,17 @@ class H5PCore {
         }
         
         $dependencyLibrary = $this->loadLibrary($dependency['machineName'], $dependency['majorVersion'], $dependency['minorVersion']);
-        $dependencies[$dependencyKey] = array(
-          'library' => $dependencyLibrary,
-          'type' => $type
-        );
-        $this->findLibraryDependencies($dependencies, $dependencyLibrary, $type === 'editor');
+        if ($dependencyLibrary) {
+          $dependencies[$dependencyKey] = array(
+            'library' => $dependencyLibrary,
+            'type' => $type
+          );
+          $this->findLibraryDependencies($dependencies, $dependencyLibrary, $type === 'editor');
+        }
+        else {
+          // This site is missing a dependency!
+          $this->h5pF->setErrorMessage($this->h5pF->t('Missing dependency @dep required by @lib.', array('@dep' => H5PCore::libraryToString($dependency), '@lib' => H5PCore::libraryToString($library))));
+        }
       }
     }
   }
