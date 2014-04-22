@@ -123,16 +123,18 @@ interface H5PFrameworkInterface {
   /**
    * Stores contentData
    *
-   * @param int $contentId
-   *  Framework specific id identifying the content
    * @param string $contentJson
    *  The content data that is to be stored
    * @param array $mainJsonData
    *  The data extracted from the h5p.json file
+   * @param array $mainLibraryId
+   *  Main library identifier
    * @param int $contentMainId
    *  Any contentMainId defined by the framework, for instance to support revisioning
+   * @param int $contentId
+   *  Framework specific id identifying the content
    */
-  public function saveContentData($contentId, $contentJson, $mainJsonData, $mainLibraryId, $contentMainId = NULL);
+  public function saveContentData($contentJson, $mainJsonData, $mainLibraryId, $contentMainId = NULL, $contentId = NULL);
 
   /**
    * Save what libraries a library is dependending on
@@ -999,7 +1001,11 @@ class H5PStorage {
       $this->h5pF->saveLibraryData($library, $new);
 
       $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . $key;
-      $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
+      $libraries_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries';
+      if (!is_dir($libraries_path)) {
+        mkdir($libraries_path, 0777, true);
+      }
+      $destination_path = $libraries_path . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
       H5PCore::deleteFileTree($destination_path);
       rename($current_path, $destination_path);
 
@@ -1022,22 +1028,29 @@ class H5PStorage {
     }
     
     if (!$skipContent) {
-      // Move the content folder
       $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . 'content';
-      $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
-      rename($current_path, $destination_path);
-
-      // Save what libraries is beeing used by this package/content
+      
+      // Find out which libraries are used by this package/content
       $librariesInUse = array();
       $this->h5pC->findLibraryDependencies($librariesInUse, $this->h5pC->mainJsonData);
       
+      // Save the data in content.json
+      $contentJson = file_get_contents($current_path . DIRECTORY_SEPARATOR . 'content.json');
+      $mainLibraryId = $librariesInUse['preloaded-' . $this->h5pC->mainJsonData['mainLibrary']]['library']['libraryId'];
+      $contentId = $this->h5pF->saveContentData($contentJson, $this->h5pC->mainJsonData, $mainLibraryId, $contentMainId, $contentId);
+
+      $contents_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content';
+      if (!is_dir($contents_path)) {
+        mkdir($contents_path, 0777, true);
+      }
+      
+      // Move the content folder
+      $destination_path = $contents_path . DIRECTORY_SEPARATOR . $contentId;
+      rename($current_path, $destination_path);
+      
+      // Save the content library dependencies
       $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
       H5PCore::deleteFileTree($this->h5pF->getUploadedH5pFolderPath());
-
-      // Save the data in content.json
-      $contentJson = file_get_contents($destination_path . DIRECTORY_SEPARATOR . 'content.json');
-      $mainLibraryId = $librariesInUse['preloaded-' . $this->h5pC->mainJsonData['mainLibrary']]['library']['libraryId'];
-      $this->h5pF->saveContentData($contentId, $contentJson, $this->h5pC->mainJsonData, $mainLibraryId, $contentMainId);
     }
 
     return $library_saved;
@@ -1276,7 +1289,7 @@ class H5PCore {
     'js/h5p-utils.js',
   );
 
-  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf';
+  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
   public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $path, $development_mode, $h5pD;
