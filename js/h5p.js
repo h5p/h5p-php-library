@@ -40,6 +40,9 @@ H5P.init = function () {
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
     var contentData = H5PIntegration.getContentData(contentId);
+    if (contentData === undefined) {
+      return H5P.error('No data for content id ' + contentId + '. Perhaps the library is gone?');
+    }
     var library = {
       library: contentData.library,
       params: H5P.jQuery.parseJSON(contentData.jsonContent)

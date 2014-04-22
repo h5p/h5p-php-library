@@ -96,6 +96,7 @@ class H5PDevelopment {
     foreach ($this->libraries as $library) {
       $this->h5pF->deleteLibraryDependencies($library['libraryId']);
       // This isn't optimal, but without it we would get duplicate warnings.
+      // TODO: You might get PDOExceptions if two or more requests does this at the same time!!
       $types = array('preloaded', 'dynamic', 'editor');
       foreach ($types as $type) {
         if (isset($library[$type . 'Dependencies'])) {
