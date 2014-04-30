@@ -131,29 +131,7 @@ H5P.init = function () {
 
   // Insert H5Ps that should be in iframes.
   H5P.jQuery("iframe.h5p-iframe").each(function () {
-    var $iframe = H5P.jQuery(this);
-    var contentId = $iframe.data('content-id');
-
-    // DEPRECATED AND WILL BE REMOVED. MAKE SURE YOUR H5Ps EXPOSES A $ AND A resize FUNCTION.
-    $iframe.ready(function () {
-      resizeIframeInterval = setInterval(function () {
-        if (H5P.isFullscreen) {
-          return; 
-        }
-        
-        var $doc = $iframe.contents(); 
-        var contentHeight = $doc.height();
-        var frameHeight = $iframe.innerHeight();
-       
-
-        if (frameHeight !== contentHeight) {
-          $iframe.css('height', contentHeight + 'px');
-          $doc[0].documentElement.style.overflow = 'hidden';
-        }
-      }, 500);
-    });
-    // END DEPRECATION
-
+    var contentId = H5P.jQuery(this).data('content-id');
     this.contentDocument.open();
     this.contentDocument.write('<!doctype html><html class="h5p-iframe"><head>' + H5PIntegration.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
     this.contentDocument.close();
