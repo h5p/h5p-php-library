@@ -947,6 +947,8 @@ class H5PStorage {
 
   public $h5pF;
   public $h5pC;
+  
+  public $contentId = NULL; // Quick fix so WP can get ID of new content.
 
   /**
    * Constructor for the H5PStorage
@@ -1037,6 +1039,7 @@ class H5PStorage {
       $contentJson = file_get_contents($current_path . DIRECTORY_SEPARATOR . 'content.json');
       $mainLibraryId = $librariesInUse['preloaded-' . $this->h5pC->mainJsonData['mainLibrary']]['library']['libraryId'];
       $contentId = $this->h5pF->saveContentData($contentJson, $this->h5pC->mainJsonData, $mainLibraryId, $contentMainId, $contentId);
+      $this->contentId = $contentId;
 
       $contents_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content';
       if (!is_dir($contents_path)) {
