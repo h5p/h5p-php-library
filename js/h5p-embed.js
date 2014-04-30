@@ -152,6 +152,7 @@ var H5P = H5P || (function () {
     var $body = $classes.eq(1);
     
     var done = function (c) {
+      H5P.isFullscreen = false;
       $classes.removeClass(c);
       
       if (H5P.fullScreenBrowserPrefix === undefined) {
@@ -166,6 +167,7 @@ var H5P = H5P || (function () {
       }
     };
 
+    H5P.isFullscreen = true;
     if (fullScreenBrowserPrefix === undefined) {
       // Create semi fullscreen.
       

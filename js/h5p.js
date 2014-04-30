@@ -49,8 +49,7 @@ H5P.init = function () {
     };
 
     // Create new instance.
-    var instance = H5P.newRunnable(library, contentId);
-    instance.attach($container); // Not sent to newRunnable to avoid resize.
+    var instance = H5P.newRunnable(library, contentId, $container, true);
     
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1) {
@@ -87,41 +86,47 @@ H5P.init = function () {
       // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
       var iframe = window.parent.document.getElementById('h5p-iframe-' + contentId);
       var resizeIframe = function () {
-        // Use timeout to make sure the iframe is resized
-        setTimeout(function () {
-          var fullscreen = $container.hasClass('h5p-fullscreen') || $container.hasClass('h5p-semi-fullscreen');
-          if (!fullscreen) {
-            // Retain parent size to avoid jumping/scrolling
-            var parentHeight = iframe.parentElement.style.height;
-            iframe.parentElement.style.height = iframe.parentElement.clientHeight + 'px'; 
-            
-            // Reset iframe height, incase content has shrinked.
-            iframe.style.height = '1px';
-            
-            // Resize iframe so all content is visible.
-            iframe.style.height = (iframe.contentDocument.body.scrollHeight) + 'px';
-            
-            // Free parent
-            iframe.parentElement.style.height = parentHeight;
-          }
-        }, 1);
+        if (window.top.H5P.isFullscreen) {
+          return; // Skip if full screen.
+        }
+        
+        // Retain parent size to avoid jumping/scrolling
+        var parentHeight = iframe.parentElement.style.height;
+        iframe.parentElement.style.height = iframe.parentElement.clientHeight + 'px'; 
+
+        // Reset iframe height, in case content has shrinked.
+        iframe.style.height = '1px';
+
+        // Resize iframe so all content is visible.
+        iframe.style.height = (iframe.contentDocument.body.scrollHeight) + 'px';
+
+        // Free parent
+        iframe.parentElement.style.height = parentHeight;
       };
       
-      if (instance.$ !== undefined) {
-        instance.$.on('resize', resizeIframe);
-      }
+      instance.$.on('resize', function () {
+        // Use timeout to make sure iframe is resized to the correct size.
+        setTimeout(function () {
+          resizeIframe();
+        }, 1);
+      });
     }
     
-    var resize = function () {
-      if (instance.$ !== undefined) {
-        // Resize content.
+    // Resize everything when window is resized.
+    $window.resize(function () {
+      if (window.top.H5P.isFullscreen) {
+        // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
+        setTimeout(function () {
+          instance.$.trigger('resize');
+        }, 1);
+      }
+      else {
         instance.$.trigger('resize');
       }
-    };
-    resize();
+    });
     
-    // Resize everything when window is resized.
-    $window.resize(resize);
+    // Resize content.
+    instance.$.trigger('resize');
   });
 
   // Insert H5Ps that should be in iframes.
@@ -206,12 +211,11 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     }
   };
 
+  H5P.isFullscreen = true;
   if (H5P.fullScreenBrowserPrefix === undefined) {
     // Create semi fullscreen.
     
     $classes.addClass('h5p-semi-fullscreen');
-    H5P.isFullscreen = true;
-
     var $disable = $container.prepend('<a href="#" class="h5p-disable-fullscreen" title="Disable fullscreen"></a>').children(':first');
     var keyup, disableSemiFullscreen = function () {
       $disable.remove();      
@@ -231,8 +235,8 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     // Create real fullscreen.
     
     var first, eventName = (H5P.fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : H5P.fullScreenBrowserPrefix + 'fullscreenchange');
-    H5P.isFullscreen = true;
     document.addEventListener(eventName, function () {
+      console.log('FS changed.');
       if (first === undefined) {
         first = false;
         return;
@@ -327,10 +331,11 @@ H5P.classFromName = function (name) {
  * 
  * @param {Object} library Library/action object form params.
  * @param {Number} contentId 
- * @param {jQuery} $attachTo The element to attach the new instance to.
+ * @param {jQuery} $attachTo An optional element to attach the instance to.
+ * @param {Boolean} skipResize Optionally skip triggering of the resize event after attaching.
  * @return {Object} Instance.
  */
-H5P.newRunnable = function (library, contentId, $attachTo) {
+H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   try {
     var nameSplit = library.library.split(' ', 2);
     var versionSplit = nameSplit[1].split('.', 2);
@@ -360,9 +365,15 @@ H5P.newRunnable = function (library, contentId, $attachTo) {
   }
   
   var instance = new constructor(library.params, contentId);
+  
+  if (instance.$ === undefined) {
+    instance.$ = H5P.jQuery(instance);
+  }
+  
   if ($attachTo !== undefined) {
     instance.attach($attachTo);
-    if (instance.$ !== undefined) {
+    
+    if (skipResize === undefined || !skipResize) {
       // Resize content.
       instance.$.trigger('resize');
     }

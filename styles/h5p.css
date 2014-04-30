@@ -149,6 +149,7 @@ div.h5p-fullscreen {
   z-index: 10;
   overflow: hidden;
   border: 0;
+  display: block;
 }
 .h5p-iframe-wrapper.h5p-semi-fullscreen .buttons button:before {
   content: 'Exit ';
