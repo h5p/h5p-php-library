@@ -214,7 +214,6 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     
     var first, eventName = (H5P.fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : H5P.fullScreenBrowserPrefix + 'fullscreenchange');
     document.addEventListener(eventName, function () {
-      console.log('FS changed.');
       if (first === undefined) {
         first = false;
         return;
@@ -369,7 +368,7 @@ H5P.error = function (err) {
   if (window['console'] !== undefined && console.error !== undefined) {
     console.error(err);
   }
-}
+};
 
 /**
  * Translate text strings.
@@ -552,7 +551,7 @@ H5P.ContentCopyrights = function () {
     
     return html;
   };
-}
+};
 
 /**
  * A ordered list of copyright fields for media.
@@ -663,7 +662,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
     
     return html;
   };
-}
+};
 
 // Translate table for copyright license codes.
 H5P.copyrightLicenses = {
@@ -702,7 +701,7 @@ H5P.Thumbnail = function (source, width, height) {
   this.toString = function () {
     return '<img src="' + source + '" alt="' + H5P.t('thumbnail') + '" class="h5p-thumbnail" height="' + thumbHeight + '"' + (thumbWidth === undefined ? '' : ' width="' + thumbWidth + '"') + '/>';
   };
-}
+};
 
 /**
  * Simple data class for storing a single field.
@@ -725,7 +724,7 @@ H5P.Field = function (label, value) {
   this.getValue = function () {
     return value;
   };
-}
+};
 
 /**
  * Simple class for creating a definition list.
@@ -774,7 +773,7 @@ H5P.DefinitionList = function () {
     }
     return (html === '' ? html : '<dl class="h5p-definition-list">' + html + '</dl>');
   };
-}
+};
 
 /**
  * THIS FUNCTION/CLASS IS DEPRECATED AND WILL BE REMOVED.
