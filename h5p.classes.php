@@ -1385,7 +1385,7 @@ class H5PCore {
   public function getDependenciesFiles($dependencies) {
     $files = array(
       'scripts' => array(),
-      'styles' => array(),
+      'styles' => array()
     );
     foreach ($dependencies as $dependency) {
       if (isset($dependency['path']) === FALSE) {
@@ -1394,14 +1394,17 @@ class H5PCore {
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
       
+      $version = "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}";
       if (!empty($dependency['preloadedJs']) && $dependency['preloadedJs'][0] !== '') {
         foreach ($dependency['preloadedJs'] as $file) {
-          $files['scripts'][] = $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file);
+          $file = trim(is_array($file) ? $file['path'] : $file) . $version;
+          $files['scripts'][] = $dependency['path'] . '/' . $file;
         }
       }
       if ((!isset($dependency['dropCss']) || $dependency['dropCss'] !== '1') && !empty($dependency['preloadedCss']) && $dependency['preloadedCss'][0] !== '') {
         foreach ($dependency['preloadedCss'] as $file) {
-          $files['styles'][] = $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file);
+          $file = trim(is_array($file) ? $file['path'] : $file) . $version;
+          $files['styles'][] = $dependency['path'] . '/' . $file;
         }
       }
     }
