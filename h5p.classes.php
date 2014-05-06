@@ -134,7 +134,7 @@ interface H5PFrameworkInterface {
    * @param int $contentId
    *  Framework specific id identifying the content
    */
-  public function saveContentData($contentJson, $mainJsonData, $mainLibraryId, $contentMainId = NULL, $contentId = NULL);
+  public function saveContentData($content, $contentMainId = NULL);
 
   /**
    * Save what libraries a library is dependending on
@@ -973,7 +973,7 @@ class H5PStorage {
    *  TRUE if one or more libraries were updated
    *  FALSE otherwise
    */
-  public function savePackage($contentId = NULL, $contentMainId = NULL, $skipContent = FALSE) {
+  public function savePackage($content = NULL, $contentMainId = NULL, $skipContent = FALSE) {
     // Save the libraries we processed during validation
     $library_saved = FALSE;
     $mayUpdateLibraries = $this->h5pF->mayUpdateLibraries();
@@ -1035,10 +1035,16 @@ class H5PStorage {
       $librariesInUse = array();
       $this->h5pC->findLibraryDependencies($librariesInUse, $this->h5pC->mainJsonData);
       
-      // Save the data in content.json
-      $contentJson = file_get_contents($current_path . DIRECTORY_SEPARATOR . 'content.json');
-      $mainLibraryId = $librariesInUse['preloaded-' . $this->h5pC->mainJsonData['mainLibrary']]['library']['libraryId'];
-      $contentId = $this->h5pF->saveContentData($contentJson, $this->h5pC->mainJsonData, $mainLibraryId, $contentMainId, $contentId);
+      // Save content
+      if ($content === NULL) {
+        $content = array();
+      }
+      if (!is_array($content)) {
+        $content = array('id' => $content);
+      }
+      $content['library'] = $librariesInUse['preloaded-' . $this->h5pC->mainJsonData['mainLibrary']]['library'];
+      $content['params'] = file_get_contents($current_path . DIRECTORY_SEPARATOR . 'content.json');
+      $contentId = $this->h5pF->saveContentData($content, $contentMainId);
       $this->contentId = $contentId;
 
       $contents_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content';
