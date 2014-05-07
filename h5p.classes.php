@@ -246,33 +246,6 @@ interface H5PFrameworkInterface {
    * @param int $libraryId Library Id
    */
   public function deleteLibrary($libraryId);
-
-  /**
-   * Get all the data we need to export H5P
-   *
-   * @param int $contentId
-   * ContentID of the node we are going to export
-   * @return array
-   * An array with all the data needed to export the h5p in the following format:
-   *  'contentId' => string/int,
-   *  'mainLibrary' => string (machine name for main library),
-   *  'embedType' => string,
-   *  'libraries' => array(
-   *    'machineName' => string,
-   *    'majorVersion' => int,
-   *    'minorVersion' => int,
-   *    'preloaded' => int(0|1),
-   * 'editorLibraries' => array(
-   *    'machineName' => string,
-   *    'majorVersion' => int,
-   *    'minorVersion' => int,
-   *    'preloaded' => int(0|1),
-   */
-  public function getExportData($contentId);
-  /**
-   * Check if export is enabled.
-   */
-  public function isExportEnabled();
   
   /**
    * Load content.
@@ -1147,75 +1120,57 @@ Class H5PExport {
    * @return string
    *  Path to .h5p file
    */
-  public function getExportPath($contentId, $title, $language) {
+  public function getExportPath($content) {
     $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
-    $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $contentId;
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $contentId . '.h5p';
+    $tempPath = $h5pDir . 'tmp' . DIRECTORY_SEPARATOR . $content['id'];
+    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['id'] . '.h5p';
+    
     // Check if h5p-package already exists.
     if (!file_exists($zipPath)) {
       // Temp dir to put the h5p files in
-      @mkdir($tempPath);
-      $exportData = $this->h5pF->getExportData($contentId);
+      @mkdir($tempPath, 0777, TRUE);
+      @mkdir($h5pDir . 'exports', 0777, TRUE);
+      
       // Create content folder
-      if ($this->h5pC->copyFileTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $contentId, $tempPath . DIRECTORY_SEPARATOR . 'content') === FALSE) {
+      if ($this->h5pC->copyFileTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $content['id'], $tempPath . DIRECTORY_SEPARATOR . 'content') === FALSE) {
         return FALSE;
       }
-      file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json', $exportData['jsonContent']);
+      file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json', $content['params']);
       
       // Make embedTypes into an array
-      $embedTypes = explode(', ', $exportData['embedType']);
-
+      $embedTypes = explode(', ', $content['embedType']); // Won't content always be embedded in one way?
 
       // Build h5p.json
       $h5pJson = array (
-        'title' => $title,
-        'language' => $language ? $language : 'und',
-        'mainLibrary' => $exportData['mainLibrary'],
+        'title' => $content['title'],
+        'language' => $content['language'],
+        'mainLibrary' => $content['library']['name'],
         'embedTypes' => $embedTypes,
       );
       
-      // Copies libraries to temp dir and create mention in h5p.json
-      foreach($exportData['libraries'] as $library) {
-        // Set preloaded and dynamic dependencies
-        if ($library['dependencyType'] == 'preloaded') {
-          $preloadedDependencies[] = array(
-            'machineName' => $library['machineName'],
-            'majorVersion' => $library['majorVersion'],
-            'minorVersion' => $library['minorVersion'],
-          );
-        } elseif ($library['dependencyType'] == 'dynamic') {
-          $dynamicDependencies[] = array(
-            'machineName' => $library['machineName'],
-            'majorVersion' => $library['majorVersion'],
-            'minorVersion' => $library['minorVersion'],
-          );
+      // Add dependencies to h5p
+      $dependencies = $this->h5pC->loadContentDependencies($content['id']);
+      foreach ($dependencies as $dependency) {
+        // Copy library to h5p
+        $source = isset($dependency['path']) ? $dependency['path'] : $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($dependency, TRUE);
+        $destination = $tempPath . DIRECTORY_SEPARATOR . $dependency['machineName'];
+        $this->h5pC->copyFileTree($source, $destination);
+        
+        // Do not add editor dependencies to h5p json.
+        if ($dependency['dependencyType'] === 'editor') {
+          continue; 
         }
+        
+        $h5pJson[$dependency['dependencyType'] . 'Dependencies'][] = array(
+          'machineName' => $dependency['machineName'],
+          'majorVersion' => $dependency['majorVersion'],
+          'minorVersion' => $dependency['minorVersion']
+        );
       }
-      
-      // Add preloaded and dynamic dependencies if they exist
-      if (isset($preloadedDependencies)) { $h5pJson['preloadedDependencies'] = $preloadedDependencies; }
-      if (isset($dynamicDependencies)) { $h5pJson['dynamicDependencies'] = $dynamicDependencies; }
 
       // Save h5p.json
       $results = print_r(json_encode($h5pJson), true);
       file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'h5p.json', $results);
-      
-      // Copies libraries to temp dir and create mention in h5p.json
-      foreach($exportData['libraries'] as $library) {
-        $source = NULL;
-        if ($this->h5pC->development_mode & H5PDevelopment::MODE_LIBRARY) {
-          $devlib = $this->h5pC->h5pD->getLibrary($library['machineName'], $library['majorVersion'], $library['minorVersion']);
-          if ($devlib !== NULL) {
-            $source = $devlib['path'];
-          }
-        }
-        
-        if ($source === NULL) {
-          $source = $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . $library['machineName'] . '-' . $library['majorVersion'] . '.' . $library['minorVersion'];
-        }
-        $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
-        $this->h5pC->copyFileTree($source, $destination);
-      }
 
       // Create new zip instance.
       $zip = new ZipArchive();
@@ -1374,12 +1329,13 @@ class H5PCore {
       foreach ($dependencies as $key => $dependency) {
         $libraryString = H5PCore::libraryToString($dependency);
         if (isset($developmentLibraries[$libraryString])) {
+          $developmentLibraries[$libraryString]['dependencyType'] = $dependencies[$key]['dependencyType'];
           $dependencies[$key] = $developmentLibraries[$libraryString];
         }
       }
     }
     
-    return $this->getDependenciesFiles($dependencies);
+    return $dependencies;
   }
   
   /**
