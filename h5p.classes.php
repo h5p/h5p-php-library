@@ -1027,7 +1027,7 @@ class H5PStorage {
       
       // Move the content folder
       $destination_path = $contents_path . DIRECTORY_SEPARATOR . $contentId;
-      rename($current_path, $destination_path);
+      @rename($current_path, $destination_path);
       
       // Save the content library dependencies
       $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
@@ -1122,7 +1122,7 @@ Class H5PExport {
    */
   public function getExportPath($content) {
     $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
-    $tempPath = $h5pDir . 'tmp' . DIRECTORY_SEPARATOR . $content['id'];
+    $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['id'] . '.h5p';
     
     // Check if h5p-package already exists.
@@ -1344,7 +1344,7 @@ class H5PCore {
    * @param array $dependencies
    * @return array files.
    */
-  public function getDependenciesFiles($dependencies) {
+  public function getDependenciesFiles($dependencies, $addCacheBuster = TRUE) {
     $files = array(
       'scripts' => array(),
       'styles' => array()
@@ -1356,7 +1356,7 @@ class H5PCore {
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
       
-      $version = "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}";
+      $version = $addCacheBuster ? "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}" : '';
       if (!empty($dependency['preloadedJs']) && $dependency['preloadedJs'][0] !== '') {
         foreach ($dependency['preloadedJs'] as $file) {
           $file = trim(is_array($file) ? $file['path'] : $file) . $version;
@@ -1408,6 +1408,9 @@ class H5PCore {
     if ($this->development_mode & H5PDevelopment::MODE_LIBRARY) {
       // Try to load from dev
       $library = $this->h5pD->getLibrary($name, $majorVersion, $minorVersion);
+      if ($library !== NULL) {
+        $library['semantics'] = $this->h5pD->getSemantics($name, $majorVersion, $minorVersion);
+      }
     }
     
     if ($library === NULL) {
