@@ -1339,12 +1339,54 @@ class H5PCore {
   }
   
   /**
+   * Get all dependency assets of the given type
+   * 
+   * @param array $dependency
+   * @param string $type
+   * @param array $assets
+   */
+  private function getDependencyAssets($dependency, $type, &$assets) {
+    // Check if dependency has any files of this type
+    if (empty($dependency[$type]) || $dependency[$type][0] === '') {
+      return;
+    }
+    
+    // Check if we should skip CSS.
+    if ($type === 'preloadedCss' && (isset($dependency['dropCss']) && $dependency['dropCss'] === '1')) {
+      return;
+    }
+    
+    foreach ($dependency[$type] as $file) {
+      $assets[] = (object) array(
+        'path' => $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
+        'version' => $dependency['version']
+      );
+    }
+  }
+  
+  /**
+   * Combines path with cache buster / version.
+   * 
+   * @param array $assets
+   * @return array
+   */
+  public function getAssetsUrls($assets) {
+    $urls = array();
+    
+    foreach ($assets as $asset) {
+      $urls[] = $asset->path . $asset->version;
+    }
+    
+    return $urls;
+  }
+  
+  /**
    * Return file paths for all dependecies files.
    *
    * @param array $dependencies
    * @return array files.
    */
-  public function getDependenciesFiles($dependencies, $addCacheBuster = TRUE) {
+  public function getDependenciesFiles($dependencies) {
     $files = array(
       'scripts' => array(),
       'styles' => array()
@@ -1356,19 +1398,9 @@ class H5PCore {
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
       
-      $version = $addCacheBuster ? "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}" : '';
-      if (!empty($dependency['preloadedJs']) && $dependency['preloadedJs'][0] !== '') {
-        foreach ($dependency['preloadedJs'] as $file) {
-          $file = trim(is_array($file) ? $file['path'] : $file) . $version;
-          $files['scripts'][] = $dependency['path'] . '/' . $file;
-        }
-      }
-      if ((!isset($dependency['dropCss']) || $dependency['dropCss'] !== '1') && !empty($dependency['preloadedCss']) && $dependency['preloadedCss'][0] !== '') {
-        foreach ($dependency['preloadedCss'] as $file) {
-          $file = trim(is_array($file) ? $file['path'] : $file) . $version;
-          $files['styles'][] = $dependency['path'] . '/' . $file;
-        }
-      }
+      $dependency['version'] = "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}";
+      $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts']);
+      $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles']);
     }
     return $files;
   }
