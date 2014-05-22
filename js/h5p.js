@@ -45,7 +45,7 @@ H5P.init = function () {
     }
     var library = {
       library: contentData.library,
-      params: H5P.jQuery.parseJSON(contentData.jsonContent)
+      params: JSON.parse(contentData.jsonContent)
     };
 
     // Create new instance.
