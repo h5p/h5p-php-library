@@ -113,7 +113,7 @@ var H5P = H5P || (function () {
           library: content.library,
           jsonContent: content.params,
           fullScreen: content.fullscreen,
-          export: content.export,
+          exportUrl: content.exportUrl,
           embedCode: content.embedCode
         };
       },

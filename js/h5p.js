@@ -64,10 +64,10 @@ H5P.init = function () {
     };
     
     var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
-    if (contentData.export !== '') {
+    if (contentData.exportUrl !== '') {
       // Display export button
       H5P.jQuery('<li class="h5p-button h5p-export" role="button" tabindex="1" title="' + H5P.t('downloadDescription') + '">' + H5P.t('download') + '</li>').appendTo($actions).click(function () {
-        window.location.href = contentData.export;
+        window.location.href = contentData.exportUrl;
       });
     }
     if (instance.getCopyrights !== undefined) {
