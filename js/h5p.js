@@ -12,9 +12,14 @@ if (document.documentElement.requestFullScreen) {
 }
 else if (document.documentElement.webkitRequestFullScreen
     && navigator.userAgent.indexOf('Android') === -1 // Skip Android
-    && navigator.userAgent.indexOf('Version/') === -1 // Skip Safari
     ) {
-  H5P.fullScreenBrowserPrefix = 'webkit';
+  H5P.safariBrowser = navigator.userAgent.match(/Version\/(\d)/);
+  H5P.safariBrowser = (H5P.safariBrowser === null ? 0 : parseInt(H5P.safariBrowser[1]));
+  
+  // Do not allow fullscreen for safari < 7.
+  if (H5P.safariBrowser === 0 || H5P.safariBrowser > 6) {
+    H5P.fullScreenBrowserPrefix = 'webkit';
+  }
 }
 else if (document.documentElement.mozRequestFullScreen) {
   H5P.fullScreenBrowserPrefix = 'moz';
@@ -104,9 +109,11 @@ H5P.init = function () {
         iframe.parentElement.style.height = parentHeight;
       };
       
+      var resizeDelay;
       instance.$.on('resize', function () {
-        // Use timeout to make sure iframe is resized to the correct size.
-        setTimeout(function () {
+        // Use a delay to make sure iframe is resized to the correct size.
+        clearTimeout(resizeDelay);
+        resizeDelay = setTimeout(function () {
           resizeIframe();
         }, 1);
       });
@@ -116,9 +123,7 @@ H5P.init = function () {
     $window.resize(function () {
       if (window.top.H5P.isFullscreen) {
         // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
-        setTimeout(function () {
           instance.$.trigger('resize');
-        }, 1);
       }
       else {
         instance.$.trigger('resize');
@@ -170,19 +175,43 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
   
   $classes = $element.add(H5P.$body).add($classes);
   
-  var done = function (c) {
-    H5P.isFullscreen = false;
-    $classes.removeClass(c);
+  /**
+   * Prepare for resize by setting the correct styles.
+   * 
+   * @param {String} classes CSS
+   */
+  var before = function (classes) {
+    $classes.addClass(classes);
     
-    if (H5P.fullScreenBrowserPrefix === undefined) {
-      // Resize content.
-      if (instance.$ !== undefined) {
-        instance.$.trigger('resize');
-      }
-      else if (instance.resize !== undefined) {
-        instance.resize();
-      }
+    if ($iframe !== undefined) {
+      // Set iframe to its default size(100%).
+      $iframe.css('height', '');
     }
+  };
+  
+  /**
+   * Gets called when fullscreen mode has been entered.
+   * Resizes and sets focus on content.
+   */
+  var entered = function () {
+    // Do not rely on window resize events.
+    instance.$.trigger('resize');
+    instance.$.trigger('focus');
+  };
+  
+  /**
+   * Gets called when fullscreen mode has been exited.
+   * Resizes and sets focus on content.
+   * 
+   * @param {String} classes CSS
+   */
+  var done = function (classes) {
+    H5P.isFullscreen = false;
+    $classes.removeClass(classes);
+    
+    // Do not rely on window resize events.
+    instance.$.trigger('resize');
+    instance.$.trigger('focus');
 
     if (exitCallback !== undefined) {
       exitCallback();
@@ -193,7 +222,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
   if (H5P.fullScreenBrowserPrefix === undefined) {
     // Create semi fullscreen.
     
-    $classes.addClass('h5p-semi-fullscreen');
+    before('h5p-semi-fullscreen');
     var $disable = $container.prepend('<a href="#" class="h5p-disable-fullscreen" title="Disable fullscreen"></a>').children(':first');
     var keyup, disableSemiFullscreen = function () {
       $disable.remove();      
@@ -208,16 +237,22 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     };
     $disable.click(disableSemiFullscreen);
     $body.keyup(keyup);
+    entered();
   }
   else {
     // Create real fullscreen.
     
+    before('h5p-fullscreen');
     var first, eventName = (H5P.fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : H5P.fullScreenBrowserPrefix + 'fullscreenchange');
     document.addEventListener(eventName, function () {
       if (first === undefined) {
+        // We are entering fullscreen mode
         first = false;
+        entered();
         return;
       }
+      
+      // We are exiting fullscreen
       done('h5p-fullscreen');
       document.removeEventListener(eventName, arguments.callee, false);
     });
@@ -227,31 +262,9 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     }
     else {
       var method = (H5P.fullScreenBrowserPrefix === 'ms' ? 'msRequestFullscreen' : H5P.fullScreenBrowserPrefix + 'RequestFullScreen');
-      var params = (H5P.fullScreenBrowserPrefix === 'webkit' ? Element.ALLOW_KEYBOARD_INPUT : undefined);
+      var params = (H5P.fullScreenBrowserPrefix === 'webkit' && H5P.safariBrowser === 0 ? Element.ALLOW_KEYBOARD_INPUT : undefined);
       $element[0][method](params);
     }
-
-    $classes.addClass('h5p-fullscreen');
-  }
-  
-  if ($iframe !== undefined) {
-    // Set iframe to its default size(100%).
-    $iframe.css('height', '');
-  }
-  
-  if (H5P.fullScreenBrowserPrefix === undefined) {
-    // Resize content.
-    if (instance.$ !== undefined) {
-      instance.$.trigger('resize');
-    }
-    else if (instance.resize !== undefined) {
-      instance.resize();
-    }
-  }
-
-  // Allow H5P to set focus when entering fullscreen mode
-  if (instance.focus !== undefined) {
-    instance.focus();
   }
 };
 
