@@ -34,8 +34,8 @@ var H5PLibraryList= H5PLibraryList || {};
         library.machineName, 
         library.contentCount, 
         library.libraryDependencyCount,
-        '<button class="h5p-admin-view-library">&#xf002;</button>' +
-        '<button class="h5p-admin-delete-library">&#xf057;</button>'
+        '<div class="h5p-admin-buttons-wrapper"><button class="h5p-admin-view-library"></button>' +
+        '<button class="h5p-admin-delete-library"></button></div>'
       ]);
       
       // Open details view when clicked

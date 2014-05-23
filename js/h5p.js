@@ -223,12 +223,11 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     // Create semi fullscreen.
     
     before('h5p-semi-fullscreen');
-    var $disable = $container.prepend('<a href="#" class="h5p-disable-fullscreen" title="Disable fullscreen"></a>').children(':first');
+    var $disable = H5P.jQuery('<div role="button" tabindex="1" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
     var keyup, disableSemiFullscreen = function () {
       $disable.remove();      
       $body.unbind('keyup', keyup);
       done('h5p-semi-fullscreen');
-      return false;
     };
     keyup = function (event) {
       if (event.keyCode === 27) {
