@@ -1036,10 +1036,10 @@ class H5PStorage {
         if (isset($library['editorDependencies'])) {
           $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['editorDependencies'], 'editor');
         }
+        
+        // Make sure libraries dependencies, parameter filtering and export files gets regenerated for all content who uses this library.
+        $this->h5pF->invalidateContentCache($library['libraryId']);
       }
-      
-      // Make sure libraries dependencies, parameter filtering and export files gets regenerated for all content who uses this library.
-      $this->h5pF->invalidateContentCache($library['libraryId']);
     }
     
     if (!$skipContent) {
