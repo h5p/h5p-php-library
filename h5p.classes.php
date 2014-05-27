@@ -1358,26 +1358,25 @@ class H5PCore {
       );
       unset($content['libraryId'], $content['libraryName'], $content['libraryEmbedTypes'], $content['libraryFullscreen']);
       
-      // TODO: Move to filterParameters?
-      if ($this->development_mode & H5PDevelopment::MODE_CONTENT) {
-        // TODO: Remove Drupal specific stuff
-        $json_content_path = file_create_path(file_directory_path() . '/' . variable_get('h5p_default_path', 'h5p') . '/content/' . $id . '/content.json');
-        if (file_exists($json_content_path) === TRUE) {
-          $json_content = file_get_contents($json_content_path);
-          if (json_decode($json_content, TRUE) !== FALSE) {
-            drupal_set_message(t('Invalid json in json content'), 'warning');
-          }
-          $content['params'] = $json_content;
-        }
-      } 
+//      // TODO: Move to filterParameters?
+//      if ($this->development_mode & H5PDevelopment::MODE_CONTENT) {
+//        // TODO: Remove Drupal specific stuff
+//        $json_content_path = file_create_path(file_directory_path() . '/' . variable_get('h5p_default_path', 'h5p') . '/content/' . $id . '/content.json');
+//        if (file_exists($json_content_path) === TRUE) {
+//          $json_content = file_get_contents($json_content_path);
+//          if (json_decode($json_content, TRUE) !== FALSE) {
+//            drupal_set_message(t('Invalid json in json content'), 'warning');
+//          }
+//          $content['params'] = $json_content;
+//        }
+//      }
     }
     
     return $content;
   }
   
   /**
-   * TODO: Add support for development modes.
-   * TODO: Should we regenerate export here as well?
+   * Filter content run parameters, rebuild content dependecy cache and export file.
    * 
    * @param Object $content
    * @return Object NULL on failure.
@@ -1402,6 +1401,8 @@ class H5PCore {
     $dependencies = $validator->getDependencies();
     $this->h5pF->deleteLibraryUsage($content['id']);
     $this->h5pF->saveLibraryUsage($content['id'], $dependencies);
+    
+    // TODO: Create new export if enabled.
 
     // Cache.
     $this->h5pF->cacheSet('parameters', $content['id'], $params);
