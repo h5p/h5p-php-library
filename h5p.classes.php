@@ -119,23 +119,23 @@ interface H5PFrameworkInterface {
    *  Object holding the information that is to be stored
    */
   public function saveLibraryData(&$libraryData, $new = TRUE);
-
+  
   /**
-   * Stores contentData
-   *
-   * @param string $contentJson
-   *  The content data that is to be stored
-   * @param array $mainJsonData
-   *  The data extracted from the h5p.json file
-   * @param array $mainLibraryId
-   *  Main library identifier
+   * Insert new content.
+   * 
+   * @param object $content
    * @param int $contentMainId
-   *  Any contentMainId defined by the framework, for instance to support revisioning
-   * @param int $contentId
-   *  Framework specific id identifying the content
    */
-  public function saveContentData($content, $contentMainId = NULL);
-
+  public function insertContent($content, $contentMainId = NULL);
+  
+  /**
+   * Update old content.
+   * 
+   * @param object $content
+   * @param int $contentMainId
+   */
+  public function updateContent($content, $contentMainId = NULL);
+  
   /**
    * Save what libraries a library is dependending on
    *
@@ -262,6 +262,44 @@ interface H5PFrameworkInterface {
    * @return array
    */
   public function loadContentDependencies($id, $type = NULL);
+  
+  /**
+   * Get data from cache.
+   * 
+   * @param string $group
+   * @param string $key
+   */
+  public function cacheGet($group, $key);
+  
+  /**
+   * Store data in cache.
+   * 
+   * @param string $group
+   * @param string $key
+   * @param mixed $data
+   */
+  public function cacheSet($group, $key, $data);
+  
+  /**
+   * Delete data from cache.
+   * 
+   * @param string $group
+   * @param string $key
+   */
+  public function cacheDel($group, $key = NULL);
+  
+  /**
+   * Will invalidate the cache for the content that uses the specified library.
+   * This means that the content dependencies has to be rebuilt, and the parameters refiltered.
+   * 
+   * @param int $library_id
+   */
+  public function invalidateContentCache($library_id);
+  
+  /**
+   * Get content without cache.
+   */
+  public function getNotCached();
 }
 
 /**
@@ -999,6 +1037,9 @@ class H5PStorage {
           $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['editorDependencies'], 'editor');
         }
       }
+      
+      // Make sure libraries dependencies, parameter filtering and export files gets regenerated for all content who uses this library.
+      $this->h5pF->invalidateContentCache($library['libraryId']);
     }
     
     if (!$skipContent) {
@@ -1017,7 +1058,7 @@ class H5PStorage {
       }
       $content['library'] = $librariesInUse['preloaded-' . $this->h5pC->mainJsonData['mainLibrary']]['library'];
       $content['params'] = file_get_contents($current_path . DIRECTORY_SEPARATOR . 'content.json');
-      $contentId = $this->h5pF->saveContentData($content, $contentMainId);
+      $contentId = $this->h5pC->saveContent($content, $contentMainId);
       $this->contentId = $contentId;
 
       $contents_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content';
@@ -1279,6 +1320,25 @@ class H5PCore {
   }
 
   /**
+   * Save content and clear cache.
+   * 
+   * @param array $content
+   * @return int Content ID
+   */
+  public function saveContent($content, $contentMainId) {
+    if (isset($content['id'])) {
+      $this->h5pF->updateContent($content, $contentMainId);
+    }
+    else {
+      $content['id'] = $this->h5pF->insertContent($content, $contentMainId); 
+    }
+    
+    $this->h5pF->cacheDel('parameters', $content['id']);
+    
+    return $content['id'];
+  }
+  
+  /**
    * Load content.
    *
    * @param int $id for content.
@@ -1298,6 +1358,7 @@ class H5PCore {
       );
       unset($content['libraryId'], $content['libraryName'], $content['libraryEmbedTypes'], $content['libraryFullscreen']);
       
+      // TODO: Move to filterParameters?
       if ($this->development_mode & H5PDevelopment::MODE_CONTENT) {
         // TODO: Remove Drupal specific stuff
         $json_content_path = file_create_path(file_directory_path() . '/' . variable_get('h5p_default_path', 'h5p') . '/content/' . $id . '/content.json');
@@ -1308,10 +1369,43 @@ class H5PCore {
           }
           $content['params'] = $json_content;
         }
-      }
+      } 
     }
-
+    
     return $content;
+  }
+  
+  /**
+   * TODO: Add support for development modes.
+   * TODO: Should we regenerate export here as well?
+   * 
+   * @param Object $content
+   * @return Object NULL on failure.
+   */
+  public function filterParameters($content) {
+    $params = $this->h5pF->cacheGet('parameters', $content['id']);
+    if ($params !== NULL) {
+      return $params;
+    }
+    
+    // Validate and filter against main library semantics.
+    $validator = new H5PContentValidator($this->h5pF, $this);
+    $params = (object) array(
+      'library' => H5PCore::libraryToString($content['library']),
+      'params' => json_decode($content['params'])
+    );
+    $validator->validateLibrary($params, (object) array('options' => array($params->library)));
+
+    $params = json_encode($params->params);
+  
+    // Update content dependencies.
+    $dependencies = $validator->getDependencies();
+    $this->h5pF->deleteLibraryUsage($content['id']);
+    $this->h5pF->saveLibraryUsage($content['id'], $dependencies);
+
+    // Cache.
+    $this->h5pF->cacheSet('parameters', $content['id'], $params);
+    return $params;
   }
   
   /**
@@ -1408,7 +1502,7 @@ class H5PCore {
   /**
    * Load library semantics.
    *
-   * @return string 'div' or 'iframe'.
+   * @return string
    */
   public function loadLibrarySemantics($name, $majorVersion, $minorVersion) {
     $semantics = NULL;
@@ -1607,7 +1701,6 @@ class H5PCore {
   
   /**
    * Determine the correct embed type to use.
-   * TODO: Use constants.
    *
    * @return string 'div' or 'iframe'.
    */
@@ -1635,7 +1728,7 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap;
-  private $semanticsCache;
+  private $libraries, $dependencies;
 
   /**
    * Constructor for the H5PContentValidator
@@ -1661,33 +1754,24 @@ class H5PContentValidator {
       'select' => 'validateSelect',
       'library' => 'validateLibrary',
     );
-    // Cache for semantics used within this validation to avoid unneccessary
-    // json_decodes if a library is used multiple times.
-    $this->semanticsCache = array();
+    
+    // Keep track of the libraries we load to avoid loading it multiple times.
+    $this->libraries = array();
+    // TODO: Should this possible be done in core's loadLibrary? This might be done multiple places.
+    
+    // Keep track of all dependencies for the given content.
+    $this->dependencies = array();
   }
 
   /**
-   * Validate the given value from content with the matching semantics
-   * object from semantics
-   *
-   * Function will recurse via external functions for container objects like
-   * 'list', 'group' and 'library'.
-   *
-   * @param object $value
-   *   Object to be verified. May be a string or an array. (normal or keyed)
-   * @param object $semantics
-   *   Semantics object from semantics.json for main library. Further
-   *   semantics will be loaded from H5PFramework if any libraries are
-   *   found within the value data.
+   * Get the flat dependecy tree.
+   * 
+   * @return array
    */
-  public function validateBySemantics(&$value, $semantics) {
-    $fakebaseobject = (object) array(
-      'type' => 'group',
-      'fields' => $semantics,
-    );
-    $this->validateGroup($value, $fakebaseobject, FALSE);
+  public function getDependencies() {
+    return $this->dependencies;
   }
-
+  
   /**
    * Validate given text value against text semantics.
    */
@@ -2028,31 +2112,47 @@ class H5PContentValidator {
 
   /**
    * Validate given library value against library semantics.
+   * Check if provided library is within allowed options.
    *
    * Will recurse into validating the library's semantics too.
    */
   public function validateLibrary(&$value, $semantics) {
-    // Check if provided library is within allowed options
-    if (isset($value->library) && in_array($value->library, $semantics->options)) {
-      if (isset($this->semanticsCache[$value->library])) {
-        $librarySemantics = $this->semanticsCache[$value->library];
-      }
-      else {
-        $libspec = $this->h5pC->libraryFromString($value->library);
-        $librarySemantics = $this->h5pC->loadLibrarySemantics($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
-        $this->semanticsCache[$value->library] = $librarySemantics;
-      }
-      $this->validateBySemantics($value->params, $librarySemantics);
-      $validkeys = array('library', 'params');
-      if (isset($semantics->extraAttributes)) {
-        $validkeys = array_merge($validkeys, $semantics->extraAttributes);
-      }
-      $this->filterParams($value, $validkeys);
-    }
-    else {
+    if (!isset($value->library) || !in_array($value->library, $semantics->options)) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Library used in content is not a valid library according to semantics'));
       $value = new stdClass();
+      return;
     }
+    
+    if (!isset($this->libraries[$value->library])) {
+      $libspec = $this->h5pC->libraryFromString($value->library);
+      $library = $this->h5pC->loadLibrary($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
+      $library['semantics'] = json_decode($library['semantics']);
+      $this->libraries[$value->library] = $library;
+
+      // Find all dependencies for this library
+      $depkey = 'preloaded-' . $libspec['machineName'];
+      if (!isset($this->dependencies[$depkey])) {
+        $this->dependencies[$depkey] = array(
+          'library' => $library,
+          'type' => 'preloaded'
+        );
+
+        $this->h5pC->findLibraryDependencies($this->dependencies, $library);
+      }
+    }
+    else {
+      $library = $this->libraries[$value->library];
+    }
+
+    $this->validateGroup($value->params, (object) array(
+      'type' => 'group',
+      'fields' => $library['semantics'],
+    ), FALSE);
+    $validkeys = array('library', 'params');
+    if (isset($semantics->extraAttributes)) {
+      $validkeys = array_merge($validkeys, $semantics->extraAttributes);
+    }
+    $this->filterParams($value, $validkeys);
   }
 
   /**
