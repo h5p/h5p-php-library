@@ -8,6 +8,11 @@ var H5PLibraryList= H5PLibraryList || {};
   H5PLibraryList.init = function () {
     var $adminContainer = H5PIntegration.getAdminContainer();
     
+    var libraryList = H5PIntegration.getLibraryList();
+    if (libraryList.notCached) {
+      $adminContainer.append(H5PUtils.getRebuildCache(libraryList.notCached));
+    }
+    
     // Create library list
     $adminContainer.append(H5PLibraryList.createLibraryList(H5PIntegration.getLibraryList()));
   };
