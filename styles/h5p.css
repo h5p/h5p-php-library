@@ -173,7 +173,8 @@ div.h5p-fullscreen {
   font-size: 1em;
   padding-right: 0;
   font-size: 1.7em;
-  ine-height: 1.125em;
+  line-height: 1.125em;
+  vertical-align: middle;
 }
 .h5p-actions > .h5p-button.h5p-export:before {
   content: "\e890";
