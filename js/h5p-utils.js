@@ -67,6 +67,19 @@ var H5PUtils = H5PUtils || {};
   };
   
   /**
+   * Get throbber with given text.
+   * 
+   * @param {String} text
+   * @returns {$}
+   */
+  H5PUtils.throbber = function (text) {
+    return $('<div/>', {
+      class: 'h5p-throbber',
+      text: text
+    });
+  };
+  
+  /**
    * Makes it possbile to rebuild all content caches from admin UI.
    * @param {Object} notCached
    * @returns {$}

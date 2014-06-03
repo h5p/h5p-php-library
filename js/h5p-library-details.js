@@ -41,7 +41,7 @@ var H5PLibraryDetails= H5PLibraryDetails || {};
     
     var count;
     if (H5PLibraryDetails.library.notCached !== undefined) {
-      count = -1;
+      count = H5PIntegration.i18n.H5P.NA;
     }
     else if (H5PLibraryDetails.library.content === undefined) {
       count = 0; 

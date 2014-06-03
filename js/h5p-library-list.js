@@ -33,15 +33,28 @@ var H5PLibraryList= H5PLibraryList || {};
     $table.addClass('libraries');
     
     // Add libraries
+    var t = H5PIntegration.i18n.H5P;
     $.each (libraries.listData, function (index, library) {
       var $libraryRow = H5PUtils.createTableRow([
-        library.name, 
-        library.machineName, 
-        library.contentCount, 
-        library.libraryDependencyCount,
-        '<div class="h5p-admin-buttons-wrapper"><button class="h5p-admin-view-library"></button>' +
-        '<button class="h5p-admin-delete-library"></button></div>'
+        library.title,
+        library.numContent,
+        library.numContentDependencies === -1 ? t.NA : library.numContentDependencies,
+        library.numLibraryDependencies,
+        '<div class="h5p-admin-buttons-wrapper">\
+          <button class="h5p-admin-upgrade-library"></button>\
+          <button class="h5p-admin-view-library" title="' + t.viewLibrary + '"></button>\
+          <button class="h5p-admin-delete-library"></button>\
+        </div>'
       ]);
+      
+      if (library.upgradeUrl !== null && library.numContent !== '0') {
+        $('.h5p-admin-upgrade-library', $libraryRow).attr('title', t.upgradeLibrary).click(function () {
+          window.location.href = library.upgradeUrl;
+        });
+      }
+      else {
+        $('.h5p-admin-upgrade-library', $libraryRow).attr('disabled', true);
+      }
       
       // Open details view when clicked
       $('.h5p-admin-view-library', $libraryRow).on('click', function () {
@@ -49,9 +62,9 @@ var H5PLibraryList= H5PLibraryList || {};
       });
       
       var $deleteButton = $('.h5p-admin-delete-library', $libraryRow);
-      if (library.contentCount !== 0 || library.libraryDependencyCount !== 0) {
+      if (library.numContent !== '0' || library.numContentDependencies !== '0' || library.numLibraryDependencies !== '0') {
         // Disabled delete if content.
-        $deleteButton.attr('disabled', true); //.addClass('disabled');
+        $deleteButton.attr('disabled', true).attr('title', t.deleteLibrary);
       }
       else {
         // Go to delete page om click.

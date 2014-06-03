@@ -47,6 +47,10 @@
   text-indent: -0.125em;
   margin: 0.125em 0.125em 0 0.125em;
 }
+.h5p-admin-upgrade-library:before {
+  font-family: 'H5P';
+  content: "\2191";
+}
 .h5p-admin-view-library:before {
   font-family: 'H5P';
   content: "\e888";
@@ -56,19 +60,22 @@
   content: "\e88e";
 }
 
-.h5p-admin-table.libraries button:hover,
-.h5p-admin-table.libraries .h5p-admin-delete-library:hover {
+.h5p-admin-table.libraries button:hover {
   background-color: #d0d0d0;
 }
-
-.h5p-admin-table.libraries .h5p-admin-delete-library:disabled:hover {
+.h5p-admin-table.libraries button:disabled:hover {
   background-color: #e0e0e0;
+  cursor: default;
 }
 
-.h5p-admin-table.libraries .h5p-admin-delete-library {
+.h5p-admin-upgrade-library {
+  color: #0f01f9; 
+}
+.h5p-admin-delete-library {
   color: #f9010f; 
 }
-.h5p-admin-table.libraries .h5p-admin-delete-library:disabled {
+.h5p-admin-delete-library:disabled,
+.h5p-admin-upgrade-library:disabled {
   cursor: default;
   color: #c0c0c0;
 }

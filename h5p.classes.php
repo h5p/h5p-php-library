@@ -300,6 +300,13 @@ interface H5PFrameworkInterface {
    * Get content without cache.
    */
   public function getNotCached();
+  
+  /**
+   * Get number of contents using library as main library.
+   * 
+   * @param int $library_id
+   */
+  public function getNumContent($library_id);
 }
 
 /**
@@ -1718,6 +1725,35 @@ class H5PCore {
     }
     
     return $embedType;
+  }
+  
+  /**
+   * Get the absolute version for the library as a human readable string.
+   * 
+   * @param object $library
+   * @return string
+   */
+  public static function libraryVersion($library) {
+    return $library->major_version . '.' . $library->minor_version . '.' . $library->patch_version;
+  }
+  
+  /**
+   * Detemine which versions content with the given library can be upgraded to.
+   * 
+   * @param object $library
+   * @param array $versions
+   * @return array
+   */
+  public function get_upgrades($library, $versions) {
+   $upgrades = array();
+
+   foreach ($versions as $upgrade) {
+     if ($upgrade->major_version > $library->major_version || $upgrade->major_version === $library->major_version && $upgrade->minor_version > $library->minor_version) {
+       $upgrades[$upgrade->id] = H5PCore::libraryVersion($upgrade);
+     }
+   }
+
+   return $upgrades;
   }
 }
 

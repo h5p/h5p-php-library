@@ -313,3 +313,9 @@ div.h5p-fullscreen {
   margin-left: 0.25em;
   padding-left: 0.25em;
 }
+.h5p-throbber {
+  background: url('../images/throbber.gif') left center no-repeat;
+  padding-left: 38px;
+  min-height: 30px;
+  line-height: 30px;
+}
