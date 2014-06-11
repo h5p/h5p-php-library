@@ -47,7 +47,7 @@ var H5PLibraryList= H5PLibraryList || {};
         </div>'
       ]);
       
-      if (library.upgradeUrl !== null && library.numContent !== '0') {
+      if (library.upgradeUrl !== null && library.numContent !== 0) {
         $('.h5p-admin-upgrade-library', $libraryRow).attr('title', t.upgradeLibrary).click(function () {
           window.location.href = library.upgradeUrl;
         });
@@ -62,7 +62,7 @@ var H5PLibraryList= H5PLibraryList || {};
       });
       
       var $deleteButton = $('.h5p-admin-delete-library', $libraryRow);
-      if (library.numContent !== '0' || library.numContentDependencies !== '0' || library.numLibraryDependencies !== '0') {
+      if (library.numContent !== 0 || library.numContentDependencies !== 0 || library.numLibraryDependencies !== 0) {
         // Disabled delete if content.
         $deleteButton.attr('disabled', true).attr('title', t.deleteLibrary);
       }
