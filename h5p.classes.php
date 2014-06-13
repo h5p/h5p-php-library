@@ -1744,7 +1744,7 @@ class H5PCore {
    * @param array $versions
    * @return array
    */
-  public function get_upgrades($library, $versions) {
+  public function getUpgrades($library, $versions) {
    $upgrades = array();
 
    foreach ($versions as $upgrade) {

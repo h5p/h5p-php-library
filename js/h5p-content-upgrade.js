@@ -1,5 +1,29 @@
 (function ($) {
-  var info, outData, $container, $throbber, throbberText, majorVersion, minorVersion;
+  var info, $container;
+  
+  // TODO: Translate strings!
+  
+  // Initialize
+  $(document).ready(function () {
+    // Get library info
+    info = H5PIntegration.getLibraryInfo();
+    
+    // Get and reset container
+    $container = $('#h5p-admin-container').html('<p>' + info.message + '</p>');
+    
+    // Make it possible to select version
+    var $version = $(getVersionSelect(info.versions)).appendTo($container);
+    
+    // Add "go" button
+    $('<button/>', {
+      class: 'h5p-admin-upgrade-button',
+      text: info.buttonLabel,
+      click: function () {
+        // Start new content upgrade
+        new ContentUpgrade($version.val());
+      }
+    }).appendTo($container);
+  });  
 
   /**
    * Generate html for version select.
@@ -19,129 +43,405 @@
   };
   
   /**
-   * Process the current batch of parameters.
+   * Private. Helps process each property on the given object asynchronously in serial order.
    * 
-   * @param {Object} params
+   * @param {Object} obj
+   * @param {Function} process
+   * @param {Function} finished
    */
-  var processParameters = function (inData) {
-    var upgraded = {};
+  var asyncSerial = function (obj, process, finished) {
+    var id, isArray = obj instanceof Array;
     
-    var i = 0;
-    for (var id in inData.params) {
-      if (!inData.params.hasOwnProperty(id)) {
-        continue;
-      }
-      
-      var param = JSON.parse(inData.params[id]);
-      for (var major in H5PUpgrades) {
-        if (!H5PUpgrades.hasOwnProperty(major) || major < info.majorVersion || major > majorVersion) {
-          continue;
-        }
-        
-        for (var minor in H5PUpgrades[major]) {
-          if (!H5PUpgrades[major].hasOwnProperty(major) || minor <= info.minorVersion || minor > minorVersion) {
-            continue;
-          }
-
-          param = H5PUpgrades[major][minor](param);
+    // Keep track of each property that belongs to this object. 
+    if (!isArray) {
+      var ids = [];
+      for (id in obj) {
+        if (obj.hasOwnProperty(id)) {
+          ids.push(id);
         }
       }
-      upgraded[id] = JSON.stringify(param);
-      
-      i++;
-      $throbber.text(throbberText + Math.round((info.total - inData.left + i) / (info.total / 100)) + ' %') ;
     }
     
-    outData.params = JSON.stringify(upgraded);
-    outData.token = inData.token;
-
-    // Get next round of data to process.
-    getParameters();
+    var i = -1; // Keeps track of the current property
+    
+    /**
+     * Private. Process the next property
+     */
+    var next = function () {
+      id = isArray ? i : ids[i];
+      process(id, obj[id], check);
+    };
+    
+    /**
+     * Private. Check if we're done or have an error.
+     *  
+     * @param {String} err
+     */
+    var check = function (err) {
+      i++;
+      if (i === (isArray ? obj.length : ids.length) || err !== undefined) {
+        finished(err);
+      }
+      else {
+        next();
+      }
+    };
+    
+    check(); // Start
   };
+
+  /** 
+   * Make it easy to keep track of version details.
+   * 
+   * @param {String} version
+   * @param {Number} libraryId
+   * @returns {_L1.Version}
+   */
+  function Version(version, libraryId) {
+    if (libraryId !== undefined) {
+      version = info.versions[libraryId];
+      
+      // Public
+      this.libraryId = libraryId;
+    }
+    var versionSplit = version.split('.', 3);
+    
+    // Public
+    this.major = versionSplit[0];
+    this.minor = versionSplit[1];
+    
+    /**
+     * Public. Custom string for this object.
+     * 
+     * @returns {String}
+     */
+    this.toString = function () {
+      return version;
+    };
+  }
+
+  /**
+   * Displays a throbber in the status field.
+   *  
+   * @param {String} msg
+   * @returns {_L1.Throbber}
+   */
+  function Throbber(msg) {
+    var $throbber = H5PUtils.throbber(msg);
+    $container.html('').append($throbber);
+    
+    /**
+     * Makes it possible to set the progress.
+     * 
+     * @param {String} progress
+     */
+    this.setProgress = function (progress) {
+      $throbber.text(msg + ' ' + progress);
+    };
+  }
+
+  /**
+   * Start a new content upgrade.
+   * 
+   * @param {Number} libraryId
+   * @returns {_L1.ContentUpgrade}
+   */
+  function ContentUpgrade(libraryId) {
+    var self = this;
+    
+    // Get selected version
+    self.version = new Version(null, libraryId);
+    
+    // Create throbber with loading text and progress
+    self.throbber = new Throbber('Upgrading to ' + self.version + '...');
+    
+    // Get the next batch
+    self.nextBatch({
+      libraryId: libraryId,
+      token: info.token
+    });
+  }
   
   /**
-   * Handles errors while processing parameters.
+   * Get the next batch and start processing it.
    * 
-   * @param {Object} params
+   * @param {Object} outData
    */
-  var process = function (inData) {
-    // Script is loaded. Start processing.
-    try {
-      processParameters(inData);
-    }
-    catch (err) {
-      $container.html('An error occurred while processing parameters: ' + err);
-    }
-  };
-
-  /**
-   * Get the next batch of parameters.
-   */
-  var getParameters = function () {
+  ContentUpgrade.prototype.nextBatch = function (outData) {
+    var self = this;
+    
     $.post(info.url, outData, function (inData) {
       if (!(inData instanceof Object)) {
         // Print errors from backend
-        $container.html(inData);
-        return;
+        return self.setStatus(inData);
       } 
-      if (inData.left === '0') {
-        $container.html(info.done);
-        return;
+      if (inData.left === 0) {
+        // Nothing left to process
+        return self.setStatus(info.done);
       }
       
-      if (inData.script !== undefined) {
-        $.ajax({
-          dataType: 'script',
-          cache: true,
-          url: inData.script
-        }).done(function () {
-          // Start processing
-          process(inData);
-        }).fail(function () {
-          $container.html('Error: Could not load upgrade script.');
-        });
-        return;
-      }
+      self.left = inData.left;
+      self.token = inData.token;
       
-      // Continue processing
-      process(inData);
+      // Start processing
+      self.processBatch(inData.params);
     });
   };
+  
+  /**
+   * Set current status message.
+   * 
+   * @param {String} msg
+   */
+  ContentUpgrade.prototype.setStatus = function (msg) {
+    $container.html(msg);
+  };
 
-  // Initialize
-  $(document).ready(function () {
-    // Get library info
-    info = H5PIntegration.getLibraryInfo();
+  /**
+   * Process the given parameters.
+   * 
+   * @param {Object} parameters
+   */
+  ContentUpgrade.prototype.processBatch = function (parameters) {
+    var self = this;
+    var upgraded = {}; // Track upgraded params
     
-    // Get and reset container
-    $container = $('#h5p-admin-container').html('<p>' + info.message + '</p>');
-    
-    // Make it possible to select version
-    var $version = $(getVersionSelect(info.versions)).appendTo($container);
-    
-    // Add "go" button
-    $('<button/>', {
-      class: 'h5p-admin-upgrade-button',
-      text: info.buttonLabel,
-      click: function () {
-        outData = {
-          libraryId: $version.val(),
-          token: info.token
-        };
-        
-        // Get version
-        var version = info.versions[outData.libraryId];
-        var versionLevels = version.split('.', 3);
-        majorVersion = versionLevels[0];
-        minorVersion = versionLevels[1];
-        
-        throbberText = 'Upgrading to ' + version + '...';
-        $throbber = H5PUtils.throbber(throbberText);
-        $container.html('').append($throbber);
-        
-        // Start upgrade progress
-        getParameters();
+    var current = 0; // Track progress
+    asyncSerial(parameters, function (id, params, next) {
+      
+      // Make params possible to work with
+      params = JSON.parse(params);
+      
+      // Upgrade this content.
+      self.upgrade(info.library.name, new Version(info.library.version), self.version, params, function (err, params) {
+        if (err === undefined || err === null) {
+          console.log('Content done', params);
+          upgraded[id] = JSON.stringify(params);
+
+          current++;
+          self.throbber.setProgress(Math.round((info.total - self.left + current) / (info.total / 100)) + ' %');
+        }
+        next(err);
+      });
+
+    }, function (err) {
+      // Finished with all parameters that came in
+      if (err !== undefined && err !== null) {
+        return self.setStatus('<p>An error occurred while processing parameters:<br/>' + err + '</p>');
       }
-    }).appendTo($container);
-  });  
+
+      // Save upgraded content and get next round of data to process
+      self.nextBatch({
+        libraryId: self.version.libraryId,
+        token: self.token,
+        params: JSON.stringify(upgraded)
+      });
+    });
+  };
+  
+  /**
+   * Upgade the given content.
+   * 
+   * @param {String} name
+   * @param {Version} oldVersion
+   * @param {Version} newVersion
+   * @param {Object} params
+   * @param {Function} next
+   * @returns {undefined}
+   */
+  ContentUpgrade.prototype.upgrade = function (name, oldVersion, newVersion, params, next) {
+    var self = this;
+    
+    console.log('Upgrading ' + name + ' ' + oldVersion + ' -> ' + newVersion);
+    
+    // Load library details and upgrade routines
+    self.loadLibrary(name, newVersion, function (err, library) {
+      if (err) return next(err);
+      
+      // Run upgrade routines on params
+      self.processParams(library, oldVersion, newVersion, params, function (err, params) {
+        if (err) return next(err);
+        
+        // Check if any of the sub-libraries need upgrading
+        asyncSerial(library.semantics, function (index, field, next) {
+          self.processField(field, params, function (err, upgradedParams) {
+            if (upgradedParams) params = upgradedParams;
+            next(err);
+          });
+        }, function (err) {
+          next(err, params);
+        });
+      });
+    });
+  };
+  
+  /**
+   * Load library data needed for content upgrade.
+   * 
+   * @param {String} name
+   * @param {Version} version
+   * @param {Function} next
+   */
+  ContentUpgrade.prototype.loadLibrary = function (name, version, next) {
+    var self = this;
+    
+    $.ajax({
+      dataType: 'json',
+      url: info.libraryBaseUrl + '/' + name + '/' + version.major + '/' + version.minor
+    }).fail(function () {
+      next('Could not load data for library ' + name + ' ' + version);
+    }).done(function (library) {
+      if (library.upgradesScript) {
+        self.loadScript(library.upgradesScript, function (err) {
+          if (err) {
+            err = name + ' ' + version + ': ' + err;
+          }
+          next(err, library);
+        });
+      }
+      else {
+        next(null, library);
+      }
+    });
+  };
+  
+  /**
+   * Load script with upgrade hooks.
+   * 
+   * @param {String} url
+   * @param {Function} next
+   */
+  ContentUpgrade.prototype.loadScript = function (url, next) {
+    $.ajax({
+      dataType: 'script',
+      cache: true,
+      url: url
+    }).fail(function () {
+      next('Could not load upgrades script.');
+    }).done(function () {
+      next();
+    });
+  };
+  
+  /**
+   * Run upgrade hooks on params.
+   * 
+   * @param {Object} library
+   * @param {Version} oldVersion
+   * @param {Version} newVersion
+   * @param {Object} params
+   * @param {Function} next
+   */
+  ContentUpgrade.prototype.processParams = function (library, oldVersion, newVersion, params, next) {
+    if (H5PUpgrades[library.name] === undefined) {
+      // TODO: Add error if we have loaded a script but cannot find the function? Will avoid some errors in the upgrades.js
+      // No upgrade hooks to run. Move on.
+      return next(null, params);
+    }
+
+    // Run upgrade hooks. Start by going through major versions
+    asyncSerial(H5PUpgrades[library.name], function (major, minors, nextMajor) {
+      if (major < oldVersion.major || major > newVersion.major) {
+        // Older than the current version or newer than the selected 
+        nextMajor();
+      }
+      else {
+        // Go through the minor versions for this major version
+        asyncSerial(minors, function (minor, upgrade, nextMinor) {
+          if (minor <= oldVersion.minor || minor > newVersion.minor) {
+            // Older than or equal to the current version or newer than the selected
+            nextMinor();
+          }
+          else {
+            // We found an upgrade hook, run it
+            upgrade(params, function (err, upgradedParams) {
+              params = upgradedParams;
+              nextMinor(err);
+            });
+          }
+        }, nextMajor);
+      }
+    }, function (err) {
+      next(err, params);
+    });
+  };
+  
+  /**
+   * Process parameter fields to find and upgrade sub-libraries.
+   * 
+   * @param {Object} field
+   * @param {Object} params
+   * @param {Function} next
+   */
+  ContentUpgrade.prototype.processField = function (field, params, next) {
+    var self = this;
+    
+    switch (field.type) {
+      case 'library':
+        if (params.library === undefined || params.params === undefined) {
+          return next();
+        }
+        
+        // Look for available upgrades
+        var usedLib = params.library.split(' ', 2);
+        for (var i = 0; i < field.options.length; i++) {
+          var availableLib = field.options[i].split(' ', 2);
+          if (availableLib[0] === usedLib[0]) {
+            if (availableLib[1] === usedLib[1]) {
+              return next(); // Same version
+            }
+            
+            // We have different versions
+            var usedVer = new Version(usedLib[1]);
+            var availableVer = new Version(availableLib[1]);
+            if (usedVer.major > availableVer.major || (usedVer.major === availableVer.major && usedVer.minor >= availableVer.minor)) {
+              return next(); // Larger or same version that's available
+            }
+            
+            // A newer version is available, run upgrade.
+            return self.upgrade(availableLib[0], usedVer, availableVer, params.params, next);
+          }
+        }
+        next();
+        break;
+
+      case 'group':
+        if (field.fields.length === 1) {
+          var wrap = {};
+          wrap[field.fields[0].name] = params;
+          params = wrap;
+        }
+        
+        // Go through all fields in the group
+        asyncSerial(field.fields, function (index, field, next) {
+          self.processField(field, params, function (err, upgradedParams) {
+            if (upgradedParams) params = upgradedParams;
+            next(err);
+          });
+        }, function (err) {
+          next(err, params);
+        });
+        break;
+
+      case 'list':
+        if (params[field.name] === undefined) {
+          return next();
+        }
+        
+        // Go trough all params in the list
+        asyncSerial(params[field.name], function (index, params, next) {
+          self.processField(field.field, params, function (err, upgradedParams) {
+            if (upgradedParams) params = upgradedParams;
+            next(err);
+          });
+        }, function (err) {
+          next(err, params);
+        });
+        break;
+
+      default:
+        next();
+    }
+  };
+
 })(H5P.jQuery);
