@@ -1,8 +1,6 @@
 (function ($) {
   var info, $container;
   
-  // TODO: Translate all strings!
-  
   // Initialize
   $(document).ready(function () {
     // Get library info
@@ -153,7 +151,7 @@
     self.version = new Version(null, libraryId);
     
     // Create throbber with loading text and progress
-    self.throbber = new Throbber('Upgrading to ' + self.version + '...');
+    self.throbber = new Throbber(info.inProgress.replace('%ver', self.version));
     
     // Get the next batch
     self.nextBatch({
@@ -226,9 +224,9 @@
     }, function (err) {
       // Finished with all parameters that came in
       if (err) {
-        return self.setStatus('<p>An error occurred while processing parameters:<br/>' + err + '</p>');
+        return self.setStatus('<p>' + info.error + '<br/>' + err + '</p>');
       }
-
+      
       // Save upgraded content and get next round of data to process
       self.nextBatch({
         libraryId: self.version.libraryId,
@@ -292,12 +290,12 @@
       dataType: 'json',
       url: info.libraryBaseUrl + '/' + name + '/' + version.major + '/' + version.minor
     }).fail(function () {
-      next('Could not load data for library ' + name + ' ' + version);
+      next(info.errorData.replace('%lib', name + ' ' + version));
     }).done(function (library) {
       if (library.upgradesScript) {
         self.loadScript(library.upgradesScript, function (err) {
           if (err) {
-            err = name + ' ' + version + ': ' + err;
+            err = info.errorScript.replace('%lib', name + ' ' + version);
           }
           next(err, library);
         });
@@ -320,7 +318,7 @@
       cache: true,
       url: url
     }).fail(function () {
-      next('Could not load upgrades script.');
+      next(true);
     }).done(function () {
       next();
     });
