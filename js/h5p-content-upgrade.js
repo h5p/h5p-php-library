@@ -335,8 +335,12 @@
    */
   ContentUpgrade.prototype.processParams = function (library, oldVersion, newVersion, params, next) {
     if (H5PUpgrades[library.name] === undefined) {
-      // TODO: Add error if we have loaded a script but cannot find the function? Will avoid some errors in the upgrades.js
-      // No upgrade hooks to run. Move on.
+      if (library.upgradesScript) {
+        // Upgrades script should be loaded so the upgrades should be here.
+        return next(info.errorScript.replace('%lib', library.name + ' ' + newVersion));
+      }
+      
+      // No upgrades script. Move on
       return next(null, params);
     }
 
