@@ -1,7 +1,7 @@
 (function ($) {
   var info, $container;
   
-  // TODO: Translate strings!
+  // TODO: Translate all strings!
   
   // Initialize
   $(document).ready(function () {
@@ -214,8 +214,7 @@
       
       // Upgrade this content.
       self.upgrade(info.library.name, new Version(info.library.version), self.version, params, function (err, params) {
-        if (err === undefined || err === null) {
-          console.log('Content done', params);
+        if (!err) {
           upgraded[id] = JSON.stringify(params);
 
           current++;
@@ -226,7 +225,7 @@
 
     }, function (err) {
       // Finished with all parameters that came in
-      if (err !== undefined && err !== null) {
+      if (err) {
         return self.setStatus('<p>An error occurred while processing parameters:<br/>' + err + '</p>');
       }
 
@@ -252,20 +251,24 @@
   ContentUpgrade.prototype.upgrade = function (name, oldVersion, newVersion, params, next) {
     var self = this;
     
-    console.log('Upgrading ' + name + ' ' + oldVersion + ' -> ' + newVersion);
-    
     // Load library details and upgrade routines
     self.loadLibrary(name, newVersion, function (err, library) {
-      if (err) return next(err);
+      if (err) {
+        return next(err);
+      }
       
       // Run upgrade routines on params
       self.processParams(library, oldVersion, newVersion, params, function (err, params) {
-        if (err) return next(err);
+        if (err) {
+          return next(err);
+        }
         
         // Check if any of the sub-libraries need upgrading
         asyncSerial(library.semantics, function (index, field, next) {
-          self.processField(field, params, function (err, upgradedParams) {
-            if (upgradedParams) params = upgradedParams;
+          self.processField(field, params[field.name], function (err, upgradedParams) {
+            if (upgradedParams) {
+              params[field.name] = upgradedParams;
+            }
             next(err);
           });
         }, function (err) {
@@ -376,6 +379,10 @@
   ContentUpgrade.prototype.processField = function (field, params, next) {
     var self = this;
     
+    if (params === undefined) {
+      return next();
+    }
+    
     switch (field.type) {
       case 'library':
         if (params.library === undefined || params.params === undefined) {
@@ -398,8 +405,14 @@
               return next(); // Larger or same version that's available
             }
             
-            // A newer version is available, run upgrade.
-            return self.upgrade(availableLib[0], usedVer, availableVer, params.params, next);
+            // A newer version is available, upgrade params
+            return self.upgrade(availableLib[0], usedVer, availableVer, params.params, function (err, upgraded) {
+              if (!err) {
+                params.library = availableLib[0] + ' ' + availableVer.major + '.' + availableVer.minor;
+                params.params = upgraded;
+              }
+              next(err, params);
+            });
           }
         }
         next();
@@ -407,31 +420,36 @@
 
       case 'group':
         if (field.fields.length === 1) {
-          var wrap = {};
-          wrap[field.fields[0].name] = params;
-          params = wrap;
-        }
-        
-        // Go through all fields in the group
-        asyncSerial(field.fields, function (index, field, next) {
-          self.processField(field, params, function (err, upgradedParams) {
-            if (upgradedParams) params = upgradedParams;
-            next(err);
+          // Single field to process, wrapper will be skipped
+          self.processField(field.fields[0], params, function (err, upgradedParams) {
+            if (upgradedParams) {
+              params = upgradedParams;
+            }
+            next(err, params);
           });
-        }, function (err) {
-          next(err, params);
-        });
+        }
+        else {
+          // Go through all fields in the group
+          asyncSerial(field.fields, function (index, subField, next) {
+            self.processField(subField, params[subField.name], function (err, upgradedParams) {
+              if (upgradedParams) {
+                params[subField.name] = upgradedParams;
+              }
+              next(err);
+            });
+          }, function (err) {
+            next(err, params);
+          });
+        }
         break;
 
       case 'list':
-        if (params[field.name] === undefined) {
-          return next();
-        }
-        
         // Go trough all params in the list
-        asyncSerial(params[field.name], function (index, params, next) {
-          self.processField(field.field, params, function (err, upgradedParams) {
-            if (upgradedParams) params = upgradedParams;
+        asyncSerial(params, function (index, subParams, next) {
+          self.processField(field.field, subParams, function (err, upgradedParams) {
+            if (upgradedParams) {
+              params[index] = upgradedParams;
+            }
             next(err);
           });
         }, function (err) {
