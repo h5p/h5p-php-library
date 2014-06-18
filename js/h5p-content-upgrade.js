@@ -152,7 +152,7 @@
     
     // Create throbber with loading text and progress
     self.throbber = new Throbber(info.inProgress.replace('%ver', self.version));
-    
+
     // Get the next batch
     self.nextBatch({
       libraryId: libraryId,
@@ -226,7 +226,7 @@
       if (err) {
         return self.setStatus('<p>' + info.error + '<br/>' + err + '</p>');
       }
-      
+
       // Save upgraded content and get next round of data to process
       self.nextBatch({
         libraryId: self.version.libraryId,

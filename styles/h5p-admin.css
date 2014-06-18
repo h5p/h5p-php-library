@@ -49,15 +49,15 @@
 }
 .h5p-admin-upgrade-library:before {
   font-family: 'H5P';
-  content: "\2191";
+  content: "\e888";
 }
 .h5p-admin-view-library:before {
   font-family: 'H5P';
-  content: "\e888";
+  content: "\e889";
 }
 .h5p-admin-delete-library:before {
   font-family: 'H5P';
-  content: "\e88e";
+  content: "\e890";
 }
 
 .h5p-admin-table.libraries button:hover {
@@ -69,10 +69,13 @@
 }
 
 .h5p-admin-upgrade-library {
-  color: #0f01f9; 
+  color: #339900; 
+}
+.h5p-admin-view-library {
+  color: #0066cc; 
 }
 .h5p-admin-delete-library {
-  color: #f9010f; 
+  color: #990000; 
 }
 .h5p-admin-delete-library:disabled,
 .h5p-admin-upgrade-library:disabled {
@@ -127,7 +130,7 @@
 .h5p-content-search:before {
   font-family: 'H5P';
   vertical-align: bottom;
-  content: "\e888";
+  content: "\e88a";
   font-size: 2em;
   line-height: 1.25em;
 }
