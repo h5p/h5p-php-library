@@ -1,3 +1,4 @@
+// TODO: Should we split up the generic parts needed by the editor(and others), and the parts needed to "run" H5Ps?
 var H5P = H5P || {};
 
 // Determine if we're inside an iframe.
@@ -34,13 +35,13 @@ else if (document.documentElement.msRequestFullscreen) {
  */
 H5P.init = function () {
   // Useful jQuery object.
-  H5P.$body = H5P.jQuery('body');
+  H5P.$body = H5P.jQuery(document.body);
 
   // Prepare internal resizer for content.
   var $window = H5P.jQuery(window.top);
 
   // H5Ps added in normal DIV.
-  var $containers = H5P.jQuery(".h5p-content").each(function () { 
+  var $containers = H5P.jQuery(".h5p-content").each(function () {
     var $element = H5P.jQuery(this);
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
@@ -282,7 +283,17 @@ H5P.getPath = function (path, contentId) {
     return path;
   }
   
-  return H5PIntegration.getContentPath(contentId) + path;
+  if (contentId !== undefined) {
+    prefix = H5PIntegration.getContentPath(contentId);
+  }
+  else if (window['H5PEditor'] !== undefined) {
+    prefix = H5PEditor.filesPath;
+  }
+  else {
+    return;
+  }
+  
+  return window.parent.location.protocol + "//" + window.parent.location.host + prefix + '/' + path; 
 };
 
 /**
@@ -886,6 +897,8 @@ H5P.cloneObject = function (object, recursive) {
 /**
  * Remove all empty spaces before and after the value.
  * TODO: Only include this or String.trim(). What is best?
+ * I'm leaning towards implementing the missing ones: http://kangax.github.io/compat-table/es5/
+ * So should we make this function deprecated?
  *
  * @param {String} value
  * @returns {@exp;value@call;replace}
@@ -901,13 +914,8 @@ H5P.trim = function (value) {
  * @returns {Boolean}
  */
 H5P.jsLoaded = function (path) {
-  for (var i = 0; i < H5P.loadedJs.length; i++) {
-    if (H5P.loadedJs[i] === path) {
-      return true;
-    }
-  }
-
-  return false;
+  H5P.loadedJs = H5P.loadedJs || [];
+  return H5P.jQuery.inArray(path, H5P.loadedJs) !== -1;
 };
 
 /**
@@ -917,13 +925,8 @@ H5P.jsLoaded = function (path) {
  * @returns {Boolean}
  */
 H5P.cssLoaded = function (path) {
-  for (var i = 0; i < H5P.loadedCss.length; i++) {
-    if (H5P.loadedCss[i] === path) {
-      return true;
-    }
-  }
-
-  return false;
+  H5P.loadedCss = H5P.loadedCss || [];
+  return H5P.jQuery.inArray(path, H5P.loadedCss) !== -1;
 };
 
 /**
@@ -984,8 +987,8 @@ if (String.prototype.trim === undefined) {
   };
 }
 
-// Finally, we want to run init when document is ready. But not if we're
-// in an iFrame. Then we wait for parent to start init().
+// Finally, we want to run init when document is ready.
+// TODO: Move to integration. Systems like Moodle using YUI cannot get its translations set before this starts!
 if (H5P.jQuery) {
   H5P.jQuery(document).ready(function () {
     if (!H5P.initialized) {
