@@ -38,7 +38,7 @@ H5P.init = function () {
   H5P.$body = H5P.jQuery(document.body);
 
   // Prepare internal resizer for content.
-  var $window = H5P.jQuery(window.top);
+  var $window = H5P.jQuery(window.parent);
 
   // H5Ps added in normal DIV.
   var $containers = H5P.jQuery(".h5p-content").each(function () {
@@ -92,7 +92,7 @@ H5P.init = function () {
       // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
       var iframe = window.parent.document.getElementById('h5p-iframe-' + contentId);
       var resizeIframe = function () {
-        if (window.top.H5P.isFullscreen) {
+        if (window.parent.H5P.isFullscreen) {
           return; // Skip if full screen.
         }
         
@@ -122,7 +122,7 @@ H5P.init = function () {
     
     // Resize everything when window is resized.
     $window.resize(function () {
-      if (window.top.H5P.isFullscreen) {
+      if (window.parent.H5P.isFullscreen) {
         // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
           instance.$.trigger('resize');
       }
