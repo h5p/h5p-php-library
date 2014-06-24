@@ -279,7 +279,11 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
  *  Id of the content requesting a path
  */
 H5P.getPath = function (path, contentId) {
-  if (path.substr(0, 7) === 'http://' || path.substr(0, 8) === 'https://') {
+  var hasProtocol = function (path) {
+    return path.match(/^[a-z0-9]+:\/\//i);
+  };
+  
+  if (hasProtocol(path)) {
     return path;
   }
   
@@ -293,7 +297,11 @@ H5P.getPath = function (path, contentId) {
     return;
   }
   
-  return window.parent.location.protocol + "//" + window.parent.location.host + prefix + '/' + path; 
+  if (!hasProtocol(prefix)) {
+    prefix = window.parent.location.protocol + "//" + window.parent.location.host + prefix;
+  }
+  
+  return prefix + '/' + path; 
 };
 
 /**
