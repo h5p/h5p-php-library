@@ -77,7 +77,7 @@
      */
     var check = function (err) {
       i++;
-      if (i === (isArray ? obj.length : ids.length) || err !== undefined) {
+      if (i === (isArray ? obj.length : ids.length) || (err !== undefined && err !== null)) {
         finished(err);
       }
       else {
