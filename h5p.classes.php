@@ -1755,6 +1755,31 @@ class H5PCore {
 
    return $upgrades;
   }
+  
+  /**
+   * Converts all the properties of the given object or array from
+   * snake_case to camelCase. Useful after fetching data from the database.
+   * 
+   * Note that some databases does not support camelCase.
+   * 
+   * @param mixed $arr input
+   * @param boolean $obj return object
+   * @return mixed object or array
+   */
+  public static function snakeToCamel($arr, $obj = false) {
+    $newArr = array();
+
+    foreach ($arr as $key => $val) {
+      $next = -1;
+      while (($next = strpos($key, '_', $next + 1)) !== FALSE) {
+        $key = substr_replace($key, strtoupper($key{$next + 1}), $next, 2);
+      }
+
+      $newArr[$key] = $val;
+    }
+
+    return $obj ? (object) $newArr : $newArr;
+  }
 }
 
 /**
