@@ -1,3 +1,5 @@
+var H5PUpgrades = H5PUpgrades || {};
+
 (function ($) {
   var info, $container;
   
@@ -168,7 +170,7 @@
   ContentUpgrade.prototype.nextBatch = function (outData) {
     var self = this;
     
-    $.post(info.url, outData, function (inData) {
+    $.post(info.infoUrl, outData, function (inData) {
       if (!(inData instanceof Object)) {
         // Print errors from backend
         return self.setStatus(inData);
