@@ -361,10 +361,15 @@ var H5PUpgrades = H5PUpgrades || {};
           }
           else {
             // We found an upgrade hook, run it
-            upgrade(params, function (err, upgradedParams) {
-              params = upgradedParams;
-              nextMinor(err);
-            });
+            if (upgrade.contentUpgrade !== undefined && typeof upgrade.contentUpgrade === 'function') {
+              upgrade.contentUpgrade(params, function (err, upgradedParams) {
+                params = upgradedParams;
+                nextMinor(err);
+              });
+            }
+            else {
+              nextMinor(info.errorScript.replace('%lib', library.name + ' ' + newVersion));
+            }
           }
         }, nextMajor);
       }
