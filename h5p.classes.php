@@ -1692,7 +1692,7 @@ class H5PCore {
    *  Returns FALSE only if string is not parsable in the normal library
    *  string formats "Lib.Name-x.y" or "Lib.Name x.y"
    */
-  public function libraryFromString($libraryString) {
+  public static function libraryFromString($libraryString) {
     $re = '/^([\w0-9\-\.]{1,255})[\-\ ]([0-9]{1,5})\.([0-9]{1,5})$/i';
     $matches = array();
     $res = preg_match($re, $libraryString, $matches);
@@ -2185,7 +2185,7 @@ class H5PContentValidator {
     }
     
     if (!isset($this->libraries[$value->library])) {
-      $libspec = $this->h5pC->libraryFromString($value->library);
+      $libspec = H5PCore::libraryFromString($value->library);
       $library = $this->h5pC->loadLibrary($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
       $library['semantics'] = json_decode($library['semantics']);
       $this->libraries[$value->library] = $library;
