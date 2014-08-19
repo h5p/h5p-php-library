@@ -55,6 +55,13 @@ interface H5PFrameworkInterface {
    * @return string Path to the last uploaded h5p
    */
   public function getUploadedH5pPath();
+  
+  /**
+   * Get the list of the current installed libraries
+   * 
+   * @return array Associative array containg one item per machine name. This item contains an array of libraries.
+   */
+  public function loadLibraries();
 
   /**
    * Get id to an excisting library
