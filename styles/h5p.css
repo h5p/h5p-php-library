@@ -189,6 +189,7 @@ div.h5p-fullscreen {
   float: right;
   margin-right: 0;
   font-size: 2.0em;
+  line-height: 1;
   overflow: hidden;
   color: #999;
   text-decoration: none;
@@ -197,6 +198,9 @@ div.h5p-fullscreen {
 .h5p-actions .h5p-link:before {
   font-family: 'H5P';
   content: "\e88e";
+}
+.h5p-actions > li {
+  margin: 0;
 }
 .h5p-popup-dialog {
   position: absolute;
