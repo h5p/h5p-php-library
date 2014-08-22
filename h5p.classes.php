@@ -1279,6 +1279,25 @@ class H5PCore {
   }
 
   /**
+   * Save content and clear cache.
+   * 
+   * @param array $content
+   * @return int Content ID
+   */
+  public function saveContent($content, $contentMainId = NULL) {
+    if (isset($content['id'])) {
+      $this->h5pF->updateContent($content, $contentMainId);
+    }
+    else {
+      $content['id'] = $this->h5pF->insertContent($content, $contentMainId); 
+    }
+    
+    $this->h5pF->cacheDel('parameters', $content['id']);
+    
+    return $content['id'];
+  }
+  
+  /**
    * Load content.
    *
    * @param int $id for content.
