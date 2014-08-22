@@ -39,8 +39,19 @@ var H5PLibraryDetails= H5PLibraryDetails || {};
       $libraryInfo.append(H5PUtils.createLabeledField(title, value));
     });
     
+    var count;
+    if (H5PLibraryDetails.library.notCached !== undefined) {
+      count = H5PIntegration.i18n.H5P.NA;
+    }
+    else if (H5PLibraryDetails.library.content === undefined) {
+      count = 0; 
+    }
+    else {
+      count = H5PLibraryDetails.library.content.length;
+    }
+    
     // List counter:
-    $libraryInfo.append(H5PUtils.createLabeledField(H5PLibraryDetails.library.translations.contentCount, H5PLibraryDetails.currentContent ? H5PLibraryDetails.currentContent.length : 0));
+    $libraryInfo.append(H5PUtils.createLabeledField(H5PLibraryDetails.library.translations.contentCount, count));
     
     return $libraryInfo;
   };
@@ -49,6 +60,10 @@ var H5PLibraryDetails= H5PLibraryDetails || {};
    * Create the content list with searching and paging 
    */
   H5PLibraryDetails.createContentElement = function () {
+    if (H5PLibraryDetails.library.notCached !== undefined) {
+      return H5PUtils.getRebuildCache(H5PLibraryDetails.library.notCached);
+    }
+    
     if (H5PLibraryDetails.currentContent === undefined) {
       H5PLibraryDetails.$content = $('<div class="h5p-content empty">' + H5PLibraryDetails.library.translations.noContent + '</div>');
     }
