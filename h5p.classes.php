@@ -62,6 +62,27 @@ interface H5PFrameworkInterface {
    * @return array Associative array containg one item per machine name. This item contains an array of libraries.
    */
   public function loadLibraries();
+  
+  /**
+   * Saving the unsupported library list
+   * 
+   * @param array A list of unsupported libraries
+   */
+  public function setUnsupportedLibraries($libraries);
+  
+  /**
+   * Returns unsupported libraries
+   * 
+   * @return array A list of the unsupported libraries
+   */
+  public function getUnsupportedLibraries();
+  
+  /**
+   * Returns the URL to the library admin page
+   * 
+   * @return string URL to admin page
+   */
+  public function getAdminUrl();
 
   /**
    * Get id to an excisting library
@@ -522,11 +543,11 @@ class H5PValidator {
         
         if ($libraryH5PData !== FALSE) {
           // Library's directory name and machineName in library.json must match
-          if ($libraryH5PData['machineName'] !== $file) {
-            $this->h5pF->setErrorMessage($this->h5pF->t('Library directory name must match machineName in library.json. (Directory: %directoryName , machineName: %machineName)', array('%directoryName' => $file, '%machineName' => $libraryH5PData['machineName'])));
-            $valid = FALSE;
-            continue;
-          }
+          //if ($libraryH5PData['machineName'] !== $file) {
+          //  $this->h5pF->setErrorMessage($this->h5pF->t('Library directory name must match machineName in library.json. (Directory: %directoryName , machineName: %machineName)', array('%directoryName' => $file, '%machineName' => $libraryH5PData['machineName'])));
+          //  $valid = FALSE;
+          //  continue;
+          //}
           $libraries[$libraryH5PData['machineName']] = $libraryH5PData;
         }
         else {
@@ -998,13 +1019,23 @@ class H5PStorage {
    *  TRUE if one or more libraries were updated
    *  FALSE otherwise
    */
-  public function savePackage($content = NULL, $contentMainId = NULL, $skipContent = FALSE) {
+  public function savePackage($content = NULL, $contentMainId = NULL, $skipContent = FALSE, $upgradeOnly = FALSE) {
     // Save the libraries we processed during validation
     $library_saved = FALSE;
+    $upgradedLibsCount = 0;
     $mayUpdateLibraries = $this->h5pF->mayUpdateLibraries();
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
       $libraryId = $this->h5pF->getLibraryId($key, $library['majorVersion'], $library['minorVersion']);
       $library['saveDependencies'] = TRUE;
+      $library['skip'] = FALSE;
+      if ($upgradeOnly) {
+        // Is this library already installed?
+        if ($this->h5pF->loadLibrary($library['machineName'], $library['majorVersion'], $library['minorVersion']) === FALSE) {
+          $library['skip'] = TRUE;
+          continue;
+        }
+      }
+      
       if (!$libraryId) {
         $new = TRUE;
       }
@@ -1039,7 +1070,7 @@ class H5PStorage {
     }
 
     foreach ($this->h5pC->librariesJsonData as $key => &$library) {
-      if ($library['saveDependencies']) {
+      if ($library['saveDependencies'] && !$library['skip']) {
         $this->h5pF->deleteLibraryDependencies($library['libraryId']);
         if (isset($library['preloadedDependencies'])) {
           $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['preloadedDependencies'], 'preloaded');
@@ -1053,6 +1084,8 @@ class H5PStorage {
         
         // Make sure libraries dependencies, parameter filtering and export files gets regenerated for all content who uses this library.
         $this->h5pF->invalidateContentCache($library['libraryId']);
+        
+        $upgradedLibsCount++;
       }
     }
     
@@ -1087,6 +1120,14 @@ class H5PStorage {
       // Save the content library dependencies
       $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
       H5PCore::deleteFileTree($this->h5pF->getUploadedH5pFolderPath());
+    }
+    
+    // Update supported library list if neccessary:
+    $this->h5pC->validateLibrarySupport(TRUE);
+    
+    if ($upgradeOnly) {
+      // TODO - support translation
+      $this->h5pF->setInfoMessage($upgradedLibsCount . ' libraries were upgraded!');
     }
 
     return $library_saved;
@@ -1572,7 +1613,19 @@ class H5PCore {
   }
   
   /**
-   * Recusive. Goes through the dependency tree for the given library and 
+   * Deletes a library
+   * 
+   * @param unknown $libraryId
+   */
+  public function deleteLibrary($libraryId) {
+    $this->h5pF->deleteLibrary($libraryId);
+    
+    // Force update of unsupported libraries list:
+    $this->validateLibrarySupport(TRUE);
+  }
+  
+  /**
+   * Recursive. Goes through the dependency tree for the given library and 
    * adds all the dependencies to the given array in a flat format.
    * 
    * @param array $librariesUsed Flat list of all dependencies.
@@ -1796,6 +1849,119 @@ class H5PCore {
     }
 
     return $obj ? (object) $newArr : $newArr;
+  }
+  
+  /**
+   * Check if currently installed H5P libraries are supported by
+   * the current versjon of core. Which versions of which libraries are supported is
+   * defined in the library-support.json file.
+   *
+   * @param boolean If TRUE, unsupported libraries list are rebuilt. If FALSE, list is 
+   *                rebuilt only if non-existing
+   */
+  public function validateLibrarySupport($force = false) {
+    if (!($this->h5pF->getUnsupportedLibraries() === NULL || $force)) {
+      return;
+    }
+    
+    // Read and parse library-support.json
+    $jsonString = file_get_contents(realpath(dirname(__FILE__)).'/library-support.json');
+    
+    if($jsonString !== FALSE) {
+      // Get all libraries installed, check if any of them is not supported:
+      $libraries = $this->h5pF->loadLibraries();
+      $unsupportedLibraries = array();
+      $minimumLibraryVersions = array();
+      
+      $librariesSupported = json_decode($jsonString, true);
+      foreach ($librariesSupported as $library) {
+        $minimumLibraryVersions[$library['machineName']]['versions'] = $library['minimumVersions'];
+        $minimumLibraryVersions[$library['machineName']]['downloadUrl'] = $library['downloadUrl'];
+      }
+      
+      // Iterate over all installed libraries
+      foreach ($libraries as $machine_name => $libraryList) {
+        // Check if there are any minimum version requirements for this library
+        if (isset($minimumLibraryVersions[$machine_name])) {
+          $minimumVersions = $minimumLibraryVersions[$machine_name]['versions'];
+          // For each version of this library, check if it is supported
+          foreach ($libraryList as $library) {
+            if (!self::isLibraryVersionSupported($library, $minimumVersions)) {
+              // Current version of this library is not supported
+              $unsupportedLibraries[] = array (
+                'name' => $machine_name,
+                'downloadUrl' => $minimumLibraryVersions[$machine_name]['downloadUrl'],
+                'currentVersion' => array (
+                  'major' => $library->major_version,
+                  'minor' => $library->minor_version,
+                  'patch' => $library->patch_version,
+                ),
+                'minimumVersions' => $minimumVersions,
+              );
+            }
+          }
+        }
+      }
+      
+      $this->h5pF->setUnsupportedLibraries(empty($unsupportedLibraries) ? NULL : $unsupportedLibraries);
+    }
+  }
+  
+  /**
+   * Check if a specific version of a library is supported
+   * 
+   * @param object library
+   * @param array An array containing versions
+   * @return boolean TRUE if supported, otherwise FALSE
+   */
+  private static function isLibraryVersionSupported ($library, $minimumVersions) {
+    $major_supported = $minor_supported = $patch_supported = false;
+    foreach ($minimumVersions as $minimumVersion) {
+      // A library is supported if:
+      // --- major is higher than any minimumversion
+      // --- minor is higher than any minimumversion for a given major
+      // --- major and minor equals and patch is >= supported
+      $major_supported |= ($library->major_version > $minimumVersion['major']);
+    
+      if ($library->major_version == $minimumVersion['major']) {
+        $minor_supported |= ($library->minor_version > $minimumVersion['minor']);
+      }
+    
+      if ($library->major_version == $minimumVersion['major'] &&
+          $library->minor_version == $minimumVersion['minor']) {
+        $patch_supported |= ($library->patch_version >= $minimumVersion['patch']);
+      }
+    }
+    
+    return ($patch_supported || $minor_supported || $major_supported);
+  }
+  
+  /**
+   * Helper function for creating markup for the unsupported libraries list 
+   * 
+   * TODO: Make help text translatable
+   * 
+   * @return string Html
+   * */
+  public function createMarkupForUnsupportedLibraryList($libraries) {
+    $html = '<div><span>The following versions of H5P libraries are not supported anymore:<span><ul>';
+    
+    foreach ($libraries as $library) {
+      $downloadUrl = $library['downloadUrl'];
+      $libraryName = $library['name'];
+      $currentVersion = $library['currentVersion']['major'] . '.' . $library['currentVersion']['minor'] .'.' . $library['currentVersion']['patch'];
+      $minimumVersions = '';
+      $prefix = '';
+      foreach ($library['minimumVersions'] as $version) {
+        $minimumVersions .= $prefix . $version['major'] . '.' . $version['minor'] . '.' . $version['patch'];
+        $prefix = ' or ';
+      }
+      
+      $html .= "<li><a href=\"$downloadUrl\">$libraryName</a> (Current version: $currentVersion. Minimum version(s): $minimumVersions)</li>";
+    }
+    
+    $html .= '</ul><span><br>These libraries may cause problems on this site.</div>';
+    return $html;
   }
 }
 
