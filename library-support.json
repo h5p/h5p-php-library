@@ -5,6 +5,11 @@
     "minimumVersions": [
       {
         "major": 1,
+        "minor": 0,
+        "patch": 64
+      },
+      {
+        "major": 1,
         "minor": 1,
         "patch": 10
       }
@@ -47,6 +52,16 @@
     "machineName": "H5P.InteractiveVideo",
     "downloadUrl": "http://h5p.org/interactive-video",
     "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 31
+      },
+      {
+        "major": 1,
+        "minor": 1,
+        "patch": 10
+      },
       {
         "major": 1,
         "minor": 2,
@@ -113,6 +128,11 @@
     "machineName": "H5P.Summary",
     "downloadUrl": "http://h5p.org/summary",
     "minimumVersions": [
+      {
+        "major": 1,
+        "minor": 0,
+        "patch": 38
+      },
       {
         "major": 1,
         "minor": 1,
