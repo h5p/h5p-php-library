@@ -243,9 +243,9 @@ interface H5PFrameworkInterface {
   /**
    * Delete a library from database and file system
    * 
-   * @param int $libraryId Library Id
+   * @param mixed $library Library
    */
-  public function deleteLibrary($libraryId);
+  public function deleteLibrary($library);
   
   /**
    * Load content.
