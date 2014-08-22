@@ -55,6 +55,13 @@ interface H5PFrameworkInterface {
    * @return string Path to the last uploaded h5p
    */
   public function getUploadedH5pPath();
+  
+  /**
+   * Get the list of the current installed libraries
+   * 
+   * @return array Associative array containg one item per machine name. This item contains an array of libraries.
+   */
+  public function loadLibraries();
 
   /**
    * Get id to an excisting library
@@ -243,9 +250,9 @@ interface H5PFrameworkInterface {
   /**
    * Delete a library from database and file system
    * 
-   * @param int $libraryId Library Id
+   * @param mixed $library Library
    */
-  public function deleteLibrary($libraryId);
+  public function deleteLibrary($library);
   
   /**
    * Load content.
@@ -1325,7 +1332,7 @@ class H5PCore {
    * @param array $content
    * @return int Content ID
    */
-  public function saveContent($content, $contentMainId) {
+  public function saveContent($content, $contentMainId = NULL) {
     if (isset($content['id'])) {
       $this->h5pF->updateContent($content, $contentMainId);
     }
@@ -1333,7 +1340,10 @@ class H5PCore {
       $content['id'] = $this->h5pF->insertContent($content, $contentMainId); 
     }
     
-    $this->h5pF->cacheDel('parameters', $content['id']);
+    if (!isset($content['filtered'])) {
+      // TODO: Add filtered to all impl. and remove
+      $this->h5pF->cacheDel('parameters', $content['id']);
+    }
     
     return $content['id'];
   }
@@ -1382,7 +1392,14 @@ class H5PCore {
    * @return Object NULL on failure.
    */
   public function filterParameters($content) {
-    $params = $this->h5pF->cacheGet('parameters', $content['id']);
+    if (isset($content['filtered'])) {
+      $params = ($content['filtered'] === '' ? NULL : $content['filtered']);
+    }
+    else {
+      // TODO: Add filtered to all impl. and remove
+      $params = $this->h5pF->cacheGet('parameters', $content['id']);
+    }
+
     if ($params !== NULL) {
       return $params;
     }

@@ -38,7 +38,7 @@ var H5PLibraryList= H5PLibraryList || {};
       var $libraryRow = H5PUtils.createTableRow([
         library.title,
         library.numContent,
-        library.numContentDependencies === -1 ? t.NA : library.numContentDependencies,
+        library.numContentDependencies,
         library.numLibraryDependencies,
         '<div class="h5p-admin-buttons-wrapper">\
           <button class="h5p-admin-upgrade-library"></button>\
@@ -65,7 +65,7 @@ var H5PLibraryList= H5PLibraryList || {};
       });
       
       var $deleteButton = $('.h5p-admin-delete-library', $libraryRow);
-      if (library.numContent !== 0 || library.numContentDependencies !== 0 || library.numLibraryDependencies !== 0) {
+      if (library.numContent !== '0' || library.numContentDependencies !== '' || library.numLibraryDependencies !== '') {
         // Disabled delete if content.
         $deleteButton.attr('disabled', true);
       }
