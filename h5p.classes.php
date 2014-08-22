@@ -1340,7 +1340,10 @@ class H5PCore {
       $content['id'] = $this->h5pF->insertContent($content, $contentMainId); 
     }
     
-    $this->h5pF->cacheDel('parameters', $content['id']);
+    if (!isset($content['filtered'])) {
+      // TODO: Add filtered to all impl. and remove
+      $this->h5pF->cacheDel('parameters', $content['id']);
+    }
     
     return $content['id'];
   }
@@ -1389,7 +1392,14 @@ class H5PCore {
    * @return Object NULL on failure.
    */
   public function filterParameters($content) {
-    $params = $this->h5pF->cacheGet('parameters', $content['id']);
+    if (isset($content['filtered'])) {
+      $params = ($content['filtered'] === '' ? NULL : $content['filtered']);
+    }
+    else {
+      // TODO: Add filtered to all impl. and remove
+      $params = $this->h5pF->cacheGet('parameters', $content['id']);
+    }
+
     if ($params !== NULL) {
       return $params;
     }
