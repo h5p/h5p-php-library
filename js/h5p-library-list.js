@@ -50,7 +50,7 @@ var H5PLibraryList= H5PLibraryList || {};
       if (library.upgradeUrl === null) {
         $('.h5p-admin-upgrade-library', $libraryRow).remove();
       }
-      else if (library.upgradeUrl === false || library.numContent === 0) {
+      else if (library.upgradeUrl === false || library.numContent === '0') {
         $('.h5p-admin-upgrade-library', $libraryRow).attr('disabled', true);
       }
       else {
