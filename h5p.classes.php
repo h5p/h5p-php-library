@@ -617,7 +617,7 @@ class H5PValidator {
           $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => H5PCore::libraryToString($library))));
         }
         if (!$this->h5pF->mayUpdateLibraries()) {
-           $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
+          $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
         }
       }
       $valid = empty($missingLibraries) && $valid;
@@ -1886,46 +1886,69 @@ class H5PCore {
       return;
     }
     
-    // Read and parse library-support.json
-    $jsonString = file_get_contents(realpath(dirname(__FILE__)).'/library-support.json');
+    $minVersions = getMinimumVersionsSupported(realpath(dirname(__FILE__)) . '/library-support.json');
+    if ($minVersions === NULL) {
+      return;
+    }
     
-    if($jsonString !== FALSE) {
-      // Get all libraries installed, check if any of them is not supported:
-      $libraries = $this->h5pF->loadLibraries();
-      $unsupportedLibraries = array();
-      $minimumLibraryVersions = array();
-      
-      $librariesSupported = json_decode($jsonString, true);
-      foreach ($librariesSupported as $library) {
-        $minimumLibraryVersions[$library['machineName']]['versions'] = $library['minimumVersions'];
-        $minimumLibraryVersions[$library['machineName']]['downloadUrl'] = $library['downloadUrl'];
+    // Get all libraries installed, check if any of them is not supported:
+    $libraries = $this->h5pF->loadLibraries();
+    $unsupportedLibraries = array();
+    
+    // Iterate over all installed libraries
+    foreach ($libraries as $library_name => $versions) {
+      if (!isset($minVersions[$library_name])) {
+        continue;
       }
+      $min = $minVersions[$library_name];
       
-      // Iterate over all installed libraries
-      foreach ($libraries as $machine_name => $libraryList) {
-        // Check if there are any minimum version requirements for this library
-        if (isset($minimumLibraryVersions[$machine_name])) {
-          $minimumVersions = $minimumLibraryVersions[$machine_name]['versions'];
-          // For each version of this library, check if it is supported
-          foreach ($libraryList as $library) {
-            if (!self::isLibraryVersionSupported($library, $minimumVersions)) {
-              // Current version of this library is not supported
-              $unsupportedLibraries[] = array (
-                'name' => $library->title,
-                'downloadUrl' => $minimumLibraryVersions[$machine_name]['downloadUrl'],
-                'currentVersion' => array (
-                  'major' => $library->major_version,
-                  'minor' => $library->minor_version,
-                  'patch' => $library->patch_version,
-                )
-              );
-            }
-          }
+      // For each version of this library, check if it is supported
+      foreach ($versions as $library) {
+        if (!$this->isLibraryVersionSupported($library, $min->versions)) {
+          // Current version of this library is not supported
+          $unsupportedLibraries[] = array (
+            'name' => $library_name,
+            'downloadUrl' => $min->downloadUrl,
+            'currentVersion' => array (
+              'major' => $library->major_version,
+              'minor' => $library->minor_version,
+              'patch' => $library->patch_version,
+            )
+          );
         }
       }
       
       $this->h5pF->setUnsupportedLibraries(empty($unsupportedLibraries) ? NULL : $unsupportedLibraries);
     }
+  }
+  
+  /**
+   * Returns a list of the minimum version of libraries that are supported.
+   * This is needed because some old libraries are no longer supported by core.
+   * 
+   * TODO: Make it possible for the systems to cache this list between requests.
+   * 
+   * @param string $path to json file
+   * @return array indexed using library names
+   */
+  public function getMinimumVersionsSupported($path) {
+    $minSupported = array();
+    
+    // Get list of minimum version for libraries. Some old libraries are no longer supported.
+    $libraries = file_get_contents($path);
+    if ($libraries !== FALSE) {
+      $libraries = json_decode($libraries);
+      if ($libraries !== NULL) {
+        foreach ($libraries as $library) {
+          $minSupported[$library->machineName] = (object) array(
+            'versions' => $library->minimumVersions,
+            'downloadUrl' => $library->downloadUrl
+          );
+        }
+      }
+    }
+    
+    return empty($minSupported) ? NULL : $minSupported;
   }
   
   /**
@@ -1935,22 +1958,22 @@ class H5PCore {
    * @param array An array containing versions
    * @return boolean TRUE if supported, otherwise FALSE
    */
-  private static function isLibraryVersionSupported ($library, $minimumVersions) {
+  public function isLibraryVersionSupported ($library, $minimumVersions) {
     $major_supported = $minor_supported = $patch_supported = false;
     foreach ($minimumVersions as $minimumVersion) {
       // A library is supported if:
       // --- major is higher than any minimumversion
       // --- minor is higher than any minimumversion for a given major
       // --- major and minor equals and patch is >= supported
-      $major_supported |= ($library->major_version > $minimumVersion['major']);
+      $major_supported |= ($library->major_version > $minimumVersion->major);
     
-      if ($library->major_version == $minimumVersion['major']) {
-        $minor_supported |= ($library->minor_version > $minimumVersion['minor']);
+      if ($library->major_version == $minimumVersion->major) {
+        $minor_supported |= ($library->minor_version > $minimumVersion->minor);
       }
     
-      if ($library->major_version == $minimumVersion['major'] &&
-          $library->minor_version == $minimumVersion['minor']) {
-        $patch_supported |= ($library->patch_version >= $minimumVersion['patch']);
+      if ($library->major_version == $minimumVersion->major &&
+          $library->minor_version == $minimumVersion->minor) {
+        $patch_supported |= ($library->patch_version >= $minimumVersion->patch);
       }
     }
     
