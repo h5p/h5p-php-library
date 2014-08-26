@@ -1864,7 +1864,7 @@ class H5PCore {
       return;
     }
     
-    $minVersions = getMinimumVersionsSupported(realpath(dirname(__FILE__)) . '/library-support.json');
+    $minVersions = $this->getMinimumVersionsSupported(realpath(dirname(__FILE__)) . '/library-support.json');
     if ($minVersions === NULL) {
       return;
     }
