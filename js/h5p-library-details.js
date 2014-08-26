@@ -97,8 +97,8 @@ var H5PLibraryDetails= H5PLibraryDetails || {};
     // Only create pager if needed:
     if(H5PLibraryDetails.currentContent.length > H5PLibraryDetails.PAGER_SIZE) {
       
-      H5PLibraryDetails.$previous = $('<button type="button" class="previous h5p-admin">&#xf137;</button>');
-      H5PLibraryDetails.$next = $('<button type="button" class="next h5p-admin">&#xf138;</button>');
+      H5PLibraryDetails.$previous = $('<button type="button" class="previous h5p-admin"><</button>');
+      H5PLibraryDetails.$next = $('<button type="button" class="next h5p-admin">></button>');
       
       H5PLibraryDetails.$previous.on('click', function () {
         if(H5PLibraryDetails.$previous.hasClass('disabled')) {
