@@ -65,7 +65,7 @@ var H5PLibraryList= H5PLibraryList || {};
       });
       
       var $deleteButton = $('.h5p-admin-delete-library', $libraryRow);
-      if (library.numContent !== '0' || library.numContentDependencies !== '' || library.numLibraryDependencies !== '') {
+      if (libraries.notCached !== undefined || library.numContent !== 0 || (library.numContentDependencies !== '' && library.numContentDependencies !== 0) || (library.numLibraryDependencies !== '' && library.numLibraryDependencies !== 0)) {
         // Disabled delete if content.
         $deleteButton.attr('disabled', true);
       }
