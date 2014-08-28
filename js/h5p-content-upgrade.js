@@ -1,7 +1,7 @@
 var H5PUpgrades = H5PUpgrades || {};
 
 (function ($) {
-  var info, $container;
+  var info, $container, librariesCache = {};
   
   // Initialize
   $(document).ready(function () {
@@ -78,13 +78,16 @@ var H5PUpgrades = H5PUpgrades || {};
      * @param {String} err
      */
     var check = function (err) {
-      i++;
-      if (i === (isArray ? obj.length : ids.length) || (err !== undefined && err !== null)) {
-        finished(err);
-      }
-      else {
-        next();
-      }
+      // We need to use a real async function in order for the stack to clear.
+      setTimeout(function () {
+        i++;
+        if (i === (isArray ? obj.length : ids.length) || (err !== undefined && err !== null)) {
+          finished(err);
+        }
+        else {
+          next();
+        }
+      }, 0);
     };
     
     check(); // Start
@@ -288,12 +291,22 @@ var H5PUpgrades = H5PUpgrades || {};
   ContentUpgrade.prototype.loadLibrary = function (name, version, next) {
     var self = this;
     
+    var key = name + '/' + version.major + '/' + version.minor;
+    if (librariesCache[key] !== undefined) {
+      // Library has been loaded before. Return cache.
+      next(null, librariesCache[key]);
+      return;
+    }
+    
     $.ajax({
       dataType: 'json',
-      url: info.libraryBaseUrl + '/' + name + '/' + version.major + '/' + version.minor
+      cache: true,
+      url: info.libraryBaseUrl + '/' + key
     }).fail(function () {
       next(info.errorData.replace('%lib', name + ' ' + version));
     }).done(function (library) {
+      librariesCache[key] = library;
+      
       if (library.upgradesScript) {
         self.loadScript(library.upgradesScript, function (err) {
           if (err) {
