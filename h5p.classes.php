@@ -5,6 +5,13 @@
 interface H5PFrameworkInterface {
 
   /**
+   * Returns info for the current platform
+   * 
+   * @return array An array containing info 
+   */
+  public function getPlatformInfo();
+  
+  /**
    * Show the user an error message
    *
    * @param string $message
@@ -1359,7 +1366,9 @@ class H5PCore {
 
   public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
   public static $defaultLibraryWhitelistExtras = 'js css';
-
+  
+  const SECONDS_IN_WEEK = 604800; 
+  
   public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $path, $development_mode, $h5pD;
   private $exportEnabled;
 
@@ -1999,6 +2008,30 @@ class H5PCore {
     
     $html .= '</ul><span><br>These libraries may cause problems on this site. See <a href="http://h5p.org/releases/h5p-core-1.3">here</a> for more info</div>';
     return $html;
+  }
+  
+  /**
+   * Get a list of libraries' metadata from h5p.org. Cache it, and refetch once a week.
+   * 
+   * @return mixed An object of objects keyed by machineName
+   */
+  public function getLibrariesMetadata() {
+    // Fetch from cache:
+    $metadata = $this->h5pF->cacheGet('libraries','metadata');
+    
+    // If not available in cache, or older than a week => refetch!
+    if ($metadata === NULL || $metadata->lastTimeFetched < (time() - self::SECONDS_IN_WEEK)) {
+      $platformInfo = $this->h5pF->getPlatformInfo();
+      $json = file_get_contents('http://h5p.org/libraries-metadata.json?platform=' . json_encode($platformInfo));
+      
+      $metadata = new stdClass();
+      $metadata->json = ($json === FALSE ? NULL : json_decode($json));
+      $metadata->lastTimeFetched = time();
+      
+      $this->h5pF->cacheSet('libraries','metadata', $metadata);
+    }
+    
+    return $metadata->json;
   }
 }
 
