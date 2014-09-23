@@ -975,6 +975,13 @@ H5P.setFinished = function (contentId, points, maxPoints) {
   }
 };
 
+/**
+ * Mimics how php's htmlspecialchars works (the way we use it)
+ */
+H5P.htmlspecialchars = function(string) {
+  return string.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#039;').replace(/"/g, '&quot;');
+};
+
 // Add indexOf to browsers that lack them. (IEs)
 if (!Array.prototype.indexOf) {
   Array.prototype.indexOf = function (needle) {
