@@ -1147,7 +1147,7 @@ class H5PStorage {
     
     if ($upgradeOnly) {
       // TODO - support translation
-      $this->h5pF->setInfoMessage($upgradedLibsCount . ' libraries were upgraded!');
+      $this->h5pF->setInfoMessage($this->h5pF->t('@num libraries were upgraded!', array('@num' => $upgradedLibsCount)));
     }
 
     return $library_saved;
