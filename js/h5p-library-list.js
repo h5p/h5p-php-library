@@ -23,9 +23,9 @@ var H5PLibraryList= H5PLibraryList || {};
    * @param {object} libraries List of libraries and headers
    */
   H5PLibraryList.createLibraryList = function (libraries) {
-    
+    var t = H5PIntegration.i18n.H5P;
     if(libraries.listData === undefined || libraries.listData.length === 0) {
-      return;
+      return $('<div>' + t.NA + '</div>');
     }
     
     // Create table
@@ -33,7 +33,6 @@ var H5PLibraryList= H5PLibraryList || {};
     $table.addClass('libraries');
     
     // Add libraries
-    var t = H5PIntegration.i18n.H5P;
     $.each (libraries.listData, function (index, library) {
       var $libraryRow = H5PUtils.createTableRow([
         library.title,
