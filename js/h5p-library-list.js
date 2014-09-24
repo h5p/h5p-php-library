@@ -36,9 +36,18 @@ var H5PLibraryList= H5PLibraryList || {};
     $.each (libraries.listData, function (index, library) {
       var $libraryRow = H5PUtils.createTableRow([
         library.title,
-        library.numContent,
-        library.numContentDependencies,
-        library.numLibraryDependencies,
+        {
+          text: library.numContent,
+          class: 'h5p-admin-center'
+        },
+        {
+          text: library.numContentDependencies,
+          class: 'h5p-admin-center'
+        },
+        {
+          text: library.numLibraryDependencies,
+          class: 'h5p-admin-center'
+        },
         '<div class="h5p-admin-buttons-wrapper">\
           <button class="h5p-admin-upgrade-library"></button>\
           <button class="h5p-admin-view-library" title="' + t.viewLibrary + '"></button>\

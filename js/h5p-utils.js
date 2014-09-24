@@ -16,7 +16,7 @@ var H5PUtils = H5PUtils || {};
       $.each(headers, function (index, value) {
         if (!(value instanceof Object)) {
           value = {
-            text: value
+            html: value
           };
         }
         
@@ -38,7 +38,13 @@ var H5PUtils = H5PUtils || {};
     var $tr = $('<tr></tr>');
     
     $.each(rows, function (index, value) {
-      $tr.append('<td>' + value + '</td>');
+      if (!(value instanceof Object)) {
+        value = {
+          html: value
+        };
+      }
+        
+        $('<td/>', value).appendTo($tr);
     });
     
     return $tr;
