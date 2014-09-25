@@ -55,10 +55,11 @@ var H5PLibraryList= H5PLibraryList || {};
         </div>'
       ]);
       
+      var hasContent = !(library.numContent === '' || library.numContent === 0);
       if (library.upgradeUrl === null) {
         $('.h5p-admin-upgrade-library', $libraryRow).remove();
       }
-      else if (library.upgradeUrl === false || library.numContent === 0) {
+      else if (library.upgradeUrl === false || !hasContent) {
         $('.h5p-admin-upgrade-library', $libraryRow).attr('disabled', true);
       }
       else {
@@ -73,7 +74,7 @@ var H5PLibraryList= H5PLibraryList || {};
       });
       
       var $deleteButton = $('.h5p-admin-delete-library', $libraryRow);
-      if (libraries.notCached !== undefined || library.numContent !== 0 || (library.numContentDependencies !== '' && library.numContentDependencies !== 0) || (library.numLibraryDependencies !== '' && library.numLibraryDependencies !== 0)) {
+      if (libraries.notCached !== undefined || hasContent || (library.numContentDependencies !== '' && library.numContentDependencies !== 0) || (library.numLibraryDependencies !== '' && library.numLibraryDependencies !== 0)) {
         // Disabled delete if content.
         $deleteButton.attr('disabled', true);
       }
