@@ -1154,7 +1154,7 @@ class H5PStorage {
     
     if ($upgradeOnly) {
       // TODO - support translation
-      $this->h5pF->setInfoMessage($upgradedLibsCount . ' libraries were upgraded!');
+      $this->h5pF->setInfoMessage($this->h5pF->t('@num libraries were upgraded!', array('@num' => $upgradedLibsCount)));
     }
 
     return $library_saved;
@@ -1258,7 +1258,9 @@ Class H5PExport {
     // Build h5p.json
     $h5pJson = array (
       'title' => $content['title'],
-      'language' => $content['language'],
+      // TODO - stop using 'und', this is not the preferred way. 
+      // Either remove language from the json if not existing, or use "language": null 
+      'language' => isset($content['language']) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes,
     );
