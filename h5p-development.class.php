@@ -30,7 +30,7 @@ class H5PDevelopment {
       $this->findLibraries($filesPath . '/development');
     }
   }
-  
+
   /**
    * Get contents of file.
    *
@@ -41,15 +41,15 @@ class H5PDevelopment {
     if (file_exists($file) === FALSE) {
       return NULL;
     }
-    
+
     $contents = file_get_contents($file);
     if ($contents === FALSE) {
       return NULL;
     }
-    
+
     return $contents;
   }
-  
+
   /**
    * Scans development directory and find all libraries.
    *
@@ -57,39 +57,39 @@ class H5PDevelopment {
    */
   private function findLibraries($path) {
     $this->libraries = array();
-    
+
     if (is_dir($path) === FALSE) {
-      return; 
+      return;
     }
-    
+
     $contents = scandir($path);
-    
+
     for ($i = 0, $s = count($contents); $i < $s; $i++) {
       if ($contents[$i]{0} === '.') {
         continue; // Skip hidden stuff.
       }
-      
+
       $libraryPath = $path . '/' . $contents[$i];
       $libraryJSON = $this->getFileContents($libraryPath . '/library.json');
       if ($libraryJSON === NULL) {
         continue; // No JSON file, skip.
       }
-      
+
       $library = json_decode($libraryJSON, TRUE);
       if ($library === FALSE) {
         continue; // Invalid JSON.
       }
-      
+
       // TODO: Validate props? Not really needed, is it? this is a dev site.
-      
+
       // Save/update library.
       $library['libraryId'] = $this->h5pF->getLibraryId($library['machineName'], $library['majorVersion'], $library['minorVersion']);
       $this->h5pF->saveLibraryData($library, $library['libraryId'] === FALSE);
-      
+
       $library['path'] = $libraryPath;
       $this->libraries[H5PDevelopment::libraryToString($library['machineName'], $library['majorVersion'], $library['minorVersion'])] = $library;
     }
-    
+
     // TODO: Should we remove libraries without files? Not really needed, but must be cleaned up some time, right?
 
     // Go trough libraries and insert dependencies. Missing deps. will just be ignored and not available. (I guess?!)
@@ -106,17 +106,17 @@ class H5PDevelopment {
     }
     // TODO: Deps must be inserted into h5p_nodes_libraries as well... ? But only if they are used?!
   }
-  
+
   /**
    * @return array Libraris in development folder.
    */
   public function getLibraries() {
     return $this->libraries;
   }
-  
+
   /**
    * Get library
-   * 
+   *
    * @param string $name of the library.
    * @param int $majorVersion of the library.
    * @param int $minorVersion of the library.
@@ -126,10 +126,10 @@ class H5PDevelopment {
     $library = H5PDevelopment::libraryToString($name, $majorVersion, $minorVersion);
     return isset($this->libraries[$library]) === TRUE ? $this->libraries[$library] : NULL;
   }
-  
+
   /**
    * Get semantics for the given library.
-   * 
+   *
    * @param string $name of the library.
    * @param int $majorVersion of the library.
    * @param int $minorVersion of the library.
@@ -137,32 +137,32 @@ class H5PDevelopment {
    */
   public function getSemantics($name, $majorVersion, $minorVersion) {
     $library = H5PDevelopment::libraryToString($name, $majorVersion, $minorVersion);
-    
+
     if (isset($this->libraries[$library]) === FALSE) {
       return NULL;
     }
-    
+
     return $this->getFileContents($this->libraries[$library]['path'] . '/semantics.json');
   }
-  
+
   /**
    * Get translations for the given library.
-   * 
+   *
    * @param string $name of the library.
    * @param int $majorVersion of the library.
    * @param int $minorVersion of the library.
    * @return string Translation
    */
-  public function getLanguage($name, $majorVersion, $minorVersion) {
+  public function getLanguage($name, $majorVersion, $minorVersion, $language) {
     $library = H5PDevelopment::libraryToString($name, $majorVersion, $minorVersion);
-    
+
     if (isset($this->libraries[$library]) === FALSE) {
       return NULL;
     }
-    
-    return $this->getFileContents($this->libraries[$library]['path'] . '/language/' . $this->language . '.json');
+
+    return $this->getFileContents($this->libraries[$library]['path'] . '/language/' . $language . '.json');
   }
-  
+
   /**
    * Writes library as string on the form "name majorVersion.minorVersion"
    *
@@ -175,4 +175,3 @@ class H5PDevelopment {
     return $name . ' ' . $majorVersion . '.' . $minorVersion;
   }
 }
-
