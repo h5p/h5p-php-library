@@ -294,7 +294,10 @@ interface H5PFrameworkInterface {
    *     - dropLibraryCss(optional): commasepareted list of machineNames
    *     - machineName: Machine name for the library
    *     - libraryId: Id of the library
-   *   - type: The dependency type (editor, preloaded or dynamic)
+   *   - type: The dependency type. Allowed values:
+   *     - editor
+   *     - dynamic
+   *     - preloaded
    */
   public function saveLibraryUsage($contentId, $librariesInUse);
 
@@ -303,8 +306,11 @@ interface H5PFrameworkInterface {
    * dependencies to other libraries
    * 
    * @param int $library_id
-   * @return array The array contains two elements, keyed by 'content' and 'libraries'. 
-   *               Each element contains a number
+   *   Library identifier
+   * @return array
+   *   Associative array containing:
+   *   - content: Number of content using the library
+   *   - libraries: Number of libraries depending on the library
    */
   public function getLibraryUsage($libraryId);
 
@@ -312,62 +318,128 @@ interface H5PFrameworkInterface {
    * Loads a library
    *
    * @param string $machineName
+   *   The library's machine name
    * @param int $majorVersion
+   *   The library's major version
    * @param int $minorVersion
+   *   The library's minor version
    * @return array|FALSE
-   *  Array representing the library with dependency descriptions
-   *  FALSE if the library doesn't exist
+   *   FALSE if the library doesn't exist.
+   *   Otherwise an associative array containing:
+   *   - libraryId: The id of the library if it is an existing library.
+   *   - title: The library's name
+   *   - machineName: The library machineName
+   *   - majorVersion: The library's majorVersion
+   *   - minorVersion: The library's minorVersion
+   *   - patchVersion: The library's patchVersion
+   *   - runnable: 1 if the library is a content type, 0 otherwise
+   *   - fullscreen(optional): 1 if the library supports fullscreen, 0 otherwise
+   *   - embedTypes(optional): list of supported embed types
+   *   - preloadedJs(optional): comma separated string with js file paths
+   *   - preloadedCss(optional): comma separated sting with css file paths
+   *   - dropLibraryCss(optional): list of associative arrays containing:
+   *     - machineName: machine name for the librarys that are to drop their css
+   *   - semantics(optional): Json describing the content structure for the library
+   *   - preloadedDependencies(optional): list of associative arrays containing:
+   *     - machineName: Machine name for a library this library is depending on
+   *     - majorVersion: Major version for a library this library is depending on
+   *     - minorVersion: Minor for a library this library is depending on
+   *   - dynamicDependencies(optional): list of associative arrays containing:
+   *     - machineName: Machine name for a library this library is depending on
+   *     - majorVersion: Major version for a library this library is depending on
+   *     - minorVersion: Minor for a library this library is depending on
+   *   - editorDependencies(optional): list of associative arrays containing:
+   *     - machineName: Machine name for a library this library is depending on
+   *     - majorVersion: Major version for a library this library is depending on
+   *     - minorVersion: Minor for a library this library is depending on
    */
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
 
   /**
    * Loads library semantics.
    *
-   * @param string $name library identifier.
-   * @param int $majorVersion library identifier.
-   * @param int $minorVersion library identifier.
-   * @return string semantics.
+   * @param string $machineName
+   *   Machine name for the library
+   * @param int $majorVersion
+   *   The library's major version
+   * @param int $minorVersion
+   *   The library's minor version
+   * @return string
+   *   The library's semantics as json
    */
-  public function loadLibrarySemantics($name, $majorVersion, $minorVersion);
+  public function loadLibrarySemantics($machineName, $majorVersion, $minorVersion);
   
   /**
    * Makes it possible to alter the semantics, adding custom fields, etc.
    *
    * @param array $semantics
-   * @param string $name library identifier.
-   * @param int $majorVersion library identifier.
-   * @param int $minorVersion library identifier.
+   *   Associative array representing the semantics
+   * @param string $machineName
+   *   The library's machine name
+   * @param int $majorVersion
+   *   The library's major version
+   * @param int $minorVersion 
+   *   The library's minor version
    */
-  public function alterLibrarySemantics(&$semantics, $name, $majorVersion, $minorVersion);
+  public function alterLibrarySemantics(&$semantics, $machineName, $majorVersion, $minorVersion);
 
   /**
    * Delete all dependencies belonging to given library
    *
    * @param int $libraryId
-   *  Library Id
+   *   Library identifier
    */
   public function deleteLibraryDependencies($libraryId);
   
   /**
    * Delete a library from database and file system
    * 
-   * @param mixed $library Library
+   * @param int $libraryId
+   *   Library identifier
    */
-  public function deleteLibrary($library);
+  public function deleteLibrary($libraryId);
   
   /**
    * Load content.
    *
-   * @return object Content, null if not found.
+   * @param int $id
+   *   Content identifier
+   * @return array
+   *   Associative array containing:
+   *   - contentId: Identifier for the content
+   *   - params: json content as string
+   *   - embedType: csv of embed types
+   *   - title: The contents title
+   *   - language: Language code for the content
+   *   - libraryId: Id for the main library
+   *   - libraryName: The library machine name
+   *   - libraryMajorVersion: The library's majorVersion
+   *   - libraryMinorVersion: The library's minorVersion
+   *   - libraryEmbedTypes: CSV of the main library's embed types
+   *   - libraryFullscreen: 1 if fullscreen is supported. 0 otherwise.
    */
   public function loadContent($id);
   
   /**
    * Load dependencies for the given content of the given type.
    *
-   * @param int $id content.
-   * @param int $type dependency.
+   * @param int $id
+   *   Content identifier
+   * @param int $type
+   *   Dependency types. Allowed values:
+   *   - editor
+   *   - preloaded
+   *   - dynamic
    * @return array
+   *   List of associative arrays containing:
+   *   - libraryId: The id of the library if it is an existing library.
+   *   - machineName: The library machineName
+   *   - majorVersion: The library's majorVersion
+   *   - minorVersion: The library's minorVersion
+   *   - patchVersion: The library's patchVersion
+   *   - preloadedJs(optional): comma separated string with js file paths
+   *   - preloadedCss(optional): comma separated sting with css file paths
+   *   - dropCss(optional): csv of machine names
    */
   public function loadContentDependencies($id, $type = NULL);
   
@@ -375,7 +447,11 @@ interface H5PFrameworkInterface {
    * Get data from cache.
    * 
    * @param string $group
+   *   Identifier for the cache group
    * @param string $key
+   *   Unique identifier within the group
+   * @return mixed
+   *   Whatever has been stored in the cache. NULL if the entry doesn't exist
    */
   public function cacheGet($group, $key);
   
@@ -383,8 +459,11 @@ interface H5PFrameworkInterface {
    * Store data in cache.
    * 
    * @param string $group
+   *   The cache group where the data should be stored
    * @param string $key
+   *   A unique key identifying where the data should be stored
    * @param mixed $data
+   *   The data you want to cache
    */
   public function cacheSet($group, $key, $data);
   
@@ -392,20 +471,22 @@ interface H5PFrameworkInterface {
    * Delete data from cache.
    * 
    * @param string $group
+   *   Identifier for the cache group
    * @param string $key
+   *   Unique identifier within the group
    */
   public function cacheDel($group, $key = NULL);
   
   /**
    * Will invalidate the cache for the content that uses the specified library.
    * This means that the content dependencies has to be rebuilt, and the parameters refiltered.
-   * 
-   * @param int $library_id
+   *
+   * @param int $libraryId
    */
-  public function invalidateContentCache($library_id);
+  public function invalidateContentCache($libraryId);
   
   /**
-   * Get content without cache.
+   * Get number of content that hasn't been cached
    */
   public function getNotCached();
   
@@ -413,6 +494,7 @@ interface H5PFrameworkInterface {
    * Get number of contents using library as main library.
    * 
    * @param int $library_id
+   *   Identifier for a library
    */
   public function getNumContent($library_id);
 }
