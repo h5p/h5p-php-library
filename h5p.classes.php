@@ -118,7 +118,7 @@ interface H5PFrameworkInterface {
   public function getAdminUrl();
 
   /**
-   * Get id to an excisting library
+   * Get id to an existing library
    *
    * @param string $machineName
    *   The librarys machine name
@@ -156,7 +156,7 @@ interface H5PFrameworkInterface {
    *   - minorVersion: The librarys minorVersion
    *   - patchVersion: The librarys patchVersion
    * @return boolean
-   *   TRUE if the library is a patched version of an excisting library
+   *   TRUE if the library is a patched version of an existing library
    *   FALSE otherwise
    */
   public function isPatchedLibrary($library);
@@ -305,7 +305,7 @@ interface H5PFrameworkInterface {
    * Get number of content/nodes using a library, and the number of
    * dependencies to other libraries
    *
-   * @param int $library_id
+   * @param int $libraryId
    *   Library identifier
    * @return array
    *   Associative array containing:
@@ -493,10 +493,10 @@ interface H5PFrameworkInterface {
   /**
    * Get number of contents using library as main library.
    *
-   * @param int $library_id
+   * @param int $libraryId
    *   Identifier for a library
    */
-  public function getNumContent($library_id);
+  public function getNumContent($libraryId);
 }
 
 /**
