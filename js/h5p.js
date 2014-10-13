@@ -7,6 +7,8 @@ H5P.isFramed = (window.self !== window.top);
 // Useful jQuery object.
 H5P.$window = H5P.jQuery(window);
 
+H5P.instances = [];
+
 // Detect if we support fullscreen, and what prefix to use.
 if (document.documentElement.requestFullScreen) {
   H5P.fullScreenBrowserPrefix = '';
@@ -111,28 +113,30 @@ H5P.init = function () {
       };
       
       var resizeDelay;
-      instance.$.on('resize', function () {
+      instance.addH5PEventListener('resize', function () {
         // Use a delay to make sure iframe is resized to the correct size.
         clearTimeout(resizeDelay);
         resizeDelay = setTimeout(function () {
           resizeIframe();
         }, 1);
       });
+      instance.addH5PEventListener('xAPI', H5P.xAPIListener);
+      H5P.instances.push(instance);
     }
     
     // Resize everything when window is resized.
     $window.resize(function () {
       if (window.parent.H5P.isFullscreen) {
         // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
-          instance.$.trigger('resize');
+          instance.triggerH5PEvent('resize');
       }
       else {
-        instance.$.trigger('resize');
+        instance.triggerH5PEvent('resize');
       }
     });
     
     // Resize content.
-    instance.$.trigger('resize');
+    instance.triggerH5PEvent('resize');
   });
 
   // Insert H5Ps that should be in iframes.
@@ -143,6 +147,15 @@ H5P.init = function () {
     this.contentDocument.close();
   });
 };
+
+H5P.xAPIListener = function(event) {
+  if (event.verb === 'completed') {
+    var points = event.result.score.raw;
+    var maxPoints = event.result.score.max;
+    var contentId = event.object.contentId;
+    H5P.setFinished(contentId, points, maxPoints);
+  }
+}
 
 /**
  * Enable full screen for the given h5p.
@@ -196,8 +209,8 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
    */
   var entered = function () {
     // Do not rely on window resize events.
-    instance.$.trigger('resize');
-    instance.$.trigger('focus');
+    instance.triggerH5PEvent('resize');
+    instance.triggerH5PEvent('focus');
   };
   
   /**
@@ -211,8 +224,8 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     $classes.removeClass(classes);
     
     // Do not rely on window resize events.
-    instance.$.trigger('resize');
-    instance.$.trigger('focus');
+    instance.triggerH5PEvent('resize');
+    instance.triggerH5PEvent('focus');
 
     if (exitCallback !== undefined) {
       exitCallback();
@@ -341,9 +354,10 @@ H5P.classFromName = function (name) {
  * @param {Number} contentId 
  * @param {jQuery} $attachTo An optional element to attach the instance to.
  * @param {Boolean} skipResize Optionally skip triggering of the resize event after attaching.
+ * @param {Object} The parent of this H5P
  * @return {Object} Instance.
  */
-H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
+H5P.newRunnable = function (library, contentId, $attachTo, skipResize, parent) {
   try {
     var nameSplit = library.library.split(' ', 2);
     var versionSplit = nameSplit[1].split('.', 2);
@@ -373,21 +387,158 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   }
   
   var instance = new constructor(library.params, contentId);
-  
-  if (instance.$ === undefined) {
-    instance.$ = H5P.jQuery(instance);
+
+  H5P.addContentTypeFeatures(instance);
+
+  // Make xAPI events bubble
+//  if (parent !== null && parent.triggerH5PEvent !== undefined) {
+//    instance.addH5PEventListener('xAPI', parent.triggerH5PEvent);
+//  }
+
+  // Automatically call resize on resize event if defined
+  if (typeof instance.resize === 'function') {
+    instance.addH5PEventListener('resize', instance.resize);
   }
-  
+
   if ($attachTo !== undefined) {
     instance.attach($attachTo);
     
     if (skipResize === undefined || !skipResize) {
       // Resize content.
-      instance.$.trigger('resize');
+      instance.triggerH5PEvent('resize');
     }
   }
   return instance;
 };
+
+/**
+ * Add features like event handling to an H5P content type library
+ *
+ * @param instance
+ *  An H5P content type instance
+ */
+H5P.addContentTypeFeatures = function(instance) {
+  if (instance.H5PListeners === undefined) {
+    instance.H5PListeners = {};
+  }
+  if (instance.addH5PEventListener === undefined) {
+    instance.addH5PEventListener = function(type, listener) {
+      if (typeof listener === 'function') {
+        if (this.H5PListeners[type] === undefined) {
+          this.H5PListeners[type] = [];
+        }
+        this.H5PListeners[type].push(listener);
+      }
+    }
+  }
+  if (instance.removeH5PEventListener === undefined) {
+    instance.removeH5PEventListener = function (type, listener) {
+      if (this.H5PListeners[type] !== undefined) {
+        var removeIndex = H5PListeners[type].indexOf(listener);
+        if (removeIndex) {
+          H5PListeners[type].splice(removeIndex, 1);
+        }
+      }
+    }
+  }
+  if (instance.triggerH5PEvent === undefined) {
+    instance.triggerH5PEvent = function (type, event) {
+      if (this.H5PListeners[type] !== undefined) {
+        for (var i = 0; i < this.H5PListeners[type].length; i++) {
+          this.H5PListeners[type][i](event);
+        }
+      }
+    }
+  }
+  if (instance.triggerH5PxAPIEvent === undefined) {
+    instance.triggerH5PxAPIEvent = function(verb, extra) {
+      var event = {
+        'actor': H5P.getActor(),
+        'verb': H5P.getxAPIVerb(verb)
+      }
+      if (extra !== undefined) {
+        for (var i in extra) {
+          event[i] = extra[i];
+        }
+      }
+      if (!'object' in event) {
+        event.object = H5P.getxAPIObject(this);
+      }
+      this.triggerH5PEvent('xAPI', event);
+    }
+  }
+}
+
+H5P.getActor = function() {
+  // TODO: Implement or remove?
+
+  // Dummy data...
+  return {
+    'name': 'Ernst Petter',
+    'mbox': 'ernst@petter.com'
+  }
+}
+
+H5P.allowedxAPIVerbs = [
+  'answered',
+  'asked',
+  'attempted',
+  'attended',
+  'commented',
+  'completed',
+  'exited',
+  'experienced',
+  'failed',
+  'imported',
+  'initialized',
+  'interacted',
+  'launched',
+  'mastered',
+  'passed',
+  'preferred',
+  'progressed',
+  'registered',
+  'responded',
+  'resumed',
+  'scored',
+  'shared',
+  'suspended',
+  'terminated',
+  'voided'
+]
+
+H5P.getxAPIVerb = function(verb) {
+  if (H5P.jQuery.inArray(verb, H5P.allowedxAPIVerbs) !== -1) {
+    return {
+      'id': 'http://adlnet.gov/expapi/verbs/' . verb,
+      'display': {
+        'en-US': verb
+      }
+    }
+  }
+  // Else: Fail silently...
+}
+
+H5P.getxAPIObject = function(instance) {
+  // TODO: Implement or remove?
+
+  // Return dummy data...
+  return {
+    'id': 'http://mysite.com/path-to-main-activity#sub-activity',
+    'contentId': instance.contentId,
+    'reference': instance
+  }
+}
+
+H5P.getxAPIScoredResult = function(score, maxScore) {
+  return {
+    'score': {
+      'min': 0,
+      'max': maxScore,
+      'raw': score
+    }
+  }
+}
 
 /**
  * Used to print useful error messages.
