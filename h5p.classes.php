@@ -2403,7 +2403,7 @@ class H5PContentValidator {
     if (!isset($this->libraries[$value->library])) {
       $libspec = H5PCore::libraryFromString($value->library);
       $library = $this->h5pC->loadLibrary($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
-      $library['semantics'] = json_decode($library['semantics']);
+      $library['semantics'] = $this->h5pC->loadLibrarySemantics($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
       $this->libraries[$value->library] = $library;
 
       // Find all dependencies for this library
