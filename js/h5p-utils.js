@@ -64,7 +64,7 @@ var H5PUtils = H5PUtils || {};
 
     return $field;
   };
-  
+
   /**
    * Replaces placeholder fields in translation strings
    *
@@ -128,6 +128,226 @@ var H5PUtils = H5PUtils || {};
     });
 
     return $container;
+  };
+
+  /**
+   * Generic table class with useful helpers.
+   *
+   * @param {Object} classes to use for styling
+   * @param {Array} cols headers
+   */
+  H5PUtils.Table = function (classes, cols) {
+    // Create basic table
+    var tableOptions = {};
+    if (classes.table !== undefined) {
+      tableOptions['class'] = classes.table;
+    }
+    var $table = $('<table/>', tableOptions);
+    var $thead = $('<thead/>').appendTo($table);
+    var $tfoot = $('<tfoot/>').appendTo($table);
+    var $tbody = $('<tbody/>').appendTo($table);
+
+    // Set cols - create header
+    var $tr = $('<tr/>').appendTo($thead);
+    for (var i = 0; i < cols.length; i++) {
+      $('<th>', {
+        html: cols[i]
+      }).appendTo($tr);
+    }
+
+    /**
+     * Public.
+     *
+     * @param {Array} rows with cols
+     */
+    this.setRows = function (rows) {
+      var $newTbody = $('<tbody/>');
+
+      for (var i = 0; i < rows.length; i++) {
+        var $tr = $('<tr/>').appendTo($newTbody);
+
+        for (var j = 0; j < rows[i].length; j++) {
+          $('<td>', {
+            html: rows[i][j]
+          }).appendTo($tr);
+        }
+      }
+
+      $tbody.replaceWith($newTbody);
+      $tbody = $newTbody;
+    };
+
+    /**
+     * Public.
+     *
+     * @param {jQuery} $content custom
+     */
+    this.setBody = function ($content) {
+      var $newTbody = $('<tbody/>');
+      var $tr = $('<tr/>').appendTo($newTbody);
+      $('<td>', {
+        colspan: cols.length
+      }).append($content).appendTo($tr);
+      $tbody.replaceWith($newTbody);
+      $tbody = $newTbody;
+    };
+
+    /**
+     * Public.
+     *
+     * @param {jQuery} $content custom
+     */
+    this.setFoot = function ($content) {
+      var $newTfoot = $('<tfoot/>');
+      var $tr = $('<tr/>').appendTo($newTfoot);
+      $('<td>', {
+        colspan: cols.length
+      }).append($content).appendTo($tr);
+      $tfoot.replaceWith($newTfoot);
+    };
+
+
+    /**
+     * Public.
+     *
+     * @param {jQuery} $container
+     */
+    this.appendTo = function ($container) {
+      $table.appendTo($container);
+    };
+  };
+
+  /**
+   * Generic pagination class.
+   *
+   * @param {Number} num total items
+   * @param {Number} limit items per page
+   * @param {Function} goneTo page callback
+   */
+  H5PUtils.Pagination = function (num, limit, goneTo, l10n) {
+    var current = 0;
+    var pages = Math.ceil(num / limit);
+
+    // Create components
+
+    // Previous button
+    var $left = $('<button/>', {
+      html: '&lt;',
+      'class': 'button',
+      title: l10n.previousPage
+    }).click(function () {
+      goTo(current - 1);
+    });
+
+    // Current page text
+    var $text = $('<span/>').click(function () {
+      $input.width($text.width()).show().val(current + 1).focus();
+      $text.hide();
+    });
+
+    // Jump to page input
+    var $input = $('<input/>', {
+      type: 'number',
+      min : 1,
+      max: pages,
+      on: {
+        'blur': function () {
+          gotInput();
+        },
+        'keyup': function (event) {
+          if (event.keyCode === 13) {
+            gotInput();
+          }
+        }
+      }
+    }).hide();
+
+    // Next button
+    var $right = $('<button/>', {
+      html: '&gt;',
+      'class': 'button',
+      title: l10n.nextPage
+    }).click(function () {
+      goTo(current + 1);
+    });
+
+    /**
+     * Private. Input box value may have changed.
+     */
+    var gotInput = function () {
+      var page = parseInt($input.hide().val());
+      if (!isNaN(page)) {
+        goTo(page - 1);
+      }
+      $text.show();
+    };
+
+    /**
+     * Private. Update UI elements.
+     */
+    var updateUI = function () {
+      var next = current + 1;
+
+      // Disable or enable buttons
+      $left.attr('disabled', current === 0);
+      $right.attr('disabled', next === pages);
+
+      // Update counter
+      $text.html(l10n.currentPage.replace('$current', next).replace('$total', pages));
+    };
+
+    /**
+     * Private. Try to go to the requested page.
+     *
+     * @param {Number} page
+     */
+    var goTo = function (page) {
+      if (page === current || page < 0 || page >= pages) {
+        return; // Invalid page number
+      }
+      current = page;
+
+      updateUI();
+
+      // Fire callback
+      goneTo(page * limit);
+    };
+
+    /**
+     * Public. Update number of items and limit.
+     *
+     * @param {Number} newNum
+     * @param {Number} newLimit
+     */
+    this.update = function (newNum, newLimit) {
+      if (newNum !== num || newLimit !== limit) {
+        // Update num and limit
+        num = newNum;
+        limit = newLimit;
+        pages = Math.ceil(num / limit);
+        $input.attr('max', pages);
+
+        if (current >= pages) {
+          // Content is gone, move to last page.
+          goTo(pages - 1);
+          return;
+        }
+
+        updateUI();
+      }
+    };
+
+    /**
+     * Public. Append the pagination widget to the given item.
+     *
+     * @param {jQuery} $container
+     */
+    this.appendTo = function ($container) {
+      $left.add($text).add($input).add($right).appendTo($container);
+    };
+
+    // Update UI
+    updateUI();
   };
 
 })(H5P.jQuery);
