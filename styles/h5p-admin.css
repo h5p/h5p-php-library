@@ -246,6 +246,9 @@ button.h5p-admin.disabled:hover {
   font-size: 1.5em;
   font-weight: bold;
 }
+#h5p-admin-container .h5p-admin-center {
+  text-align: center;
+}
 .h5p-pagination {
   text-align: center;
 }

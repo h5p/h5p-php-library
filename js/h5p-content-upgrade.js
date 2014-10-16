@@ -213,18 +213,28 @@ var H5PUpgrades = H5PUpgrades || {};
     var current = 0; // Track progress
     asyncSerial(parameters, function (id, params, next) {
 
-      // Make params possible to work with
-      params = JSON.parse(params);
+      try {
+        // Make params possible to work with
+        params = JSON.parse(params);
+        if (!(params instanceof Object)) {
+          throw true;
+        }
+      }
+      catch (event) {
+        return next(info.errorContent.replace('%id', id) + ' ' + info.errorParamsBroken);
+      }
 
       // Upgrade this content.
       self.upgrade(info.library.name, new Version(info.library.version), self.version, params, function (err, params) {
-        if (!err) {
-          upgraded[id] = JSON.stringify(params);
-
-          current++;
-          self.throbber.setProgress(Math.round((info.total - self.left + current) / (info.total / 100)) + ' %');
+        if (err) {
+          return next(info.errorContent.replace('%id', id) + ' ' + err);
         }
-        next(err);
+
+        upgraded[id] = JSON.stringify(params);
+
+        current++;
+        self.throbber.setProgress(Math.round((info.total - self.left + current) / (info.total / 100)) + ' %');
+        next();
       });
 
     }, function (err) {
@@ -375,14 +385,16 @@ var H5PUpgrades = H5PUpgrades || {};
           }
           else {
             // We found an upgrade hook, run it
-            if (upgrade.contentUpgrade !== undefined && typeof upgrade.contentUpgrade === 'function') {
-              upgrade.contentUpgrade(params, function (err, upgradedParams) {
+            var unnecessaryWrapper = (upgrade.contentUpgrade !== undefined ? upgrade.contentUpgrade : upgrade);
+
+            try {
+              unnecessaryWrapper(params, function (err, upgradedParams) {
                 params = upgradedParams;
                 nextMinor(err);
               });
             }
-            else {
-              nextMinor(info.errorScript.replace('%lib', library.name + ' ' + newVersion));
+            catch (err) {
+              next(err);
             }
           }
         }, nextMajor);
