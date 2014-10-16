@@ -252,3 +252,6 @@ button.h5p-admin.disabled:hover {
 .h5p-pagination > span, .h5p-pagination > input {
   margin: 0 1em;
 }
+.h5p-data-view input[type="text"] {
+  margin-bottom: 0.5em;
+}

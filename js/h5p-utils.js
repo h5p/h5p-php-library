@@ -257,6 +257,7 @@ var H5PUtils = H5PUtils || {};
         'keyup': function (event) {
           if (event.keyCode === 13) {
             gotInput();
+            return false;
           }
         }
       }

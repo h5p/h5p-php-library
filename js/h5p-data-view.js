@@ -8,7 +8,7 @@ var H5PDataView = (function ($) {
    * @param {Array} headers for data
    * @param {Object} l10n translations
    */
-  function H5PDataView(container, source, headers, l10n, classes) {
+  function H5PDataView(container, source, headers, l10n, classes, filters) {
     var self = this;
 
     self.$container = $(container).addClass('h5p-data-view').html('');
@@ -18,7 +18,11 @@ var H5PDataView = (function ($) {
     self.headers = headers;
     self.l10n = l10n;
     self.classes = (classes === undefined ? {} : classes);
+    self.filters = (filters === undefined ? [] : filters);
+
     self.limit = 20;
+    self.offset = 0;
+    self.filterOn = [];
 
     self.loadData();
   }
@@ -28,13 +32,20 @@ var H5PDataView = (function ($) {
    *
    * @param {Number} offset data collection offset
    */
-  H5PDataView.prototype.loadData = function (offset) {
+  H5PDataView.prototype.loadData = function () {
     var self = this;
 
     // Create URL
     var url = self.source;
-    if (offset !== undefined) {
-      url += (url.indexOf('?') === -1 ? '?' : '&') + 'offset=' + offset + '&limit=' + self.limit;
+    url += (url.indexOf('?') === -1 ? '?' : '&') + 'offset=' + self.offset + '&limit=' + self.limit;
+
+    // Add filters
+    for (var i = 0; i < self.filterOn.length; i++) {
+      if (self.filterOn[i] === undefined) {
+        continue;
+      }
+
+      url += '&filters[' + i + ']=' + encodeURIComponent(self.filterOn[i]);
     }
 
     // Fire ajax request
@@ -87,9 +98,15 @@ var H5PDataView = (function ($) {
     var self = this;
 
     if (self.table === undefined) {
+      // Clear out container
+      self.$container.html('');
+
+      // Add filters
+      self.addFilters();
+
       // Create new table
       self.table = new H5PUtils.Table(self.classes, self.headers);
-      self.table.appendTo(self.$container.html(''));
+      self.table.appendTo(self.$container);
     }
 
     // Add/update rows
@@ -110,7 +127,8 @@ var H5PDataView = (function ($) {
       self.pagination = new H5PUtils.Pagination(num, self.limit, function (offset) {
         // Handle page changes in pagination widget
         self.table.setBody(H5PUtils.throbber(self.l10n.loading));
-        self.loadData(offset);
+        self.offset = offset;
+        self.loadData();
       }, self.l10n);
 
       self.pagination.appendTo($pagerContainer);
@@ -120,6 +138,72 @@ var H5PDataView = (function ($) {
       // Update existing widget
       self.pagination.update(num, self.limit);
     }
+  };
+
+  /**
+   * Add filters.
+   * @public
+   */
+  H5PDataView.prototype.addFilters = function () {
+    var self = this;
+
+    for (var i = 0; i < self.filters.length; i++) {
+      if (self.filters[i] === true) {
+        // Add text input filter for col i
+        self.addTextFilter(i);
+      }
+    }
+  };
+
+  /**
+   * Add text filter for given col num.
+
+   * @public
+   * @param {Number} col
+   */
+  H5PDataView.prototype.addTextFilter = function (col) {
+    var self = this;
+
+    /**
+     * Find input value and filter on it.
+     * @private
+     */
+    var search = function () {
+      var filterOn = $input.val().replace(/^\s+|\s+$/g, '');
+      if (filterOn === '') {
+        filterOn = undefined;
+      }
+      if (filterOn !== self.filterOn[col]) {
+        self.filterOn[col] = filterOn;
+        self.loadData();
+      }
+    };
+
+    // Add text field for filtering
+    var typing;
+    var $input = $('<input/>', {
+      type: 'text',
+      placeholder: self.l10n.search,
+      on: {
+        'blur': function () {
+          clearTimeout(typing);
+          search();
+        },
+        'keyup': function (event) {
+          if (event.keyCode === 13) {
+            clearTimeout(typing);
+            search();
+            return false;
+          }
+          else {
+            clearTimeout(typing);
+            typing = setTimeout(function () {
+              search();
+            }, 500);
+          }
+        }
+      }
+    }).appendTo(self.$container);
   };
 
   return H5PDataView;
