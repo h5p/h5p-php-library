@@ -305,7 +305,7 @@ interface H5PFrameworkInterface {
    * For example when did we last check h5p.org for updates to our libraries.
    *
    * @param string $name Identifier
-   * @param mixed $value Data
+   * @param mixed $value Data limited to 2^32 bytes of data
    */
   public function setOption($name, $value);
 
