@@ -134,21 +134,22 @@ var H5PUtils = H5PUtils || {};
    * Generic table class with useful helpers.
    *
    * @class
-   * @param {Object} classes to use for styling
-   * @param {Array} cols headers
+   * @param {Object} classes
+   *   Custom html classes to use on elements.
+   *   e.g. {tableClass: 'fixed'}.
    */
   H5PUtils.Table = function (classes) {
-    // Create basic table
-    var tableOptions = {};
-    if (classes.table !== undefined) {
-      tableOptions['class'] = classes.table;
-    }
     var numCols;
     var sortByCol;
     var $sortCol;
     var sortCol;
     var sortDir;
 
+    // Create basic table
+    var tableOptions = {};
+    if (classes.table !== undefined) {
+      tableOptions['class'] = classes.table;
+    }
     var $table = $('<table/>', tableOptions);
     var $thead = $('<thead/>').appendTo($table);
     var $tfoot = $('<tfoot/>').appendTo($table);
@@ -158,7 +159,9 @@ var H5PUtils = H5PUtils || {};
      * Add columns to given table row.
      *
      * @private
-     *
+     * @param {jQuery} $tr Table row
+     * @param {(String|Object)} col Column properties
+     * @param {Number} id Used to seperate the columns
      */
     var addCol = function ($tr, col, id) {
       var options = {
@@ -197,7 +200,12 @@ var H5PUtils = H5PUtils || {};
     };
 
     /**
+     * Updates the UI when a column header has been clicked.
+     * Triggers sorting callback.
+     *
      * @private
+     * @param {jQuery} $th Table header
+     * @param {Number} id Used to seperate the columns
      */
     var sort = function ($th, id) {
       if (id === sortCol) {
@@ -223,11 +231,14 @@ var H5PUtils = H5PUtils || {};
     };
 
     /**
-     * Set headers
+     * Set table headers.
      *
      * @public
      * @param {Array} cols
-     * @param {Function} sort callback when sorting changes
+     *   Table header data. Can be strings or objects with options like
+     *   "text" and "sortable". E.g.
+     *   [{text: 'Col 1', sortable: true}, 'Col 2', 'Col 3']
+     * @param {Function} sort Callback which is runned when sorting changes
      */
     this.setHeaders = function (cols, sort) {
       numCols = cols.length;
@@ -246,9 +257,10 @@ var H5PUtils = H5PUtils || {};
     };
 
     /**
-     * Public.
+     * Set table rows.
      *
-     * @param {Array} rows with cols
+     * @public
+     * @param {Array} rows Table rows with cols: [[1,'hello',3],[2,'asd',6]]
      */
     this.setRows = function (rows) {
       var $newTbody = $('<tbody/>');
@@ -268,9 +280,11 @@ var H5PUtils = H5PUtils || {};
     };
 
     /**
-     * Public.
+     * Set custom table body content. This can be a message or a throbber.
+     * Will cover all table columns.
      *
-     * @param {jQuery} $content custom
+     * @public
+     * @param {jQuery} $content Custom content
      */
     this.setBody = function ($content) {
       var $newTbody = $('<tbody/>');
@@ -283,9 +297,11 @@ var H5PUtils = H5PUtils || {};
     };
 
     /**
-     * Public.
+     * Set custom table foot content. This can be a pagination widget.
+     * Will cover all table columns.
      *
-     * @param {jQuery} $content custom
+     * @public
+     * @param {jQuery} $content Custom content
      */
     this.setFoot = function ($content) {
       var $newTfoot = $('<tfoot/>');
@@ -298,8 +314,9 @@ var H5PUtils = H5PUtils || {};
 
 
     /**
-     * Public.
+     * Appends the table to the given container.
      *
+     * @public
      * @param {jQuery} $container
      */
     this.appendTo = function ($container) {
@@ -308,11 +325,20 @@ var H5PUtils = H5PUtils || {};
   };
 
   /**
-   * Generic pagination class.
+   * Generic pagination class. Creates a useful pagination widget.
    *
-   * @param {Number} num total items
-   * @param {Number} limit items per page
-   * @param {Function} goneTo page callback
+   * @class
+   * @param {Number} num Total number of items to pagiate.
+   * @param {Number} limit Number of items to dispaly per page.
+   * @param {Function} goneTo
+   *   Callback which is fired when the user wants to go to another page.
+   * @param {Object} l10n
+   *   Localization / translations. e.g.
+   *   {
+   *     currentPage: 'Page $current of $total',
+   *     nextPage: 'Next page',
+   *     previousPage: 'Previous page'
+   *   }
    */
   H5PUtils.Pagination = function (num, limit, goneTo, l10n) {
     var current = 0;
@@ -363,7 +389,9 @@ var H5PUtils = H5PUtils || {};
     });
 
     /**
-     * Private. Input box value may have changed.
+     * Check what page the user has typed in and jump to it.
+     *
+     * @private
      */
     var gotInput = function () {
       var page = parseInt($input.hide().val());
@@ -374,7 +402,9 @@ var H5PUtils = H5PUtils || {};
     };
 
     /**
-     * Private. Update UI elements.
+     * Update UI elements.
+     *
+     * @private
      */
     var updateUI = function () {
       var next = current + 1;
@@ -388,8 +418,9 @@ var H5PUtils = H5PUtils || {};
     };
 
     /**
-     * Private. Try to go to the requested page.
+     * Try to go to the requested page.
      *
+     * @private
      * @param {Number} page
      */
     var goTo = function (page) {
@@ -405,10 +436,11 @@ var H5PUtils = H5PUtils || {};
     };
 
     /**
-     * Public. Update number of items and limit.
+     * Update number of items and limit.
      *
-     * @param {Number} newNum
-     * @param {Number} newLimit
+     * @public
+     * @param {Number} newNum Total number of items to pagiate.
+     * @param {Number} newLimit Number of items to dispaly per page.
      */
     this.update = function (newNum, newLimit) {
       if (newNum !== num || newLimit !== limit) {
@@ -429,8 +461,9 @@ var H5PUtils = H5PUtils || {};
     };
 
     /**
-     * Public. Append the pagination widget to the given item.
+     * Append the pagination widget to the given container.
      *
+     * @public
      * @param {jQuery} $container
      */
     this.appendTo = function ($container) {

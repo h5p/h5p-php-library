@@ -3,10 +3,33 @@ var H5PDataView = (function ($) {
   /**
    * Initialize a new H5P data view.
    *
+   * @class
    * @param {Object} container
-   * @param {String} source URL for data
-   * @param {Array} headers for data
-   * @param {Object} l10n translations
+   *   Element to clear out and append to.
+   * @param {String} source
+   *   URL to get data from. Data format: {num: 123, rows:[[1,2,3],[2,4,6]]}
+   * @param {Array} headers
+   *   List with column headers. Can be strings or objects with options like
+   *   "text" and "sortable". E.g.
+   *   [{text: 'Col 1', sortable: true}, 'Col 2', 'Col 3']
+   * @param {Object} l10n
+   *   Localization / translations. e.g.
+   *   {
+   *     loading: 'Loading data.',
+   *     ajaxFailed: 'Failed to load data.',
+   *     noData: "There's no data available that matches your criteria.",
+   *     currentPage: 'Page $current of $total',
+   *     nextPage: 'Next page',
+   *     previousPage: 'Previous page',
+   *     search: 'Search'
+   *   }
+   * @param {Object} classes
+   *   Custom html classes to use on elements.
+   *   e.g. {tableClass: 'fixed'}.
+   * @param {Array} filters
+   *   Make it possible to filter/search in the given column.
+   *   e.g. [null, true, null, null] will make it possible to do a text
+   *   search in column 2.
    */
   function H5PDataView(container, source, headers, l10n, classes, filters) {
     var self = this;
@@ -27,9 +50,9 @@ var H5PDataView = (function ($) {
   }
 
   /**
-   * Load data for view.
+   * Load data from source URL.
    *
-   * @param {Number} offset data collection offset
+   * @public
    */
   H5PDataView.prototype.loadData = function () {
     var self = this;
@@ -97,6 +120,7 @@ var H5PDataView = (function ($) {
   /**
    * Update table data.
    *
+   * @public
    * @param {Array} rows
    */
   H5PDataView.prototype.updateTable = function (rows) {
@@ -127,6 +151,7 @@ var H5PDataView = (function ($) {
   /**
    * Update pagination widget.
    *
+   * @public
    * @param {Number} num size of data collection
    */
   H5PDataView.prototype.updatePagination = function (num) {
@@ -152,6 +177,7 @@ var H5PDataView = (function ($) {
 
   /**
    * Add filters.
+   *
    * @public
    */
   H5PDataView.prototype.addFilters = function () {
