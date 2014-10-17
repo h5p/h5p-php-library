@@ -12,7 +12,6 @@ var H5PDataView = (function ($) {
     var self = this;
 
     self.$container = $(container).addClass('h5p-data-view').html('');
-    H5PUtils.throbber(l10n.loading).appendTo(self.$container);
 
     self.source = source;
     self.headers = headers;
@@ -35,6 +34,9 @@ var H5PDataView = (function ($) {
   H5PDataView.prototype.loadData = function () {
     var self = this;
 
+    // Throbb
+    self.setMessage(H5PUtils.throbber(self.l10n.loading));
+
     // Create URL
     var url = self.source;
     url += (url.indexOf('?') === -1 ? '?' : '&') + 'offset=' + self.offset + '&limit=' + self.limit;
@@ -55,10 +57,10 @@ var H5PDataView = (function ($) {
       url: url
     }).fail(function () {
       // Error handling
-      self.setMessage(self.l10n.ajaxFailed);
+      self.setMessage($('<p/>', {text: self.l10n.ajaxFailed}));
     }).done(function (data) {
       if (!data.rows.length) {
-        self.setMessage(self.l10n.noData);
+        self.setMessage($('<p/>', {text: self.l10n.noData}));
       }
       else {
         // Update table data
@@ -73,19 +75,17 @@ var H5PDataView = (function ($) {
   /**
    * Display the given message to the user.
    *
-   * @param {String} message
+   * @public
+   * @param {jQuery} $message wrapper with message
    */
-  H5PDataView.prototype.setMessage = function (message) {
+  H5PDataView.prototype.setMessage = function ($message) {
     var self = this;
 
-    var $message = $('<p/>', {
-      text: message
-    });
     if (self.table === undefined) {
-      self.$container.children().replaceWith($message);
+      self.$container.html('').append($message);
     }
     else {
-      self.table.setBody($('<p/>', {text: message}));
+      self.table.setBody($message);
     }
   };
 
@@ -126,7 +126,6 @@ var H5PDataView = (function ($) {
       var $pagerContainer = $('<div/>', {'class': 'h5p-pagination'});
       self.pagination = new H5PUtils.Pagination(num, self.limit, function (offset) {
         // Handle page changes in pagination widget
-        self.table.setBody(H5PUtils.throbber(self.l10n.loading));
         self.offset = offset;
         self.loadData();
       }, self.l10n);
