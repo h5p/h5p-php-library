@@ -133,27 +133,117 @@ var H5PUtils = H5PUtils || {};
   /**
    * Generic table class with useful helpers.
    *
+   * @class
    * @param {Object} classes to use for styling
    * @param {Array} cols headers
    */
-  H5PUtils.Table = function (classes, cols) {
+  H5PUtils.Table = function (classes) {
     // Create basic table
     var tableOptions = {};
     if (classes.table !== undefined) {
       tableOptions['class'] = classes.table;
     }
+    var numCols;
+    var sortByCol;
+    var $sortCol;
+    var sortCol;
+    var sortDir;
+
     var $table = $('<table/>', tableOptions);
     var $thead = $('<thead/>').appendTo($table);
     var $tfoot = $('<tfoot/>').appendTo($table);
     var $tbody = $('<tbody/>').appendTo($table);
 
-    // Set cols - create header
-    var $tr = $('<tr/>').appendTo($thead);
-    for (var i = 0; i < cols.length; i++) {
-      $('<th>', {
-        html: cols[i]
-      }).appendTo($tr);
-    }
+    /**
+     * Add columns to given table row.
+     *
+     * @private
+     *
+     */
+    var addCol = function ($tr, col, id) {
+      var options = {
+        on: {}
+      };
+
+      if (!(col instanceof Object)) {
+        options.text = col;
+      }
+      else {
+        options.text = col.text;
+
+        if (sortByCol !== undefined && col.sortable === true) {
+          // Make sortable
+          options.role = 'button';
+          options.tabIndex = 1;
+
+          // This is the first sortable column, use as default sort
+          if (sortCol === undefined) {
+            sortCol = id;
+            sortDir = 0;
+            options['class'] = 'h5p-sort';
+          }
+
+          options.on.click = function () {
+            sort($th, id);
+          };
+        }
+      }
+
+      // Append
+      var $th = $('<th>', options).appendTo($tr);
+      if (sortCol === id) {
+        $sortCol = $th; // Default sort column
+      }
+    };
+
+    /**
+     * @private
+     */
+    var sort = function ($th, id) {
+      if (id === sortCol) {
+        // Change sorting direction
+        if (sortDir === 0) {
+          sortDir = 1;
+          $th.addClass('h5p-reverse');
+        }
+        else {
+          sortDir = 0;
+          $th.removeClass('h5p-reverse');
+        }
+      }
+      else {
+        // Change sorting column
+        $sortCol.removeClass('h5p-sort').removeClass('h5p-reverse');
+        $sortCol = $th.addClass('h5p-sort');
+        sortCol = id;
+        sortDir = 0;
+      }
+
+      sortByCol(sortCol, sortDir);
+    };
+
+    /**
+     * Set headers
+     *
+     * @public
+     * @param {Array} cols
+     * @param {Function} sort callback when sorting changes
+     */
+    this.setHeaders = function (cols, sort) {
+      numCols = cols.length;
+      sortByCol = sort;
+
+      // Create new head
+      var $newThead = $('<thead/>');
+      var $tr = $('<tr/>').appendTo($newThead);
+      for (var i = 0; i < cols.length; i++) {
+        addCol($tr, cols[i], i);
+      }
+
+      // Update DOM
+      $thead.replaceWith($newThead);
+      $thead = $newThead;
+    };
 
     /**
      * Public.
@@ -186,7 +276,7 @@ var H5PUtils = H5PUtils || {};
       var $newTbody = $('<tbody/>');
       var $tr = $('<tr/>').appendTo($newTbody);
       $('<td>', {
-        colspan: cols.length
+        colspan: numCols
       }).append($content).appendTo($tr);
       $tbody.replaceWith($newTbody);
       $tbody = $newTbody;
@@ -201,7 +291,7 @@ var H5PUtils = H5PUtils || {};
       var $newTfoot = $('<tfoot/>');
       var $tr = $('<tr/>').appendTo($newTfoot);
       $('<td>', {
-        colspan: cols.length
+        colspan: numCols
       }).append($content).appendTo($tr);
       $tfoot.replaceWith($newTfoot);
     };

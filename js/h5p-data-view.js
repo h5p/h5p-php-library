@@ -41,6 +41,11 @@ var H5PDataView = (function ($) {
     var url = self.source;
     url += (url.indexOf('?') === -1 ? '?' : '&') + 'offset=' + self.offset + '&limit=' + self.limit;
 
+    // Add sorting
+    if (self.sortBy !== undefined && self.sortDir !== undefined) {
+      url += '&sortBy=' + self.sortBy + '&sortDir=' + self.sortDir;
+    }
+
     // Add filters
     for (var i = 0; i < self.filterOn.length; i++) {
       if (self.filterOn[i] === undefined) {
@@ -106,6 +111,12 @@ var H5PDataView = (function ($) {
 
       // Create new table
       self.table = new H5PUtils.Table(self.classes, self.headers);
+      self.table.setHeaders(self.headers, function (col, dir) {
+        // Sorting column or direction has changed callback.
+        self.sortBy = col;
+        self.sortDir = dir;
+        self.loadData();
+      });
       self.table.appendTo(self.$container);
     }
 
