@@ -172,7 +172,12 @@ var H5PUtils = H5PUtils || {};
         options.text = col;
       }
       else {
-        options.text = col.text;
+        if (col.text !== undefined) {
+          options.text = col.text;
+        }
+        if (col.class !== undefined) {
+          options.class = col.class;
+        }
 
         if (sortByCol !== undefined && col.sortable === true) {
           // Make sortable

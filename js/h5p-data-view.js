@@ -30,8 +30,10 @@ var H5PDataView = (function ($) {
    *   Make it possible to filter/search in the given column.
    *   e.g. [null, true, null, null] will make it possible to do a text
    *   search in column 2.
+   * @param {Function} loaded
+   *   Callback for when data has been loaded.
    */
-  function H5PDataView(container, source, headers, l10n, classes, filters) {
+  function H5PDataView(container, source, headers, l10n, classes, filters, loaded) {
     var self = this;
 
     self.$container = $(container).addClass('h5p-data-view').html('');
@@ -41,6 +43,7 @@ var H5PDataView = (function ($) {
     self.l10n = l10n;
     self.classes = (classes === undefined ? {} : classes);
     self.filters = (filters === undefined ? [] : filters);
+    self.loaded = loaded;
 
     self.limit = 20;
     self.offset = 0;
@@ -70,11 +73,13 @@ var H5PDataView = (function ($) {
     }
 
     // Add filters
+    var filtering;
     for (var i = 0; i < self.filterOn.length; i++) {
       if (self.filterOn[i] === undefined) {
         continue;
       }
 
+      filtering = true;
       url += '&filters[' + i + ']=' + encodeURIComponent(self.filterOn[i]);
     }
 
@@ -88,7 +93,7 @@ var H5PDataView = (function ($) {
       self.setMessage($('<p/>', {text: self.l10n.ajaxFailed}));
     }).done(function (data) {
       if (!data.rows.length) {
-        self.setMessage($('<p/>', {text: self.l10n.noData}));
+        self.setMessage($('<p/>', {text: filtering ? self.l10n.noData : self.l10n.empty}));
       }
       else {
         // Update table data
@@ -97,6 +102,10 @@ var H5PDataView = (function ($) {
 
       // Update pagination widget
       self.updatePagination(data.num);
+
+      if (self.loaded !== undefined) {
+        self.loaded();
+      }
     });
   };
 
