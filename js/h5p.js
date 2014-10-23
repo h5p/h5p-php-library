@@ -12,9 +12,7 @@ H5P.$window = H5P.jQuery(window);
 if (document.documentElement.requestFullScreen) {
   H5P.fullScreenBrowserPrefix = '';
 }
-else if (document.documentElement.webkitRequestFullScreen &&
-      navigator.userAgent.indexOf('Android') === -1 // Skip Android
-    ) {
+else if (document.documentElement.webkitRequestFullScreen) {
   H5P.safariBrowser = navigator.userAgent.match(/Version\/(\d)/);
   H5P.safariBrowser = (H5P.safariBrowser === null ? 0 : parseInt(H5P.safariBrowser[1]));
 
