@@ -394,10 +394,10 @@ interface H5PFrameworkInterface {
   /**
    * Delete a library from database and file system
    *
-   * @param int $libraryId
-   *   Library identifier
+   * @param stdClass $library
+   *   Library object with id, name, major version and minor version.
    */
-  public function deleteLibrary($libraryId);
+  public function deleteLibrary($library);
 
   /**
    * Load content.
@@ -444,57 +444,58 @@ interface H5PFrameworkInterface {
   public function loadContentDependencies($id, $type = NULL);
 
   /**
-   * Get data from cache.
+   * Get stored setting.
    *
-   * @param string $group
-   *   Identifier for the cache group
-   * @param string $key
-   *   Unique identifier within the group
+   * @param string $name
+   *   Identifier for the setting
+   * @param string $default
+   *   Optional default value if settings is not set
    * @return mixed
-   *   Whatever has been stored in the cache. NULL if the entry doesn't exist
+   *   Whatever has been stored as the setting
    */
-  public function cacheGet($group, $key);
+  public function getOption($name, $default = NULL);
 
   /**
-   * Store data in cache.
+   * Stores the given setting.
+   * For example when did we last check h5p.org for updates to our libraries.
    *
-   * @param string $group
-   *   The cache group where the data should be stored
-   * @param string $key
-   *   A unique key identifying where the data should be stored
-   * @param mixed $data
-   *   The data you want to cache
+   * @param string $name
+   *   Identifier for the setting
+   * @param mixed $value Data
+   *   Whatever we want to store as the setting
    */
-  public function cacheSet($group, $key, $data);
+  public function setOption($name, $value);
 
   /**
-   * Delete data from cache.
+   * This will set the filtered parameters for the given content.
    *
-   * @param string $group
-   *   Identifier for the cache group
-   * @param string $key
-   *   Unique identifier within the group
+   * @param int $content_id
+   * @param string $parameters filtered
    */
-  public function cacheDel($group, $key = NULL);
+  public function setFilteredParameters($content_id, $parameters = '');
 
   /**
-   * Will invalidate the cache for the content that uses the specified library.
-   * This means that the content dependencies has to be rebuilt, and the parameters refiltered.
+   * Will clear filtered params for all the content that uses the specified
+   * library. This means that the content dependencies will have to be rebuilt,
+   * and the parameters refiltered.
    *
-   * @param int $libraryId
+   * @param int $library_id
    */
-  public function invalidateContentCache($libraryId);
+  public function clearFilteredParameters($library_id);
 
   /**
-   * Get number of content that hasn't been cached
+   * Get number of contents that has to get their content dependencies rebuilt
+   * and parameters refiltered.
+   *
+   * @return int
    */
-  public function getNotCached();
+  public function getNumNotFiltered();
 
   /**
    * Get number of contents using library as main library.
    *
    * @param int $libraryId
-   *   Identifier for a library
+   * @return int
    */
   public function getNumContent($libraryId);
 }
@@ -1265,7 +1266,7 @@ class H5PStorage {
         }
 
         // Make sure libraries dependencies, parameter filtering and export files gets regenerated for all content who uses this library.
-        $this->h5pF->invalidateContentCache($library['libraryId']);
+        $this->h5pF->clearFilteredParameters($library['libraryId']);
 
         $upgradedLibsCount++;
       }
@@ -1567,11 +1568,6 @@ class H5PCore {
       $content['id'] = $this->h5pF->insertContent($content, $contentMainId);
     }
 
-    if (!isset($content['filtered'])) {
-      // TODO: Add filtered to all impl. and remove
-      $this->h5pF->cacheDel('parameters', $content['id']);
-    }
-
     return $content['id'];
   }
 
@@ -1619,16 +1615,8 @@ class H5PCore {
    * @return Object NULL on failure.
    */
   public function filterParameters($content) {
-    if (isset($content['filtered'])) {
-      $params = ($content['filtered'] === '' ? NULL : $content['filtered']);
-    }
-    else {
-      // TODO: Add filtered to all impl. and remove
-      $params = $this->h5pF->cacheGet('parameters', $content['id']);
-    }
-
-    if ($params !== NULL) {
-      return $params;
+    if (isset($content['filtered']) && $content['filtered'] !== '') {
+      return $content['filtered'];
     }
 
     // Validate and filter against main library semantics.
@@ -1655,7 +1643,7 @@ class H5PCore {
     }
 
     // Cache.
-    $this->h5pF->cacheSet('parameters', $content['id'], $params);
+    $this->h5pF->setFilteredParameters($content['id'], $params);
     return $params;
   }
 
@@ -2598,7 +2586,7 @@ class H5PContentValidator {
     if (!isset($this->libraries[$value->library])) {
       $libspec = H5PCore::libraryFromString($value->library);
       $library = $this->h5pC->loadLibrary($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
-      $library['semantics'] = json_decode($library['semantics']);
+      $library['semantics'] = $this->h5pC->loadLibrarySemantics($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
       $this->libraries[$value->library] = $library;
 
       // Find all dependencies for this library
