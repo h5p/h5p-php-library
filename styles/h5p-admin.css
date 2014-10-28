@@ -258,6 +258,10 @@ button.h5p-admin.disabled:hover {
 .h5p-data-view input[type="text"] {
   margin-bottom: 0.5em;
 }
+.h5p-data-view input[type="text"]::-ms-clear {
+  display: none;
+}
+
 .h5p-data-view th[role="button"] {
   cursor: pointer;
 }
