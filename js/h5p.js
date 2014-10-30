@@ -70,11 +70,12 @@ H5P.init = function () {
         window.location.href = contentData.exportUrl;
       });
     }
-    if (instance.getCopyrights !== undefined) {
-      // Display copyrights button
-      H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
-        H5P.openCopyrightsDialog($actions, instance);
-      });
+
+    // Display copyrights button
+    H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
+      H5P.openCopyrightsDialog($actions, instance, library.params, contentId);
+    });
+
     }
     if (contentData.embedCode !== undefined) {
       // Display embed button
@@ -482,18 +483,76 @@ H5P.Dialog = function (name, title, content, $element) {
  * @param {object} instance to get copyright information from.
  * @returns {undefined}
  */
-H5P.openCopyrightsDialog = function ($element, instance) {
-  var copyrights = instance.getCopyrights();
+H5P.openCopyrightsDialog = function ($element, instance, parameters, contentId) {
+  var copyrights;
+  if (instance.getCopyrights !== undefined) {
+    // Use the instance's own copyright generator
+    copyrights = instance.getCopyrights();
+  }
+  else {
+    // Create a generic flat copyright list
+    copyrights = new H5P.ContentCopyrights();
+    H5P.findCopyrights(copyrights, parameters, contentId);
+  }
+
   if (copyrights !== undefined) {
+    // Convert to string
     copyrights = copyrights.toString();
   }
   if (copyrights === undefined || copyrights === '') {
+    // Use no copyrights default text
     copyrights = H5P.t('noCopyrights');
   }
 
+  // Open dialog with copyright information
   var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $element);
   dialog.open();
 };
+
+/**
+ * Gather a flat list of copyright information from the given parameters.
+ *
+ * @param {H5P.ContentCopyrights} info Used to collect all information in.
+ * @param {(Object|Arrray)} parameters To search for file objects in.
+ * @param {Number} contentId Used to insert thumbnails for images.
+ * @returns {undefined}
+ */
+H5P.findCopyrights = function (info, parameters, contentId) {
+  // Cycle through parameters
+  for (var field in parameters) {
+    if (!parameters.hasOwnProperty(field)) {
+      continue; // Do not check
+    }
+    var value = parameters[field];
+
+    if (value instanceof Array) {
+      // Cycle through array
+      H5P.findCopyrights(info, value, contentId);
+    }
+    else if (value instanceof Object) {
+      // Check if object is a file with copyrights
+      if (value.copyright === undefined ||
+          value.copyright.license === undefined ||
+          value.path === undefined ||
+          value.mime === undefined) {
+
+        // Nope, cycle throught object
+        H5P.findCopyrights(info, value, contentId);
+      }
+      else {
+        // Found file, add copyrights
+        var copyrights = new H5P.MediaCopyright(value.copyright);
+        if (value.width !== undefined && value.height !== undefined) {
+          copyrights.setThumbnail(new H5P.Thumbnail(H5P.getPath(value.path, contentId), value.width, value.height));
+        }
+        info.addMedia(copyrights);
+      }
+    }
+    else {
+    }
+  }
+};
+
 
 /**
  * Display a dialog containing the embed code.
