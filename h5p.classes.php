@@ -11,8 +11,17 @@ interface H5PFrameworkInterface {
    *   An associative array containing:
    *   - name: The name of the plattform, for instance "Wordpress"
    *   - version: The version of the pattform, for instance "4.0"
+   *   - uuid: UUID for site installation
    */
   public function getPlatformInfo();
+
+  /**
+   * Set the tutorial URL for a library. All versions of the library is set
+   *
+   * @param string $machineName
+   * @param string $tutorialUrl
+   */
+  public function setLibraryTutorialUrl($machineName, $tutorialUrl);
 
   /**
    * Show the user an error message
@@ -2029,6 +2038,34 @@ class H5PCore {
   }
 
   /**
+   * Generates a UUID v4. Taken from: http://php.net/manual/en/function.uniqid.php
+   *
+   * @return string uuid
+   */
+  public static function generateUUID() {
+    return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+
+      // 32 bits for "time_low"
+      mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+
+      // 16 bits for "time_mid"
+      mt_rand(0, 0xffff),
+
+      // 16 bits for "time_hi_and_version",
+      // four most significant bits holds version number 4
+      mt_rand(0, 0x0fff) | 0x4000,
+
+      // 16 bits, 8 bits for "clk_seq_hi_res",
+      // 8 bits for "clk_seq_low",
+      // two most significant bits holds zero and one for variant DCE1.1
+      mt_rand(0, 0x3fff) | 0x8000,
+
+      // 48 bits for "node"
+      mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    );
+  }
+
+  /**
    * Check if currently installed H5P libraries are supported by
    * the current versjon of core. Which versions of which libraries are supported is
    * defined in the library-support.json file.
@@ -2157,27 +2194,56 @@ class H5PCore {
   }
 
   /**
-   * Get a list of libraries' metadata from h5p.org. Cache it, and refetch once a week.
-   *
-   * @return mixed An object of objects keyed by machineName
+   * Fetch a list of libraries' metadata from h5p.org.
+   * Save URL tutorial to database. Each platform implementation
+   * is responsible for invoking this, eg using cron
    */
-  public function getLibrariesMetadata() {
-    // Fetch from cache:
-    $metadata = $this->h5pF->cacheGet('libraries','metadata');
-
-    // If not available in cache, or older than a week => refetch!
-    if ($metadata === NULL || $metadata->lastTimeFetched < (time() - self::SECONDS_IN_WEEK)) {
-      $platformInfo = $this->h5pF->getPlatformInfo();
-      $json = file_get_contents('http://h5p.org/libraries-metadata.json?platform=' . json_encode($platformInfo));
-
-      $metadata = new stdClass();
-      $metadata->json = ($json === FALSE ? NULL : json_decode($json));
-      $metadata->lastTimeFetched = time();
-
-      $this->h5pF->cacheSet('libraries','metadata', $metadata);
+  public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
+    $platformInfo = $this->h5pF->getPlatformInfo();
+    $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
+    $json = H5PExternalDataFetcher::fetchJson('http://h5p.lvh.me/h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)));
+    if ($json !== NULL) {
+      foreach ($json as $machineName => $libInfo) {
+        $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
+      }
     }
+  }
+}
 
-    return $metadata->json;
+/**
+ * Class responsible for fetching external data (using http)
+ */
+class H5PExternalDataFetcher {
+
+  public static function fetchJson($url) {
+    $json = self::fetch($url);
+    return ($json === NULL) ? NULL : json_decode($json);
+  }
+
+  public static function fetch($url) {
+    if (ini_get('allow_url_fopen') == TRUE) {
+      return self::fetchFopen($url);
+    }
+    else if (function_exists('curl_init')) {
+      return self::fetchCurl($url);
+    }
+    else {
+      // Enable 'allow_url_fopen' or install cURL.
+      // TODO - this could be reported to the user.
+      return NULL;
+    }
+  }
+
+  private static function fetchFopen($url) {
+    return file_get_contents($url);
+  }
+
+  private static function fetchCurl($url) {
+    $curl = curl_init($url);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $result = curl_exec($curl);
+    curl_close($curl);
+    return $result;
   }
 }
 
