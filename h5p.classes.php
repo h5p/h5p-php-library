@@ -6,16 +6,19 @@ interface H5PFrameworkInterface {
 
   /**
    * Returns info for the current platform
-   * 
-   * @return array An array containing info 
+   *
+   * @return array
+   *   An associative array containing:
+   *   - name: The name of the plattform, for instance "Wordpress"
+   *   - version: The version of the pattform, for instance "4.0"
    */
   public function getPlatformInfo();
-  
+
   /**
    * Show the user an error message
    *
    * @param string $message
-   *  The error message
+   *   The error message
    */
   public function setErrorMessage($message);
 
@@ -40,68 +43,91 @@ interface H5PFrameworkInterface {
    *    - @variable: escape plain text to HTML
    *    - %variable: escape text and theme as a placeholder for user-submitted
    *      content
-   * @return string Translated string
+   * @return string
+   *   Translated string
    */
   public function t($message, $replacements = array());
 
   /**
    * Get the Path to the last uploaded h5p
    *
-   * @return string Path to the folder where the last uploaded h5p for this session is located.
+   * @return string
+   *   Path to the folder where the last uploaded h5p for this session is located.
    */
   public function getUploadedH5pFolderPath();
 
   /**
-   * @return string Path to the folder where all h5p files are stored
+   * @return string
+   *   Path to the folder where all h5p files are stored
    */
   public function getH5pPath();
 
   /**
    * Get the path to the last uploaded h5p file
    *
-   * @return string Path to the last uploaded h5p
+   * @return string
+   *   Path to the last uploaded h5p
    */
   public function getUploadedH5pPath();
-  
+
   /**
-   * Get the list of the current installed libraries
-   * 
-   * @return array Associative array containg one item per machine name. This item contains an array of libraries.
+   * Get a list of the current installed libraries
+   *
+   * @return array
+   *   Associative array containg one entry per machine name.
+   *   For each machineName there is a list of libraries(with different versions)
    */
   public function loadLibraries();
-  
+
   /**
    * Saving the unsupported library list
-   * 
-   * @param array A list of unsupported libraries
+   *
+   * @param array
+   *   A list of unsupported libraries. Each list entry contains:
+   *   - name: MachineName for the library
+   *   - downloadUrl: URL to a location a new version of the library may be downloaded from
+   *   - currentVersion: The unsupported version of the library installed on the system.
+   *     This is an associative array containing:
+   *     - major: The major version of the library
+   *     - minor: The minor version of the library
+   *     - patch: The patch version of the library
    */
   public function setUnsupportedLibraries($libraries);
-  
+
   /**
    * Returns unsupported libraries
-   * 
-   * @return array A list of the unsupported libraries
+   *
+   * @return array
+   *   A list of unsupported libraries. Each entry contains an associative array with:
+   *   - name: MachineName for the library
+   *   - downloadUrl: URL to a location a new version of the library may be downloaded from
+   *   - currentVersion: The unsupported version of the library installed on the system.
+   *     This is an associative array containing:
+   *     - major: The major version of the library
+   *     - minor: The minor version of the library
+   *     - patch: The patch version of the library
    */
   public function getUnsupportedLibraries();
-  
+
   /**
    * Returns the URL to the library admin page
-   * 
-   * @return string URL to admin page
+   *
+   * @return string
+   *   URL to admin page
    */
   public function getAdminUrl();
 
   /**
-   * Get id to an excisting library
+   * Get id to an existing library
    *
    * @param string $machineName
-   *  The librarys machine name
+   *   The librarys machine name
    * @param int $majorVersion
-   *  The librarys major version
+   *   The librarys major version
    * @param int $minorVersion
-   *  The librarys minor version
+   *   The librarys minor version
    * @return int
-   *  The id of the specified library or FALSE
+   *   The id of the specified library or FALSE
    */
   public function getLibraryId($machineName, $majorVersion, $minorVersion);
 
@@ -111,19 +137,27 @@ interface H5PFrameworkInterface {
    * The default extension list is part of h5p, but admins should be allowed to modify it
    *
    * @param boolean $isLibrary
+   *   TRUE if this is the whitelist for a library. FALSE if it is the whitelist
+   *   for the content folder we are getting
    * @param string $defaultContentWhitelist
+   *   A string of file extensions separated by whitespace
    * @param string $defaultLibraryWhitelist
+   *   A string of file extensions separated by whitespace
    */
   public function getWhitelist($isLibrary, $defaultContentWhitelist, $defaultLibraryWhitelist);
-  
+
   /**
    * Is the library a patched version of an existing library?
    *
    * @param object $library
-   *  The library data for a library we are checking
+   *   An associateve array containing:
+   *   - machineName: The library machineName
+   *   - majorVersion: The librarys majorVersion
+   *   - minorVersion: The librarys minorVersion
+   *   - patchVersion: The librarys patchVersion
    * @return boolean
-   *  TRUE if the library is a patched version of an excisting library
-   *  FALSE otherwise
+   *   TRUE if the library is a patched version of an existing library
+   *   FALSE otherwise
    */
   public function isPatchedLibrary($library);
 
@@ -151,49 +185,85 @@ interface H5PFrameworkInterface {
    * Also fills in the libraryId in the libraryData object if the object is new
    *
    * @param object $libraryData
-   *  Object holding the information that is to be stored
+   *   Associative array containing:
+   *   - libraryId: The id of the library if it is an existing library.
+   *   - title: The library's name
+   *   - machineName: The library machineName
+   *   - majorVersion: The library's majorVersion
+   *   - minorVersion: The library's minorVersion
+   *   - patchVersion: The library's patchVersion
+   *   - runnable: 1 if the library is a content type, 0 otherwise
+   *   - fullscreen(optional): 1 if the library supports fullscreen, 0 otherwise
+   *   - embedTypes(optional): list of supported embed types
+   *   - preloadedJs(optional): list of associative arrays containing:
+   *     - path: path to a js file relative to the library root folder
+   *   - preloadedCss(optional): list of associative arrays containing:
+   *     - path: path to css file relative to the library root folder
+   *   - dropLibraryCss(optional): list of associative arrays containing:
+   *     - machineName: machine name for the librarys that are to drop their css
+   *   - semantics(optional): Json describing the content structure for the library
+   *   - language(optional): associative array containing:
+   *     - languageCode: Translation in json format
    */
   public function saveLibraryData(&$libraryData, $new = TRUE);
-  
+
   /**
    * Insert new content.
-   * 
-   * @param object $content
+   *
+   * @param array $content
+   *   An associative array containing:
+   *   - id: The content id
+   *   - params: The content in json format
+   *   - library: An associative array containing:
+   *     - libraryId: The id of the main library for this content
    * @param int $contentMainId
+   *   Main id for the content if this is a system that supports versioning
    */
   public function insertContent($content, $contentMainId = NULL);
-  
+
   /**
    * Update old content.
-   * 
-   * @param object $content
+   *
+   * @param array $content
+   *   An associative array containing:
+   *   - id: The content id
+   *   - params: The content in json format
+   *   - library: An associative array containing:
+   *     - libraryId: The id of the main library for this content
    * @param int $contentMainId
+   *   Main id for the content if this is a system that supports versioning
    */
   public function updateContent($content, $contentMainId = NULL);
-  
+
   /**
    * Save what libraries a library is dependending on
    *
    * @param int $libraryId
-   *  Library Id for the library we're saving dependencies for
+   *   Library Id for the library we're saving dependencies for
    * @param array $dependencies
-   *  List of dependencies in the format used in library.json
+   *   List of dependencies as associative arrays containing:
+   *   - machineName: The library machineName
+   *   - majorVersion: The library's majorVersion
+   *   - minorVersion: The library's minorVersion
    * @param string $dependency_type
-   *  What type of dependency this is, for instance it might be an editor dependency
+   *   What type of dependency this is, the following values are allowed:
+   *   - editor
+   *   - preloaded
+   *   - dynamic
    */
   public function saveLibraryDependencies($libraryId, $dependencies, $dependency_type);
 
   /**
-   * Copies library usage
+   * Give an H5P the same library dependencies as a given H5P
    *
    * @param int $contentId
-   *  Framework specific id identifying the content
+   *   Id identifying the content
    * @param int $copyFromId
-   *  Framework specific id identifying the content to be copied
+   *   Id identifying the content to be copied
    * @param int $contentMainId
-   *  Framework specific main id for the content, typically used in frameworks
-   *  That supports versioning. (In this case the content id will typically be
-   *  the version id, and the contentMainId will be the frameworks content id
+   *   Main id for the content, typically used in frameworks
+   *   That supports versioning. (In this case the content id will typically be
+   *   the version id, and the contentMainId will be the frameworks content id
    */
   public function copyLibraryUsage($contentId, $copyFromId, $contentMainId = NULL);
 
@@ -201,7 +271,7 @@ interface H5PFrameworkInterface {
    * Deletes content data
    *
    * @param int $contentId
-   *  Framework specific id identifying the content
+   *   Id identifying the content
    */
   public function deleteContentData($contentId);
 
@@ -209,7 +279,7 @@ interface H5PFrameworkInterface {
    * Delete what libraries a content item is using
    *
    * @param int $contentId
-   *  Content Id of the content we'll be deleting library usage for
+   *   Content Id of the content we'll be deleting library usage for
    */
   public function deleteLibraryUsage($contentId);
 
@@ -217,21 +287,30 @@ interface H5PFrameworkInterface {
    * Saves what libraries the content uses
    *
    * @param int $contentId
-   *  Framework specific id identifying the content
+   *   Id identifying the content
    * @param array $librariesInUse
-   *  List of libraries the content uses. Libraries consist of arrays with:
-   *   - libraryId stored in $librariesInUse[<place>]['library']['libraryId']
-   *   - libraryId stored in $librariesInUse[<place>]['preloaded']
+   *   List of libraries the content uses. Libraries consist of associative arrays with:
+   *   - library: Associative array containing:
+   *     - dropLibraryCss(optional): commasepareted list of machineNames
+   *     - machineName: Machine name for the library
+   *     - libraryId: Id of the library
+   *   - type: The dependency type. Allowed values:
+   *     - editor
+   *     - dynamic
+   *     - preloaded
    */
   public function saveLibraryUsage($contentId, $librariesInUse);
 
   /**
-   * Get number of content/nodes using a library, and the number of 
+   * Get number of content/nodes using a library, and the number of
    * dependencies to other libraries
-   * 
-   * @param int $library_id
-   * @return array The array contains two elements, keyed by 'content' and 'libraries'. 
-   *               Each element contains a number
+   *
+   * @param int $libraryId
+   *   Library identifier
+   * @return array
+   *   Associative array containing:
+   *   - content: Number of content using the library
+   *   - libraries: Number of libraries depending on the library
    */
   public function getLibraryUsage($libraryId);
 
@@ -239,109 +318,186 @@ interface H5PFrameworkInterface {
    * Loads a library
    *
    * @param string $machineName
+   *   The library's machine name
    * @param int $majorVersion
+   *   The library's major version
    * @param int $minorVersion
+   *   The library's minor version
    * @return array|FALSE
-   *  Array representing the library with dependency descriptions
-   *  FALSE if the library doesn't exist
+   *   FALSE if the library doesn't exist.
+   *   Otherwise an associative array containing:
+   *   - libraryId: The id of the library if it is an existing library.
+   *   - title: The library's name
+   *   - machineName: The library machineName
+   *   - majorVersion: The library's majorVersion
+   *   - minorVersion: The library's minorVersion
+   *   - patchVersion: The library's patchVersion
+   *   - runnable: 1 if the library is a content type, 0 otherwise
+   *   - fullscreen(optional): 1 if the library supports fullscreen, 0 otherwise
+   *   - embedTypes(optional): list of supported embed types
+   *   - preloadedJs(optional): comma separated string with js file paths
+   *   - preloadedCss(optional): comma separated sting with css file paths
+   *   - dropLibraryCss(optional): list of associative arrays containing:
+   *     - machineName: machine name for the librarys that are to drop their css
+   *   - semantics(optional): Json describing the content structure for the library
+   *   - preloadedDependencies(optional): list of associative arrays containing:
+   *     - machineName: Machine name for a library this library is depending on
+   *     - majorVersion: Major version for a library this library is depending on
+   *     - minorVersion: Minor for a library this library is depending on
+   *   - dynamicDependencies(optional): list of associative arrays containing:
+   *     - machineName: Machine name for a library this library is depending on
+   *     - majorVersion: Major version for a library this library is depending on
+   *     - minorVersion: Minor for a library this library is depending on
+   *   - editorDependencies(optional): list of associative arrays containing:
+   *     - machineName: Machine name for a library this library is depending on
+   *     - majorVersion: Major version for a library this library is depending on
+   *     - minorVersion: Minor for a library this library is depending on
    */
   public function loadLibrary($machineName, $majorVersion, $minorVersion);
 
   /**
    * Loads library semantics.
    *
-   * @param string $name library identifier.
-   * @param int $majorVersion library identifier.
-   * @param int $minorVersion library identifier.
-   * @return string semantics.
+   * @param string $machineName
+   *   Machine name for the library
+   * @param int $majorVersion
+   *   The library's major version
+   * @param int $minorVersion
+   *   The library's minor version
+   * @return string
+   *   The library's semantics as json
    */
-  public function loadLibrarySemantics($name, $majorVersion, $minorVersion);
-  
+  public function loadLibrarySemantics($machineName, $majorVersion, $minorVersion);
+
   /**
    * Makes it possible to alter the semantics, adding custom fields, etc.
    *
    * @param array $semantics
-   * @param string $name library identifier.
-   * @param int $majorVersion library identifier.
-   * @param int $minorVersion library identifier.
+   *   Associative array representing the semantics
+   * @param string $machineName
+   *   The library's machine name
+   * @param int $majorVersion
+   *   The library's major version
+   * @param int $minorVersion
+   *   The library's minor version
    */
-  public function alterLibrarySemantics(&$semantics, $name, $majorVersion, $minorVersion);
+  public function alterLibrarySemantics(&$semantics, $machineName, $majorVersion, $minorVersion);
 
   /**
    * Delete all dependencies belonging to given library
    *
    * @param int $libraryId
-   *  Library Id
+   *   Library identifier
    */
   public function deleteLibraryDependencies($libraryId);
-  
+
   /**
    * Delete a library from database and file system
-   * 
-   * @param mixed $library Library
+   *
+   * @param stdClass $library
+   *   Library object with id, name, major version and minor version.
    */
   public function deleteLibrary($library);
-  
+
   /**
    * Load content.
    *
-   * @return object Content, null if not found.
+   * @param int $id
+   *   Content identifier
+   * @return array
+   *   Associative array containing:
+   *   - contentId: Identifier for the content
+   *   - params: json content as string
+   *   - embedType: csv of embed types
+   *   - title: The contents title
+   *   - language: Language code for the content
+   *   - libraryId: Id for the main library
+   *   - libraryName: The library machine name
+   *   - libraryMajorVersion: The library's majorVersion
+   *   - libraryMinorVersion: The library's minorVersion
+   *   - libraryEmbedTypes: CSV of the main library's embed types
+   *   - libraryFullscreen: 1 if fullscreen is supported. 0 otherwise.
    */
   public function loadContent($id);
-  
+
   /**
    * Load dependencies for the given content of the given type.
    *
-   * @param int $id content.
-   * @param int $type dependency.
+   * @param int $id
+   *   Content identifier
+   * @param int $type
+   *   Dependency types. Allowed values:
+   *   - editor
+   *   - preloaded
+   *   - dynamic
    * @return array
+   *   List of associative arrays containing:
+   *   - libraryId: The id of the library if it is an existing library.
+   *   - machineName: The library machineName
+   *   - majorVersion: The library's majorVersion
+   *   - minorVersion: The library's minorVersion
+   *   - patchVersion: The library's patchVersion
+   *   - preloadedJs(optional): comma separated string with js file paths
+   *   - preloadedCss(optional): comma separated sting with css file paths
+   *   - dropCss(optional): csv of machine names
    */
   public function loadContentDependencies($id, $type = NULL);
-  
+
   /**
-   * Get data from cache.
-   * 
-   * @param string $group
-   * @param string $key
+   * Get stored setting.
+   *
+   * @param string $name
+   *   Identifier for the setting
+   * @param string $default
+   *   Optional default value if settings is not set
+   * @return mixed
+   *   Whatever has been stored as the setting
    */
-  public function cacheGet($group, $key);
-  
+  public function getOption($name, $default = NULL);
+
   /**
-   * Store data in cache.
-   * 
-   * @param string $group
-   * @param string $key
-   * @param mixed $data
+   * Stores the given setting.
+   * For example when did we last check h5p.org for updates to our libraries.
+   *
+   * @param string $name
+   *   Identifier for the setting
+   * @param mixed $value Data
+   *   Whatever we want to store as the setting
    */
-  public function cacheSet($group, $key, $data);
-  
+  public function setOption($name, $value);
+
   /**
-   * Delete data from cache.
-   * 
-   * @param string $group
-   * @param string $key
+   * This will set the filtered parameters for the given content.
+   *
+   * @param int $content_id
+   * @param string $parameters filtered
    */
-  public function cacheDel($group, $key = NULL);
-  
+  public function setFilteredParameters($content_id, $parameters = '');
+
   /**
-   * Will invalidate the cache for the content that uses the specified library.
-   * This means that the content dependencies has to be rebuilt, and the parameters refiltered.
-   * 
+   * Will clear filtered params for all the content that uses the specified
+   * library. This means that the content dependencies will have to be rebuilt,
+   * and the parameters refiltered.
+   *
    * @param int $library_id
    */
-  public function invalidateContentCache($library_id);
-  
+  public function clearFilteredParameters($library_id);
+
   /**
-   * Get content without cache.
+   * Get number of contents that has to get their content dependencies rebuilt
+   * and parameters refiltered.
+   *
+   * @return int
    */
-  public function getNotCached();
-  
+  public function getNumNotFiltered();
+
   /**
    * Get number of contents using library as main library.
-   * 
-   * @param int $library_id
+   *
+   * @param int $libraryId
+   * @return int
    */
-  public function getNumContent($library_id);
+  public function getNumContent($libraryId);
 }
 
 /**
@@ -454,14 +610,14 @@ class H5PValidator {
 
     // Extract and then remove the package file.
     $zip = new ZipArchive;
-    
+
     // Only allow files with the .h5p extension:
     if (strtolower(substr($tmpPath, -3)) !== 'h5p') {
       $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (It does not have the .h5p file extension)'));
       H5PCore::deleteFileTree($tmpDir);
       return;
     }
-    
+
     if ($zip->open($tmpPath) === true) {
       $zip->extractTo($tmpDir);
       $zip->close();
@@ -489,7 +645,7 @@ class H5PValidator {
         if ($skipContent === TRUE) {
           continue;
         }
-      
+
         $mainH5pData = $this->getJsonData($filePath);
         if ($mainH5pData === FALSE) {
           $valid = FALSE;
@@ -547,7 +703,7 @@ class H5PValidator {
         }
 
         $libraryH5PData = $this->getLibraryData($file, $filePath, $tmpDir);
-        
+
         if ($libraryH5PData !== FALSE) {
           // Library's directory name must be:
           // - <machineName>
@@ -583,7 +739,7 @@ class H5PValidator {
     }
     if ($valid) {
       if ($upgradeOnly) {
-        // When upgrading, we opnly add allready installed libraries, 
+        // When upgrading, we opnly add allready installed libraries,
         // and new dependent libraries
         $upgrades = array();
         foreach ($libraries as &$library) {
@@ -601,25 +757,25 @@ class H5PValidator {
             }
           }
         }
-        
+
         $libraries = $upgrades;
       }
-      
+
       $this->h5pC->librariesJsonData = $libraries;
-      
+
       if ($skipContent === FALSE) {
         $this->h5pC->mainJsonData = $mainH5pData;
         $this->h5pC->contentJsonData = $contentJsonData;
         $libraries['mainH5pData'] = $mainH5pData; // Check for the dependencies in h5p.json as well as in the libraries
       }
-      
+
       $missingLibraries = $this->getMissingLibraries($libraries);
       foreach ($missingLibraries as $missing) {
         if ($this->h5pF->getLibraryId($missing['machineName'], $missing['majorVersion'], $missing['minorVersion'])) {
           unset($missingLibraries[H5PCore::libraryToString($missing)]);
         }
       }
-      
+
       if (!empty($missingLibraries)) {
         foreach ($missingLibraries as $library) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => H5PCore::libraryToString($library))));
@@ -1028,7 +1184,7 @@ class H5PStorage {
 
   public $h5pF;
   public $h5pC;
-  
+
   public $contentId = NULL; // Quick fix so WP can get ID of new content.
 
   /**
@@ -1059,11 +1215,11 @@ class H5PStorage {
     $library_saved = FALSE;
     $upgradedLibsCount = 0;
     $mayUpdateLibraries = $this->h5pF->mayUpdateLibraries();
-    
+
     foreach ($this->h5pC->librariesJsonData as &$library) {
       $libraryId = $this->h5pF->getLibraryId($library['machineName'], $library['majorVersion'], $library['minorVersion']);
       $library['saveDependencies'] = TRUE;
-      
+
       if (!$libraryId) {
         $new = TRUE;
       }
@@ -1108,21 +1264,21 @@ class H5PStorage {
         if (isset($library['editorDependencies'])) {
           $this->h5pF->saveLibraryDependencies($library['libraryId'], $library['editorDependencies'], 'editor');
         }
-        
+
         // Make sure libraries dependencies, parameter filtering and export files gets regenerated for all content who uses this library.
-        $this->h5pF->invalidateContentCache($library['libraryId']);
-        
+        $this->h5pF->clearFilteredParameters($library['libraryId']);
+
         $upgradedLibsCount++;
       }
     }
-    
+
     if (!$skipContent) {
       $current_path = $this->h5pF->getUploadedH5pFolderPath() . DIRECTORY_SEPARATOR . 'content';
-      
+
       // Find out which libraries are used by this package/content
       $librariesInUse = array();
       $this->h5pC->findLibraryDependencies($librariesInUse, $this->h5pC->mainJsonData);
-      
+
       // Save content
       if ($content === NULL) {
         $content = array();
@@ -1139,27 +1295,27 @@ class H5PStorage {
       if (!is_dir($contents_path)) {
         mkdir($contents_path, 0777, true);
       }
-      
+
       // Move the content folder
       $destination_path = $contents_path . DIRECTORY_SEPARATOR . $contentId;
       @rename($current_path, $destination_path);
-      
+
       // Save the content library dependencies
       $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
       H5PCore::deleteFileTree($this->h5pF->getUploadedH5pFolderPath());
     }
-    
+
     // Update supported library list if neccessary:
     $this->h5pC->validateLibrarySupport(TRUE);
-    
+
     if ($upgradeOnly) {
       // TODO - support translation
-      $this->h5pF->setInfoMessage($upgradedLibsCount . ' libraries were upgraded!');
+      $this->h5pF->setInfoMessage($this->h5pF->t('@num libraries were upgraded!', array('@num' => $upgradedLibsCount)));
     }
 
     return $library_saved;
   }
-  
+
   /**
    * Delete an H5P package
    *
@@ -1228,7 +1384,7 @@ Class H5PExport {
     $this->h5pF = $H5PFramework;
     $this->h5pC = $H5PCore;
   }
-  
+
   /**
    * Return path to h5p package.
    *
@@ -1241,7 +1397,7 @@ Class H5PExport {
     $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
     $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['id'] . '.h5p';
-    
+
     // Temp dir to put the h5p files in
     @mkdir($tempPath, 0777, TRUE);
     @mkdir($h5pDir . 'exports', 0777, TRUE);
@@ -1258,7 +1414,9 @@ Class H5PExport {
     // Build h5p.json
     $h5pJson = array (
       'title' => $content['title'],
-      'language' => $content['language'],
+      // TODO - stop using 'und', this is not the preferred way.
+      // Either remove language from the json if not existing, or use "language": null
+      'language' => isset($content['language']) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes,
     );
@@ -1266,7 +1424,7 @@ Class H5PExport {
     // Add dependencies to h5p
     foreach ($content['dependencies'] as $dependency) {
       $library = $dependency['library'];
-      
+
       // Copy library to h5p
       $source = isset($library['path']) ? $library['path'] : $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
       $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
@@ -1274,7 +1432,7 @@ Class H5PExport {
 
       // Do not add editor dependencies to h5p json.
       if ($dependency['type'] === 'editor') {
-        continue; 
+        continue;
       }
 
       $h5pJson[$dependency['type'] . 'Dependencies'][] = array(
@@ -1338,7 +1496,7 @@ Class H5PExport {
    */
   private function addEditorLibraries($libraries, $editorLibraries) {
     foreach ($editorLibraries as $editorLibrary) {
-      $libraries[$editorLibrary['machineName']] = $editorLibrary;      
+      $libraries[$editorLibrary['machineName']] = $editorLibrary;
     }
     return $libraries;
   }
@@ -1367,9 +1525,9 @@ class H5PCore {
 
   public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
   public static $defaultLibraryWhitelistExtras = 'js css';
-  
-  const SECONDS_IN_WEEK = 604800; 
-  
+
+  const SECONDS_IN_WEEK = 604800;
+
   public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $path, $development_mode, $h5pD;
   private $exportEnabled;
 
@@ -1385,12 +1543,12 @@ class H5PCore {
    */
   public function __construct($H5PFramework, $path, $language = 'en', $export = FALSE, $development_mode = H5PDevelopment::MODE_NONE) {
     $this->h5pF = $H5PFramework;
-    
+
     $this->h5pF = $H5PFramework;
     $this->path = $path;
     $this->exportEnabled = $export;
     $this->development_mode = $development_mode;
-    
+
     if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
       $this->h5pD = new H5PDevelopment($this->h5pF, $path, $language);
     }
@@ -1398,7 +1556,7 @@ class H5PCore {
 
   /**
    * Save content and clear cache.
-   * 
+   *
    * @param array $content
    * @return int Content ID
    */
@@ -1407,17 +1565,12 @@ class H5PCore {
       $this->h5pF->updateContent($content, $contentMainId);
     }
     else {
-      $content['id'] = $this->h5pF->insertContent($content, $contentMainId); 
+      $content['id'] = $this->h5pF->insertContent($content, $contentMainId);
     }
-    
-    if (!isset($content['filtered'])) {
-      // TODO: Add filtered to all impl. and remove
-      $this->h5pF->cacheDel('parameters', $content['id']);
-    }
-    
+
     return $content['id'];
   }
-  
+
   /**
    * Load content.
    *
@@ -1426,7 +1579,7 @@ class H5PCore {
    */
   public function loadContent($id) {
     $content = $this->h5pF->loadContent($id);
-    
+
     if ($content !== NULL) {
       $content['library'] = array(
         'id' => $content['libraryId'],
@@ -1437,7 +1590,7 @@ class H5PCore {
         'fullscreen' => $content['libraryFullscreen'],
       );
       unset($content['libraryId'], $content['libraryName'], $content['libraryEmbedTypes'], $content['libraryFullscreen']);
-      
+
 //      // TODO: Move to filterParameters?
 //      if ($this->development_mode & H5PDevelopment::MODE_CONTENT) {
 //        // TODO: Remove Drupal specific stuff
@@ -1451,29 +1604,21 @@ class H5PCore {
 //        }
 //      }
     }
-    
+
     return $content;
   }
-  
+
   /**
    * Filter content run parameters, rebuild content dependecy cache and export file.
-   * 
+   *
    * @param Object $content
    * @return Object NULL on failure.
    */
   public function filterParameters($content) {
-    if (isset($content['filtered'])) {
-      $params = ($content['filtered'] === '' ? NULL : $content['filtered']);
-    }
-    else {
-      // TODO: Add filtered to all impl. and remove
-      $params = $this->h5pF->cacheGet('parameters', $content['id']);
+    if (isset($content['filtered']) && $content['filtered'] !== '') {
+      return $content['filtered'];
     }
 
-    if ($params !== NULL) {
-      return $params;
-    }
-    
     // Validate and filter against main library semantics.
     $validator = new H5PContentValidator($this->h5pF, $this);
     $params = (object) array(
@@ -1483,25 +1628,25 @@ class H5PCore {
     $validator->validateLibrary($params, (object) array('options' => array($params->library)));
 
     $params = json_encode($params->params);
-  
+
     // Update content dependencies.
     $content['dependencies'] = $validator->getDependencies();
     $this->h5pF->deleteLibraryUsage($content['id']);
     $this->h5pF->saveLibraryUsage($content['id'], $content['dependencies']);
-    
+
     if ($this->exportEnabled) {
       // Recreate export file
       $exporter = new H5PExport($this->h5pF, $this);
       $exporter->createExportFile($content);
-      
+
       // TODO: Should we rather create the file once first accessed, like imagecache?
     }
 
     // Cache.
-    $this->h5pF->cacheSet('parameters', $content['id'], $params);
+    $this->h5pF->setFilteredParameters($content['id'], $params);
     return $params;
   }
-  
+
   /**
    * Find the files required for this content to work.
    *
@@ -1510,10 +1655,10 @@ class H5PCore {
    */
   public function loadContentDependencies($id, $type = NULL) {
     $dependencies = $this->h5pF->loadContentDependencies($id, $type);
-  
+
     if ($this->development_mode & H5PDevelopment::MODE_LIBRARY) {
       $developmentLibraries = $this->h5pD->getLibraries();
-      
+
       foreach ($dependencies as $key => $dependency) {
         $libraryString = H5PCore::libraryToString($dependency);
         if (isset($developmentLibraries[$libraryString])) {
@@ -1522,13 +1667,13 @@ class H5PCore {
         }
       }
     }
-    
+
     return $dependencies;
   }
-  
+
   /**
    * Get all dependency assets of the given type
-   * 
+   *
    * @param array $dependency
    * @param string $type
    * @param array $assets
@@ -1538,12 +1683,12 @@ class H5PCore {
     if (empty($dependency[$type]) || $dependency[$type][0] === '') {
       return;
     }
-    
+
     // Check if we should skip CSS.
     if ($type === 'preloadedCss' && (isset($dependency['dropCss']) && $dependency['dropCss'] === '1')) {
       return;
     }
-    
+
     foreach ($dependency[$type] as $file) {
       $assets[] = (object) array(
         'path' => $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
@@ -1551,23 +1696,23 @@ class H5PCore {
       );
     }
   }
-  
+
   /**
    * Combines path with cache buster / version.
-   * 
+   *
    * @param array $assets
    * @return array
    */
   public function getAssetsUrls($assets) {
     $urls = array();
-    
+
     foreach ($assets as $asset) {
       $urls[] = $asset->path . $asset->version;
     }
-    
+
     return $urls;
   }
-  
+
   /**
    * Return file paths for all dependecies files.
    *
@@ -1585,14 +1730,14 @@ class H5PCore {
         $dependency['preloadedJs'] = explode(',', $dependency['preloadedJs']);
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
-      
+
       $dependency['version'] = "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}";
       $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts']);
       $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles']);
     }
     return $files;
   }
-  
+
   /**
    * Load library semantics.
    *
@@ -1604,20 +1749,20 @@ class H5PCore {
       // Try to load from dev lib
       $semantics = $this->h5pD->getSemantics($name, $majorVersion, $minorVersion);
     }
-    
+
     if ($semantics === NULL) {
       // Try to load from DB.
       $semantics = $this->h5pF->loadLibrarySemantics($name, $majorVersion, $minorVersion);
     }
-    
+
     if ($semantics !== NULL) {
       $semantics = json_decode($semantics);
       $this->h5pF->alterLibrarySemantics($semantics, $name, $majorVersion, $minorVersion);
     }
-    
+
     return $semantics;
   }
-  
+
   /**
    * Load library.
    *
@@ -1632,31 +1777,31 @@ class H5PCore {
         $library['semantics'] = $this->h5pD->getSemantics($name, $majorVersion, $minorVersion);
       }
     }
-    
+
     if ($library === NULL) {
       // Try to load from DB.
       $library = $this->h5pF->loadLibrary($name, $majorVersion, $minorVersion);
     }
-  
+
     return $library;
   }
-  
+
   /**
    * Deletes a library
-   * 
+   *
    * @param unknown $libraryId
    */
   public function deleteLibrary($libraryId) {
     $this->h5pF->deleteLibrary($libraryId);
-    
+
     // Force update of unsupported libraries list:
     $this->validateLibrarySupport(TRUE);
   }
-  
+
   /**
-   * Recursive. Goes through the dependency tree for the given library and 
+   * Recursive. Goes through the dependency tree for the given library and
    * adds all the dependencies to the given array in a flat format.
-   * 
+   *
    * @param array $librariesUsed Flat list of all dependencies.
    * @param array $library To find all dependencies for.
    * @param bool $editor Used interally to force all preloaded sub dependencies of an editor dependecy to be editor dependencies.
@@ -1667,18 +1812,18 @@ class H5PCore {
       if (!isset($library[$property])) {
         continue; // Skip, no such dependencies.
       }
-      
+
       if ($type === 'preloaded' && $editor === TRUE) {
         // All preloaded dependencies of an editor library is set to editor.
         $type = 'editor';
       }
-      
+
       foreach ($library[$property] as $dependency) {
         $dependencyKey = $type . '-' . $dependency['machineName'];
         if (isset($dependencies[$dependencyKey]) === TRUE) {
           continue; // Skip, already have this.
         }
-        
+
         $dependencyLibrary = $this->loadLibrary($dependency['machineName'], $dependency['majorVersion'], $dependency['minorVersion']);
         if ($dependencyLibrary) {
           $dependencies[$dependencyKey] = array(
@@ -1807,7 +1952,7 @@ class H5PCore {
     }
     return FALSE;
   }
-  
+
   /**
    * Determine the correct embed type to use.
    *
@@ -1816,32 +1961,32 @@ class H5PCore {
   public static function determineEmbedType($contentEmbedType, $libraryEmbedTypes) {
     // Detect content embed type
     $embedType = strpos(strtolower($contentEmbedType), 'div') !== FALSE ? 'div' : 'iframe';
-    
+
     if ($libraryEmbedTypes !== NULL && $libraryEmbedTypes !== '') {
       // Check that embed type is available for library
       $embedTypes = strtolower($libraryEmbedTypes);
       if (strpos($embedTypes, $embedType) === FALSE) {
         // Not available, pick default.
         $embedType = strpos($embedTypes, 'div') !== FALSE ? 'div' : 'iframe';
-      }  
+      }
     }
-    
+
     return $embedType;
   }
-  
+
   /**
    * Get the absolute version for the library as a human readable string.
-   * 
+   *
    * @param object $library
    * @return string
    */
   public static function libraryVersion($library) {
     return $library->major_version . '.' . $library->minor_version . '.' . $library->patch_version;
   }
-  
+
   /**
    * Detemine which versions content with the given library can be upgraded to.
-   * 
+   *
    * @param object $library
    * @param array $versions
    * @return array
@@ -1857,13 +2002,13 @@ class H5PCore {
 
    return $upgrades;
   }
-  
+
   /**
    * Converts all the properties of the given object or array from
    * snake_case to camelCase. Useful after fetching data from the database.
-   * 
+   *
    * Note that some databases does not support camelCase.
-   * 
+   *
    * @param mixed $arr input
    * @param boolean $obj return object
    * @return mixed object or array
@@ -1882,36 +2027,36 @@ class H5PCore {
 
     return $obj ? (object) $newArr : $newArr;
   }
-  
+
   /**
    * Check if currently installed H5P libraries are supported by
    * the current versjon of core. Which versions of which libraries are supported is
    * defined in the library-support.json file.
    *
-   * @param boolean If TRUE, unsupported libraries list are rebuilt. If FALSE, list is 
+   * @param boolean If TRUE, unsupported libraries list are rebuilt. If FALSE, list is
    *                rebuilt only if non-existing
    */
   public function validateLibrarySupport($force = false) {
     if (!($this->h5pF->getUnsupportedLibraries() === NULL || $force)) {
       return;
     }
-    
+
     $minVersions = $this->getMinimumVersionsSupported(realpath(dirname(__FILE__)) . '/library-support.json');
     if ($minVersions === NULL) {
       return;
     }
-    
+
     // Get all libraries installed, check if any of them is not supported:
     $libraries = $this->h5pF->loadLibraries();
     $unsupportedLibraries = array();
-    
+
     // Iterate over all installed libraries
     foreach ($libraries as $library_name => $versions) {
       if (!isset($minVersions[$library_name])) {
         continue;
       }
       $min = $minVersions[$library_name];
-      
+
       // For each version of this library, check if it is supported
       foreach ($versions as $library) {
         if (!$this->isLibraryVersionSupported($library, $min->versions)) {
@@ -1927,23 +2072,23 @@ class H5PCore {
           );
         }
       }
-      
+
       $this->h5pF->setUnsupportedLibraries(empty($unsupportedLibraries) ? NULL : $unsupportedLibraries);
     }
   }
-  
+
   /**
    * Returns a list of the minimum version of libraries that are supported.
    * This is needed because some old libraries are no longer supported by core.
-   * 
+   *
    * TODO: Make it possible for the systems to cache this list between requests.
-   * 
+   *
    * @param string $path to json file
    * @return array indexed using library names
    */
   public function getMinimumVersionsSupported($path) {
     $minSupported = array();
-    
+
     // Get list of minimum version for libraries. Some old libraries are no longer supported.
     $libraries = file_get_contents($path);
     if ($libraries !== FALSE) {
@@ -1957,13 +2102,13 @@ class H5PCore {
         }
       }
     }
-    
+
     return empty($minSupported) ? NULL : $minSupported;
   }
-  
+
   /**
    * Check if a specific version of a library is supported
-   * 
+   *
    * @param object library
    * @param array An array containing versions
    * @return boolean TRUE if supported, otherwise FALSE
@@ -1976,62 +2121,62 @@ class H5PCore {
       // --- minor is higher than any minimumversion for a given major
       // --- major and minor equals and patch is >= supported
       $major_supported |= ($library->major_version > $minimumVersion->major);
-    
+
       if ($library->major_version == $minimumVersion->major) {
         $minor_supported |= ($library->minor_version > $minimumVersion->minor);
       }
-    
+
       if ($library->major_version == $minimumVersion->major &&
           $library->minor_version == $minimumVersion->minor) {
         $patch_supported |= ($library->patch_version >= $minimumVersion->patch);
       }
     }
-    
+
     return ($patch_supported || $minor_supported || $major_supported);
   }
-  
+
   /**
-   * Helper function for creating markup for the unsupported libraries list 
-   * 
+   * Helper function for creating markup for the unsupported libraries list
+   *
    * TODO: Make help text translatable
-   * 
+   *
    * @return string Html
    * */
   public function createMarkupForUnsupportedLibraryList($libraries) {
     $html = '<div><span>The following versions of H5P libraries are not supported anymore:<span><ul>';
-    
+
     foreach ($libraries as $library) {
       $downloadUrl = $library['downloadUrl'];
       $libraryName = $library['name'];
       $currentVersion = $library['currentVersion']['major'] . '.' . $library['currentVersion']['minor'] .'.' . $library['currentVersion']['patch'];
       $html .= "<li><a href=\"$downloadUrl\">$libraryName</a> ($currentVersion)</li>";
     }
-    
+
     $html .= '</ul><span><br>These libraries may cause problems on this site. See <a href="http://h5p.org/releases/h5p-core-1.3">here</a> for more info</div>';
     return $html;
   }
-  
+
   /**
    * Get a list of libraries' metadata from h5p.org. Cache it, and refetch once a week.
-   * 
+   *
    * @return mixed An object of objects keyed by machineName
    */
   public function getLibrariesMetadata() {
     // Fetch from cache:
     $metadata = $this->h5pF->cacheGet('libraries','metadata');
-    
+
     // If not available in cache, or older than a week => refetch!
     if ($metadata === NULL || $metadata->lastTimeFetched < (time() - self::SECONDS_IN_WEEK)) {
       $platformInfo = $this->h5pF->getPlatformInfo();
       $json = file_get_contents('http://h5p.org/libraries-metadata.json?platform=' . json_encode($platformInfo));
-      
+
       $metadata = new stdClass();
       $metadata->json = ($json === FALSE ? NULL : json_decode($json));
       $metadata->lastTimeFetched = time();
-      
+
       $this->h5pF->cacheSet('libraries','metadata', $metadata);
     }
-    
+
     return $metadata->json;
   }
 }
@@ -2069,24 +2214,24 @@ class H5PContentValidator {
       'select' => 'validateSelect',
       'library' => 'validateLibrary',
     );
-    
+
     // Keep track of the libraries we load to avoid loading it multiple times.
     $this->libraries = array();
     // TODO: Should this possible be done in core's loadLibrary? This might be done multiple places.
-    
+
     // Keep track of all dependencies for the given content.
     $this->dependencies = array();
   }
 
   /**
    * Get the flat dependecy tree.
-   * 
+   *
    * @return array
    */
   public function getDependencies() {
     return $this->dependencies;
   }
-  
+
   /**
    * Validate given text value against text semantics.
    */
@@ -2311,19 +2456,19 @@ class H5PContentValidator {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes); // TODO: Validate extraAttributes
     }
     $this->filterParams($file, $validkeys);
-    
+
     if (isset($file->width)) {
       $file->width = intval($file->width);
     }
-    
+
     if (isset($file->height)) {
       $file->height = intval($file->height);
     }
-    
+
     if (isset($file->codecs)) {
       $file->codecs = htmlspecialchars($file->codecs, ENT_QUOTES, 'UTF-8', FALSE);
     }
-    
+
     if (isset($file->quality)) {
       if (!is_object($file->quality) || !isset($file->quality->level) || !isset($file->quality->label)) {
         unset($file->quality);
@@ -2334,7 +2479,7 @@ class H5PContentValidator {
         $file->quality->label = htmlspecialchars($file->quality->label, ENT_QUOTES, 'UTF-8', FALSE);
       }
     }
-    
+
     if (isset($file->copyright)) {
       $this->validateGroup($file->copyright, H5PContentValidator::getCopyrightSemantics());
     }
@@ -2437,11 +2582,11 @@ class H5PContentValidator {
       $value = new stdClass();
       return;
     }
-    
+
     if (!isset($this->libraries[$value->library])) {
       $libspec = H5PCore::libraryFromString($value->library);
       $library = $this->h5pC->loadLibrary($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
-      $library['semantics'] = json_decode($library['semantics']);
+      $library['semantics'] = $this->h5pC->loadLibrarySemantics($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
       $this->libraries[$value->library] = $library;
 
       // Find all dependencies for this library
@@ -2731,7 +2876,7 @@ class H5PContentValidator {
 
   /**
    * Processes an HTML attribute value and strips dangerous protocols from URLs.
-   *   
+   *
    * @param $string
    *   The string with the attribute value.
    * @param $decode
@@ -2804,10 +2949,10 @@ class H5PContentValidator {
 
     return $uri;
   }
-  
+
   public static function getCopyrightSemantics() {
     static $semantics;
-    
+
     if ($semantics === NULL) {
       $semantics = (object) array(
         'name' => 'copyright',
@@ -2905,7 +3050,7 @@ class H5PContentValidator {
         )
       );
     }
-    
+
     return $semantics;
   }
 }
