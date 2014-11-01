@@ -11,7 +11,8 @@
   border: none;
 }
 
-.h5p-admin-table tr:nth-child(odd) {
+.h5p-admin-table tr:nth-child(odd),
+.h5p-data-view tr:nth-child(odd) {
   background-color: #F9F9F9;
 }
 .h5p-admin-table tbody tr:hover {
@@ -30,7 +31,7 @@
 }
 
 .h5p-admin-buttons-wrapper {
-  white-space: nowrap;  
+  white-space: nowrap;
 }
 
 .h5p-admin-table.libraries button {
@@ -69,13 +70,13 @@
 }
 
 .h5p-admin-upgrade-library {
-  color: #339900; 
+  color: #339900;
 }
 .h5p-admin-view-library {
-  color: #0066cc; 
+  color: #0066cc;
 }
 .h5p-admin-delete-library {
-  color: #990000; 
+  color: #990000;
 }
 .h5p-admin-delete-library:disabled,
 .h5p-admin-upgrade-library:disabled {
@@ -86,9 +87,9 @@
 .h5p-library-info {
   padding: 1em 1em;
   margin: 1em 0;
-  
+
   width: 350px;
-  
+
   border: 1px solid #DDD;
   border-radius: 3px;
 }
@@ -118,14 +119,14 @@
 .h5p-content-search {
   display: inline-block;
   position: relative;
-  
+
   width: 100%;
   padding: 5px 0;
   margin-top: 10px;
-  
+
   border: 1px solid #CCC;
   border-radius: 3px;
-  box-shadow: 2px 2px 5px #888888; 
+  box-shadow: 2px 2px 5px #888888;
 }
 .h5p-content-search:before {
   font-family: 'H5P';
@@ -219,7 +220,7 @@ button.h5p-admin.disabled:hover {
 .h5p-content-pager > .pager-info:hover {
   background-color: #555;
   color: #FFF;
-} 
+}
 .h5p-content-pager > .pager-info,
 .h5p-content-pager > .h5p-pager-goto {
   margin: 0 10px;
@@ -247,4 +248,38 @@ button.h5p-admin.disabled:hover {
 }
 #h5p-admin-container .h5p-admin-center {
   text-align: center;
+}
+.h5p-pagination {
+  text-align: center;
+}
+.h5p-pagination > span, .h5p-pagination > input {
+  margin: 0 1em;
+}
+.h5p-data-view input[type="text"] {
+  margin-bottom: 0.5em;
+}
+.h5p-data-view input[type="text"]::-ms-clear {
+  display: none;
+}
+
+.h5p-data-view th[role="button"] {
+  cursor: pointer;
+}
+.h5p-data-view th[role="button"].h5p-sort:after,
+.h5p-data-view th[role="button"]:hover:after,
+.h5p-data-view th[role="button"].h5p-sort.h5p-reverse:hover:after {
+  content: "\25BE";
+  position: relative;
+  left: 0.5em;
+  top: -1px;
+}
+.h5p-data-view th[role="button"].h5p-sort.h5p-reverse:after,
+.h5p-data-view th[role="button"].h5p-sort:hover:after {
+  content: "\25B4";
+  top: -2px;
+}
+.h5p-data-view th[role="button"]:hover:after,
+.h5p-data-view th[role="button"].h5p-sort.h5p-reverse:hover:after,
+.h5p-data-view th[role="button"].h5p-sort:hover:after {
+  color: #999;
 }

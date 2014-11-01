@@ -28,6 +28,9 @@ else if (document.documentElement.msRequestFullscreen) {
   H5P.fullScreenBrowserPrefix = 'ms';
 }
 
+// Keep track of when the H5Ps where started
+H5P.opened = {};
+
 /**
  * Initialize H5P content.
  * Scans for ".h5p-content" in the document and initializes H5P instances where found.
@@ -86,6 +89,16 @@ H5P.init = function () {
       H5P.jQuery('<li><a class="h5p-link" href="http://h5p.org" target="_blank" title="' + H5P.t('h5pDescription') + '"></a></li>').appendTo($actions);
     }
     $actions.insertAfter($container);
+
+    // Keep track of when we started
+    H5P.opened[contentId] = new Date();
+
+    // Handle events when the user finishes the content. Useful for logging exercise results.
+    instance.$.on('finish', function (event) {
+      if (event.data !== undefined) {
+        H5P.setFinished(contentId, event.data.score, event.data.maxScore, event.data.time);
+      }
+    });
 
     if (H5P.isFramed) {
       // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
@@ -963,16 +976,38 @@ H5P.shuffleArray = function (array) {
 };
 
 /**
+ * DEPRECATED! Do not use this function directly, trigger the finish event
+ * instead.
+ *
  * Post finished results for user.
- * TODO: Should we use events instead? That way the parent can handle the results of the child.
  *
  * @param {Number} contentId
- * @param {Number} points
- * @param {Number} maxPoints
+ * @param {Number} score achieved
+ * @param {Number} maxScore that can be achieved
+ * @param {Number} time optional reported time usage
  */
-H5P.setFinished = function (contentId, points, maxPoints) {
+H5P.setFinished = function (contentId, score, maxScore, time) {
   if (H5P.postUserStatistics === true) {
-    H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {contentId: contentId, points: points, maxPoints: maxPoints});
+    /**
+     * Return unix timestamp for the given JS Date.
+     *
+     * @param {Date} date
+     * @returns {Number}
+     */
+    var toUnix = function (date) {
+      return Math.round(date.getTime() / 1000);
+    };
+
+    // Post the results
+    // TODO: Should we use a variable with the complete path?
+    H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {
+      contentId: contentId,
+      score: score,
+      maxScore: maxScore,
+      opened: toUnix(H5P.opened[contentId]),
+      finished: toUnix(new Date()),
+      time: time
+    });
   }
 };
 
