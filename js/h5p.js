@@ -76,7 +76,6 @@ H5P.init = function () {
       H5P.openCopyrightsDialog($actions, instance, library.params, contentId);
     });
 
-    }
     if (contentData.embedCode !== undefined) {
       // Display embed button
       H5P.jQuery('<li class="h5p-button h5p-embed" role="button" tabindex="1" title="' + H5P.t('embedDescription') + '">' + H5P.t('embed') + '</li>').appendTo($actions).click(function () {
