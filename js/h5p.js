@@ -95,13 +95,6 @@ H5P.init = function () {
     // Keep track of when we started
     H5P.opened[contentId] = new Date();
 
-    // Handle events when the user finishes the content. Useful for logging exercise results.
-    instance.$.on('finish', function (event) {
-      if (event.data !== undefined) {
-        H5P.setFinished(contentId, event.data.score, event.data.maxScore, event.data.time);
-      }
-    });
-
     if (H5P.isFramed) {
       // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
       var iframe = window.parent.document.getElementById('h5p-iframe-' + contentId);
@@ -162,11 +155,14 @@ H5P.init = function () {
 };
 
 H5P.xAPIListener = function(event) {
-  if (event.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
-    var points = event.result.score.raw;
-    var maxPoints = event.result.score.max;
-    var contentId = event.object.contentId;
-    H5P.setFinished(contentId, points, maxPoints);
+  console.log(event);
+  if ('verb' in event.statement) {
+    if (event.statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
+      var points = event.statement.result.score.raw;
+      var maxPoints = event.statement.result.score.max;
+      var contentId = event.statement.object.contentId;
+      H5P.setFinished(contentId, points, maxPoints);
+    }
   }
 }
 
@@ -403,8 +399,6 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
 
   var instance = new constructor(library.params, contentId);
 
-  H5P.addContentTypeFeatures(instance);
-
   // Make xAPI events bubble
 //  if (parent !== null && parent.trigger !== undefined) {
 //    instance.on('xAPI', parent.trigger);
@@ -426,63 +420,112 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   return instance;
 };
 
-/**
- * Add features like event handling to an H5P content type library
- *
- * @param instance
- *  An H5P content type instance
- */
-H5P.addContentTypeFeatures = function(instance) {
-  if (instance.listeners === undefined) {
-    instance.listeners = {};
-  }
-  if (instance.on === undefined) {
-    instance.on = function(type, listener) {
-      if (typeof listener === 'function') {
-        if (this.listeners[type] === undefined) {
-          this.listeners[type] = [];
-        }
-        this.listeners[type].push(listener);
-      }
+H5P.EventEnabled = function() {
+  this.listeners = {};
+};
+
+H5P.EventEnabled.prototype.on = function(type, listener) {
+  if (typeof listener === 'function') {
+    if (this.listeners[type] === undefined) {
+      this.listeners[type] = [];
     }
+    this.listeners[type].push(listener);
   }
-  if (instance.off === undefined) {
-    instance.off = function (type, listener) {
-      if (this.listeners[type] !== undefined) {
-        var removeIndex = listeners[type].indexOf(listener);
-        if (removeIndex) {
-          listeners[type].splice(removeIndex, 1);
-        }
-      }
-    }
-  }
-  if (instance.trigger === undefined) {
-    instance.trigger = function (type, event) {
-      if (this.listeners[type] !== undefined) {
-        for (var i = 0; i < this.listeners[type].length; i++) {
-          this.listeners[type][i](event);
-        }
-      }
-    }
-  }
-  if (instance.triggerXAPI === undefined) {
-    instance.triggerXAPI = function(verb, extra) {
-      var event = {
-        'actor': H5P.getActor(),
-        'verb': H5P.getxAPIVerb(verb)
-      }
-      if (extra !== undefined) {
-        for (var i in extra) {
-          event[i] = extra[i];
-        }
-      }
-      if (!('object' in event)) {
-        event.object = H5P.getxAPIObject(this);
-      }
-      this.trigger('xAPI', event);
+}
+
+H5P.EventEnabled.prototype.off = function (type, listener) {
+  if (this.listeners[type] !== undefined) {
+    var removeIndex = listeners[type].indexOf(listener);
+    if (removeIndex) {
+      listeners[type].splice(removeIndex, 1);
     }
   }
 }
+
+H5P.EventEnabled.prototype.trigger = function (type, event) {
+  if (event === null) {
+    event = new H5P.Event();
+  }
+  if (this.listeners[type] !== undefined) {
+    for (var i = 0; i < this.listeners[type].length; i++) {
+      this.listeners[type][i](event);
+    }
+  }
+}
+
+H5P.Event = function() {
+  // We're going to add bubbling, propagation and other features here later
+}
+
+H5P.XAPIEvent = function() {
+  H5P.Event.call(this);
+  this.statement = {};
+}
+
+H5P.XAPIEvent.prototype = Object.create(H5P.Event.prototype);
+H5P.XAPIEvent.prototype.constructor = H5P.XAPIEvent;
+
+H5P.XAPIEvent.prototype.setScoredResult = function(score, maxScore) {
+  this.statement.result = {
+    'score': {
+      'min': 0,
+      'max': maxScore,
+      'raw': score
+    }
+  }
+}
+
+H5P.XAPIEvent.prototype.setVerb = function(verb) {
+  if (H5P.jQuery.inArray(verb, H5P.XAPIEvent.allowedXAPIVerbs) !== -1) {
+    this.statement.verb = {
+      'id': 'http://adlnet.gov/expapi/verbs/' + verb,
+      'display': {
+        'en-US': verb
+      }
+    }
+  }
+  else {
+  console.log('illegal verb');
+  }
+  // Else: Fail silently...
+}
+
+H5P.XAPIEvent.prototype.setObject = function(instance) {
+  // TODO: Implement the correct id(url)
+
+  // Return dummy data...
+  this.statement.object = {
+    'id': 'http://mysite.com/path-to-main-activity#sub-activity',
+    'contentId': instance.contentId,
+    'reference': instance
+  }
+}
+
+H5P.XAPIEvent.prototype.setActor = function() {
+  this.statement.actor = H5P.getActor();
+}
+
+H5P.EventEnabled.prototype.triggerXAPI = function(verb, extra) {
+  var event = this.createXAPIEventTemplate(verb, extra);
+  this.trigger('xAPI', event);
+}
+
+H5P.EventEnabled.prototype.createXAPIEventTemplate = function(verb, extra) {
+  var event = new H5P.XAPIEvent();
+
+  event.setActor();
+  event.setVerb(verb);
+  if (extra !== undefined) {
+    for (var i in extra) {
+      event.statement[i] = extra[i];
+    }
+  }
+  if (!('object' in event)) {
+    event.setObject(this);
+  }
+  return event;
+}
+
 
 H5P.getActor = function() {
   // TODO: Implement or remove?
@@ -494,7 +537,7 @@ H5P.getActor = function() {
   }
 }
 
-H5P.allowedxAPIVerbs = [
+H5P.XAPIEvent.allowedXAPIVerbs = [
   'answered',
   'asked',
   'attempted',
@@ -521,39 +564,6 @@ H5P.allowedxAPIVerbs = [
   'terminated',
   'voided'
 ]
-
-H5P.getxAPIVerb = function(verb) {
-  if (H5P.jQuery.inArray(verb, H5P.allowedxAPIVerbs) !== -1) {
-    return {
-      'id': 'http://adlnet.gov/expapi/verbs/' + verb,
-      'display': {
-        'en-US': verb
-      }
-    }
-  }
-  // Else: Fail silently...
-}
-
-H5P.getxAPIObject = function(instance) {
-  // TODO: Implement or remove?
-
-  // Return dummy data...
-  return {
-    'id': 'http://mysite.com/path-to-main-activity#sub-activity',
-    'contentId': instance.contentId,
-    'reference': instance
-  }
-}
-
-H5P.getxAPIScoredResult = function(score, maxScore) {
-  return {
-    'score': {
-      'min': 0,
-      'max': maxScore,
-      'raw': score
-    }
-  }
-}
 
 /**
  * Used to print useful error messages.
@@ -1212,8 +1222,8 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     // TODO: Should we use a variable with the complete path?
     H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {
       contentId: contentId,
-      score: score,
-      maxScore: maxScore,
+      points: score,
+      maxPoints: maxScore,
       opened: toUnix(H5P.opened[contentId]),
       finished: toUnix(new Date()),
       time: time
