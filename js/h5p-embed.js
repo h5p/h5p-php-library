@@ -1,3 +1,5 @@
+/*jshint multistr: true */
+
 /**
  *
  */
@@ -5,7 +7,7 @@ var H5P = H5P || (function () {
   var head = document.getElementsByTagName('head')[0];
   var contentId = 0;
   var contents = {};
-  
+
   /**
    * Wraps multiple content between a prefix and a suffix.
    */
@@ -16,25 +18,25 @@ var H5P = H5P || (function () {
     }
     return result;
   };
-  
+
   /**
-   * 
+   *
    */
   var loadContent = function (id, script) {
     var url = script.getAttribute('data-h5p');
     var data, callback = 'H5P' + id;
-    
+
     // Prevent duplicate loading.
     script.removeAttribute('data-h5p');
-    
+
     // Callback for when content data is loaded.
     window[callback] = function (content) {
       contents[id] = content;
-      
+
       var iframe = document.createElement('iframe');
       var parent = script.parentNode;
       parent.insertBefore(iframe, script);
-      
+
       iframe.id = 'h5p-iframe-' + id;
       iframe.style.display = 'block';
       iframe.style.width = '100%';
@@ -59,19 +61,19 @@ var H5P = H5P || (function () {
         </body></html>');
       iframe.contentDocument.close();
       iframe.contentDocument.documentElement.style.overflow = 'hidden';
-      
+
       // Clean up
       parent.removeChild(script);
       head.removeChild(data);
       delete window[callback];
     };
-    
+
     // Create data script
     data = document.createElement('script');
     data.src = url + (url.indexOf('?') === -1 ? '?' : '&') + 'callback=' + callback;
     head.appendChild(data);
   };
-  
+
   /**
    * Go throught all script tags with the data-h5p attribute and load content.
    */
@@ -89,7 +91,7 @@ var H5P = H5P || (function () {
       contentId++;
     }
   };
-  
+
   /**
    * Return integration object
    */
@@ -124,14 +126,14 @@ var H5P = H5P || (function () {
       }
     };
   };
-  
+
   // Detect if we support fullscreen, and what prefix to use.
   var fullScreenBrowserPrefix, safariBrowser;
   if (document.documentElement.requestFullScreen) {
     fullScreenBrowserPrefix = '';
   }
-  else if (document.documentElement.webkitRequestFullScreen
-      && navigator.userAgent.indexOf('Android') === -1 // Skip Android
+  else if (document.documentElement.webkitRequestFullScreen &&
+      navigator.userAgent.indexOf('Android') === -1 // Skip Android
       ) {
     safariBrowser = navigator.userAgent.match(/Version\/(\d)/);
     safariBrowser = (safariBrowser === null ? 0 : parseInt(safariBrowser[1]));
@@ -155,10 +157,10 @@ var H5P = H5P || (function () {
     var iframe = document.getElementById('h5p-iframe-' + $element.parent().data('content-id'));
     var $classes = $element.add(body);
     var $body = $classes.eq(1);
-    
+
     /**
       * Prepare for resize by setting the correct styles.
-      * 
+      *
       * @param {String} classes CSS
       */
      var before = function (classes) {
@@ -179,7 +181,7 @@ var H5P = H5P || (function () {
      /**
       * Gets called when fullscreen mode has been exited.
       * Resizes and sets focus on content.
-      * 
+      *
       * @param {String} classes CSS
       */
      var done = function (classes) {
@@ -201,10 +203,10 @@ var H5P = H5P || (function () {
 
       before('h5p-semi-fullscreen');
       iframe.style.position = 'fixed';
-      
+
       var $disable = $element.prepend('<a href="#" class="h5p-disable-fullscreen" title="Disable fullscreen"></a>').children(':first');
       var keyup, disableSemiFullscreen = function () {
-        $disable.remove();      
+        $disable.remove();
         $body.unbind('keyup', keyup);
         iframe.style.position = 'static';
         done('h5p-semi-fullscreen');
@@ -247,7 +249,7 @@ var H5P = H5P || (function () {
       }
     }
   };
-  
+
   return H5P;
 })();
 

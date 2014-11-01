@@ -3,7 +3,7 @@ var H5PUtils = H5PUtils || {};
 (function ($) {
   /**
    * Generic function for creating a table including the headers
-   * 
+   *
    * @param {array} headers List of headers
    */
   H5PUtils.createTable = function (headers) {
@@ -12,56 +12,62 @@ var H5PUtils = H5PUtils || {};
     if(headers) {
       var $thead = $('<thead></thead>');
       var $tr = $('<tr></tr>');
-  
+
       $.each(headers, function (index, value) {
         if (!(value instanceof Object)) {
           value = {
-            text: value
+            html: value
           };
         }
-        
+
         $('<th/>', value).appendTo($tr);
       });
-      
+
       $table.append($thead.append($tr));
     }
-    
+
     return $table;
   };
-  
+
   /**
    * Generic function for creating a table row
-   * 
+   *
    * @param {array} rows Value list. Object name is used as class name in <TD>
    */
   H5PUtils.createTableRow = function (rows) {
     var $tr = $('<tr></tr>');
-    
+
     $.each(rows, function (index, value) {
-      $tr.append('<td>' + value + '</td>');
+      if (!(value instanceof Object)) {
+        value = {
+          html: value
+        };
+      }
+
+        $('<td/>', value).appendTo($tr);
     });
-    
+
     return $tr;
   };
-  
+
   /**
    * Generic function for creating a field containing label and value
-   * 
-   * @param {string} label The label displayed in front of the value 
+   *
+   * @param {string} label The label displayed in front of the value
    * @param {string} value The value
    */
   H5PUtils.createLabeledField = function (label, value) {
     var $field = $('<div class="h5p-labeled-field"></div>');
-    
+
     $field.append('<div class="h5p-label">' + label + '</div>');
     $field.append('<div class="h5p-value">' + value + '</div>');
-    
+
     return $field;
   };
   
   /**
    * Replaces placeholder fields in translation strings
-   * 
+   *
    * @param {string} template The translation template string in the following format: "$name is a $sex"
    * @param {array} replacors An js object with key and values. Eg: {'$name': 'Frode', '$sex': 'male'}
    */
@@ -71,10 +77,10 @@ var H5PUtils = H5PUtils || {};
     });
     return template;
   };
-  
+
   /**
    * Get throbber with given text.
-   * 
+   *
    * @param {String} text
    * @returns {$}
    */
@@ -84,7 +90,7 @@ var H5PUtils = H5PUtils || {};
       text: text
     });
   };
-  
+
   /**
    * Makes it possbile to rebuild all content caches from admin UI.
    * @param {Object} notCached
@@ -101,7 +107,7 @@ var H5PUtils = H5PUtils || {};
         current++;
         if (current === parts.length) current = 0;
       }, 100);
-      
+
       var $counter = $container.find('.progress');
       var build = function () {
         $.post(notCached.url, function (left) {
@@ -120,8 +126,8 @@ var H5PUtils = H5PUtils || {};
       };
       build();
     });
-    
+
     return $container;
   };
-  
+
 })(H5P.jQuery);
