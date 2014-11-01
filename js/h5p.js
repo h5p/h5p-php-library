@@ -113,30 +113,30 @@ H5P.init = function () {
       };
       
       var resizeDelay;
-      instance.addH5PEventListener('resize', function () {
+      instance.on('resize', function () {
         // Use a delay to make sure iframe is resized to the correct size.
         clearTimeout(resizeDelay);
         resizeDelay = setTimeout(function () {
           resizeIframe();
         }, 1);
       });
-      instance.addH5PEventListener('xAPI', H5P.xAPIListener);
       H5P.instances.push(instance);
     }
+    instance.on('xAPI', H5P.xAPIListener);
     
     // Resize everything when window is resized.
     $window.resize(function () {
       if (window.parent.H5P.isFullscreen) {
         // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
-          instance.triggerH5PEvent('resize');
+          instance.trigger('resize');
       }
       else {
-        instance.triggerH5PEvent('resize');
+        instance.trigger('resize');
       }
     });
     
     // Resize content.
-    instance.triggerH5PEvent('resize');
+    instance.trigger('resize');
   });
 
   // Insert H5Ps that should be in iframes.
@@ -149,7 +149,7 @@ H5P.init = function () {
 };
 
 H5P.xAPIListener = function(event) {
-  if (event.verb === 'completed') {
+  if (event.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
     var points = event.result.score.raw;
     var maxPoints = event.result.score.max;
     var contentId = event.object.contentId;
@@ -209,8 +209,8 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
    */
   var entered = function () {
     // Do not rely on window resize events.
-    instance.triggerH5PEvent('resize');
-    instance.triggerH5PEvent('focus');
+    instance.trigger('resize');
+    instance.trigger('focus');
   };
   
   /**
@@ -224,8 +224,8 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     $classes.removeClass(classes);
     
     // Do not rely on window resize events.
-    instance.triggerH5PEvent('resize');
-    instance.triggerH5PEvent('focus');
+    instance.trigger('resize');
+    instance.trigger('focus');
 
     if (exitCallback !== undefined) {
       exitCallback();
@@ -391,13 +391,13 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, parent) {
   H5P.addContentTypeFeatures(instance);
 
   // Make xAPI events bubble
-//  if (parent !== null && parent.triggerH5PEvent !== undefined) {
-//    instance.addH5PEventListener('xAPI', parent.triggerH5PEvent);
+//  if (parent !== null && parent.trigger !== undefined) {
+//    instance.on('xAPI', parent.trigger);
 //  }
 
   // Automatically call resize on resize event if defined
   if (typeof instance.resize === 'function') {
-    instance.addH5PEventListener('resize', instance.resize);
+    instance.on('resize', instance.resize);
   }
 
   if ($attachTo !== undefined) {
@@ -405,7 +405,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, parent) {
     
     if (skipResize === undefined || !skipResize) {
       // Resize content.
-      instance.triggerH5PEvent('resize');
+      instance.trigger('resize');
     }
   }
   return instance;
@@ -418,40 +418,40 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, parent) {
  *  An H5P content type instance
  */
 H5P.addContentTypeFeatures = function(instance) {
-  if (instance.H5PListeners === undefined) {
-    instance.H5PListeners = {};
+  if (instance.listeners === undefined) {
+    instance.listeners = {};
   }
-  if (instance.addH5PEventListener === undefined) {
-    instance.addH5PEventListener = function(type, listener) {
+  if (instance.on === undefined) {
+    instance.on = function(type, listener) {
       if (typeof listener === 'function') {
-        if (this.H5PListeners[type] === undefined) {
-          this.H5PListeners[type] = [];
+        if (this.listeners[type] === undefined) {
+          this.listeners[type] = [];
         }
-        this.H5PListeners[type].push(listener);
+        this.listeners[type].push(listener);
       }
     }
   }
-  if (instance.removeH5PEventListener === undefined) {
-    instance.removeH5PEventListener = function (type, listener) {
-      if (this.H5PListeners[type] !== undefined) {
-        var removeIndex = H5PListeners[type].indexOf(listener);
+  if (instance.off === undefined) {
+    instance.off = function (type, listener) {
+      if (this.listeners[type] !== undefined) {
+        var removeIndex = listeners[type].indexOf(listener);
         if (removeIndex) {
-          H5PListeners[type].splice(removeIndex, 1);
+          listeners[type].splice(removeIndex, 1);
         }
       }
     }
   }
-  if (instance.triggerH5PEvent === undefined) {
-    instance.triggerH5PEvent = function (type, event) {
-      if (this.H5PListeners[type] !== undefined) {
-        for (var i = 0; i < this.H5PListeners[type].length; i++) {
-          this.H5PListeners[type][i](event);
+  if (instance.trigger === undefined) {
+    instance.trigger = function (type, event) {
+      if (this.listeners[type] !== undefined) {
+        for (var i = 0; i < this.listeners[type].length; i++) {
+          this.listeners[type][i](event);
         }
       }
     }
   }
-  if (instance.triggerH5PxAPIEvent === undefined) {
-    instance.triggerH5PxAPIEvent = function(verb, extra) {
+  if (instance.triggerXAPI === undefined) {
+    instance.triggerXAPI = function(verb, extra) {
       var event = {
         'actor': H5P.getActor(),
         'verb': H5P.getxAPIVerb(verb)
@@ -461,10 +461,10 @@ H5P.addContentTypeFeatures = function(instance) {
           event[i] = extra[i];
         }
       }
-      if (!'object' in event) {
+      if (!('object' in event)) {
         event.object = H5P.getxAPIObject(this);
       }
-      this.triggerH5PEvent('xAPI', event);
+      this.trigger('xAPI', event);
     }
   }
 }
@@ -510,7 +510,7 @@ H5P.allowedxAPIVerbs = [
 H5P.getxAPIVerb = function(verb) {
   if (H5P.jQuery.inArray(verb, H5P.allowedxAPIVerbs) !== -1) {
     return {
-      'id': 'http://adlnet.gov/expapi/verbs/' . verb,
+      'id': 'http://adlnet.gov/expapi/verbs/' + verb,
       'display': {
         'en-US': verb
       }
