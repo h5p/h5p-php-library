@@ -16,6 +16,14 @@ interface H5PFrameworkInterface {
   public function getPlatformInfo();
 
   /**
+   * Fetches a file from a remote server using HTTP GET
+   *
+   * @param $url
+   * @return string The content (response body). NULL if something went wrong
+   */
+  public function fetchExternalData($url);
+
+  /**
    * Set the tutorial URL for a library. All versions of the library is set
    *
    * @param string $machineName
@@ -2176,8 +2184,9 @@ class H5PCore {
     $platformInfo['uuid'] = $this->h5pF->getOption('h5p_site_uuid', '');
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
-    $json = H5PExternalDataFetcher::fetchJson('http://h5p.lvh.me/h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
+    $json = $this->h5pF->fetchExternalFile('http://h5p.lvh.me/h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
     if ($json !== NULL) {
+      $json = json_decode($json);
       if (isset($json->libraries)) {
         foreach ($json->libraries as $machineName => $libInfo) {
           $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
@@ -2187,45 +2196,6 @@ class H5PCore {
         $this->h5pF->setOption('h5p_site_uuid', $json->uuid);
       }
     }
-  }
-}
-
-/**
- * Class responsible for fetching external data (using http)
- */
-class H5PExternalDataFetcher {
-
-  public static function fetchJson($url) {
-    $json = self::fetch($url);
-    return ($json === NULL) ? NULL : json_decode($json);
-  }
-
-  public static function fetch($url) {
-    if (ini_get('allow_url_fopen') == TRUE) {
-      return self::fetchFopen($url);
-    }
-    else if (function_exists('curl_init')) {
-      return self::fetchCurl($url);
-    }
-    else {
-      // We have no transport mechanisme to use for communicating with h5p.org
-      // This may be reported to the user in future versions.
-      return NULL;
-    }
-  }
-
-  private static function fetchFopen($url) {
-    return file_get_contents($url);
-  }
-
-  private static function fetchCurl($url) {
-    $curl = curl_init($url);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    // To be sure curl does not cache anything
-    curl_setopt($curl, CURLOPT_FRESH_CONNECT, TRUE);
-    $result = curl_exec($curl);
-    curl_close($curl);
-    return $result;
   }
 }
 
