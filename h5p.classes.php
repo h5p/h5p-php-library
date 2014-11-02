@@ -2316,7 +2316,7 @@ class H5PContentValidator {
    */
   public function validateContentFiles($contentPath, $isLibrary = FALSE) {
     if ($this->h5pC->disableFileCheck === TRUE) {
-      return TRUE;
+      return TRUE; 
     }
 
     // Scan content directory for files, recurse into sub directories.
