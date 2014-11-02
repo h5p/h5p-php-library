@@ -11,7 +11,7 @@ interface H5PFrameworkInterface {
    *   An associative array containing:
    *   - name: The name of the plattform, for instance "Wordpress"
    *   - version: The version of the pattform, for instance "4.0"
-   *   - uuid: UUID for site installation
+   *   - h5pVersion: The version of the H5P plugin/module
    */
   public function getPlatformInfo();
 
@@ -2038,34 +2038,6 @@ class H5PCore {
   }
 
   /**
-   * Generates a UUID v4. Taken from: http://php.net/manual/en/function.uniqid.php
-   *
-   * @return string uuid
-   */
-  public static function generateUUID() {
-    return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-
-      // 32 bits for "time_low"
-      mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-
-      // 16 bits for "time_mid"
-      mt_rand(0, 0xffff),
-
-      // 16 bits for "time_hi_and_version",
-      // four most significant bits holds version number 4
-      mt_rand(0, 0x0fff) | 0x4000,
-
-      // 16 bits, 8 bits for "clk_seq_hi_res",
-      // 8 bits for "clk_seq_low",
-      // two most significant bits holds zero and one for variant DCE1.1
-      mt_rand(0, 0x3fff) | 0x8000,
-
-      // 48 bits for "node"
-      mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
-    );
-  }
-
-  /**
    * Check if currently installed H5P libraries are supported by
    * the current versjon of core. Which versions of which libraries are supported is
    * defined in the library-support.json file.
@@ -2201,10 +2173,18 @@ class H5PCore {
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
     $platformInfo = $this->h5pF->getPlatformInfo();
     $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
-    $json = H5PExternalDataFetcher::fetchJson('http://h5p.lvh.me/h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)));
+    $platformInfo['uuid'] = $this->h5pF->getOption('h5p_site_uuid', '');
+    // Adding random string to GET to be sure nothing is cached
+    $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
+    $json = H5PExternalDataFetcher::fetchJson('http://h5p.lvh.me/h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
     if ($json !== NULL) {
-      foreach ($json as $machineName => $libInfo) {
-        $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
+      if (isset($json->libraries)) {
+        foreach ($json->libraries as $machineName => $libInfo) {
+          $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
+        }
+      }
+      if($platformInfo['uuid'] === '' && isset($json->uuid)) {
+        $this->h5pF->setOption('h5p_site_uuid', $json->uuid);
       }
     }
   }
@@ -2228,8 +2208,8 @@ class H5PExternalDataFetcher {
       return self::fetchCurl($url);
     }
     else {
-      // Enable 'allow_url_fopen' or install cURL.
-      // TODO - this could be reported to the user.
+      // We have no transport mechanisme to use for communicating with h5p.org
+      // This may be reported to the user in future versions.
       return NULL;
     }
   }
@@ -2241,6 +2221,8 @@ class H5PExternalDataFetcher {
   private static function fetchCurl($url) {
     $curl = curl_init($url);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    // To be sure curl does not cache anything
+    curl_setopt($curl, CURLOPT_FRESH_CONNECT, TRUE);
     $result = curl_exec($curl);
     curl_close($curl);
     return $result;
@@ -2364,7 +2346,7 @@ class H5PContentValidator {
    */
   public function validateContentFiles($contentPath, $isLibrary = FALSE) {
     if ($this->h5pC->disableFileCheck === TRUE) {
-      return TRUE; 
+      return TRUE;
     }
 
     // Scan content directory for files, recurse into sub directories.
