@@ -11,8 +11,25 @@ interface H5PFrameworkInterface {
    *   An associative array containing:
    *   - name: The name of the plattform, for instance "Wordpress"
    *   - version: The version of the pattform, for instance "4.0"
+   *   - h5pVersion: The version of the H5P plugin/module
    */
   public function getPlatformInfo();
+
+  /**
+   * Fetches a file from a remote server using HTTP GET
+   *
+   * @param $url
+   * @return string The content (response body). NULL if something went wrong
+   */
+  public function fetchExternalData($url);
+
+  /**
+   * Set the tutorial URL for a library. All versions of the library is set
+   *
+   * @param string $machineName
+   * @param string $tutorialUrl
+   */
+  public function setLibraryTutorialUrl($machineName, $tutorialUrl);
 
   /**
    * Show the user an error message
@@ -2157,27 +2174,28 @@ class H5PCore {
   }
 
   /**
-   * Get a list of libraries' metadata from h5p.org. Cache it, and refetch once a week.
-   *
-   * @return mixed An object of objects keyed by machineName
+   * Fetch a list of libraries' metadata from h5p.org.
+   * Save URL tutorial to database. Each platform implementation
+   * is responsible for invoking this, eg using cron
    */
-  public function getLibrariesMetadata() {
-    // Fetch from cache:
-    //$metadata = $this->h5pF->cacheGet('libraries','metadata');
-
-    // If not available in cache, or older than a week => refetch!
-    if ($metadata === NULL || $metadata->lastTimeFetched < (time() - self::SECONDS_IN_WEEK)) {
-      $platformInfo = $this->h5pF->getPlatformInfo();
-      $json = file_get_contents('http://h5p.org/libraries-metadata.json?platform=' . json_encode($platformInfo));
-
-      $metadata = new stdClass();
-      $metadata->json = ($json === FALSE ? NULL : json_decode($json));
-      $metadata->lastTimeFetched = time();
-
-      //$this->h5pF->cacheSet('libraries','metadata', $metadata);
+  public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
+    $platformInfo = $this->h5pF->getPlatformInfo();
+    $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
+    $platformInfo['uuid'] = $this->h5pF->getOption('h5p_site_uuid', '');
+    // Adding random string to GET to be sure nothing is cached
+    $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
+    $json = $this->h5pF->fetchExternalData('http://h5p.lvh.me/h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
+    if ($json !== NULL) {
+      $json = json_decode($json);
+      if (isset($json->libraries)) {
+        foreach ($json->libraries as $machineName => $libInfo) {
+          $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
+        }
+      }
+      if($platformInfo['uuid'] === '' && isset($json->uuid)) {
+        $this->h5pF->setOption('h5p_site_uuid', $json->uuid);
+      }
     }
-
-    return $metadata->json;
   }
 }
 
