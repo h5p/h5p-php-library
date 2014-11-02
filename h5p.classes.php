@@ -1648,19 +1648,23 @@ class H5PCore {
 
     // Update content dependencies.
     $content['dependencies'] = $validator->getDependencies();
-    $this->h5pF->deleteLibraryUsage($content['id']);
-    $this->h5pF->saveLibraryUsage($content['id'], $content['dependencies']);
 
-    if ($this->exportEnabled) {
-      // Recreate export file
-      $exporter = new H5PExport($this->h5pF, $this);
-      $exporter->createExportFile($content);
+    // Sometimes the parameters are filtered before content has been created
+    if ($content['id']) {
+      $this->h5pF->deleteLibraryUsage($content['id']);
+      $this->h5pF->saveLibraryUsage($content['id'], $content['dependencies']);
 
-      // TODO: Should we rather create the file once first accessed, like imagecache?
+      if ($this->exportEnabled) {
+        // Recreate export file
+        $exporter = new H5PExport($this->h5pF, $this);
+        $exporter->createExportFile($content);
+
+        // TODO: Should we rather create the file once first accessed, like imagecache?
+      }
+
+      // Cache.
+      $this->h5pF->setFilteredParameters($content['id'], $params);
     }
-
-    // Cache.
-    $this->h5pF->setFilteredParameters($content['id'], $params);
     return $params;
   }
 
