@@ -2163,7 +2163,7 @@ class H5PCore {
    */
   public function getLibrariesMetadata() {
     // Fetch from cache:
-    $metadata = $this->h5pF->cacheGet('libraries','metadata');
+    //$metadata = $this->h5pF->cacheGet('libraries','metadata');
 
     // If not available in cache, or older than a week => refetch!
     if ($metadata === NULL || $metadata->lastTimeFetched < (time() - self::SECONDS_IN_WEEK)) {
@@ -2174,7 +2174,7 @@ class H5PCore {
       $metadata->json = ($json === FALSE ? NULL : json_decode($json));
       $metadata->lastTimeFetched = time();
 
-      $this->h5pF->cacheSet('libraries','metadata', $metadata);
+      //$this->h5pF->cacheSet('libraries','metadata', $metadata);
     }
 
     return $metadata->json;
