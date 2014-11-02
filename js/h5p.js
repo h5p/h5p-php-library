@@ -158,10 +158,10 @@ H5P.xAPIListener = function(event) {
   console.log(event);
   if ('verb' in event.statement) {
     if (event.statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
-      var points = event.statement.result.score.raw;
-      var maxPoints = event.statement.result.score.max;
+      var score = event.statement.result.score.raw;
+      var maxScore = event.statement.result.score.max;
       var contentId = event.statement.object.contentId;
-      H5P.setFinished(contentId, points, maxPoints);
+      H5P.setFinished(contentId, score, maxScore);
     }
   }
 }
@@ -1222,8 +1222,8 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     // TODO: Should we use a variable with the complete path?
     H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {
       contentId: contentId,
-      points: score,
-      maxPoints: maxScore,
+      score: score,
+      maxScore: maxScore,
       opened: toUnix(H5P.opened[contentId]),
       finished: toUnix(new Date()),
       time: time
