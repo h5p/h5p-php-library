@@ -528,13 +528,7 @@ H5P.EventEnabled.prototype.createXAPIEventTemplate = function(verb, extra) {
 
 
 H5P.getActor = function() {
-  // TODO: Implement or remove?
-
-  // Dummy data...
-  return {
-    'name': 'Ernst Petter',
-    'mbox': 'ernst@petter.com'
-  }
+  return H5PIntegration.getActor();
 }
 
 H5P.XAPIEvent.allowedXAPIVerbs = [
