@@ -129,6 +129,7 @@ H5P.init = function () {
     }
 
     instance.on('xAPI', H5P.xAPIListener);
+    instance.on('xAPI', H5P.xAPIEmitter);
 
     // Resize everything when window is resized.
     $window.resize(function () {
@@ -155,7 +156,6 @@ H5P.init = function () {
 };
 
 H5P.xAPIListener = function(event) {
-  console.log(event);
   if ('verb' in event.statement) {
     if (event.statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
       var score = event.statement.result.score.raw;
@@ -165,6 +165,24 @@ H5P.xAPIListener = function(event) {
     }
   }
 }
+
+H5P.xAPIEmitter = function (event) {
+  if (event.statement !== undefined) {
+    for (var i = 0; i < H5P.xAPIListeners.length; i++) {
+      H5P.xAPIListeners[i](event.statement)
+    }
+  }
+}
+
+H5P.xAPIListeners = [];
+
+H5P.onXAPI = function(listener) {
+  H5P.xAPIListeners.push(listener);
+}
+
+H5P.onXAPI(function(statement) {
+  console.log(statement);
+});
 
 /**
  * Enable full screen for the given h5p.
