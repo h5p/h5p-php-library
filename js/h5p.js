@@ -28,6 +28,9 @@ else if (document.documentElement.msRequestFullscreen) {
   H5P.fullScreenBrowserPrefix = 'ms';
 }
 
+// Keep track of when the H5Ps where started
+H5P.opened = {};
+
 /**
  * Initialize H5P content.
  * Scans for ".h5p-content" in the document and initializes H5P instances where found.
@@ -70,12 +73,12 @@ H5P.init = function () {
         window.location.href = contentData.exportUrl;
       });
     }
-    if (instance.getCopyrights !== undefined) {
-      // Display copyrights button
-      H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
-        H5P.openCopyrightsDialog($actions, instance);
-      });
-    }
+
+    // Display copyrights button
+    H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
+      H5P.openCopyrightsDialog($actions, instance, library.params, contentId);
+    });
+
     if (contentData.embedCode !== undefined) {
       // Display embed button
       H5P.jQuery('<li class="h5p-button h5p-embed" role="button" tabindex="1" title="' + H5P.t('embedDescription') + '">' + H5P.t('embed') + '</li>').appendTo($actions).click(function () {
@@ -86,6 +89,16 @@ H5P.init = function () {
       H5P.jQuery('<li><a class="h5p-link" href="http://h5p.org" target="_blank" title="' + H5P.t('h5pDescription') + '"></a></li>').appendTo($actions);
     }
     $actions.insertAfter($container);
+
+    // Keep track of when we started
+    H5P.opened[contentId] = new Date();
+
+    // Handle events when the user finishes the content. Useful for logging exercise results.
+    instance.$.on('finish', function (event) {
+      if (event.data !== undefined) {
+        H5P.setFinished(contentId, event.data.score, event.data.maxScore, event.data.time);
+      }
+    });
 
     if (H5P.isFramed) {
       // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
@@ -482,18 +495,76 @@ H5P.Dialog = function (name, title, content, $element) {
  * @param {object} instance to get copyright information from.
  * @returns {undefined}
  */
-H5P.openCopyrightsDialog = function ($element, instance) {
-  var copyrights = instance.getCopyrights();
+H5P.openCopyrightsDialog = function ($element, instance, parameters, contentId) {
+  var copyrights;
+  if (instance.getCopyrights !== undefined) {
+    // Use the instance's own copyright generator
+    copyrights = instance.getCopyrights();
+  }
+  else {
+    // Create a generic flat copyright list
+    copyrights = new H5P.ContentCopyrights();
+    H5P.findCopyrights(copyrights, parameters, contentId);
+  }
+
   if (copyrights !== undefined) {
+    // Convert to string
     copyrights = copyrights.toString();
   }
   if (copyrights === undefined || copyrights === '') {
+    // Use no copyrights default text
     copyrights = H5P.t('noCopyrights');
   }
 
+  // Open dialog with copyright information
   var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $element);
   dialog.open();
 };
+
+/**
+ * Gather a flat list of copyright information from the given parameters.
+ *
+ * @param {H5P.ContentCopyrights} info Used to collect all information in.
+ * @param {(Object|Arrray)} parameters To search for file objects in.
+ * @param {Number} contentId Used to insert thumbnails for images.
+ * @returns {undefined}
+ */
+H5P.findCopyrights = function (info, parameters, contentId) {
+  // Cycle through parameters
+  for (var field in parameters) {
+    if (!parameters.hasOwnProperty(field)) {
+      continue; // Do not check
+    }
+    var value = parameters[field];
+
+    if (value instanceof Array) {
+      // Cycle through array
+      H5P.findCopyrights(info, value, contentId);
+    }
+    else if (value instanceof Object) {
+      // Check if object is a file with copyrights
+      if (value.copyright === undefined ||
+          value.copyright.license === undefined ||
+          value.path === undefined ||
+          value.mime === undefined) {
+
+        // Nope, cycle throught object
+        H5P.findCopyrights(info, value, contentId);
+      }
+      else {
+        // Found file, add copyrights
+        var copyrights = new H5P.MediaCopyright(value.copyright);
+        if (value.width !== undefined && value.height !== undefined) {
+          copyrights.setThumbnail(new H5P.Thumbnail(H5P.getPath(value.path, contentId), value.width, value.height));
+        }
+        info.addMedia(copyrights);
+      }
+    }
+    else {
+    }
+  }
+};
+
 
 /**
  * Display a dialog containing the embed code.
@@ -963,16 +1034,38 @@ H5P.shuffleArray = function (array) {
 };
 
 /**
+ * DEPRECATED! Do not use this function directly, trigger the finish event
+ * instead.
+ *
  * Post finished results for user.
- * TODO: Should we use events instead? That way the parent can handle the results of the child.
  *
  * @param {Number} contentId
- * @param {Number} points
- * @param {Number} maxPoints
+ * @param {Number} score achieved
+ * @param {Number} maxScore that can be achieved
+ * @param {Number} time optional reported time usage
  */
-H5P.setFinished = function (contentId, points, maxPoints) {
+H5P.setFinished = function (contentId, score, maxScore, time) {
   if (H5P.postUserStatistics === true) {
-    H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {contentId: contentId, points: points, maxPoints: maxPoints});
+    /**
+     * Return unix timestamp for the given JS Date.
+     *
+     * @param {Date} date
+     * @returns {Number}
+     */
+    var toUnix = function (date) {
+      return Math.round(date.getTime() / 1000);
+    };
+
+    // Post the results
+    // TODO: Should we use a variable with the complete path?
+    H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {
+      contentId: contentId,
+      score: score,
+      maxScore: maxScore,
+      opened: toUnix(H5P.opened[contentId]),
+      finished: toUnix(new Date()),
+      time: time
+    });
   }
 };
 
