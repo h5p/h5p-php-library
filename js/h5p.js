@@ -491,13 +491,10 @@ H5P.XAPIEvent.prototype.setVerb = function(verb) {
 }
 
 H5P.XAPIEvent.prototype.setObject = function(instance) {
-  // TODO: Implement the correct id(url)
-
-  // Return dummy data...
   this.statement.object = {
-    'id': 'http://mysite.com/path-to-main-activity#sub-activity',
-    'contentId': instance.contentId,
-    'reference': instance
+    // TODO: Correct this. contentId might be vid
+    'id': window.location.origin + Drupal.settings.basePath + 'node/' + instance.contentId,
+    'contentId': instance.contentId
   }
 }
 
