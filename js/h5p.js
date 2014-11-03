@@ -1099,10 +1099,3 @@ if (H5P.jQuery) {
     }
   });
 }
-
- /**
-  * Mimics how php's htmlspecialchars works (the way we use it)
-  */
-H5P.htmlSpecialChars = function(string) {
-  return string.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#039;').replace(/"/g, '&quot;');
-};
