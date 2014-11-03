@@ -2188,7 +2188,7 @@ class H5PCore {
     $platformInfo['uuid'] = $this->h5pF->getOption('h5p_site_uuid', '');
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
-    $json = $this->h5pF->fetchExternalData('http://h5p.lvh.me/h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
+    $json = $this->h5pF->fetchExternalData('http://h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
     if ($json !== NULL) {
       $json = json_decode($json);
       if (isset($json->libraries)) {
@@ -2320,7 +2320,7 @@ class H5PContentValidator {
    */
   public function validateContentFiles($contentPath, $isLibrary = FALSE) {
     if ($this->h5pC->disableFileCheck === TRUE) {
-      return TRUE; 
+      return TRUE;
     }
 
     // Scan content directory for files, recurse into sub directories.
