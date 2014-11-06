@@ -1433,7 +1433,7 @@ Class H5PExport {
       'title' => $content['title'],
       // TODO - stop using 'und', this is not the preferred way.
       // Either remove language from the json if not existing, or use "language": null
-      'language' => isset($content['language']) ? $content['language'] : 'und',
+      'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes,
     );
