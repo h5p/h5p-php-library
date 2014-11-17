@@ -512,7 +512,8 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
   this.statement.object = {
     // TODO: Correct this. contentId might be vid
     'id': window.location.origin + Drupal.settings.basePath + 'node/' + instance.contentId,
-    'contentId': instance.contentId
+    //'contentId': instance.contentId,
+    'objectType': 'Activity'
   }
 }
 
@@ -543,7 +544,12 @@ H5P.EventEnabled.prototype.createXAPIEventTemplate = function(verb, extra) {
 
 
 H5P.getActor = function() {
-  return H5PIntegration.getActor();
+  var user = H5PIntegration.getUser();
+  return {
+    'name': user.name,
+    'mbox': 'mailto:' . user.mail,
+    'objectType': 'Agent'
+  }
 }
 
 H5P.XAPIEvent.allowedXAPIVerbs = [
