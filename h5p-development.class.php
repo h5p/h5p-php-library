@@ -93,6 +93,7 @@ class H5PDevelopment {
     // TODO: Should we remove libraries without files? Not really needed, but must be cleaned up some time, right?
 
     // Go trough libraries and insert dependencies. Missing deps. will just be ignored and not available. (I guess?!)
+    $this->h5pF->lockDependencyStorage();
     foreach ($this->libraries as $library) {
       $this->h5pF->deleteLibraryDependencies($library['libraryId']);
       // This isn't optimal, but without it we would get duplicate warnings.
@@ -104,6 +105,7 @@ class H5PDevelopment {
         }
       }
     }
+    $this->h5pF->unlockDependencyStorage();
     // TODO: Deps must be inserted into h5p_nodes_libraries as well... ? But only if they are used?!
   }
 
