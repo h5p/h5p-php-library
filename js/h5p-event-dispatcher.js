@@ -112,14 +112,13 @@ H5P.EventDispatcher = (function () {
      * @param {String} type Event type
      * @param {...*} args
      */
-    self.trigger = function (type, args) {
+    self.trigger = function (type) {
       if (events[type] === undefined) {
         return;
       }
 
       // Copy all arguments except the first
-      args = [];
-      var i;
+      var i, args = [];
       for (i = 1; i < arguments.length; i++) {
         args.push(arguments[i]);
       }
