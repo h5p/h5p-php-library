@@ -90,7 +90,7 @@ var H5P = H5P || (function () {
       loadContent(contentId, h5ps[i]);
       contentId++;
     }
-  };
+  }
 
   /**
    * Return integration object
