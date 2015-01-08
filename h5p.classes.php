@@ -409,6 +409,17 @@ interface H5PFrameworkInterface {
   public function deleteLibraryDependencies($libraryId);
 
   /**
+   * Start an atomic operation against the dependency storage
+   */
+  public function lockDependencyStorage();
+  
+  /**
+   * Stops an atomic operation against the dependency storage
+   */
+  public function unlockDependencyStorage();
+  
+  
+  /**
    * Delete a library from database and file system
    *
    * @param stdClass $library
