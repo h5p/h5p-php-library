@@ -1275,7 +1275,8 @@ class H5PStorage {
       }
       $destination_path = $libraries_path . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
       H5PCore::deleteFileTree($destination_path);
-      rename($library['uploadDirectory'], $destination_path);
+      $this->h5pC->copyFileTree($library['uploadDirectory'], $destination_path);
+      H5PCore::deleteFileTree($library['uploadDirectory']);
 
       $library_saved = TRUE;
     }
