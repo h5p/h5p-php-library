@@ -118,7 +118,7 @@ H5P.init = function () {
       };
 
       var resizeDelay;
-      instance.on('resize', function () {
+      H5P.deprecatedOn(instance, 'resize', function () {
         // Use a delay to make sure iframe is resized to the correct size.
         clearTimeout(resizeDelay);
         resizeDelay = setTimeout(function () {
@@ -128,22 +128,22 @@ H5P.init = function () {
       H5P.instances.push(instance);
     }
 
-    instance.on('xAPI', H5P.xAPIListener);
-    instance.on('xAPI', H5P.xAPIEmitter);
+    H5P.deprecatedOn(instance, 'xAPI', H5P.xAPIListener);
+    H5P.deprecatedOn(instance, 'xAPI', H5P.xAPIEmitter);
 
     // Resize everything when window is resized.
     $window.resize(function () {
       if (window.parent.H5P.isFullscreen) {
         // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
-          instance.trigger('resize');
+        H5P.deprecatedTrigger(instance, 'resize');
       }
       else {
-        instance.trigger('resize');
+        H5P.deprecatedTrigger(instance, 'resize');
       }
     });
 
     // Resize content.
-    instance.trigger('resize');
+    H5P.deprecatedTrigger(instance, 'resize');
   });
 
   // Insert H5Ps that should be in iframes.
@@ -258,8 +258,8 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
    */
   var entered = function () {
     // Do not rely on window resize events.
-    instance.trigger('resize');
-    instance.trigger('focus');
+    H5P.deprecatedTrigger(instance, 'resize');
+    H5P.deprecatedTrigger(instance, 'focus');
   };
 
   /**
@@ -273,8 +273,8 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     $classes.removeClass(classes);
 
     // Do not rely on window resize events.
-    instance.trigger('resize');
-    instance.trigger('focus');
+    H5P.deprecatedTrigger(instance, 'resize');
+    H5P.deprecatedTrigger(instance, 'focus');
 
     if (exitCallback !== undefined) {
       exitCallback();
@@ -438,6 +438,10 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   }
 
   var instance = new constructor(library.params, contentId);
+  
+  if (instance.$ === undefined) {
+    instance.$ = H5P.jQuery(instance);
+  }
 
   // Make xAPI events bubble
 //  if (parent !== null && parent.trigger !== undefined) {
@@ -446,7 +450,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
 
   // Automatically call resize on resize event if defined
   if (typeof instance.resize === 'function') {
-    instance.on('resize', instance.resize);
+    H5P.deprecatedOn(instance, 'resize', instance.resize);
   }
 
   if ($attachTo !== undefined) {
@@ -454,7 +458,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
 
     if (skipResize === undefined || !skipResize) {
       // Resize content.
-      instance.trigger('resize');
+      H5P.deprecatedTrigger(instance, 'resize');
     }
   }
   return instance;
@@ -1305,3 +1309,21 @@ if (H5P.jQuery) {
 H5P.htmlSpecialChars = function(string) {
   return string.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&#039;').replace(/"/g, '&quot;');
 };
+
+H5P.deprecatedTrigger = function(instance, event) {
+  if (instance.trigger !== undefined) {
+    instance.trigger(event);
+  }
+  else if (instance.$ !== undefined) {
+    instance.$.trigger(event)
+  }
+}
+
+H5P.deprecatedOn = function(instance, event, handler) {
+  if (instance.on !== undefined) {
+    instance.on(event, handler);
+  }
+  else if (instance.$ !== undefined) {
+    instance.$.on(event, handler)
+  }
+}
