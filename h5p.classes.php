@@ -409,6 +409,17 @@ interface H5PFrameworkInterface {
   public function deleteLibraryDependencies($libraryId);
 
   /**
+   * Start an atomic operation against the dependency storage
+   */
+  public function lockDependencyStorage();
+  
+  /**
+   * Stops an atomic operation against the dependency storage
+   */
+  public function unlockDependencyStorage();
+  
+  
+  /**
    * Delete a library from database and file system
    *
    * @param stdClass $library
@@ -1433,7 +1444,7 @@ Class H5PExport {
       'title' => $content['title'],
       // TODO - stop using 'und', this is not the preferred way.
       // Either remove language from the json if not existing, or use "language": null
-      'language' => isset($content['language']) ? $content['language'] : 'und',
+      'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes,
     );
@@ -1465,7 +1476,7 @@ Class H5PExport {
 
     // Create new zip instance.
     $zip = new ZipArchive();
-    $zip->open($zipPath, ZIPARCHIVE::CREATE);
+    $zip->open($zipPath, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
 
     // Get all files and folders in $tempPath
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tempPath . DIRECTORY_SEPARATOR));
@@ -1526,7 +1537,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 4
+    'minorVersion' => 3
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -2188,7 +2199,7 @@ class H5PCore {
     $platformInfo['uuid'] = $this->h5pF->getOption('h5p_site_uuid', '');
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
-    $json = $this->h5pF->fetchExternalData('http://h5p.lvh.me/h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
+    $json = $this->h5pF->fetchExternalData('http://h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
     if ($json !== NULL) {
       $json = json_decode($json);
       if (isset($json->libraries)) {
@@ -2320,7 +2331,7 @@ class H5PContentValidator {
    */
   public function validateContentFiles($contentPath, $isLibrary = FALSE) {
     if ($this->h5pC->disableFileCheck === TRUE) {
-      return TRUE; 
+      return TRUE;
     }
 
     // Scan content directory for files, recurse into sub directories.
