@@ -106,26 +106,43 @@ H5P.EventDispatcher = (function () {
     };
 
     /**
+     * Creates a copy of the arguments list. Skips the given number of arguments.
+     *
+     * @private
+     * @param {Array} args List of arguments
+     * @param {Number} skip Number of arguments to skip
+     * @param {Array} Copy og arguments list
+     */
+    var getArgs = function (args, skip) {
+      var left = [];
+      for (var i = skip; i < args.length; i++) {
+        left.push(args[i]);
+      }
+      return left;
+    };
+
+    /**
      * Dispatch event.
      *
      * @public
      * @param {String} type Event type
      * @param {...*} args
      */
-    self.trigger = function (type, args) {
+    self.trigger = function (type) {
+      if (self.debug !== undefined) {
+        // Class has debug enabled. Log events.
+        console.log(self.debug + ' - Firing event "' + type + '", ' + (events[type] === undefined ? 0 : events[type].length) + ' listeners.', getArgs(arguments, 1));
+      }
+
       if (events[type] === undefined) {
         return;
       }
 
       // Copy all arguments except the first
-      args = [];
-      var i;
-      for (i = 1; i < arguments.length; i++) {
-        args.push(arguments[i]);
-      }
+      var args = getArgs(arguments, 1);
 
       // Call all listeners
-      for (i = 0; i < events[type].length; i++) {
+      for (var i = 0; i < events[type].length; i++) {
         events[type][i].apply(self, args);
       }
     };
