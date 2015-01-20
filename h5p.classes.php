@@ -412,13 +412,13 @@ interface H5PFrameworkInterface {
    * Start an atomic operation against the dependency storage
    */
   public function lockDependencyStorage();
-  
+
   /**
    * Stops an atomic operation against the dependency storage
    */
   public function unlockDependencyStorage();
-  
-  
+
+
   /**
    * Delete a library from database and file system
    *
@@ -2574,6 +2574,9 @@ class H5PContentValidator {
         $found = FALSE;
         foreach ($semantics->fields as $field) {
           if ($field->name == $key) {
+            if (isset($semantics->optional) && $semantics->optional) {
+              $field->optional = TRUE;
+            }
             $function = $this->typeMap[$field->type];
             $found = TRUE;
             break;
@@ -2598,11 +2601,13 @@ class H5PContentValidator {
         }
       }
     }
-    foreach ($semantics->fields as $field) {
-      if (!(isset($field->optional) && $field->optional)) {
-        // Check if field is in group.
-        if (! property_exists($group, $field->name)) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('No value given for mandatory field ' . $field->name));
+    if (!(isset($semantics->optional) && $semantics->optional)) {
+      foreach ($semantics->fields as $field) {
+        if (!(isset($field->optional) && $field->optional)) {
+          // Check if field is in group.
+          if (! property_exists($group, $field->name)) {
+            $this->h5pF->setErrorMessage($this->h5pF->t('No value given for mandatory field ' . $field->name));
+          }
         }
       }
     }
