@@ -1547,6 +1547,8 @@ class H5PCore {
   public static $scripts = array(
     'js/jquery.js',
     'js/h5p.js',
+    'js/event-dispatcher.js',
+    'js/x-api.js',
   );
   public static $adminScripts = array(
     'js/jquery.js',

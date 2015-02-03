@@ -177,35 +177,6 @@ H5P.init = function () {
  * 8. Add xAPI events to interactive video
  */
 
-H5P.xAPIListener = function(event) {
-  if ('verb' in event.statement) {
-    if (event.statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
-      var score = event.statement.result.score.raw;
-      var maxScore = event.statement.result.score.max;
-      var contentId = event.statement.object.contentId;
-      H5P.setFinished(contentId, score, maxScore);
-    }
-  }
-};
-
-H5P.xAPIEmitter = function (event) {
-  if (event.statement !== undefined) {
-    for (var i = 0; i < H5P.xAPIListeners.length; i++) {
-      H5P.xAPIListeners[i](event.statement);
-    }
-  }
-};
-
-H5P.xAPIListeners = [];
-
-H5P.onXAPI = function(listener) {
-  H5P.xAPIListeners.push(listener);
-};
-
-H5P.onXAPI(function(statement) {
-  console.log(statement);
-});
-
 /**
  * Enable full screen for the given h5p.
  *
@@ -463,148 +434,6 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   }
   return instance;
 };
-
-H5P.EventEnabled = function() {
-  this.listeners = {};
-};
-
-H5P.EventEnabled.prototype.on = function(type, listener) {
-  if (typeof listener === 'function') {
-    if (this.listeners[type] === undefined) {
-      this.listeners[type] = [];
-    }
-    this.listeners[type].push(listener);
-  }
-};
-
-H5P.EventEnabled.prototype.off = function (type, listener) {
-  if (this.listeners[type] !== undefined) {
-    var removeIndex = listeners[type].indexOf(listener);
-    if (removeIndex) {
-      listeners[type].splice(removeIndex, 1);
-    }
-  }
-};
-
-H5P.EventEnabled.prototype.trigger = function (type, event) {
-  if (event === null) {
-    event = new H5P.Event();
-  }
-  if (this.listeners[type] !== undefined) {
-    for (var i = 0; i < this.listeners[type].length; i++) {
-      this.listeners[type][i](event);
-    }
-  }
-};
-
-H5P.Event = function() {
-  // We're going to add bubbling, propagation and other features here later
-};
-
-H5P.XAPIEvent = function() {
-  H5P.Event.call(this);
-  this.statement = {};
-};
-
-H5P.XAPIEvent.prototype = Object.create(H5P.Event.prototype);
-H5P.XAPIEvent.prototype.constructor = H5P.XAPIEvent;
-
-H5P.XAPIEvent.prototype.setScoredResult = function(score, maxScore) {
-  this.statement.result = {
-    'score': {
-      'min': 0,
-      'max': maxScore,
-      'raw': score
-    }
-  };
-};
-
-H5P.XAPIEvent.prototype.setVerb = function(verb) {
-  if (H5P.jQuery.inArray(verb, H5P.XAPIEvent.allowedXAPIVerbs) !== -1) {
-    this.statement.verb = {
-      'id': 'http://adlnet.gov/expapi/verbs/' + verb,
-      'display': {
-        'en-US': verb
-      }
-    };
-  }
-  else {
-  console.log('illegal verb');
-  }
-  // Else: Fail silently...
-};
-
-H5P.XAPIEvent.prototype.setObject = function(instance) {
-  this.statement.object = {
-    // TODO: Correct this. contentId might be vid
-    'id': window.location.origin + Drupal.settings.basePath + 'node/' + instance.contentId,
-    //'contentId': instance.contentId,
-    'objectType': 'Activity'
-  };
-};
-
-H5P.XAPIEvent.prototype.setActor = function() {
-  this.statement.actor = H5P.getActor();
-};
-
-H5P.EventEnabled.prototype.triggerXAPI = function(verb, extra) {
-  var event = this.createXAPIEventTemplate(verb, extra);
-  this.trigger('xAPI', event);
-};
-
-H5P.EventEnabled.prototype.createXAPIEventTemplate = function(verb, extra) {
-  var event = new H5P.XAPIEvent();
-
-  event.setActor();
-  event.setVerb(verb);
-  if (extra !== undefined) {
-    for (var i in extra) {
-      event.statement[i] = extra[i];
-    }
-  }
-  if (!('object' in event)) {
-    event.setObject(this);
-  }
-  return event;
-};
-
-
-H5P.getActor = function() {
-  var user = H5PIntegration.getUser();
-  return {
-    'name': user.name,
-    'mbox': 'mailto:' + user.mail,
-    'objectType': 'Agent'
-  };
-};
-
-H5P.XAPIEvent.allowedXAPIVerbs = [
-  'answered',
-  'asked',
-  'attempted',
-  'attended',
-  'commented',
-  'completed',
-  'exited',
-  'experienced',
-  'failed',
-  'imported',
-  'initialized',
-  'interacted',
-  'launched',
-  'mastered',
-  'passed',
-  'preferred',
-  'progressed',
-  'registered',
-  'responded',
-  'resumed',
-  'scored',
-  'shared',
-  'suspended',
-  'terminated',
-  'voided'
-];
 
 /**
  * Used to print useful error messages.
@@ -1258,7 +1087,7 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     var toUnix = function (date) {
       return Math.round(date.getTime() / 1000);
     };
-
+    
     // Post the results
     // TODO: Should we use a variable with the complete path?
     H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {
