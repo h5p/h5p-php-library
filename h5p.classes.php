@@ -412,13 +412,13 @@ interface H5PFrameworkInterface {
    * Start an atomic operation against the dependency storage
    */
   public function lockDependencyStorage();
-  
+
   /**
    * Stops an atomic operation against the dependency storage
    */
   public function unlockDependencyStorage();
-  
-  
+
+
   /**
    * Delete a library from database and file system
    *
@@ -1275,7 +1275,8 @@ class H5PStorage {
       }
       $destination_path = $libraries_path . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
       H5PCore::deleteFileTree($destination_path);
-      rename($library['uploadDirectory'], $destination_path);
+      $this->h5pC->copyFileTree($library['uploadDirectory'], $destination_path);
+      H5PCore::deleteFileTree($library['uploadDirectory']);
 
       $library_saved = TRUE;
     }
@@ -1326,7 +1327,8 @@ class H5PStorage {
 
       // Move the content folder
       $destination_path = $contents_path . DIRECTORY_SEPARATOR . $contentId;
-      @rename($current_path, $destination_path);
+      $this->h5pC->copyFileTree($current_path, $destination_path);
+      H5PCore::deleteFileTree($current_path);
 
       // Save the content library dependencies
       $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
