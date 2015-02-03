@@ -412,13 +412,13 @@ interface H5PFrameworkInterface {
    * Start an atomic operation against the dependency storage
    */
   public function lockDependencyStorage();
-  
+
   /**
    * Stops an atomic operation against the dependency storage
    */
   public function unlockDependencyStorage();
-  
-  
+
+
   /**
    * Delete a library from database and file system
    *
@@ -1275,7 +1275,8 @@ class H5PStorage {
       }
       $destination_path = $libraries_path . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
       H5PCore::deleteFileTree($destination_path);
-      rename($library['uploadDirectory'], $destination_path);
+      $this->h5pC->copyFileTree($library['uploadDirectory'], $destination_path);
+      H5PCore::deleteFileTree($library['uploadDirectory']);
 
       $library_saved = TRUE;
     }
@@ -1305,8 +1306,8 @@ class H5PStorage {
 
       // Find out which libraries are used by this package/content
       $librariesInUse = array();
-      $this->h5pC->findLibraryDependencies($librariesInUse, $this->h5pC->mainJsonData);
-
+      $nextWeight = $this->h5pC->findLibraryDependencies($librariesInUse, $this->h5pC->mainJsonData);
+      
       // Save content
       if ($content === NULL) {
         $content = array();
@@ -1326,7 +1327,8 @@ class H5PStorage {
 
       // Move the content folder
       $destination_path = $contents_path . DIRECTORY_SEPARATOR . $contentId;
-      @rename($current_path, $destination_path);
+      $this->h5pC->copyFileTree($current_path, $destination_path);
+      H5PCore::deleteFileTree($current_path);
 
       // Save the content library dependencies
       $this->h5pF->saveLibraryUsage($contentId, $librariesInUse);
@@ -1836,9 +1838,12 @@ class H5PCore {
    *
    * @param array $librariesUsed Flat list of all dependencies.
    * @param array $library To find all dependencies for.
-   * @param bool $editor Used interally to force all preloaded sub dependencies of an editor dependecy to be editor dependencies.
+   * @param int $nextWeight An integer determining the order of the libraries
+   *  when they are loaded
+   * @param bool $editor Used interally to force all preloaded sub dependencies 
+   *  of an editor dependecy to be editor dependencies.
    */
-  public function findLibraryDependencies(&$dependencies, $library, $editor = FALSE) {
+  public function findLibraryDependencies(&$dependencies, $library, $nextWeight = 1, $editor = FALSE) {
     foreach (array('dynamic', 'preloaded', 'editor') as $type) {
       $property = $type . 'Dependencies';
       if (!isset($library[$property])) {
@@ -1862,7 +1867,8 @@ class H5PCore {
             'library' => $dependencyLibrary,
             'type' => $type
           );
-          $this->findLibraryDependencies($dependencies, $dependencyLibrary, $type === 'editor');
+          $nextWeight = $this->findLibraryDependencies($dependencies, $dependencyLibrary, $nextWeight, $type === 'editor');
+          $dependencies[$dependencyKey]['weight'] = $nextWeight++;
         }
         else {
           // This site is missing a dependency!
@@ -1870,6 +1876,7 @@ class H5PCore {
         }
       }
     }
+    return $nextWeight;
   }
 
   /**
@@ -2220,8 +2227,7 @@ class H5PCore {
 class H5PContentValidator {
   public $h5pF;
   public $h5pC;
-  private $typeMap;
-  private $libraries, $dependencies;
+  private $typeMap, $libraries, $dependencies, $nextWeight;
 
   /**
    * Constructor for the H5PContentValidator
@@ -2247,6 +2253,7 @@ class H5PContentValidator {
       'select' => 'validateSelect',
       'library' => 'validateLibrary',
     );
+    $this->nextWeight = 1;
 
     // Keep track of the libraries we load to avoid loading it multiple times.
     $this->libraries = array();
@@ -2634,7 +2641,8 @@ class H5PContentValidator {
           'type' => 'preloaded'
         );
 
-        $this->h5pC->findLibraryDependencies($this->dependencies, $library);
+        $this->nextWeight = $this->h5pC->findLibraryDependencies($this->dependencies, $library, $this->nextWeight);
+        $this->dependencies[$depkey]['weight'] = $this->nextWeight++;
       }
     }
     else {
