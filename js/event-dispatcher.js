@@ -133,7 +133,6 @@ H5P.EventDispatcher = (function () {
      * @param {...*} args
      */
     self.trigger = function (type, event) {
-      console.log('triggering');
       if (self.debug !== undefined) {
         // Class has debug enabled. Log events.
         console.log(self.debug + ' - Firing event "' + type + '", ' + (triggers[type] === undefined ? 0 : triggers[type].length) + ' listeners.', getArgs(arguments, 1));
@@ -142,7 +141,6 @@ H5P.EventDispatcher = (function () {
       if (event === null) {
         event = new H5P.Event();
       }
-      console.log(triggers);
       if (triggers[type] === undefined) {
         return;
       }
@@ -152,7 +150,6 @@ H5P.EventDispatcher = (function () {
       
 
       // Call all listeners
-      console.log(triggers);
       for (var i = 0; i < triggers[type].length; i++) {
         triggers[type][i].apply(self, args);
       }

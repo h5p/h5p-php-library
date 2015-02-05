@@ -77,6 +77,53 @@ H5P.XAPIEvent.prototype.setActor = function() {
   this.statement.actor = H5P.getActor();
 };
 
+H5P.XAPIEvent.prototype.getMaxScore = function() {
+  return this.getVerifiedStatementValue(['result', 'score', 'max']);
+};
+
+H5P.XAPIEvent.prototype.getScore = function() {
+  return this.getVerifiedStatementValue(['result', 'score', 'raw']);
+};
+
+H5P.XAPIEvent.prototype.getVerifiedStatementValue = function(keys) {
+  var val = this.statement;
+  for (var i in keys) {
+    if (val[keys[i]] === undefined) {
+      return null;
+    }
+    val = val[keys[i]];
+  }
+  return val;
+}
+
+H5P.XAPIEvent.allowedXAPIVerbs = [
+  'answered',
+  'asked',
+  'attempted',
+  'attended',
+  'commented',
+  'completed',
+  'exited',
+  'experienced',
+  'failed',
+  'imported',
+  'initialized',
+  'interacted',
+  'launched',
+  'mastered',
+  'passed',
+  'preferred',
+  'progressed',
+  'registered',
+  'responded',
+  'resumed',
+  'scored',
+  'shared',
+  'suspended',
+  'terminated',
+  'voided'
+];
+
 H5P.EventDispatcher.prototype.triggerXAPI = function(verb, extra) {
   var event = this.createXAPIEventTemplate(verb, extra);
   this.trigger('xAPI', event);
@@ -112,31 +159,3 @@ H5P.getActor = function() {
     'objectType': 'Agent'
   };
 };
-
-H5P.XAPIEvent.allowedXAPIVerbs = [
-  'answered',
-  'asked',
-  'attempted',
-  'attended',
-  'commented',
-  'completed',
-  'exited',
-  'experienced',
-  'failed',
-  'imported',
-  'initialized',
-  'interacted',
-  'launched',
-  'mastered',
-  'passed',
-  'preferred',
-  'progressed',
-  'registered',
-  'responded',
-  'resumed',
-  'scored',
-  'shared',
-  'suspended',
-  'terminated',
-  'voided'
-];
