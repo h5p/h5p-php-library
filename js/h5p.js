@@ -327,6 +327,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     // Do not rely on window resize events.
     instance.$.trigger('resize');
     instance.$.trigger('focus');
+    instance.$.trigger('enterFullScreen');
   };
 
   /**
@@ -347,6 +348,8 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     if (exitCallback !== undefined) {
       exitCallback();
     }
+
+    instance.$.trigger('exitFullScreen');
   };
 
   H5P.isFullscreen = true;
