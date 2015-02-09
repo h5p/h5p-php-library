@@ -84,41 +84,41 @@
     }
   };
 
-  /**
-   * Enter semi full screen.
-   * Expands the iframe so that it covers the whole page.
-   *
-   * @private
-   * @param {Object} iframe Element
-   * @param {Object} data Payload
-   * @param {Function} respond Send a response to the iframe
-   */
-  actionHandlers.fullScreen = function (iframe, data, respond) {
-    iframe.style.position = 'fixed';
-    iframe.style.top = iframe.style.left = 0;
-    iframe.style.zIndex = 101;
-    iframe.style.width = iframe.style.height = '100%';
-    document.body.addEventListener('keyup', escape, false);
-    respond('fullScreen');
-  };
-
-  /**
-   * Exit semi full screen.
-   *
-   * @private
-   * @param {Object} iframe Element
-   * @param {Object} data Payload
-   * @param {Function} respond Send a response to the iframe
-   */
-  actionHandlers.exitFullScreen = function (iframe, data, respond) {
-    iframe.style.position = '';
-    iframe.style.top = iframe.style.left = '';
-    iframe.style.zIndex = '';
-    iframe.style.width = '100%';
-    iframe.style.height = '';
-    document.body.removeEventListener('keyup', escape, false);
-    respond('exitFullScreen');
-  };
+  // /**
+  //  * Enter semi full screen.
+  //  * Expands the iframe so that it covers the whole page.
+  //  *
+  //  * @private
+  //  * @param {Object} iframe Element
+  //  * @param {Object} data Payload
+  //  * @param {Function} respond Send a response to the iframe
+  //  */
+  // actionHandlers.fullScreen = function (iframe, data, respond) {
+  //   iframe.style.position = 'fixed';
+  //   iframe.style.top = iframe.style.left = 0;
+  //   iframe.style.zIndex = 101;
+  //   iframe.style.width = iframe.style.height = '100%';
+  //   document.body.addEventListener('keyup', escape, false);
+  //   respond('fullScreen');
+  // };
+  //
+  // /**
+  //  * Exit semi full screen.
+  //  *
+  //  * @private
+  //  * @param {Object} iframe Element
+  //  * @param {Object} data Payload
+  //  * @param {Function} respond Send a response to the iframe
+  //  */
+  // actionHandlers.exitFullScreen = function (iframe, data, respond) {
+  //   iframe.style.position = '';
+  //   iframe.style.top = iframe.style.left = '';
+  //   iframe.style.zIndex = '';
+  //   iframe.style.width = '100%';
+  //   iframe.style.height = '';
+  //   document.body.removeEventListener('keyup', escape, false);
+  //   respond('exitFullScreen');
+  // };
 
 
   // Listen for messages from iframes
