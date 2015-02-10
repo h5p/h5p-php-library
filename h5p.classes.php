@@ -2232,7 +2232,7 @@ class H5PCore {
         }
       }
       if($platformInfo['uuid'] === '' && isset($json->uuid)) {
-        $this->h5pF->setOption('h5p_site_uuid', $json->uuid);
+        $this->h5pF->setOption('site_uuid', $json->uuid);
       }
     }
   }
