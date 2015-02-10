@@ -1307,7 +1307,7 @@ class H5PStorage {
       // Find out which libraries are used by this package/content
       $librariesInUse = array();
       $nextWeight = $this->h5pC->findLibraryDependencies($librariesInUse, $this->h5pC->mainJsonData);
-      
+
       // Save content
       if ($content === NULL) {
         $content = array();
@@ -1561,6 +1561,22 @@ class H5PCore {
   const SECONDS_IN_WEEK = 604800;
 
   private $exportEnabled;
+
+  // Disable flags
+  const DISABLE_NONE = 0;
+  const DISABLE_FRAME = 1;
+  const DISABLE_DOWNLOAD = 2;
+  const DISABLE_EMBED = 4;
+  const DISABLE_COPYRIGHT = 8;
+  const DISABLE_ABOUT = 16;
+
+  // Map flags to string
+  public static $disable = array(
+    self::DISABLE_FRAME => 'frame',
+    self::DISABLE_DOWNLOAD => 'download',
+    self::DISABLE_EMBED => 'embed',
+    self::DISABLE_COPYRIGHT => 'copyright'
+  );
 
   /**
    * Constructor for the H5PCore
@@ -1841,7 +1857,7 @@ class H5PCore {
    * @param array $library To find all dependencies for.
    * @param int $nextWeight An integer determining the order of the libraries
    *  when they are loaded
-   * @param bool $editor Used interally to force all preloaded sub dependencies 
+   * @param bool $editor Used interally to force all preloaded sub dependencies
    *  of an editor dependecy to be editor dependencies.
    */
   public function findLibraryDependencies(&$dependencies, $library, $nextWeight = 1, $editor = FALSE) {
@@ -2219,6 +2235,54 @@ class H5PCore {
         $this->h5pF->setOption('h5p_site_uuid', $json->uuid);
       }
     }
+  }
+
+  public function getGlobalDisable() {
+    $disable = self::DISABLE_NONE;
+
+    // Allow global settings to override and disable options
+    if (!$this->h5pF->getOption('frame', TRUE)) {
+      $disable |= self::DISABLE_FRAME;
+    }
+    else {
+      if (!$this->h5pF->getOption('export', TRUE)) {
+        $disable |= self::DISABLE_DOWNLOAD;
+      }
+      if (!$this->h5pF->getOption('embed', TRUE)) {
+        $disable |= self::DISABLE_EMBED;
+      }
+      if (!$this->h5pF->getOption('copyright', TRUE)) {
+        $disable |= self::DISABLE_COPYRIGHT;
+      }
+      if (!$this->h5pF->getOption('icon', TRUE)) {
+        $disable |= self::DISABLE_ABOUT;
+      }
+    }
+
+    return $disable;
+  }
+
+  /**
+   * Determine disable state from sources.
+   *
+   * @param array $sources
+   * @return int
+   */
+  public static function getDisable(&$sources) {
+    $disable = H5PCore::DISABLE_NONE;
+    if (!$sources['frame']) {
+      $disable |= H5PCore::DISABLE_FRAME;
+    }
+    if (!$sources['download']) {
+      $disable |= H5PCore::DISABLE_DOWNLOAD;
+    }
+    if (!$sources['copyright']) {
+      $disable |= H5PCore::DISABLE_COPYRIGHT;
+    }
+    if (!$sources['embed']) {
+      $disable |= H5PCore::DISABLE_EMBED;
+    }
+    return $disable;
   }
 }
 
