@@ -1,8 +1,9 @@
 /** @namespace H5P */
 var H5P = H5P || {};
 
-H5P.Event = function() {
-  // We're going to add bubbling, propagation and other features here later
+H5P.Event = function(type, data) {
+  this.type = type;
+  this.data = data;
 };
 
 H5P.EventDispatcher = (function () {
@@ -110,48 +111,28 @@ H5P.EventDispatcher = (function () {
     };
 
     /**
-     * Creates a copy of the arguments list. Skips the given number of arguments.
-     *
-     * @private
-     * @param {Array} args List of arguments
-     * @param {Number} skip Number of arguments to skip
-     * @param {Array} Copy og arguments list
-     */
-    var getArgs = function (args, skip, event) {
-      var left = [event];
-      for (var i = skip; i < args.length; i++) {
-        left.push(args[i]);
-      }
-      return left;
-    };
-
-    /**
      * Dispatch event.
      *
      * @public
-     * @param {String} type Event type
-     * @param {...*} args
+     * @param {String|Function}
+     *  
      */
-    self.trigger = function (type, event) {
-      if (self.debug !== undefined) {
-        // Class has debug enabled. Log events.
-        console.log(self.debug + ' - Firing event "' + type + '", ' + (triggers[type] === undefined ? 0 : triggers[type].length) + ' listeners.', getArgs(arguments, 1));
-      }
-      
-      if (event === null) {
-        event = new H5P.Event();
-      }
-      if (triggers[type] === undefined) {
+    self.trigger = function (event, eventData) {
+      if (event === undefined) {
         return;
       }
-
-      // Copy all arguments except the first two
-      var args = getArgs(arguments, 2, event);
-      
-
+      if (typeof event === 'string') {
+        event = new H5P.Event(event, eventData);
+      }
+      else if (eventData !== undefined) {
+        event.data = eventData;
+      }
+      if (triggers[event.type] === undefined) {
+        return;
+      }
       // Call all listeners
-      for (var i = 0; i < triggers[type].length; i++) {
-        triggers[type][i].apply(self, args);
+      for (var i = 0; i < triggers[event.type].length; i++) {
+        triggers[event.type][i].call(self, event);
       }
     };
   }

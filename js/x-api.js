@@ -1,20 +1,21 @@
 var H5P = H5P || {};
 
 H5P.xAPIListener = function(event) {
-  if ('verb' in event.statement) {
-    if (event.statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
-      var score = event.statement.result.score.raw;
-      var maxScore = event.statement.result.score.max;
-      var contentId = event.statement.object.extensions['http://h5p.org/x-api/h5p-local-content-id'];
+  var statement = event.data.statement;
+  if ('verb' in statement) {
+    if (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
+      var score = statement.result.score.raw;
+      var maxScore = statement.result.score.max;
+      var contentId = statement.object.extensions['http://h5p.org/x-api/h5p-local-content-id'];
       H5P.setFinished(contentId, score, maxScore);
     }
   }
 };
 
 H5P.xAPIEmitter = function (event) {
-  if (event.statement !== undefined) {
+  if (event.data.statement !== undefined) {
     for (var i = 0; i < H5P.xAPIListeners.length; i++) {
-      H5P.xAPIListeners[i](event.statement);
+      H5P.xAPIListeners[i](event.data.statement);
     }
   }
 };
@@ -30,15 +31,14 @@ H5P.onXAPI(function(statement) {
 });
 
 H5P.XAPIEvent = function() {
-  H5P.Event.call(this);
-  this.statement = {};
+  H5P.Event.call(this, 'xAPI', {'statement': {}});
 };
 
 H5P.XAPIEvent.prototype = Object.create(H5P.Event.prototype);
 H5P.XAPIEvent.prototype.constructor = H5P.XAPIEvent;
 
 H5P.XAPIEvent.prototype.setScoredResult = function(score, maxScore) {
-  this.statement.result = {
+  this.data.statement.result = {
     'score': {
       'min': 0,
       'max': maxScore,
@@ -49,7 +49,7 @@ H5P.XAPIEvent.prototype.setScoredResult = function(score, maxScore) {
 
 H5P.XAPIEvent.prototype.setVerb = function(verb) {
   if (H5P.jQuery.inArray(verb, H5P.XAPIEvent.allowedXAPIVerbs) !== -1) {
-    this.statement.verb = {
+    this.data.statement.verb = {
       'id': 'http://adlnet.gov/expapi/verbs/' + verb,
       'display': {
         'en-US': verb
@@ -63,7 +63,7 @@ H5P.XAPIEvent.prototype.setVerb = function(verb) {
 };
 
 H5P.XAPIEvent.prototype.setObject = function(instance) {
-  this.statement.object = {
+  this.data.statement.object = {
     // TODO: Correct this. contentId might be vid
     'id': window.location.origin + Drupal.settings.basePath + 'node/' + instance.contentId,
     'objectType': 'Activity',
@@ -74,7 +74,7 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
 };
 
 H5P.XAPIEvent.prototype.setActor = function() {
-  this.statement.actor = H5P.getActor();
+  this.data.statement.actor = H5P.getActor();
 };
 
 H5P.XAPIEvent.prototype.getMaxScore = function() {
@@ -86,7 +86,7 @@ H5P.XAPIEvent.prototype.getScore = function() {
 };
 
 H5P.XAPIEvent.prototype.getVerifiedStatementValue = function(keys) {
-  var val = this.statement;
+  var val = this.data.statement;
   for (var i in keys) {
     if (val[keys[i]] === undefined) {
       return null;
@@ -125,8 +125,7 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
 ];
 
 H5P.EventDispatcher.prototype.triggerXAPI = function(verb, extra) {
-  var event = this.createXAPIEventTemplate(verb, extra);
-  this.trigger('xAPI', event);
+  this.trigger(this.createXAPIEventTemplate(verb, extra));
 };
 
 H5P.EventDispatcher.prototype.createXAPIEventTemplate = function(verb, extra) {
@@ -136,7 +135,7 @@ H5P.EventDispatcher.prototype.createXAPIEventTemplate = function(verb, extra) {
   event.setVerb(verb);
   if (extra !== undefined) {
     for (var i in extra) {
-      event.statement[i] = extra[i];
+      event.data.statement[i] = extra[i];
     }
   }
   if (!('object' in event)) {
@@ -148,7 +147,7 @@ H5P.EventDispatcher.prototype.createXAPIEventTemplate = function(verb, extra) {
 H5P.EventDispatcher.prototype.triggerXAPICompleted = function(score, maxScore) {
   var event = this.createXAPIEventTemplate('completed');
   event.setScoredResult(score, maxScore);
-  this.trigger('xAPI', event);
+  this.trigger(event);
 }
 
 H5P.getActor = function() {
