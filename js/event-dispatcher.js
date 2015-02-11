@@ -31,21 +31,24 @@ H5P.EventDispatcher = (function () {
      * @param {String} type Event type
      * @param {Function} listener Event listener
      */
-    self.on = function (type, listener) {
+    self.on = function (type, listener, scope) {
+      if (scope === undefined) {
+        scope = self;
+      }
       if (!(listener instanceof Function)) {
         throw TypeError('listener must be a function');
       }
 
       // Trigger event before adding to avoid recursion
-      self.trigger('newListener', type, listener);
+      self.trigger('newListener', {'type': type, 'listener': listener});
 
       if (!triggers[type]) {
         // First
-        triggers[type] = [listener];
+        triggers[type] = [{'listener': listener, 'scope': scope}];
       }
       else {
         // Append
-        triggers[type].push(listener);
+        triggers[type].push({'listener': listener, 'scope': scope});
       }
     };
 
@@ -57,17 +60,20 @@ H5P.EventDispatcher = (function () {
      * @param {String} type Event type
      * @param {Function} listener Event listener
      */
-    self.once = function (type, listener) {
+    self.once = function (type, listener, scope) {
+      if (scope === undefined) {
+        scope = self;
+      }
       if (!(listener instanceof Function)) {
         throw TypeError('listener must be a function');
       }
 
-      var once = function () {
-        self.off(type, once);
-        listener.apply(self, arguments);
+      var once = function (event) {
+        self.off(event, once);
+        listener.apply(scope, event);
       };
 
-      self.on(type, once);
+      self.on(type, once, scope);
     };
 
     /**
@@ -97,9 +103,9 @@ H5P.EventDispatcher = (function () {
 
       // Find specific listener
       for (var i = 0; i < triggers[type].length; i++) {
-        if (triggers[type][i] === listener) {
+        if (triggers[type][i].listener === listener) {
           triggers[type].unshift(i, 1);
-          self.trigger('removeListener', type, listener);
+          self.trigger('removeListener', type, {'listener': listener});
           break;
         }
       }
@@ -132,7 +138,7 @@ H5P.EventDispatcher = (function () {
       }
       // Call all listeners
       for (var i = 0; i < triggers[event.type].length; i++) {
-        triggers[event.type][i].call(self, event);
+        triggers[event.type][i].listener.call(triggers[event.type][i].scope, event);
       }
     };
   }
