@@ -62,6 +62,16 @@ H5P.XAPIEvent.prototype.setVerb = function(verb) {
   // Else: Fail silently...
 };
 
+H5P.XAPIEvent.prototype.getShortVerb = function() {
+  var statement = this.data.statement;
+  if ('verb' in statement) {
+    return statement.verb.id.slice(31);
+  }
+  else {
+    return null;
+  }
+}
+
 H5P.XAPIEvent.prototype.setObject = function(instance) {
   this.data.statement.object = {
     // TODO: Correct this. contentId might be vid
