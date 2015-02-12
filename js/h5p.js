@@ -88,40 +88,38 @@ H5P.init = function () {
       });
     }
 
-    if (contentData.disable & H5P.DISABLE_FRAME) {
-      $element.addClass('h5p-no-frame');
+    // Create action bar
+    var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
+
+    if (!(contentData.disable & H5P.DISABLE_DOWNLOAD)) {
+      // Add export button
+      H5P.jQuery('<li class="h5p-button h5p-export" role="button" tabindex="1" title="' + H5P.t('downloadDescription') + '">' + H5P.t('download') + '</li>').appendTo($actions).click(function () {
+        window.location.href = contentData.exportUrl;
+      });
+    }
+    if (!(contentData.disable & H5P.DISABLE_COPYRIGHT) && instance.getCopyrights !== undefined) {
+      // Add copyrights button
+      H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
+        H5P.openCopyrightsDialog($actions, instance, library.params, contentId);
+      });
+    }
+    if (!(contentData.disable & H5P.DISABLE_EMBED)) {
+      // Add embed button
+      H5P.jQuery('<li class="h5p-button h5p-embed" role="button" tabindex="1" title="' + H5P.t('embedDescription') + '">' + H5P.t('embed') + '</li>').appendTo($actions).click(function () {
+        H5P.openEmbedDialog($actions, contentData.embedCode);
+      });
+    }
+    if (!(contentData.disable & H5P.DISABLE_ABOUT)) {
+      // Add about H5P button icon
+      H5P.jQuery('<li><a class="h5p-link" href="http://h5p.org" target="_blank" title="' + H5P.t('h5pDescription') + '"></a></li>').appendTo($actions);
+    }
+
+    // Insert action bar if it has any content
+    if ($actions.children().length) {
+      $actions.insertAfter($container);
     }
     else {
-      // Create action bar
-      var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
-
-      if (!(contentData.disable & H5P.DISABLE_DOWNLOAD)) {
-        // Add export button
-        H5P.jQuery('<li class="h5p-button h5p-export" role="button" tabindex="1" title="' + H5P.t('downloadDescription') + '">' + H5P.t('download') + '</li>').appendTo($actions).click(function () {
-          window.location.href = contentData.exportUrl;
-        });
-      }
-      if (!(contentData.disable & H5P.DISABLE_COPYRIGHT) && instance.getCopyrights !== undefined) {
-        // Add copyrights button
-        H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
-          H5P.openCopyrightsDialog($actions, instance, library.params, contentId);
-        });
-      }
-      if (!(contentData.disable & H5P.DISABLE_EMBED)) {
-        // Add embed button
-        H5P.jQuery('<li class="h5p-button h5p-embed" role="button" tabindex="1" title="' + H5P.t('embedDescription') + '">' + H5P.t('embed') + '</li>').appendTo($actions).click(function () {
-          H5P.openEmbedDialog($actions, contentData.embedCode);
-        });
-      }
-      if (!(contentData.disable & H5P.DISABLE_ABOUT)) {
-        // Add about H5P button icon
-        H5P.jQuery('<li><a class="h5p-link" href="http://h5p.org" target="_blank" title="' + H5P.t('h5pDescription') + '"></a></li>').appendTo($actions);
-      }
-
-      // Insert action bar if it has any content
-      if ($actions.children().length) {
-        $actions.insertAfter($container);
-      }
+      $element.addClass('h5p-no-frame');
     }
 
     // Keep track of when we started
