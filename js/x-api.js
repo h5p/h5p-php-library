@@ -62,9 +62,12 @@ H5P.XAPIEvent.prototype.setVerb = function(verb) {
   // Else: Fail silently...
 };
 
-H5P.XAPIEvent.prototype.getShortVerb = function() {
+H5P.XAPIEvent.prototype.getVerb = function(full) {
   var statement = this.data.statement;
   if ('verb' in statement) {
+    if (full === true) {
+      return statement.verb;
+    }
     return statement.verb.id.slice(31);
   }
   else {
