@@ -14,6 +14,7 @@ interface H5PFrameworkInterface {
    *   - h5pVersion: The version of the H5P plugin/module
    */
   public function getPlatformInfo();
+  
 
   /**
    * Fetches a file from a remote server using HTTP GET
@@ -1589,7 +1590,8 @@ class H5PCore {
   public static $scripts = array(
     'js/jquery.js',
     'js/h5p.js',
-    'js/h5p-event-dispatcher.js',
+    'js/event-dispatcher.js',
+    'js/x-api.js',
   );
   public static $adminScripts = array(
     'js/jquery.js',
@@ -2645,6 +2647,9 @@ class H5PContentValidator {
         $found = FALSE;
         foreach ($semantics->fields as $field) {
           if ($field->name == $key) {
+            if (isset($semantics->optional) && $semantics->optional) {
+              $field->optional = TRUE;
+            }
             $function = $this->typeMap[$field->type];
             $found = TRUE;
             break;
@@ -2669,11 +2674,13 @@ class H5PContentValidator {
         }
       }
     }
-    foreach ($semantics->fields as $field) {
-      if (!(isset($field->optional) && $field->optional)) {
-        // Check if field is in group.
-        if (! property_exists($group, $field->name)) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('No value given for mandatory field ' . $field->name));
+    if (!(isset($semantics->optional) && $semantics->optional)) {
+      foreach ($semantics->fields as $field) {
+        if (!(isset($field->optional) && $field->optional)) {
+          // Check if field is in group.
+          if (! property_exists($group, $field->name)) {
+            $this->h5pF->setErrorMessage($this->h5pF->t('No value given for mandatory field ' . $field->name));
+          }
         }
       }
     }

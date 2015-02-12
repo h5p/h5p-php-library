@@ -1,8 +1,13 @@
 /** @namespace H5P */
 var H5P = H5P || {};
 
-H5P.EventDispatcher = (function () {
+H5P.Event = function(type, data) {
+  this.type = type;
+  this.data = data;
+};
 
+H5P.EventDispatcher = (function () {
+  
   /**
    * The base of the event system.
    * Inherit this class if you want your H5P to dispatch events.
@@ -12,11 +17,11 @@ H5P.EventDispatcher = (function () {
     var self = this;
 
     /**
-     * Keep track of events and listeners for each event.
+     * Keep track of listeners for each event.
      * @private
      * @type {Object}
      */
-    var events = {};
+    var triggers = {};
 
     /**
      * Add new event listener.
@@ -26,21 +31,24 @@ H5P.EventDispatcher = (function () {
      * @param {String} type Event type
      * @param {Function} listener Event listener
      */
-    self.on = function (type, listener) {
+    self.on = function (type, listener, scope) {
+      if (scope === undefined) {
+        scope = self;
+      }
       if (!(listener instanceof Function)) {
         throw TypeError('listener must be a function');
       }
 
       // Trigger event before adding to avoid recursion
-      self.trigger('newListener', type, listener);
+      self.trigger('newListener', {'type': type, 'listener': listener});
 
-      if (!events[type]) {
+      if (!triggers[type]) {
         // First
-        events[type] = [listener];
+        triggers[type] = [{'listener': listener, 'scope': scope}];
       }
       else {
         // Append
-        events[type].push(listener);
+        triggers[type].push({'listener': listener, 'scope': scope});
       }
     };
 
@@ -52,17 +60,20 @@ H5P.EventDispatcher = (function () {
      * @param {String} type Event type
      * @param {Function} listener Event listener
      */
-    self.once = function (type, listener) {
+    self.once = function (type, listener, scope) {
+      if (scope === undefined) {
+        scope = self;
+      }
       if (!(listener instanceof Function)) {
         throw TypeError('listener must be a function');
       }
 
-      var once = function () {
-        self.off(type, once);
-        listener.apply(self, arguments);
+      var once = function (event) {
+        self.off(event, once);
+        listener.apply(scope, event);
       };
 
-      self.on(type, once);
+      self.on(type, once, scope);
     };
 
     /**
@@ -79,71 +90,55 @@ H5P.EventDispatcher = (function () {
         throw TypeError('listener must be a function');
       }
 
-      if (events[type] === undefined) {
+      if (triggers[type] === undefined) {
         return;
       }
 
       if (listener === undefined) {
         // Remove all listeners
-        delete events[type];
+        delete triggers[type];
         self.trigger('removeListener', type);
         return;
       }
 
       // Find specific listener
-      for (var i = 0; i < events[type].length; i++) {
-        if (events[type][i] === listener) {
-          events[type].unshift(i, 1);
-          self.trigger('removeListener', type, listener);
+      for (var i = 0; i < triggers[type].length; i++) {
+        if (triggers[type][i].listener === listener) {
+          triggers[type].unshift(i, 1);
+          self.trigger('removeListener', type, {'listener': listener});
           break;
         }
       }
 
       // Clean up empty arrays
-      if (!events[type].length) {
-        delete events[type];
+      if (!triggers[type].length) {
+        delete triggers[type];
       }
-    };
-
-    /**
-     * Creates a copy of the arguments list. Skips the given number of arguments.
-     *
-     * @private
-     * @param {Array} args List of arguments
-     * @param {Number} skip Number of arguments to skip
-     * @param {Array} Copy og arguments list
-     */
-    var getArgs = function (args, skip) {
-      var left = [];
-      for (var i = skip; i < args.length; i++) {
-        left.push(args[i]);
-      }
-      return left;
     };
 
     /**
      * Dispatch event.
      *
      * @public
-     * @param {String} type Event type
-     * @param {...*} args
+     * @param {String|Function}
+     *  
      */
-    self.trigger = function (type) {
-      if (self.debug !== undefined) {
-        // Class has debug enabled. Log events.
-        console.log(self.debug + ' - Firing event "' + type + '", ' + (events[type] === undefined ? 0 : events[type].length) + ' listeners.', getArgs(arguments, 1));
-      }
-
-      if (events[type] === undefined) {
+    self.trigger = function (event, eventData) {
+      if (event === undefined) {
         return;
       }
-
-      // Copy all arguments except the first
-      var args = getArgs(arguments, 1);
-
+      if (typeof event === 'string') {
+        event = new H5P.Event(event, eventData);
+      }
+      else if (eventData !== undefined) {
+        event.data = eventData;
+      }
+      if (triggers[event.type] === undefined) {
+        return;
+      }
       // Call all listeners
-      for (var i = 0; i < events[type].length; i++) {
-        events[type][i].apply(self, args);
+      for (var i = 0; i < triggers[event.type].length; i++) {
+        triggers[event.type][i].listener.call(triggers[event.type][i].scope, event);
       }
     };
   }
