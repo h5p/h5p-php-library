@@ -1308,7 +1308,7 @@ class H5PStorage {
       // Find out which libraries are used by this package/content
       $librariesInUse = array();
       $nextWeight = $this->h5pC->findLibraryDependencies($librariesInUse, $this->h5pC->mainJsonData);
-      
+
       // Save content
       if ($content === NULL) {
         $content = array();
@@ -1843,7 +1843,7 @@ class H5PCore {
    * @param array $library To find all dependencies for.
    * @param int $nextWeight An integer determining the order of the libraries
    *  when they are loaded
-   * @param bool $editor Used interally to force all preloaded sub dependencies 
+   * @param bool $editor Used interally to force all preloaded sub dependencies
    *  of an editor dependecy to be editor dependencies.
    */
   public function findLibraryDependencies(&$dependencies, $library, $nextWeight = 1, $editor = FALSE) {
@@ -2640,18 +2640,6 @@ class H5PContentValidator {
       $library = $this->h5pC->loadLibrary($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
       $library['semantics'] = $this->h5pC->loadLibrarySemantics($libspec['machineName'], $libspec['majorVersion'], $libspec['minorVersion']);
       $this->libraries[$value->library] = $library;
-
-      // Find all dependencies for this library
-      $depkey = 'preloaded-' . $libspec['machineName'];
-      if (!isset($this->dependencies[$depkey])) {
-        $this->dependencies[$depkey] = array(
-          'library' => $library,
-          'type' => 'preloaded'
-        );
-
-        $this->nextWeight = $this->h5pC->findLibraryDependencies($this->dependencies, $library, $this->nextWeight);
-        $this->dependencies[$depkey]['weight'] = $this->nextWeight++;
-      }
     }
     else {
       $library = $this->libraries[$value->library];
@@ -2666,6 +2654,18 @@ class H5PContentValidator {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes);
     }
     $this->filterParams($value, $validkeys);
+
+    // Find all dependencies for this library
+    $depkey = 'preloaded-' . $library['machineName'];
+    if (!isset($this->dependencies[$depkey])) {
+      $this->dependencies[$depkey] = array(
+        'library' => $library,
+        'type' => 'preloaded'
+      );
+
+      $this->nextWeight = $this->h5pC->findLibraryDependencies($this->dependencies, $library, $this->nextWeight);
+      $this->dependencies[$depkey]['weight'] = $this->nextWeight++;
+    }
   }
 
   /**
