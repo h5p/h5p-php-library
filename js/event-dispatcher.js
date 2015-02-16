@@ -34,7 +34,7 @@ H5P.EventDispatcher = (function () {
      * @throws {TypeError} listener - Must be a function
      * @param {String} type - Event type
      * @param {Function} listener - Event listener
-     * @param {Function} thisArg - Optional thisArg to call the listener from
+     * @param {Function} thisArg - Optionally specify the this value when calling listener.
      */
     self.on = function (type, listener, thisArg) {
       if (thisArg === undefined) {
@@ -61,9 +61,10 @@ H5P.EventDispatcher = (function () {
      * Add new event listener that will be fired only once.
      *
      * @public
-     * @throws {TypeError} listener must be a function
-     * @param {String} type Event type
-     * @param {Function} listener Event listener
+     * @throws {TypeError} listener - must be a function
+     * @param {String} type - Event type
+     * @param {Function} listener - Event listener
+     * @param {Function} thisArg - Optionally specify the this value when calling listener.
      */
     self.once = function (type, listener, thisArg) {
       if (thisArg === undefined) {
@@ -86,9 +87,9 @@ H5P.EventDispatcher = (function () {
      * If no listener is specified, all listeners will be removed.
      *
      * @public
-     * @throws {TypeError} listener must be a function
-     * @param {String} type Event type
-     * @param {Function} [listener] Event listener
+     * @throws {TypeError} listener - must be a function
+     * @param {String} type - Event type
+     * @param {Function} listener - Event listener
      */
     self.off = function (type, listener) {
       if (listener !== undefined && !(listener instanceof Function)) {
@@ -125,8 +126,10 @@ H5P.EventDispatcher = (function () {
      * Dispatch event.
      *
      * @public
-     * @param {String|Function}
-     *  
+     * @param {String|Function} event - Event object or event type as string
+     * @param {mixed} eventData
+     *  Custom event data(used when event type as string is used as first
+     *  argument
      */
     self.trigger = function (event, eventData) {
       if (event === undefined) {
