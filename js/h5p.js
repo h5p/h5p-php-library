@@ -55,6 +55,7 @@ H5P.init = function () {
     }
     var library = {
       library: contentData.library,
+      constructor: contentData.constructor,
       params: JSON.parse(contentData.jsonContent)
     };
 
@@ -165,7 +166,7 @@ H5P.init = function () {
  * 3. Create a separate Drupal module that is able to listen for events from
  * both div and iframe embedded content and send them to analytics (custom for Zavango)
  * 4. Move the event system code to a separate file (public)
- * 5. Make sure the helper functions provides all the relevant data, example values 
+ * 5. Make sure the helper functions provides all the relevant data, example values
  * and time spent (public)
  * 6. Add documentation to the functions (public)
  * 7. Add xAPI events to all the basic questiontype:
@@ -396,6 +397,9 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   var constructor;
   try {
     nameSplit = nameSplit[0].split('.');
+    if (typeof library.constructor === 'string') {
+      nameSplit.push(library.constructor);
+    }
     constructor = window;
     for (var i = 0; i < nameSplit.length; i++) {
       constructor = constructor[nameSplit[i]];
@@ -409,7 +413,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   }
 
   var instance = new constructor(library.params, contentId);
-  
+
   if (instance.$ === undefined) {
     instance.$ = H5P.jQuery(instance);
   }
@@ -442,7 +446,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
  * @returns {undefined}
  */
 H5P.error = function (err) {
-  if (window['console'] !== undefined && console.error !== undefined) {
+  if (window.console !== undefined && console.error !== undefined) {
     console.error(err);
   }
 };
@@ -1087,7 +1091,7 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     var toUnix = function (date) {
       return Math.round(date.getTime() / 1000);
     };
-    
+
     // Post the results
     // TODO: Should we use a variable with the complete path?
     H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {
@@ -1134,9 +1138,9 @@ if (H5P.jQuery) {
 
 /**
  * Trigger an event on an instance
- * 
+ *
  * Helper function that triggers an event if the instance supports event handling
- * 
+ *
  * @param {function} instance
  *  An H5P instance
  * @param {string} eventType
@@ -1155,10 +1159,10 @@ H5P.trigger = function(instance, eventType) {
 
 /**
  * Register an event handler
- * 
+ *
  * Helper function that registers an event handler for an event type if
  * the instance supports event handling
- * 
+ *
  * @param {function} instance
  *  An h5p instance
  * @param {string} eventType

@@ -14,7 +14,7 @@ interface H5PFrameworkInterface {
    *   - h5pVersion: The version of the H5P plugin/module
    */
   public function getPlatformInfo();
-  
+
 
   /**
    * Fetches a file from a remote server using HTTP GET
@@ -223,7 +223,7 @@ interface H5PFrameworkInterface {
    *   - language(optional): associative array containing:
    *     - languageCode: Translation in json format
    */
-  public function saveLibraryData(&$libraryData, $new = TRUE);
+  public function saveLibraryData(&$libraryData, $preloadedJs, $preloadedCss, $dropLibraryCss, $embedTypes);
 
   /**
    * Insert new content.
@@ -610,6 +610,7 @@ class H5PValidator {
       'majorVersion' => '/^[0-9]{1,5}$/',
       'minorVersion' => '/^[0-9]{1,5}$/',
     ),
+    'constructor' => '/^[A-Z][a-zA-Z0-9]{1,126}$/',
   );
 
   /**
@@ -1308,28 +1309,28 @@ class H5PStorage {
       // Find local library identifier
       $libraryId = $this->h5pC->getLibraryId($library, $libString);
 
-      // Assume new library
-      $new = TRUE;
       if ($libraryId) {
         // Found old library
         $library['libraryId'] = $libraryId;
 
-        if ($this->h5pF->isPatchedLibrary($library)) {
-          // This is a newer version than ours. Upgrade!
-          $new = FALSE;
-        }
-        else {
+        if (!$this->h5pF->isPatchedLibrary($library)) {
           $library['saveDependencies'] = FALSE;
           // This is an older version, no need to save.
           continue;
         }
+
+        $oldOnes++;
       }
+      else {
+        $newOnes++;
+      }
+      // This is a new library or a newer version, save it!
 
       // Indicate that the dependencies of this library should be saved.
       $library['saveDependencies'] = TRUE;
 
       // Save library meta data
-      $this->h5pF->saveLibraryData($library, $new);
+      $this->saveLibrary($library);
 
       // Make sure destination dir is free
       $destination_path = $libraries_path . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
@@ -1338,13 +1339,6 @@ class H5PStorage {
       // Move library folder
       $this->h5pC->copyFileTree($library['uploadDirectory'], $destination_path);
       H5PCore::deleteFileTree($library['uploadDirectory']);
-
-      if ($new) {
-        $newOnes++;
-      }
-      else {
-        $oldOnes++;
-      }
     }
 
     // Go through the libraries again to save dependencies.
@@ -1387,6 +1381,54 @@ class H5PStorage {
     if (isset($message)) {
       $this->h5pF->setInfoMessage($message);
     }
+  }
+
+  /**
+   * Write library record to database.
+   *
+   * @param array $library
+   */
+  private function saveLibrary($library) {
+    // Get CSV values to store in rows.
+    $preloadedJs = $this->objectsToCsv($library, 'preloadedJs', 'path');
+    $preloadedCss = $this->objectsToCsv($library, 'preloadedCss', 'path');
+    $dropLibraryCss = $this->objectsToCsv($library, 'dropLibraryCss', 'machineName');
+    $embedTypes = $this->objectsToCsv($library, 'dropLibraryCss');
+    if (!isset($library['semantics'])) {
+      $library['semantics'] = '';
+    }
+    if (!isset($library['fullscreen'])) {
+      $library['fullscreen'] = 0;
+    }
+    if (!isset($library['constructor'])) {
+      $library['constructor'] = '';
+    }
+
+    $this->h5pF->saveLibraryData($library, $preloadedJs, $preloadedCss, $dropLibraryCss, $embedTypes);
+  }
+
+  /**
+   * Converts file list to comma separated values.
+   *
+   * @param array $library
+   * @param string $list identifier
+   * @param string $property (optional) Object property to use as value
+   * @return string
+   */
+  private function objectsToCsv($library, $list, $property = NULL) {
+    $csv = '';
+
+    if (isset($library[$list])) {
+      foreach ($library[$list] as $object) {
+        if ($csv !== '') {
+          $csv .= ', ';
+        }
+
+        $csv .= $property === NULL ? $object : $object[$property];
+      }
+    }
+
+    return $csv;
   }
 
   /**
@@ -1659,6 +1701,7 @@ class H5PCore {
       $content['library'] = array(
         'id' => $content['libraryId'],
         'name' => $content['libraryName'],
+        'constructor' => $content['libraryConstructor'],
         'majorVersion' => $content['libraryMajorVersion'],
         'minorVersion' => $content['libraryMinorVersion'],
         'embedTypes' => $content['libraryEmbedTypes'],
@@ -2709,11 +2752,16 @@ class H5PContentValidator {
       $library = $this->libraries[$value->library];
     }
 
+    if ($library['constructor']) {
+      // Update constructor
+      $value->constructor = $library['constructor'];
+    }
+
     $this->validateGroup($value->params, (object) array(
       'type' => 'group',
       'fields' => $library['semantics'],
     ), FALSE);
-    $validkeys = array('library', 'params');
+    $validkeys = array('library', 'constructor', 'params');
     if (isset($semantics->extraAttributes)) {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes);
     }
