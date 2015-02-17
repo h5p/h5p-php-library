@@ -81,7 +81,7 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
   this.data.statement.object = {
     // TODO: Correct this. contentId might be vid, and this can't be Drupal
     // specific
-    'id': window.location.origin + Drupal.settings.basePath + 'node/' + instance.contentId,
+    'id': H5PIntegration.getContentUrl(instance.contentId),
     'objectType': 'Activity',
     'extensions': {
       'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
