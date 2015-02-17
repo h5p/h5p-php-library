@@ -129,7 +129,7 @@ H5P.init = function () {
     }
 
     H5P.on(instance, 'xAPI', H5P.xAPICompletedListener);
-    H5P.on(instance, 'xAPI', H5P.xAPIExternal.trigger);
+    H5P.on(instance, 'xAPI', H5P.externalDispatcher.trigger);
 
     // Resize everything when window is resized.
     $window.resize(function () {

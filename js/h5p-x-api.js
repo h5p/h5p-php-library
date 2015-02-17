@@ -1,7 +1,7 @@
 var H5P = H5P || {};
 
 // Create object where external code may register and listen for H5P Events
-H5P.xAPIExternal = new H5P.EventDispatcher();
+H5P.externalDispatcher = new H5P.EventDispatcher();
 
 // EventDispatcher extensions
 
