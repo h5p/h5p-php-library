@@ -2670,7 +2670,7 @@ class H5PContentValidator {
         else {
           // If validator is not found, something exists in content that does
           // not have a corresponding semantics field. Remove it.
-          $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: no validator exists for @key', array('@key' => $key)));
+          // $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: no validator exists for @key', array('@key' => $key)));
           unset($group->$key);
         }
       }
@@ -2680,7 +2680,7 @@ class H5PContentValidator {
         if (!(isset($field->optional) && $field->optional)) {
           // Check if field is in group.
           if (! property_exists($group, $field->name)) {
-            $this->h5pF->setErrorMessage($this->h5pF->t('No value given for mandatory field ' . $field->name));
+            //$this->h5pF->setErrorMessage($this->h5pF->t('No value given for mandatory field ' . $field->name));
           }
         }
       }
