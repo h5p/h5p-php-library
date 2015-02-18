@@ -155,28 +155,6 @@ H5P.init = function () {
   });
 };
 
-/*
- * TODO xAPI:
- * 1. Create a xAPI.js file and move xAPI code there (public)
- * 2. Be able to listen for events from both div and iframe embedded content
- * via the same API (this is about adding communication between the iframe and
- * it's parent and make sure that the parent distributes the events from the
- * iframe) (public)
- * 3. Create a separate Drupal module that is able to listen for events from
- * both div and iframe embedded content and send them to analytics (custom for Zavango)
- * 4. Move the event system code to a separate file (public)
- * 5. Make sure the helper functions provides all the relevant data, example values 
- * and time spent (public)
- * 6. Add documentation to the functions (public)
- * 7. Add xAPI events to all the basic questiontype:
- * 7.1 Multichoice
- * 7.2 Fill in the blanks
- * 7.3 Drag and drop
- * 7.4 Drag the words
- * 7.5 Mark the words
- * 8. Add xAPI events to interactive video
- */
-
 /**
  * Enable full screen for the given h5p.
  *
