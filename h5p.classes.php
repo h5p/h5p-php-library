@@ -1988,7 +1988,7 @@ class H5PCore {
 
     @mkdir($destination);
     while (false !== ($file = readdir($dir))) {
-        if (($file != '.') && ($file != '..')) {
+        if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
             if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
               $this->copyFileTree($source . DIRECTORY_SEPARATOR . $file, $destination . DIRECTORY_SEPARATOR . $file);
             }
