@@ -391,6 +391,10 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   if (instance.$ === undefined) {
     instance.$ = H5P.jQuery(instance);
   }
+  
+  if (instance.contentId === undefined) {
+    instance.conentId = contentId;
+  }
 
   // Make xAPI events bubble
 //  if (parent !== null && parent.trigger !== undefined) {
