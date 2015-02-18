@@ -396,16 +396,6 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
     instance.conentId = contentId;
   }
 
-  // Make xAPI events bubble
-//  if (parent !== null && parent.trigger !== undefined) {
-//    instance.on('xAPI', parent.trigger);
-//  }
-
-  // Automatically call resize on resize event if defined
-  if (typeof instance.resize === 'function') {
-    H5P.on(instance, 'resize', instance.resize);
-  }
-
   if ($attachTo !== undefined) {
     instance.attach($attachTo);
 
