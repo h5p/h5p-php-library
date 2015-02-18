@@ -78,15 +78,21 @@ H5P.XAPIEvent.prototype.getVerb = function(full) {
  * @param {object} instance - the H5P instance
  */
 H5P.XAPIEvent.prototype.setObject = function(instance) {
-  this.data.statement.object = {
-    // TODO: Correct this. contentId might be vid, and this can't be Drupal
-    // specific
-    'id': H5PIntegration.getContentUrl(instance.contentId),
-    'objectType': 'Activity',
-    'extensions': {
-      'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
-    }
-  };
+  if (instance.contentId) {
+    this.data.statement.object = {
+      'id': H5PIntegration.getContentUrl(instance.contentId),
+      'objectType': 'Activity',
+      'extensions': {
+        'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
+      }
+    };
+  }
+  else {
+    // Not triggered by an H5P content type...
+    this.data.statement.object = {
+      'objectType': 'Activity'
+    };
+  }
 };
 
 /**
