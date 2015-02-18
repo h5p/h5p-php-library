@@ -393,7 +393,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
   }
   
   if (instance.contentId === undefined) {
-    instance.conentId = contentId;
+    instance.contentId = contentId;
   }
 
   if ($attachTo !== undefined) {
