@@ -40,7 +40,7 @@ H5P.EventDispatcher = (function () {
       if (thisArg === undefined) {
         thisArg = self;
       }
-      if (!(listener instanceof Function)) {
+      if (typeof listener !== 'function') {
         throw TypeError('listener must be a function');
       }
 

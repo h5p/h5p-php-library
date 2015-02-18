@@ -3,6 +3,10 @@ var H5P = H5P || {};
 // Create object where external code may register and listen for H5P Events
 H5P.externalDispatcher = new H5P.EventDispatcher();
 
+if (window.top !== window.self && window.top.H5P !== undefined && window.top.H5P.externalDispatcher !== undefined) {
+  H5P.externalDispatcher.on('xAPI', window.top.H5P.externalDispatcher.trigger);
+}
+
 // EventDispatcher extensions
 
 /**
