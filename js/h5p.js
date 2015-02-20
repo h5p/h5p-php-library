@@ -548,7 +548,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
  * @returns {undefined}
  */
 H5P.error = function (err) {
-  if (window['console'] !== undefined && console.error !== undefined) {
+  if (window.console !== undefined && console.error !== undefined) {
     console.error(err);
   }
 };
@@ -1244,7 +1244,7 @@ H5P.trigger = function(instance, eventType) {
   }
   // Try deprecated event system
   else if (instance.$ !== undefined && instance.$.trigger !== undefined) {
-    instance.$.trigger(eventType)
+    instance.$.trigger(eventType);
   }
 };
 
@@ -1268,6 +1268,6 @@ H5P.on = function(instance, eventType, handler) {
   }
   // Try deprecated event system
   else if (instance.$ !== undefined && instance.$.on !== undefined) {
-    instance.$.on(eventType, handler)
+    instance.$.on(eventType, handler);
   }
 };

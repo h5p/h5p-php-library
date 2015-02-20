@@ -2,7 +2,7 @@ var H5P = H5P || {};
 
 /**
  * Constructor for xAPI events
- * 
+ *
  * @class
  */
 H5P.XAPIEvent = function() {
@@ -14,7 +14,7 @@ H5P.XAPIEvent.prototype.constructor = H5P.XAPIEvent;
 
 /**
  * Helperfunction to set scored result statements
- * 
+ *
  * @param {int} score
  * @param {int} maxScore
  */
@@ -30,7 +30,7 @@ H5P.XAPIEvent.prototype.setScoredResult = function(score, maxScore) {
 
 /**
  * Helperfunction to set a verb.
- * 
+ *
  * @param {string} verb
  *  Verb in short form, one of the verbs defined at
  *  http://adlnet.gov/expapi/verbs/
@@ -45,14 +45,13 @@ H5P.XAPIEvent.prototype.setVerb = function(verb) {
     };
   }
   else {
-  console.log('illegal verb');
+    H5P.error('illegal verb');
   }
-  // Else: Fail silently...
 };
 
 /**
  * Helperfunction to get the statements verb id
- * 
+ *
  * @param {boolean} full
  *  if true the full verb id prefixed by http://adlnet.gov/expapi/verbs/ will be returned
  * @returns {string} - Verb or null if no verb with an id has been defined
@@ -68,13 +67,13 @@ H5P.XAPIEvent.prototype.getVerb = function(full) {
   else {
     return null;
   }
-}
+};
 
 /**
  * Helperfunction to set the object part of the statement.
- * 
+ *
  * The id is found automatically (the url to the content)
- * 
+ *
  * @param {object} instance - the H5P instance
  */
 H5P.XAPIEvent.prototype.setObject = function(instance) {
@@ -109,7 +108,7 @@ H5P.XAPIEvent.prototype.setActor = function() {
 
 /**
  * Get the max value of the result - score part of the statement
- * 
+ *
  * @returns {int} the max score, or null if not defined
  */
 H5P.XAPIEvent.prototype.getMaxScore = function() {
@@ -118,7 +117,7 @@ H5P.XAPIEvent.prototype.getMaxScore = function() {
 
 /**
  * Get the raw value of the result - score part of the statement
- * 
+ *
  * @returns {int} the max score, or null if not defined
  */
 H5P.XAPIEvent.prototype.getScore = function() {
@@ -127,7 +126,7 @@ H5P.XAPIEvent.prototype.getScore = function() {
 
 /**
  * Figure out if a property exists in the statement and return it
- * 
+ *
  * @param {array} keys
  *  List describing the property we're looking for. For instance
  *  ['result', 'score', 'raw'] for result.score.raw
@@ -146,7 +145,7 @@ H5P.XAPIEvent.prototype.getVerifiedStatementValue = function(keys) {
 
 /**
  * List of verbs defined at http://adlnet.gov/expapi/verbs/
- * 
+ *
  * @type Array
  */
 H5P.XAPIEvent.allowedXAPIVerbs = [
