@@ -79,7 +79,7 @@ H5P.XAPIEvent.prototype.getVerb = function(full) {
 H5P.XAPIEvent.prototype.setObject = function(instance) {
   if (instance.contentId) {
     this.data.statement.object = {
-      'id': H5PIntegration.getContentUrl(instance.contentId),
+      'id': H5P.contentDatas['cid-' + instance.contentId].url,
       'objectType': 'Activity',
       'extensions': {
         'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
@@ -98,10 +98,9 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
  * Helper function to set the actor, email and name will be added automatically
  */
 H5P.XAPIEvent.prototype.setActor = function() {
-  var user = H5PIntegration.getUser();
   this.data.statement.actor = {
-    'name': user.name,
-    'mbox': 'mailto:' + user.mail,
+    'name': H5P.user.name,
+    'mbox': 'mailto:' + H5P.user.mail,
     'objectType': 'Agent'
   };
 };

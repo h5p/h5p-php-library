@@ -11,7 +11,7 @@ H5P.Event = function(type, data) {
 };
 
 H5P.EventDispatcher = (function () {
-  
+
   /**
    * The base of the event system.
    * Inherit this class if you want your H5P to dispatch events.
