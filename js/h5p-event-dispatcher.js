@@ -36,7 +36,7 @@ H5P.EventDispatcher = (function () {
      * @param {Function} listener - Event listener
      * @param {Function} thisArg - Optionally specify the this value when calling listener.
      */
-    self.on = function (type, listener, thisArg) {
+    this.on = function (type, listener, thisArg) {
       if (thisArg === undefined) {
         thisArg = self;
       }
@@ -66,7 +66,7 @@ H5P.EventDispatcher = (function () {
      * @param {Function} listener - Event listener
      * @param {Function} thisArg - Optionally specify the this value when calling listener.
      */
-    self.once = function (type, listener, thisArg) {
+    this.once = function (type, listener, thisArg) {
       if (thisArg === undefined) {
         thisArg = self;
       }
@@ -91,7 +91,7 @@ H5P.EventDispatcher = (function () {
      * @param {String} type - Event type
      * @param {Function} listener - Event listener
      */
-    self.off = function (type, listener) {
+    this.off = function (type, listener) {
       if (listener !== undefined && !(listener instanceof Function)) {
         throw TypeError('listener must be a function');
       }
@@ -131,7 +131,7 @@ H5P.EventDispatcher = (function () {
      *  Custom event data(used when event type as string is used as first
      *  argument
      */
-    self.trigger = function (event, eventData) {
+    this.trigger = function (event, eventData) {
       if (event === undefined) {
         return;
       }
