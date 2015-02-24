@@ -290,9 +290,11 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     H5P.isFullscreen = true;
     H5P.exitFullScreen = function () {
       window.top.H5P.exitFullScreen();
+    };
+    H5P.on(instance, 'exitFullScreen', function () {
       H5P.isFullscreen = false;
       H5P.exitFullScreen = undefined;
-    };
+    });
     return;
   }
 
