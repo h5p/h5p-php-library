@@ -83,7 +83,10 @@ H5P.init = function () {
     if (contentData.embedCode !== undefined) {
       // Display embed button
       H5P.jQuery('<li class="h5p-button h5p-embed" role="button" tabindex="1" title="' + H5P.t('embedDescription') + '">' + H5P.t('embed') + '</li>').appendTo($actions).click(function () {
-        H5P.openEmbedDialog($actions, contentData.embedCode);
+        H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
+          width: $container.width(),
+          height: $container.height()
+        });
       });
     }
     if (contentData.showH5PIconInActionBar) {
@@ -713,12 +716,56 @@ H5P.findCopyrights = function (info, parameters, contentId) {
  * @param {string} embed code.
  * @returns {undefined}
  */
-H5P.openEmbedDialog = function ($element, embedCode) {
-  var dialog = new H5P.Dialog('embed', H5P.t('embed'), '<textarea class="h5p-embed-code-container">' + embedCode + '</textarea>', $element);
+H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
+  var dialog = new H5P.Dialog('embed', H5P.t('embed'), '<textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>' + H5P.t('size') + ': <input type="text" value="' + size.width + '" class="h5p-embed-size"/> × <input type="text" value="' + size.height + '" class="h5p-embed-size"/> px<div role="button" tabindex="0" class="h5p-expander">' + H5P.t('showAdvanced') + '</div><div class="h5p-expander-content"><p>' + H5P.t('advancedHelp') + '</p><textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false">' + resizeCode + '</textarea></div>', $element);
 
   // Selecting embed code when dialog is opened
   H5P.jQuery(dialog).on('dialog-opened', function (event, $dialog) {
-    $dialog.find('.h5p-embed-code-container').select();
+    // Handle changing of width/height
+    var $w = $dialog.find('.h5p-embed-size:eq(0)');
+    var $h = $dialog.find('.h5p-embed-size:eq(1)');
+    var getNum = function ($e, d) {
+      var num = parseFloat($e.val());
+      if (isNaN(num)) {
+        return d;
+      }
+      return Math.ceil(num);
+    };
+    var updateEmbed = function () {
+      $dialog.find('.h5p-embed-code-container:first').val(embedCode.replace(':w', getNum($w, size.width)).replace(':h', getNum($h, size.height)));
+    };
+
+    var w = size.width;
+    $w.change(function () {
+      // Keep aspect ratio when changing width
+      var newW = getNum($w, size.width);
+      $h.val(Math.ceil(newW * (getNum($h, size.height) / w)));
+      w = newW;
+      updateEmbed();
+    });
+    $h.change(updateEmbed);
+    updateEmbed();
+
+    // Select text and expand textareas
+    $dialog.find('.h5p-embed-code-container').focus(function () {
+      H5P.jQuery(this).select().css('height', this.scrollHeight + 'px');
+    }).blur(function () {
+      H5P.jQuery(this).css('height', '');
+    }).select();
+
+    // Expand advanced embed
+    $dialog.find('.h5p-expander').click(function () {
+      var $expander = H5P.jQuery(this);
+      var $content = $expander.next();
+      if ($content.is(':visible')) {
+        $expander.removeClass('h5p-open').text(H5P.t('showAdvanced'));
+        $content.hide();
+      }
+      else {
+        $expander.addClass('h5p-open').text(H5P.t('hideAdvanced'));
+        $content.show();
+      }
+    });
   });
 
   dialog.open();
