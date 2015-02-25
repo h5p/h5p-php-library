@@ -252,8 +252,8 @@ div.h5p-fullscreen {
   width: 300px;
   left: 50%;
   top: 50%;
-  height: 180px;
-  margin: -90px 0 0 -150px;
+  height: auto;
+  margin: 0 0 0 -150px;
 }
 .h5p-embed-dialog .h5p-embed-code-container,
 .h5p-embed-size {

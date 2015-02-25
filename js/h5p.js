@@ -721,6 +721,16 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
 
   // Selecting embed code when dialog is opened
   H5P.jQuery(dialog).on('dialog-opened', function (event, $dialog) {
+    var $inner = $dialog.find('.h5p-inner');
+    var positionInner = function () {
+      $inner.css('height', '');
+      var h = $inner.height();
+      if (Math.floor($dialog.height()) === h) {
+        $inner.css('height', '100%');
+      }
+      $inner.css('marginTop', '-' + (h / 2) + 'px');
+    };
+
     // Handle changing of width/height
     var $w = $dialog.find('.h5p-embed-size:eq(0)');
     var $h = $dialog.find('.h5p-embed-size:eq(1)');
@@ -749,8 +759,10 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
     // Select text and expand textareas
     $dialog.find('.h5p-embed-code-container').focus(function () {
       H5P.jQuery(this).select().css('height', this.scrollHeight + 'px');
+      positionInner();
     }).blur(function () {
       H5P.jQuery(this).css('height', '');
+      positionInner();
     }).select();
 
     // Expand advanced embed
@@ -765,6 +777,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
         $expander.addClass('h5p-open').text(H5P.t('hideAdvanced'));
         $content.show();
       }
+      positionInner();
     });
   });
 
