@@ -47,14 +47,10 @@
   actionHandlers.prepareResize = function (iframe, data, respond) {
     responseData = {};
 
-    // Retain parent size to avoid jumping/scrolling
-    responseData.parentHeight = iframe.parentElement.style.height;
-    //iframe.parentElement.style.height = iframe.parentElement.clientHeight + 'px';
-
     // Reset iframe height, in case content has shrinked.
     iframe.style.height = '1px';
 
-    respond('resizePrepared', responseData);
+    respond('resizePrepared');
   };
 
   /**
@@ -68,9 +64,6 @@
   actionHandlers.resize = function (iframe, data, respond) {
     // Resize iframe so all content is visible.
     iframe.style.height = data.height + 'px';
-
-    // Free parent
-    //iframe.parentElement.style.height = data.parentHeight;
   };
 
   /**
@@ -83,43 +76,6 @@
       exitFullScreen();
     }
   };
-
-  // /**
-  //  * Enter semi full screen.
-  //  * Expands the iframe so that it covers the whole page.
-  //  *
-  //  * @private
-  //  * @param {Object} iframe Element
-  //  * @param {Object} data Payload
-  //  * @param {Function} respond Send a response to the iframe
-  //  */
-  // actionHandlers.fullScreen = function (iframe, data, respond) {
-  //   iframe.style.position = 'fixed';
-  //   iframe.style.top = iframe.style.left = 0;
-  //   iframe.style.zIndex = 101;
-  //   iframe.style.width = iframe.style.height = '100%';
-  //   document.body.addEventListener('keyup', escape, false);
-  //   respond('fullScreen');
-  // };
-  //
-  // /**
-  //  * Exit semi full screen.
-  //  *
-  //  * @private
-  //  * @param {Object} iframe Element
-  //  * @param {Object} data Payload
-  //  * @param {Function} respond Send a response to the iframe
-  //  */
-  // actionHandlers.exitFullScreen = function (iframe, data, respond) {
-  //   iframe.style.position = '';
-  //   iframe.style.top = iframe.style.left = '';
-  //   iframe.style.zIndex = '';
-  //   iframe.style.width = '100%';
-  //   iframe.style.height = '';
-  //   document.body.removeEventListener('keyup', escape, false);
-  //   respond('exitFullScreen');
-  // };
-
 
   // Listen for messages from iframes
   window.addEventListener('message', function receiveMessage(event) {
@@ -142,7 +98,7 @@
 
     // Find action handler handler
     if (actionHandlers[event.data.action]) {
-      actionHandlers[event.data.action](iframe, event.data, function (action, data) {
+      actionHandlers[event.data.action](iframe, event.data, function respond(action, data) {
         if (data === undefined) {
           data = {};
         }
