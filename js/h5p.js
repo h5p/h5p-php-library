@@ -159,8 +159,7 @@ H5P.init = function () {
         // When resize has been prepared tell parent window to resize
         H5P.communicator.on('resizePrepared', function (data) {
           H5P.communicator.send('resize', {
-            height: document.body.scrollHeight,
-            parentHeight: data.parentHeight
+            height: document.body.scrollHeight
           });
         });
 
@@ -722,13 +721,18 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
   // Selecting embed code when dialog is opened
   H5P.jQuery(dialog).on('dialog-opened', function (event, $dialog) {
     var $inner = $dialog.find('.h5p-inner');
+    var $scroll = $inner.find('.h5p-scroll-content');
+    var diff = $scroll.outerHeight() - $scroll.innerHeight();
     var positionInner = function () {
-      $inner.css('height', '');
-      var h = $inner.height();
-      if (Math.floor($dialog.height()) === h) {
-        $inner.css('height', '100%');
+      var height = $inner.height();
+      if ($scroll[0].scrollHeight + diff > height) {
+        $inner.css('height', ''); // 100%
       }
-      $inner.css('marginTop', '-' + (h / 2) + 'px');
+      else {
+        $inner.css('height', 'auto');
+        height = $inner.height();
+      }
+      $inner.css('marginTop', '-' + (height / 2) + 'px');
     };
 
     // Handle changing of width/height
@@ -781,7 +785,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
     };
     $dialog.find('.h5p-expander').click(expand).keypress(function (event) {
       if (event.keyCode === 32) {
-        expand();
+        expand.apply(this);
       }
     });
   });
