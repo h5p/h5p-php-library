@@ -459,7 +459,8 @@ H5P.getPath = function (path, contentId) {
   }
 
   if (!hasProtocol(prefix)) {
-    prefix = window.parent.location.protocol + "//" + window.parent.location.host + prefix;
+    // Use absolute urls
+    prefix = window.location.protocol + "//" + window.location.host + prefix;
   }
 
   return prefix + '/' + path;
