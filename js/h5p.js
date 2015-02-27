@@ -48,7 +48,7 @@ H5P.init = function () {
     var $element = H5P.jQuery(this);
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
-    var contentData = H5P.contentDatas['cid-' + contentId];
+    var contentData = H5PIntegration.contents['cid-' + contentId];
     if (contentData === undefined) {
       return H5P.error('No data for content id ' + contentId + '. Perhaps the library is gone?');
     }
@@ -215,6 +215,47 @@ H5P.init = function () {
       externalEmbed: false
     };
   });
+};
+
+/**
+ * Loop through assets for iframe content and create a set of tags for head.
+ *
+ * @private
+ * @param {number} contentId
+ * @returns {string} HTML
+ */
+H5P.getHeadTags = function (contentId) {
+  var basePath = window.location.protocol + '//' + window.location.host + H5PIntegration.basePath;
+
+  var createUrl = function (path) {
+    if (path.substring(0,7) !== 'http://' && path.substring(0,8) !== 'https://') {
+      // Not external, add base path.
+      path = basePath + path;
+    }
+    return path;
+  };
+
+  var createStyleTags = function (styles) {
+    var tags = '';
+    for (var i = 0; i < styles.length; i++) {
+      tags += '<link rel="stylesheet" href="' + createUrl(styles[i]) + '">';
+    }
+    return tags;
+  };
+
+  var createScriptTags = function (scripts) {
+    var tags = '';
+    for (var i = 0; i < scripts.length; i++) {
+      tags += '<script src="' + createUrl(scripts[i]) + '"></script>';
+    }
+    return tags;
+  };
+
+  return createStyleTags(H5PIntegration.core.styles) +
+         createStyleTags(H5PIntegration.contents['cid-' + contentId].styles) +
+         createScriptTags(H5PIntegration.core.scripts) +
+         createScriptTags(H5PIntegration.contents['cid-' + contentId].scripts) +
+         '<script>H5PIntegration = window.top.H5PIntegration; H5P.jQuery(document).ready(function () { H5P.init(); });</script>';
 };
 
 H5P.communicator = (function () {
@@ -449,7 +490,7 @@ H5P.getPath = function (path, contentId) {
   }
 
   if (contentId !== undefined) {
-    prefix = H5P.url + '/content/' + contentId;
+    prefix = H5PIntegration.url + '/content/' + contentId;
   }
   else if (window.H5PEditor !== undefined) {
     prefix = H5PEditor.filesPath;
@@ -571,15 +612,15 @@ H5P.t = function (key, vars, ns) {
     ns = 'H5P';
   }
 
-  if (H5P.l10n[ns] === undefined) {
+  if (H5PIntegration.l10n[ns] === undefined) {
     return '[Missing translation namespace "' + ns + '"]';
   }
 
-  if (H5P.l10n[ns][key] === undefined) {
+  if (H5PIntegration.l10n[ns][key] === undefined) {
     return '[Missing translation "' + key + '" in "' + ns + '"]';
   }
 
-  var translation = H5P.l10n[ns][key];
+  var translation = H5PIntegration.l10n[ns][key];
 
   if (vars !== undefined) {
     // Replace placeholder with variables.
@@ -1156,7 +1197,7 @@ H5P.libraryFromString = function (library) {
  * @returns {String} The full path to the library.
  */
 H5P.getLibraryPath = function (library) {
-  return H5P.url + '/libraries/' + library;
+  return H5PIntegration.url + '/libraries/' + library;
 };
 
 /**
@@ -1204,8 +1245,8 @@ H5P.trim = function (value) {
  * @returns {Boolean}
  */
 H5P.jsLoaded = function (path) {
-  H5P.loadedJs = H5P.loadedJs || [];
-  return H5P.jQuery.inArray(path, H5P.loadedJs) !== -1;
+  H5PIntegration.loadedJs = H5PIntegration.loadedJs || [];
+  return H5P.jQuery.inArray(path, H5PIntegration.loadedJs) !== -1;
 };
 
 /**
@@ -1215,8 +1256,8 @@ H5P.jsLoaded = function (path) {
  * @returns {Boolean}
  */
 H5P.cssLoaded = function (path) {
-  H5P.loadedCss = H5P.loadedCss || [];
-  return H5P.jQuery.inArray(path, H5P.loadedCss) !== -1;
+  H5PIntegration.loadedCss = H5PIntegration.loadedCss || [];
+  return H5P.jQuery.inArray(path, H5PIntegration.loadedCss) !== -1;
 };
 
 /**
@@ -1255,7 +1296,7 @@ H5P.shuffleArray = function (array) {
  * @param {Number} time optional reported time usage
  */
 H5P.setFinished = function (contentId, score, maxScore, time) {
-  if (H5P.postUserStatistics === true) {
+  if (H5PIntegration.postUserStatistics === true) {
     /**
      * Return unix timestamp for the given JS Date.
      *
@@ -1268,7 +1309,7 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
 
     // Post the results
     // TODO: Should we use a variable with the complete path?
-    H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {
+    H5P.jQuery.post(H5PIntegration.ajaxPath + 'setFinished', {
       contentId: contentId,
       score: score,
       maxScore: maxScore,

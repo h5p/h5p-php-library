@@ -99,8 +99,8 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
  */
 H5P.XAPIEvent.prototype.setActor = function() {
   this.data.statement.actor = {
-    'name': H5P.user.name,
-    'mbox': 'mailto:' + H5P.user.mail,
+    'name': H5PIntegration.user.name,
+    'mbox': 'mailto:' + H5PIntegration.user.mail,
     'objectType': 'Agent'
   };
 };

@@ -13,13 +13,8 @@
 <body>
   <div class="h5p-content" data-content-id="<?php print $content['id']; ?>"></div>
   <script>
+    H5PIntegration = <?php print json_encode($integration); ?>;
     H5P.jQuery(document).ready(function () {
-      H5P.postUserStatistics = <?php print $settings['postUserStatistics'] ? 'true' : 'false'; ?>;
-      H5P.ajaxPath = '<?php print $settings['ajaxPath']; ?>';
-      H5P.url = '<?php print $settings['url']; ?>';
-      H5P.l10n = {H5P: <?php print json_encode($settings['i18n']); ?>};
-      H5P.contentDatas = {'cid-<?php print $content['id']; ?>': <?php print json_encode($contentSettings); ?>};
-      H5P.user = <?php print json_encode($settings['user']); ?>;
       H5P.init();
     });
   </script>
