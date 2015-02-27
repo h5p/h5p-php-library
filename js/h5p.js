@@ -807,8 +807,11 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
       H5P.jQuery(this).select().css('height', this.scrollHeight + 'px');
       positionInner();
     }).blur(function () {
-      H5P.jQuery(this).css('height', '');
-      positionInner();
+      var $area = H5P.jQuery(this);
+      setTimeout(function () {
+        $area.css('height', '');
+        positionInner();
+      }, 100);
     }).select();
 
     // Expand advanced embed

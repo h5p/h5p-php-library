@@ -253,6 +253,7 @@ div.h5p-fullscreen {
   left: 50%;
   top: 50%;
   margin: 0 0 0 -150px;
+  transition: margin 250ms linear 100ms;
 }
 .h5p-embed-dialog .h5p-embed-code-container,
 .h5p-embed-size {
@@ -353,6 +354,7 @@ div.h5p-fullscreen {
   font-size: 1.125em;
   outline: none;
   margin: 0.5em 0 0;
+  display: inline-block;
 }
 .h5p-expander:before {
   content: "+";
