@@ -79,7 +79,7 @@ H5P.XAPIEvent.prototype.getVerb = function(full) {
 H5P.XAPIEvent.prototype.setObject = function(instance) {
   if (instance.contentId) {
     this.data.statement.object = {
-      'id': H5P.contentDatas['cid-' + instance.contentId].url,
+      'id': H5PIntegration.contents['cid-' + instance.contentId].url,
       'objectType': 'Activity',
       'extensions': {
         'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
