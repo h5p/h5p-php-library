@@ -766,7 +766,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
     }).select();
 
     // Expand advanced embed
-    $dialog.find('.h5p-expander').click(function () {
+    var expand = function () {
       var $expander = H5P.jQuery(this);
       var $content = $expander.next();
       if ($content.is(':visible')) {
@@ -778,6 +778,11 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
         $content.show();
       }
       positionInner();
+    };
+    $dialog.find('.h5p-expander').click(expand).keypress(function (event) {
+      if (event.keyCode === 32) {
+        expand();
+      }
     });
   });
 
