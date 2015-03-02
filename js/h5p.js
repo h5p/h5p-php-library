@@ -145,6 +145,11 @@ H5P.init = function () {
         // External embed
         var parentIsFriendly = false;
 
+        // Handle that the resizer is loaded after the iframe
+        H5P.communicator.on('ready', function () {
+          H5P.communicator.send('hello');
+        });
+
         // Handle hello message from our parent window
         H5P.communicator.on('hello', function () {
           // Initial setup/handshake is done
@@ -153,7 +158,8 @@ H5P.init = function () {
           // Hide scrollbars for correct size
           document.body.style.overflow = 'hidden';
 
-          H5P.communicator.send('prepareResize');
+          // Content need to be resized to fit the new iframe size
+          H5P.trigger(instance, 'resize');
         });
 
         // When resize has been prepared tell parent window to resize
@@ -192,14 +198,14 @@ H5P.init = function () {
       H5P.jQuery(window.top).resize(function () {
         if (window.parent.H5P.isFullscreen) {
           // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
-            H5P.trigger(instance, 'resize');
+          H5P.trigger(instance, 'resize');
         }
         else {
           H5P.trigger(instance, 'resize');
         }
       });
     }
-    
+
     H5P.instances.push(instance);
 
     // Resize content.

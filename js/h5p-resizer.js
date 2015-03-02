@@ -108,4 +108,17 @@
       });
     }
   }, false);
+
+  // Let h5p iframes know we're ready!
+  var iframes = document.getElementsByTagName('iframe');
+  var ready = {
+    context: 'h5p',
+    action: 'ready'
+  };
+  for (var i = 0; i < iframes.length; i++) {
+    if (iframes[i].src.indexOf('h5p') !== -1) {
+      iframes[i].contentWindow.postMessage(ready, '*');
+    }
+  }
+
 })();

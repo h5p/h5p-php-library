@@ -66,7 +66,6 @@ var H5POldEmbed = H5POldEmbed || (function () {
         loadResizer(h5ps[i].getAttribute('data-h5p'));
       }
       addIframe(h5ps[i]);
-
     }
   }
 
