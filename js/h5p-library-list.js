@@ -7,7 +7,7 @@ var H5PLibraryList = H5PLibraryList || {};
    * Initializing
    */
   H5PLibraryList.init = function () {
-    var $adminContainer = H5P.jQuery(H5PAdminIntegration.containerSelector);
+    var $adminContainer = H5P.jQuery(H5PAdminIntegration.containerSelector).html('');
 
     var libraryList = H5PAdminIntegration.libraryList;
     if (libraryList.notCached) {
