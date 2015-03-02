@@ -198,8 +198,9 @@ H5P.init = function () {
           H5P.trigger(instance, 'resize');
         }
       });
-      H5P.instances.push(instance);
     }
+    
+    H5P.instances.push(instance);
 
     // Resize content.
     H5P.trigger(instance, 'resize');
@@ -758,6 +759,7 @@ H5P.findCopyrights = function (info, parameters, contentId) {
  * @returns {undefined}
  */
 H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
+  var fullEmbedCode = embedCode + resizeCode;
   var dialog = new H5P.Dialog('embed', H5P.t('embed'), '<textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>' + H5P.t('size') + ': <input type="text" value="' + size.width + '" class="h5p-embed-size"/> × <input type="text" value="' + size.height + '" class="h5p-embed-size"/> px<div role="button" tabindex="0" class="h5p-expander">' + H5P.t('showAdvanced') + '</div><div class="h5p-expander-content"><p>' + H5P.t('advancedHelp') + '</p><textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false">' + resizeCode + '</textarea></div>', $element);
 
   // Selecting embed code when dialog is opened
@@ -788,31 +790,21 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
       return Math.ceil(num);
     };
     var updateEmbed = function () {
-      $dialog.find('.h5p-embed-code-container:first').val(embedCode.replace(':w', getNum($w, size.width)).replace(':h', getNum($h, size.height)));
+      $dialog.find('.h5p-embed-code-container:first').val(fullEmbedCode.replace(':w', getNum($w, size.width)).replace(':h', getNum($h, size.height)));
     };
 
-    var w = size.width;
-    $w.change(function () {
-      // Keep aspect ratio when changing width
-      var newW = getNum($w, size.width);
-      $h.val(Math.ceil(newW * (getNum($h, size.height) / w)));
-      w = newW;
-      updateEmbed();
-    });
+    $w.change(updateEmbed);
     $h.change(updateEmbed);
     updateEmbed();
 
     // Select text and expand textareas
-    $dialog.find('.h5p-embed-code-container').focus(function () {
-      H5P.jQuery(this).select().css('height', this.scrollHeight + 'px');
-      positionInner();
-    }).blur(function () {
-      var $area = H5P.jQuery(this);
-      setTimeout(function () {
-        $area.css('height', '');
-        positionInner();
-      }, 100);
-    }).select();
+    $dialog.find('.h5p-embed-code-container').each(function(index, value) {
+      H5P.jQuery(this).css('height', this.scrollHeight + 'px').focus(function() {
+          H5P.jQuery(this).select();
+        });
+    });
+    $dialog.find('.h5p-embed-code-container').eq(0).select();
+    positionInner();
 
     // Expand advanced embed
     var expand = function () {
@@ -826,6 +818,9 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
         $expander.addClass('h5p-open').text(H5P.t('hideAdvanced'));
         $content.show();
       }
+      $dialog.find('.h5p-embed-code-container').each(function(index, value) {
+        H5P.jQuery(this).css('height', this.scrollHeight + 'px');
+      });
       positionInner();
     };
     $dialog.find('.h5p-expander').click(expand).keypress(function (event) {
