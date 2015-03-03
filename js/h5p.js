@@ -108,8 +108,8 @@ H5P.init = function () {
     H5P.on(instance, 'xAPI', H5P.xAPICompletedListener);
     H5P.on(instance, 'xAPI', H5P.externalDispatcher.trigger);
 
-    if (H5P.isFramed)
-      var resizeDelay;{
+    if (H5P.isFramed) {
+      var resizeDelay;
       if (H5P.externalEmbed === false) {
         // Internal embed
         // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
