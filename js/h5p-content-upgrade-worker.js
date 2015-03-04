@@ -1,6 +1,5 @@
 var H5P = H5P || {};
-importScripts('/wp-content/plugins/h5p/h5p-php-library/js/h5p-version.js');
-importScripts('/wp-content/plugins/h5p/h5p-php-library/js/h5p-content-upgrade-process.js');
+importScripts('h5p-version.js', 'h5p-content-upgrade-process.js');
 
 var libraryLoadedCallback;
 
@@ -61,16 +60,3 @@ onmessage = function (event) {
     messageHandlers[event.data.action].call(this, event.data);
   }
 };
-
-
-// if (library.upgradesScript) {
-//   self.loadScript(library.upgradesScript, function (err) {
-//     if (err) {
-//       err = info.errorScript.replace('%lib', name + ' ' + version);
-//     }
-//     next(err, library);
-//   });
-// }
-// else {
-//   next(null, library);
-// }

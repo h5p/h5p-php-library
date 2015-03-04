@@ -78,8 +78,8 @@
     // Create throbber with loading text and progress
     self.throbber = new Throbber(info.inProgress.replace('%ver', self.version));
 
-self.started = new Date().getTime();
-self.io = 0;
+    self.started = new Date().getTime();
+    self.io = 0;
 
     // Track number of working
     self.working = 0;
@@ -98,8 +98,8 @@ self.io = 0;
       start();
     }
     else {
-      // No workers, do the job our self
-      self.loadScript('/wp-content/plugins/h5p/h5p-php-library/js/h5p-content-upgrade-process.js', start);
+      // No workers, do the job ourselves
+      self.loadScript(info.scriptBaseUrl + '/h5p-content-upgrade-process.js' + info.buster, start);
     }
   }
 
@@ -141,7 +141,7 @@ self.io = 0;
     };
 
     for (var i = 0; i < numWorkers; i++) {
-      self.workers[i] = new Worker('/wp-content/plugins/h5p/h5p-php-library/js/h5p-content-upgrade-worker.js');
+      self.workers[i] = new Worker(info.scriptBaseUrl + '/h5p-content-upgrade-worker.js' + info.buster);
       self.workers[i].onmessage = function (event) {
         if (event.data.action !== undefined && messageHandlers[event.data.action]) {
           messageHandlers[event.data.action].call(this, event.data);
@@ -158,17 +158,20 @@ self.io = 0;
   ContentUpgrade.prototype.nextBatch = function (outData) {
     var self = this;
 
-var start = new Date().getTime();
+    // Track time spent on IO
+    var start = new Date().getTime();
     $.post(info.infoUrl, outData, function (inData) {
-self.io += new Date().getTime() - start;
+      self.io += new Date().getTime() - start;
       if (!(inData instanceof Object)) {
         // Print errors from backend
         return self.setStatus(inData);
       }
       if (inData.left === 0) {
         var total = new Date().getTime() - self.started;
-        console.log('Upgrade took ' + total + 'ms');
-        console.log((self.io/(total/100)) + ' % of the time went to IO (' + self.io + 'ms)');
+
+        if (window.console && console.log) {
+          console.log('The upgrade process took ' + (total / 1000) + ' seconds. (' + (Math.round((self.io / (total / 100)) * 100) / 100) + ' % IO)' );
+        }
 
         // Terminate workers
         self.terminate();
@@ -347,17 +350,18 @@ self.io += new Date().getTime() - start;
       return;
     }
 
-var start = new Date().getTime();
+    // Track time spent loading
+    var start = new Date().getTime();
     librariesCache[key] = true;
     $.ajax({
       dataType: 'json',
       cache: true,
       url: info.libraryBaseUrl + '/' + key
     }).fail(function () {
-self.io += new Date().getTime() - start;
+      self.io += new Date().getTime() - start;
       next(info.errorData.replace('%lib', name + ' ' + version));
     }).done(function (library) {
-self.io += new Date().getTime() - start;
+      self.io += new Date().getTime() - start;
       librariesCache[key] = library;
       next(null, library);
 
@@ -382,17 +386,18 @@ self.io += new Date().getTime() - start;
       return;
     }
 
-var start = new Date().getTime();
+    // Track time spent loading
+    var start = new Date().getTime();
     $.ajax({
       dataType: 'script',
       cache: true,
       url: url
     }).fail(function () {
-self.io += new Date().getTime() - start;
+      self.io += new Date().getTime() - start;
       next(true);
     }).done(function () {
       scriptsCache[url] = true;
-self.io += new Date().getTime() - start;
+      self.io += new Date().getTime() - start;
       next();
     });
   };
