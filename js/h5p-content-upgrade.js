@@ -6,7 +6,7 @@
   // Initialize
   $(document).ready(function () {
     // Get library info
-    info = H5PIntegration.getLibraryInfo();
+    info = H5PAdminIntegration.libraryInfo;
 
     // Get and reset container
     $container = $('#h5p-admin-container').html('<p>' + info.message + '</p>');

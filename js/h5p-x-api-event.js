@@ -79,7 +79,7 @@ H5P.XAPIEvent.prototype.getVerb = function(full) {
 H5P.XAPIEvent.prototype.setObject = function(instance) {
   if (instance.contentId) {
     this.data.statement.object = {
-      'id': H5P.contentDatas['cid-' + instance.contentId].url,
+      'id': H5PIntegration.contents['cid-' + instance.contentId].url,
       'objectType': 'Activity',
       'extensions': {
         'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
@@ -98,11 +98,33 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
  * Helper function to set the actor, email and name will be added automatically
  */
 H5P.XAPIEvent.prototype.setActor = function() {
-  this.data.statement.actor = {
-    'name': H5P.user.name,
-    'mbox': 'mailto:' + H5P.user.mail,
-    'objectType': 'Agent'
-  };
+  if (H5PIntegration.user !== undefined) {
+    this.data.statement.actor = {
+      'name': H5PIntegration.user.name,
+      'mbox': 'mailto:' + H5PIntegration.user.mail,
+      'objectType': 'Agent'
+    };
+  }
+  else {
+    var uuid;
+    if (localStorage.H5PUserUUID) {
+      uuid = localStorage.H5PUserUUID;
+    }
+    else {
+      uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(char) {
+        var random = Math.random()*16|0, newChar = char === 'x' ? random : (random&0x3|0x8);
+        return newChar.toString(16);
+      });
+      localStorage.H5PUserUUID = uuid;
+    }
+    this.data.statement.actor = {
+      'account': {
+        'name': uuid,
+        'homePage': window.location.origin + H5PIntegration.basePath
+      },
+      'objectType': 'Agent'
+    };
+  }
 };
 
 /**

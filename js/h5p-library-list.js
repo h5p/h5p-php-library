@@ -7,15 +7,15 @@ var H5PLibraryList = H5PLibraryList || {};
    * Initializing
    */
   H5PLibraryList.init = function () {
-    var $adminContainer = H5PIntegration.getAdminContainer();
+    var $adminContainer = H5P.jQuery(H5PAdminIntegration.containerSelector).html('');
 
-    var libraryList = H5PIntegration.getLibraryList();
+    var libraryList = H5PAdminIntegration.libraryList;
     if (libraryList.notCached) {
       $adminContainer.append(H5PUtils.getRebuildCache(libraryList.notCached));
     }
 
     // Create library list
-    $adminContainer.append(H5PLibraryList.createLibraryList(H5PIntegration.getLibraryList()));
+    $adminContainer.append(H5PLibraryList.createLibraryList(H5PAdminIntegration.libraryList));
   };
 
   /**
@@ -24,7 +24,7 @@ var H5PLibraryList = H5PLibraryList || {};
    * @param {object} libraries List of libraries and headers
    */
   H5PLibraryList.createLibraryList = function (libraries) {
-    var t = H5PIntegration.i18n.H5P;
+    var t = H5PAdminIntegration.l10n;
     if(libraries.listData === undefined || libraries.listData.length === 0) {
       return $('<div>' + t.NA + '</div>');
     }
@@ -123,7 +123,7 @@ var H5PLibraryList = H5PLibraryList || {};
       }
     }
   };
-  
+
   // Initialize me:
   $(document).ready(function () {
     if (!H5PLibraryList.initialized) {

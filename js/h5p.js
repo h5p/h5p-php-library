@@ -48,7 +48,7 @@ H5P.init = function () {
     var $element = H5P.jQuery(this);
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
-    var contentData = H5P.contentDatas['cid-' + contentId];
+    var contentData = H5PIntegration.contents['cid-' + contentId];
     if (contentData === undefined) {
       return H5P.error('No data for content id ' + contentId + '. Perhaps the library is gone?');
     }
@@ -108,8 +108,8 @@ H5P.init = function () {
     H5P.on(instance, 'xAPI', H5P.xAPICompletedListener);
     H5P.on(instance, 'xAPI', H5P.externalDispatcher.trigger);
 
-    if (H5P.isFramed)
-      var resizeDelay;{
+    if (H5P.isFramed) {
+      var resizeDelay;
       if (H5P.externalEmbed === false) {
         // Internal embed
         // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
@@ -145,6 +145,11 @@ H5P.init = function () {
         // External embed
         var parentIsFriendly = false;
 
+        // Handle that the resizer is loaded after the iframe
+        H5P.communicator.on('ready', function () {
+          H5P.communicator.send('hello');
+        });
+
         // Handle hello message from our parent window
         H5P.communicator.on('hello', function () {
           // Initial setup/handshake is done
@@ -153,14 +158,14 @@ H5P.init = function () {
           // Hide scrollbars for correct size
           document.body.style.overflow = 'hidden';
 
-          H5P.communicator.send('prepareResize');
+          // Content need to be resized to fit the new iframe size
+          H5P.trigger(instance, 'resize');
         });
 
         // When resize has been prepared tell parent window to resize
         H5P.communicator.on('resizePrepared', function (data) {
           H5P.communicator.send('resize', {
-            height: document.body.scrollHeight,
-            parentHeight: data.parentHeight
+            height: document.body.scrollHeight
           });
         });
 
@@ -193,14 +198,15 @@ H5P.init = function () {
       H5P.jQuery(window.top).resize(function () {
         if (window.parent.H5P.isFullscreen) {
           // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
-            H5P.trigger(instance, 'resize');
+          H5P.trigger(instance, 'resize');
         }
         else {
           H5P.trigger(instance, 'resize');
         }
       });
-      H5P.instances.push(instance);
     }
+
+    H5P.instances.push(instance);
 
     // Resize content.
     H5P.trigger(instance, 'resize');
@@ -216,6 +222,47 @@ H5P.init = function () {
       externalEmbed: false
     };
   });
+};
+
+/**
+ * Loop through assets for iframe content and create a set of tags for head.
+ *
+ * @private
+ * @param {number} contentId
+ * @returns {string} HTML
+ */
+H5P.getHeadTags = function (contentId) {
+  var basePath = window.location.protocol + '//' + window.location.host + H5PIntegration.basePath;
+
+  var createUrl = function (path) {
+    if (path.substring(0,7) !== 'http://' && path.substring(0,8) !== 'https://') {
+      // Not external, add base path.
+      path = basePath + path;
+    }
+    return path;
+  };
+
+  var createStyleTags = function (styles) {
+    var tags = '';
+    for (var i = 0; i < styles.length; i++) {
+      tags += '<link rel="stylesheet" href="' + createUrl(styles[i]) + '">';
+    }
+    return tags;
+  };
+
+  var createScriptTags = function (scripts) {
+    var tags = '';
+    for (var i = 0; i < scripts.length; i++) {
+      tags += '<script src="' + createUrl(scripts[i]) + '"></script>';
+    }
+    return tags;
+  };
+
+  return createStyleTags(H5PIntegration.core.styles) +
+         createStyleTags(H5PIntegration.contents['cid-' + contentId].styles) +
+         createScriptTags(H5PIntegration.core.scripts) +
+         createScriptTags(H5PIntegration.contents['cid-' + contentId].scripts) +
+         '<script>H5PIntegration = window.top.H5PIntegration; H5P.jQuery(document).ready(function () { H5P.init(); });</script>';
 };
 
 H5P.communicator = (function () {
@@ -450,7 +497,7 @@ H5P.getPath = function (path, contentId) {
   }
 
   if (contentId !== undefined) {
-    prefix = H5P.url + '/content/' + contentId;
+    prefix = H5PIntegration.url + '/content/' + contentId;
   }
   else if (window.H5PEditor !== undefined) {
     prefix = H5PEditor.filesPath;
@@ -460,7 +507,8 @@ H5P.getPath = function (path, contentId) {
   }
 
   if (!hasProtocol(prefix)) {
-    prefix = window.parent.location.protocol + "//" + window.parent.location.host + prefix;
+    // Use absolute urls
+    prefix = window.location.protocol + "//" + window.location.host + prefix;
   }
 
   return prefix + '/' + path;
@@ -571,15 +619,15 @@ H5P.t = function (key, vars, ns) {
     ns = 'H5P';
   }
 
-  if (H5P.l10n[ns] === undefined) {
+  if (H5PIntegration.l10n[ns] === undefined) {
     return '[Missing translation namespace "' + ns + '"]';
   }
 
-  if (H5P.l10n[ns][key] === undefined) {
+  if (H5PIntegration.l10n[ns][key] === undefined) {
     return '[Missing translation "' + key + '" in "' + ns + '"]';
   }
 
-  var translation = H5P.l10n[ns][key];
+  var translation = H5PIntegration.l10n[ns][key];
 
   if (vars !== undefined) {
     // Replace placeholder with variables.
@@ -717,18 +765,24 @@ H5P.findCopyrights = function (info, parameters, contentId) {
  * @returns {undefined}
  */
 H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
+  var fullEmbedCode = embedCode + resizeCode;
   var dialog = new H5P.Dialog('embed', H5P.t('embed'), '<textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>' + H5P.t('size') + ': <input type="text" value="' + size.width + '" class="h5p-embed-size"/> × <input type="text" value="' + size.height + '" class="h5p-embed-size"/> px<div role="button" tabindex="0" class="h5p-expander">' + H5P.t('showAdvanced') + '</div><div class="h5p-expander-content"><p>' + H5P.t('advancedHelp') + '</p><textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false">' + resizeCode + '</textarea></div>', $element);
 
   // Selecting embed code when dialog is opened
   H5P.jQuery(dialog).on('dialog-opened', function (event, $dialog) {
     var $inner = $dialog.find('.h5p-inner');
+    var $scroll = $inner.find('.h5p-scroll-content');
+    var diff = $scroll.outerHeight() - $scroll.innerHeight();
     var positionInner = function () {
-      $inner.css('height', '');
-      var h = $inner.height();
-      if (Math.floor($dialog.height()) === h) {
-        $inner.css('height', '100%');
+      var height = $inner.height();
+      if ($scroll[0].scrollHeight + diff > height) {
+        $inner.css('height', ''); // 100%
       }
-      $inner.css('marginTop', '-' + (h / 2) + 'px');
+      else {
+        $inner.css('height', 'auto');
+        height = $inner.height();
+      }
+      $inner.css('marginTop', '-' + (height / 2) + 'px');
     };
 
     // Handle changing of width/height
@@ -742,31 +796,24 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
       return Math.ceil(num);
     };
     var updateEmbed = function () {
-      $dialog.find('.h5p-embed-code-container:first').val(embedCode.replace(':w', getNum($w, size.width)).replace(':h', getNum($h, size.height)));
+      $dialog.find('.h5p-embed-code-container:first').val(fullEmbedCode.replace(':w', getNum($w, size.width)).replace(':h', getNum($h, size.height)));
     };
 
-    var w = size.width;
-    $w.change(function () {
-      // Keep aspect ratio when changing width
-      var newW = getNum($w, size.width);
-      $h.val(Math.ceil(newW * (getNum($h, size.height) / w)));
-      w = newW;
-      updateEmbed();
-    });
+    $w.change(updateEmbed);
     $h.change(updateEmbed);
     updateEmbed();
 
     // Select text and expand textareas
-    $dialog.find('.h5p-embed-code-container').focus(function () {
-      H5P.jQuery(this).select().css('height', this.scrollHeight + 'px');
-      positionInner();
-    }).blur(function () {
-      H5P.jQuery(this).css('height', '');
-      positionInner();
-    }).select();
+    $dialog.find('.h5p-embed-code-container').each(function(index, value) {
+      H5P.jQuery(this).css('height', this.scrollHeight + 'px').focus(function() {
+          H5P.jQuery(this).select();
+        });
+    });
+    $dialog.find('.h5p-embed-code-container').eq(0).select();
+    positionInner();
 
     // Expand advanced embed
-    $dialog.find('.h5p-expander').click(function () {
+    var expand = function () {
       var $expander = H5P.jQuery(this);
       var $content = $expander.next();
       if ($content.is(':visible')) {
@@ -777,7 +824,15 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
         $expander.addClass('h5p-open').text(H5P.t('hideAdvanced'));
         $content.show();
       }
+      $dialog.find('.h5p-embed-code-container').each(function(index, value) {
+        H5P.jQuery(this).css('height', this.scrollHeight + 'px');
+      });
       positionInner();
+    };
+    $dialog.find('.h5p-expander').click(expand).keypress(function (event) {
+      if (event.keyCode === 32) {
+        expand.apply(this);
+      }
     });
   });
 
@@ -1146,7 +1201,7 @@ H5P.libraryFromString = function (library) {
  * @returns {String} The full path to the library.
  */
 H5P.getLibraryPath = function (library) {
-  return H5P.url + '/libraries/' + library;
+  return H5PIntegration.url + '/libraries/' + library;
 };
 
 /**
@@ -1194,8 +1249,8 @@ H5P.trim = function (value) {
  * @returns {Boolean}
  */
 H5P.jsLoaded = function (path) {
-  H5P.loadedJs = H5P.loadedJs || [];
-  return H5P.jQuery.inArray(path, H5P.loadedJs) !== -1;
+  H5PIntegration.loadedJs = H5PIntegration.loadedJs || [];
+  return H5P.jQuery.inArray(path, H5PIntegration.loadedJs) !== -1;
 };
 
 /**
@@ -1205,8 +1260,8 @@ H5P.jsLoaded = function (path) {
  * @returns {Boolean}
  */
 H5P.cssLoaded = function (path) {
-  H5P.loadedCss = H5P.loadedCss || [];
-  return H5P.jQuery.inArray(path, H5P.loadedCss) !== -1;
+  H5PIntegration.loadedCss = H5PIntegration.loadedCss || [];
+  return H5P.jQuery.inArray(path, H5PIntegration.loadedCss) !== -1;
 };
 
 /**
@@ -1245,7 +1300,7 @@ H5P.shuffleArray = function (array) {
  * @param {Number} time optional reported time usage
  */
 H5P.setFinished = function (contentId, score, maxScore, time) {
-  if (H5P.postUserStatistics === true) {
+  if (H5PIntegration.postUserStatistics === true) {
     /**
      * Return unix timestamp for the given JS Date.
      *
@@ -1258,7 +1313,7 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
 
     // Post the results
     // TODO: Should we use a variable with the complete path?
-    H5P.jQuery.post(H5P.ajaxPath + 'setFinished', {
+    H5P.jQuery.post(H5PIntegration.ajaxPath + 'setFinished', {
       contentId: contentId,
       score: score,
       maxScore: maxScore,
