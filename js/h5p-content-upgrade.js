@@ -381,6 +381,8 @@
    * @param {Function} next
    */
   ContentUpgrade.prototype.loadScript = function (url, next) {
+    var self = this;
+
     if (scriptsCache[url] !== undefined) {
       next();
       return;
@@ -406,14 +408,16 @@
    *
    */
   ContentUpgrade.prototype.printError = function (error) {
+    var self = this;
+
     if (error.type === 'errorParamsBroken') {
-      error = info.errorContent.replace('%id', error.id) + ' ' + info.errorParamsBroken; // TODO: Translate!
+      error = info.errorContent.replace('%id', error.id) + ' ' + info.errorParamsBroken;
     }
     else if (error.type === 'scriptMissing') {
-      error.err = info.errorScript.replace('%lib', error.library);
+      error = info.errorScript.replace('%lib', error.library);
     }
 
-    self.setStatus('<p>' + info.error + '<br/>' + error.err + '</p>');
+    self.setStatus('<p>' + info.error + '<br/>' + error + '</p>');
   };
 
 })(H5P.jQuery, H5P.Version);

@@ -23,7 +23,7 @@ var messageHandlers = {
         postMessage({
           action: 'error',
           id: job.id,
-          err: err
+          err: err.message ? err.message : err
         });
 
         return;
