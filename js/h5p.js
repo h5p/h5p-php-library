@@ -215,12 +215,11 @@ H5P.init = function () {
   // Insert H5Ps that should be in iframes.
   H5P.jQuery("iframe.h5p-iframe").each(function () {
     var contentId = H5P.jQuery(this).data('content-id');
+    this.contentWindow.H5P = this.contentWindow.H5P || {};
+    this.contentWindow.H5P.externalEmbed = false;
     this.contentDocument.open();
     this.contentDocument.write('<!doctype html><html class="h5p-iframe"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
     this.contentDocument.close();
-    this.contentWindow.H5P = {
-      externalEmbed: false
-    };
   });
 };
 
