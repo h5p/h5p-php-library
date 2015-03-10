@@ -39,13 +39,15 @@ H5P.canHasFullScreen = (H5P.isFramed && H5P.externalEmbed !== false) ? (document
  * Initialize H5P content.
  * Scans for ".h5p-content" in the document and initializes H5P instances where found.
  */
-H5P.init = function () {
+H5P.init = function (target) {
   // Useful jQuery object.
-  H5P.$body = H5P.jQuery(document.body);
+  if (H5P.$body === undefined) {
+    H5P.$body = H5P.jQuery(document.body);
+  }
 
   // H5Ps added in normal DIV.
-  var $containers = H5P.jQuery(".h5p-content").each(function () {
-    var $element = H5P.jQuery(this);
+  var $containers = H5P.jQuery('.h5p-content:not(.h5p-initialized)', target).each(function () {
+    var $element = H5P.jQuery(this).addClass('h5p-initialized');
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
     var contentData = H5PIntegration.contents['cid-' + contentId];
@@ -213,8 +215,8 @@ H5P.init = function () {
   });
 
   // Insert H5Ps that should be in iframes.
-  H5P.jQuery("iframe.h5p-iframe").each(function () {
-    var contentId = H5P.jQuery(this).data('content-id');
+  H5P.jQuery('iframe.h5p-iframe:not(.h5p-initialized)', target).each(function () {
+    var contentId = H5P.jQuery(this).addClass('h5p-initialized').data('content-id');
     this.contentDocument.open();
     this.contentDocument.write('<!doctype html><html class="h5p-iframe"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
     this.contentDocument.close();
@@ -1390,6 +1392,6 @@ H5P.on = function(instance, eventType, handler) {
 H5P.jQuery(document).ready(function () {
   if (!H5P.preventInit) {
     // Start script need to be an external resource to load in correct order for IE9.
-    H5P.init();
+    H5P.init(document.body);
   }
 });
