@@ -215,8 +215,6 @@ H5P.init = function () {
   // Insert H5Ps that should be in iframes.
   H5P.jQuery("iframe.h5p-iframe").each(function () {
     var contentId = H5P.jQuery(this).data('content-id');
-    this.contentWindow.H5P = this.contentWindow.H5P || {};
-    this.contentWindow.H5P.externalEmbed = false;
     this.contentDocument.open();
     this.contentDocument.write('<!doctype html><html class="h5p-iframe"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
     this.contentDocument.close();
@@ -261,7 +259,7 @@ H5P.getHeadTags = function (contentId) {
          createStyleTags(H5PIntegration.contents['cid-' + contentId].styles) +
          createScriptTags(H5PIntegration.core.scripts) +
          createScriptTags(H5PIntegration.contents['cid-' + contentId].scripts) +
-         '<script>H5PIntegration = window.top.H5PIntegration; H5P.jQuery(document).ready(function () { H5P.init(); });</script>';
+         '<script>H5PIntegration = window.top.H5PIntegration; var H5P = H5P || {}; H5P.externalEmbed = false;</script>';
 };
 
 H5P.communicator = (function () {
@@ -1387,3 +1385,11 @@ H5P.on = function(instance, eventType, handler) {
     instance.$.on(eventType, handler);
   }
 };
+
+
+H5P.jQuery(document).ready(function () {
+  if (!H5P.preventInit) {
+    // Start script need to be an external resource to load in correct order for IE9.
+    H5P.init();
+  }
+});
