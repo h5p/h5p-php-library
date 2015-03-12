@@ -14,7 +14,7 @@ interface H5PFrameworkInterface {
    *   - h5pVersion: The version of the H5P plugin/module
    */
   public function getPlatformInfo();
-  
+
 
   /**
    * Fetches a file from a remote server using HTTP GET
@@ -527,6 +527,13 @@ interface H5PFrameworkInterface {
    * @return int
    */
   public function getNumContent($libraryId);
+
+  /**
+   * Generate an easy human readable identifier for the given content.
+   *
+   * @param array $content assoc
+   */
+  public function generateHumanReadableContentIdentifier($content);
 }
 
 /**
@@ -1469,7 +1476,7 @@ Class H5PExport {
   public function createExportFile($content) {
     $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
     $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['id'] . '.h5p';
+    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['humanId'] . '.h5p';
 
     // Temp dir to put the h5p files in
     @mkdir($tempPath, 0777, TRUE);
@@ -1690,8 +1697,8 @@ class H5PCore {
    * @param Object $content
    * @return Object NULL on failure.
    */
-  public function filterParameters($content) {
-    if (isset($content['filtered']) && $content['filtered'] !== '') {
+  public function filterParameters(&$content) {
+    if (isset($content['filtered']) && $content['filtered'] !== '' && $content['humanId']) {
       return $content['filtered'];
     }
 
@@ -1713,6 +1720,10 @@ class H5PCore {
       $this->h5pF->deleteLibraryUsage($content['id']);
       $this->h5pF->saveLibraryUsage($content['id'], $content['dependencies']);
 
+      if (!$content['humanId']) {
+        $content['humanId'] = $this->h5pF->generateHumanReadableContentIdentifier($content);
+      }
+
       if ($this->exportEnabled) {
         // Recreate export file
         $exporter = new H5PExport($this->h5pF, $this);
@@ -1722,7 +1733,7 @@ class H5PCore {
       }
 
       // Cache.
-      $this->h5pF->setFilteredParameters($content['id'], $params);
+      $this->h5pF->setFilteredParameters($content['id'], $params, $content['humanId']);
     }
     return $params;
   }
@@ -2286,6 +2297,40 @@ class H5PCore {
     }
 
     return $libraryIdMap[$libString];
+  }
+
+  /**
+   * Convert strings of text to a simple kebab case.
+   * Very useful for readable urls etc.
+   *
+   * @param string $input
+   * @return string
+   */
+  public static function kebabize($input) {
+    // Down low
+    $input = strtolower($input);
+
+    // Replace common chars
+    $input = str_replace(
+      array('æ',  'ø',  'ö', 'ó', 'ô', 'œ',  'å', 'ä', 'á', 'à', 'â', 'ç', 'é', 'è', 'ê', 'ë', 'í', 'î', 'ï', 'ú', 'ñ', 'ü', 'ù', 'û', 'ß'),
+      array('ae', 'oe', 'o', 'o', 'o', 'oe', 'a', 'a', 'a', 'a', 'a', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'u', 'n', 'u', 'u', 'u', 'es'),
+      $input);
+
+    // Replace everything else
+    $input = preg_replace('/[^a-z0-9]/', '-', $input);
+
+    // Prevent double hyphen
+    $input = preg_replace('/-{2,}/', '-', $input);
+
+    // Prevent hyphen in beginning or end
+    $input = preg_replace('/^-|-$/', '', $input);
+
+    if ($input === '') {
+      // Use default string
+      $input = 'interactive';
+    }
+
+    return $input;
   }
 }
 
