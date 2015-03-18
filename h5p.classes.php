@@ -14,7 +14,7 @@ interface H5PFrameworkInterface {
    *   - h5pVersion: The version of the H5P plugin/module
    */
   public function getPlatformInfo();
-  
+
 
   /**
    * Fetches a file from a remote server using HTTP GET
@@ -73,12 +73,6 @@ interface H5PFrameworkInterface {
    *   Path to the folder where the last uploaded h5p for this session is located.
    */
   public function getUploadedH5pFolderPath();
-
-  /**
-   * @return string
-   *   Path to the folder where all h5p files are stored
-   */
-  public function getH5pPath();
 
   /**
    * Get the path to the last uploaded h5p file
@@ -1270,7 +1264,7 @@ class H5PStorage {
       $contentId = $this->h5pC->saveContent($content, $contentMainId);
       $this->contentId = $contentId;
 
-      $contents_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content';
+      $contents_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content';
       if (!is_dir($contents_path)) {
         mkdir($contents_path, 0777, true);
       }
@@ -1298,7 +1292,7 @@ class H5PStorage {
     $oldOnes = 0;
 
     // Find libraries directory and make sure it exists
-    $libraries_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries';
+    $libraries_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries';
     if (!is_dir($libraries_path)) {
       mkdir($libraries_path, 0777, true);
     }
@@ -1396,8 +1390,9 @@ class H5PStorage {
    *  The content id
    */
   public function deletePackage($contentId) {
-    H5PCore::deleteFileTree($this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId);
+    H5PCore::deleteFileTree($this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId);
     $this->h5pF->deleteContentData($contentId);
+    // TODO: Delete export?
   }
 
   /**
@@ -1430,8 +1425,8 @@ class H5PStorage {
    *  The main id of the new content (used in frameworks that support revisioning)
    */
   public function copyPackage($contentId, $copyFromId, $contentMainId = NULL) {
-    $source_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $copyFromId;
-    $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
+    $source_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $copyFromId;
+    $destination_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
     $this->h5pC->copyFileTree($source_path, $destination_path);
 
     $this->h5pF->copyLibraryUsage($contentId, $copyFromId, $contentMainId);
@@ -1467,7 +1462,7 @@ Class H5PExport {
    * @return string
    */
   public function createExportFile($content) {
-    $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
+    $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
     $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['id'] . '.h5p';
 
@@ -1548,7 +1543,7 @@ Class H5PExport {
    *  Identifier for the H5P
    */
   public function deleteExport($contentId) {
-    $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
+    $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $contentId . '.h5p';
     if (file_exists($zipPath)) {
       unlink($zipPath);
@@ -1617,11 +1612,12 @@ class H5PCore {
    * @param boolean $export enabled?
    * @param int $development_mode mode.
    */
-  public function __construct($H5PFramework, $path, $language = 'en', $export = FALSE, $development_mode = H5PDevelopment::MODE_NONE) {
+  public function __construct($H5PFramework, $path, $url, $language = 'en', $export = FALSE, $development_mode = H5PDevelopment::MODE_NONE) {
     $this->h5pF = $H5PFramework;
 
     $this->h5pF = $H5PFramework;
     $this->path = $path;
+    $this->url = $url;
     $this->exportEnabled = $export;
     $this->development_mode = $development_mode;
 
@@ -1787,7 +1783,7 @@ class H5PCore {
     $urls = array();
 
     foreach ($assets as $asset) {
-      $urls[] = $asset->path . $asset->version;
+      $urls[] = $this->url . $asset->path . $asset->version;
     }
 
     return $urls;
@@ -1806,7 +1802,7 @@ class H5PCore {
     );
     foreach ($dependencies as $dependency) {
       if (isset($dependency['path']) === FALSE) {
-        $dependency['path'] = $this->path . '/libraries/' . H5PCore::libraryToString($dependency, TRUE);
+        $dependency['path'] = '/libraries/' . H5PCore::libraryToString($dependency, TRUE);
         $dependency['preloadedJs'] = explode(',', $dependency['preloadedJs']);
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
