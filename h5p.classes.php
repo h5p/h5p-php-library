@@ -1487,8 +1487,6 @@ Class H5PExport {
     // Build h5p.json
     $h5pJson = array (
       'title' => $content['title'],
-      // TODO - stop using 'und', this is not the preferred way.
-      // Either remove language from the json if not existing, or use "language": null
       'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes,
@@ -1557,7 +1555,6 @@ Class H5PExport {
         self::populateFileList($file, $files, $rel . '/');
       }
       else {
-        // TODO: Should we filter out files that aren't in the whitelist?
         $files[] = (object) array(
           'absolutePath' => $file,
           'relativePath' => $rel
@@ -1742,8 +1739,6 @@ class H5PCore {
         // Recreate export file
         $exporter = new H5PExport($this->h5pF, $this);
         $exporter->createExportFile($content);
-
-        // TODO: Should we rather create the file once first accessed, like imagecache?
       }
 
       // Cache.
@@ -2248,8 +2243,6 @@ class H5PCore {
   /**
    * Helper function for creating markup for the unsupported libraries list
    *
-   * TODO: Make help text translatable
-   *
    * @return string Html
    * */
   public function createMarkupForUnsupportedLibraryList($libraries) {
@@ -2350,7 +2343,6 @@ class H5PContentValidator {
 
     // Keep track of the libraries we load to avoid loading it multiple times.
     $this->libraries = array();
-    // TODO: Should this possible be done in core's loadLibrary? This might be done multiple places.
 
     // Keep track of all dependencies for the given content.
     $this->dependencies = array();
