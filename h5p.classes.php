@@ -14,7 +14,7 @@ interface H5PFrameworkInterface {
    *   - h5pVersion: The version of the H5P plugin/module
    */
   public function getPlatformInfo();
-  
+
 
   /**
    * Fetches a file from a remote server using HTTP GET
@@ -1519,26 +1519,51 @@ Class H5PExport {
     $results = print_r(json_encode($h5pJson), true);
     file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'h5p.json', $results);
 
+    // Get a complete file list from our tmp dir
+    $files = array();
+    self::populateFileList($tempPath, $files);
+
     // Create new zip instance.
     $zip = new ZipArchive();
     $zip->open($zipPath, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
 
-    // Get all files and folders in $tempPath
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tempPath . DIRECTORY_SEPARATOR));
-    // Add files to zip
-    foreach ($iterator as $key => $value) {
-      $test = '.';
-      // Do not add the folders '.' and '..' to the zip. This will make zip invalid.
-      if (substr_compare($key, $test, -strlen($test), strlen($test)) !== 0) {
-        // Get files path in $tempPath
-        $filePath = explode($tempPath . DIRECTORY_SEPARATOR, $key);
-        // Add files to the zip with the intended file-structure
-        $zip->addFile($key, $filePath[1]);
-      }
+    // Add all the files from the tmp dir.
+    foreach ($files as $file) {
+      // Please note that the zip format has no concept of folders, we must
+      // use forward slashes to separate our directories.
+      $zip->addFile($file->absolutePath, $file->relativePath);
     }
+
     // Close zip and remove temp dir
     $zip->close();
     H5PCore::deleteFileTree($tempPath);
+  }
+
+  /**
+   * Recursive function the will add the files of the given directory to the
+   * given files list. All files are objects with an absolute path and
+   * a relative path. The relative path is forward slashes only! Great for
+   * use in zip files and URLs.
+   *
+   * @param string $dir path
+   * @param array $files list
+   * @param string $relative prefix. Optional
+   */
+  private static function populateFileList($dir, &$files, $relative = '') {
+    $strip = strlen($dir) + 1;
+    foreach (glob($dir . DIRECTORY_SEPARATOR . '*') as $file) {
+      $rel = $relative . substr($file, $strip);
+      if (is_dir($file)) {
+        self::populateFileList($file, $files, $rel . '/');
+      }
+      else {
+        // TODO: Should we filter out files that aren't in the whitelist?
+        $files[] = (object) array(
+          'absolutePath' => $file,
+          'relativePath' => $rel
+        );
+      }
+    }
   }
 
   /**
