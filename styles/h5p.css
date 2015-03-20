@@ -36,7 +36,9 @@ html.h5p-iframe .h5p-content {
   width: 100%;
   height: 100%;
 }
-.h5p-fullscreen .h5p-content, .h5p-semi-fullscreen .h5p-content {
+.h5p-content.h5p-no-frame,
+.h5p-fullscreen .h5p-content,
+.h5p-semi-fullscreen .h5p-content {
   border: 0;
 }
 .h5p-container {

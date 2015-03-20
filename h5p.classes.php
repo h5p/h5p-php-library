@@ -15,7 +15,6 @@ interface H5PFrameworkInterface {
    */
   public function getPlatformInfo();
 
-
   /**
    * Fetches a file from a remote server using HTTP GET
    *
@@ -1602,6 +1601,22 @@ class H5PCore {
 
   private $exportEnabled;
 
+  // Disable flags
+  const DISABLE_NONE = 0;
+  const DISABLE_FRAME = 1;
+  const DISABLE_DOWNLOAD = 2;
+  const DISABLE_EMBED = 4;
+  const DISABLE_COPYRIGHT = 8;
+  const DISABLE_ABOUT = 16;
+
+  // Map flags to string
+  public static $disable = array(
+    self::DISABLE_FRAME => 'frame',
+    self::DISABLE_DOWNLOAD => 'download',
+    self::DISABLE_EMBED => 'embed',
+    self::DISABLE_COPYRIGHT => 'copyright'
+  );
+
   /**
    * Constructor for the H5PCore
    *
@@ -2271,9 +2286,57 @@ class H5PCore {
         }
       }
       if($platformInfo['uuid'] === '' && isset($json->uuid)) {
-        $this->h5pF->setOption('h5p_site_uuid', $json->uuid);
+        $this->h5pF->setOption('site_uuid', $json->uuid);
       }
     }
+  }
+
+  public function getGlobalDisable() {
+    $disable = self::DISABLE_NONE;
+
+    // Allow global settings to override and disable options
+    if (!$this->h5pF->getOption('frame', TRUE)) {
+      $disable |= self::DISABLE_FRAME;
+    }
+    else {
+      if (!$this->h5pF->getOption('export', TRUE)) {
+        $disable |= self::DISABLE_DOWNLOAD;
+      }
+      if (!$this->h5pF->getOption('embed', TRUE)) {
+        $disable |= self::DISABLE_EMBED;
+      }
+      if (!$this->h5pF->getOption('copyright', TRUE)) {
+        $disable |= self::DISABLE_COPYRIGHT;
+      }
+      if (!$this->h5pF->getOption('icon', TRUE)) {
+        $disable |= self::DISABLE_ABOUT;
+      }
+    }
+
+    return $disable;
+  }
+
+  /**
+   * Determine disable state from sources.
+   *
+   * @param array $sources
+   * @return int
+   */
+  public static function getDisable(&$sources) {
+    $disable = H5PCore::DISABLE_NONE;
+    if (!$sources['frame']) {
+      $disable |= H5PCore::DISABLE_FRAME;
+    }
+    if (!$sources['download']) {
+      $disable |= H5PCore::DISABLE_DOWNLOAD;
+    }
+    if (!$sources['copyright']) {
+      $disable |= H5PCore::DISABLE_COPYRIGHT;
+    }
+    if (!$sources['embed']) {
+      $disable |= H5PCore::DISABLE_EMBED;
+    }
+    return $disable;
   }
 
   // Cache for getting library ids
