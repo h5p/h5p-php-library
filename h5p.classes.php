@@ -1753,8 +1753,9 @@ class H5PCore {
    * @param array $dependency
    * @param string $type
    * @param array $assets
+   * @param string $prefix Optional. Make paths relative to another dir.
    */
-  private function getDependencyAssets($dependency, $type, &$assets) {
+  private function getDependencyAssets($dependency, $type, &$assets, $prefix = '') {
     // Check if dependency has any files of this type
     if (empty($dependency[$type]) || $dependency[$type][0] === '') {
       return;
@@ -1767,7 +1768,7 @@ class H5PCore {
 
     foreach ($dependency[$type] as $file) {
       $assets[] = (object) array(
-        'path' => $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
+        'path' => $prefix . $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
         'version' => $dependency['version']
       );
     }
@@ -1783,7 +1784,19 @@ class H5PCore {
     $urls = array();
 
     foreach ($assets as $asset) {
-      $urls[] = $this->url . $asset->path . $asset->version;
+      $url = $asset->path;
+
+      // Add URL prefix if not external
+      if (strpos($asset->path, '://') === FALSE) {
+        $url = $this->url . $url;
+      }
+
+      // Add version/cache buster if set
+      if (isset($asset->version)) {
+        $url .= $asset->version;
+      }
+
+      $urls[] = $url;
     }
 
     return $urls;
@@ -1793,9 +1806,10 @@ class H5PCore {
    * Return file paths for all dependecies files.
    *
    * @param array $dependencies
+   * @param string $prefix Optional. Make paths relative to another dir.
    * @return array files.
    */
-  public function getDependenciesFiles($dependencies) {
+  public function getDependenciesFiles($dependencies, $prefix = '') {
     $files = array(
       'scripts' => array(),
       'styles' => array()
@@ -1808,8 +1822,8 @@ class H5PCore {
       }
 
       $dependency['version'] = "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}";
-      $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts']);
-      $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles']);
+      $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts'], $prefix);
+      $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles'], $prefix);
     }
     return $files;
   }
