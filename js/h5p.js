@@ -1391,6 +1391,18 @@ H5P.on = function(instance, eventType, handler) {
   }
 };
 
+/**
+ * Create UUID
+ * 
+ * @returns {String} UUID
+ */
+H5P.createUUID = function() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(char) {
+    var random = Math.random()*16|0, newChar = char === 'x' ? random : (random&0x3|0x8);
+    return newChar.toString(16);
+  });
+};
+
 
 H5P.jQuery(document).ready(function () {
   if (!H5P.preventInit) {
