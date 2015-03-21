@@ -2731,11 +2731,14 @@ class H5PContentValidator {
       'type' => 'group',
       'fields' => $library['semantics'],
     ), FALSE);
-    $validkeys = array('library', 'params');
+    $validkeys = array('library', 'params', 'uuid');
     if (isset($semantics->extraAttributes)) {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes);
     }
     $this->filterParams($value, $validkeys);
+    if (isset($value->uuid) && ! preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/', $value->uuid)) {
+      unset($value->uuid); 
+    }
 
     // Find all dependencies for this library
     $depkey = 'preloaded-' . $library['machineName'];

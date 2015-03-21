@@ -8,6 +8,13 @@ var H5P = H5P || {};
 H5P.Event = function(type, data) {
   this.type = type;
   this.data = data;
+  var bubbles = true;
+  this.preventBubbling = function() {
+    bubbles = false;
+  };
+  this.getBubbles = function() {
+    return bubbles;
+  };
 };
 
 H5P.EventDispatcher = (function () {
@@ -132,6 +139,7 @@ H5P.EventDispatcher = (function () {
      *  argument
      */
     this.trigger = function (event, eventData) {
+      console.log(event);
       if (event === undefined) {
         return;
       }
@@ -148,6 +156,9 @@ H5P.EventDispatcher = (function () {
       for (var i = 0; i < triggers[event.type].length; i++) {
         triggers[event.type][i].listener.call(triggers[event.type][i].thisArg, event);
       }
+      if (event.getBubbles() && typeof self.parent === 'function' && typeof self.parent.trigger === 'function') {
+        self.parent.trigger(event);
+      } 
     };
   }
 
