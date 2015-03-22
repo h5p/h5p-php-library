@@ -1785,10 +1785,9 @@ class H5PCore {
     if ($type === 'preloadedCss' && (isset($dependency['dropCss']) && $dependency['dropCss'] === '1')) {
       return;
     }
-
     foreach ($dependency[$type] as $file) {
       $assets[] = (object) array(
-        'path' => $prefix . $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
+        'path' => /*$prefix . */$dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
         'version' => $dependency['version']
       );
     }
@@ -1808,7 +1807,7 @@ class H5PCore {
 
       // Add URL prefix if not external
       if (strpos($asset->path, '://') === FALSE) {
-        $url = $this->url . $url;
+        $url = /*$this->url .*/ $url;
       }
 
       // Add version/cache buster if set
