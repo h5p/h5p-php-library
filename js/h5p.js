@@ -541,10 +541,10 @@ H5P.classFromName = function (name) {
  * @param {Number} contentId
  * @param {jQuery} $attachTo An optional element to attach the instance to.
  * @param {Boolean} skipResize Optionally skip triggering of the resize event after attaching.
- * @param {Object} The parent of this H5P
+ * @param {Object} extras - extra params for the H5P content constructor
  * @return {Object} Instance.
  */
-H5P.newRunnable = function (library, contentId, $attachTo, skipResize, parent) {
+H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
   var nameSplit, versionSplit;
   try {
     nameSplit = library.library.split(' ', 2);
@@ -575,15 +575,20 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, parent) {
     return H5P.error('Unable to find constructor for: ' + library.library);
   }
 
-  var extras = {};
+  if (extras === undefined) {
+    extras = {};
+  }
   if (library.uuid) {
     extras.uuid = library.uuid;
   }
-  if (parent) {
-    extras.parent = parent;
+  
+  // Some old library versions have their own custom third parameter. Make sure we don't send them the extras. They'll interpret it as something else
+  if (H5P.jQuery.inArray(library.library, ['H5P.CoursePresentation 1.0', 'H5P.CoursePresentation 1.1', 'H5P.CoursePresentation 1.2', 'H5P.CoursePresentation 1.3']) > -1) {
+    var instance = new constructor(library.params, contentId);
   }
-
-  var instance = new constructor(library.params, contentId, extras);
+  else {
+    var instance = new constructor(library.params, contentId, extras);
+  }
 
   if (instance.$ === undefined) {
     instance.$ = H5P.jQuery(instance);
@@ -595,8 +600,8 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, parent) {
   if (instance.uuid === undefined && library.uuid) {
     instance.uuid = library.uuid;
   }
-  if (instance.parent === undefined && parent) {
-    instance.parent = parent;
+  if (instance.parent === undefined && extras && extras.parent) {
+    instance.parent = extras.parent;
   }
 
   if ($attachTo !== undefined) {
