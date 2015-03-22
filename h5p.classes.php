@@ -2736,8 +2736,8 @@ class H5PContentValidator {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes);
     }
     $this->filterParams($value, $validkeys);
-    if (isset($value->uuid) && ! preg_match('/^\{?[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}\}?$/', $value->uuid)) {
-      unset($value->uuid); 
+    if (isset($value->uuid) && ! preg_match('/^\{?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\}?$/', $value->uuid)) {
+      unset($value->uuid);
     }
 
     // Find all dependencies for this library
