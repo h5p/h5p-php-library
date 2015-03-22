@@ -81,24 +81,20 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
     this.data.statement.object = {
       'id': this.getContentXAPIId(instance),
       'objectType': 'Activity',
-      'extensions': {
-        'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
+      'definition': {
+        'extensions': {
+          'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
+        }
       }
     };
     if (instance.h5pUUID) {
       this.data.statement.object.extensions['http://h5p.org/x-api/h5p-uuid'] = instance.h5pUUID;
     }
     if (typeof instance.getH5PTitle === 'function') {
-      this.data.statement.object.description = {
+      this.data.statement.object.definition.name = {
         "en-US": instance.getH5PTitle()
       };
     }
-  }
-  else {
-    // Not triggered by an H5P content type...
-    this.data.statement.object = {
-      'objectType': 'Activity'
-    };
   }
 };
 
@@ -111,12 +107,14 @@ H5P.XAPIEvent.prototype.setContext = function(instance) {
   if (instance.parent && instance.parent.contentId || instance.parent.uuid) {
     var parentId = instance.parent.uuid === undefined ? instance.parent.contentId : instance.parent.uuid;
     this.data.statement.context = {
-      "parent": [
-        {
-          "id": getContentXAPIId(instance.parent),
-          "objectType": "Activity"
-        }
-      ]
+      "contextActivities": {
+        "parent": [
+          {
+            "id": this.getContentXAPIId(instance.parent),
+            "objectType": "Activity"
+          }
+        ]
+      }
     };
   }
 };

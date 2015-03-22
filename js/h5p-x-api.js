@@ -39,8 +39,11 @@ H5P.EventDispatcher.prototype.createXAPIEventTemplate = function(verb, extra) {
       event.data.statement[i] = extra[i];
     }
   }
-  if (!('object' in event)) {
+  if (!('object' in event.data.statement)) {
     event.setObject(this);
+  }
+  if (!('context' in event.data.statement)) {
+    event.setContext(this);
   }
   return event;
 };
