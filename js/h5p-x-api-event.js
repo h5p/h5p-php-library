@@ -112,7 +112,7 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
  * @param {object} instance - the H5P instance
  */
 H5P.XAPIEvent.prototype.setContext = function(instance) {
-  if (instance.parent && instance.parent.contentId || instance.parent.uuid) {
+  if (instance.parent && (instance.parent.contentId || instance.parent.uuid)) {
     var parentId = instance.parent.uuid === undefined ? instance.parent.contentId : instance.parent.uuid;
     this.data.statement.context = {
       "contextActivities": {
