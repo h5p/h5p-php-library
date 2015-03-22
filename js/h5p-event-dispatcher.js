@@ -5,10 +5,16 @@ var H5P = H5P || {};
  * The Event class for the EventDispatcher
  * @class
  */
-H5P.Event = function(type, data) {
+H5P.Event = function(type, data, extras) {
   this.type = type;
   this.data = data;
   var bubbles = true;
+  if (extras === undefined) {
+    extras = {};
+  }
+  if (extras.bubbles === false) {
+    bubbles = false;
+  }
   this.preventBubbling = function() {
     bubbles = false;
   };
@@ -139,7 +145,6 @@ H5P.EventDispatcher = (function () {
      *  argument
      */
     this.trigger = function (event, eventData) {
-      console.log(event);
       if (event === undefined) {
         return;
       }
@@ -156,7 +161,7 @@ H5P.EventDispatcher = (function () {
       for (var i = 0; i < triggers[event.type].length; i++) {
         triggers[event.type][i].listener.call(triggers[event.type][i].thisArg, event);
       }
-      if (event.getBubbles() && typeof self.parent === 'function' && typeof self.parent.trigger === 'function') {
+      if (event.getBubbles() && self.parent instanceof H5P.EventDispatcher && typeof self.parent.trigger === 'function') {
         self.parent.trigger(event);
       } 
     };
