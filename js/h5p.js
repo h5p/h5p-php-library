@@ -585,7 +585,6 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
     }
     catch (err) {}
   }
-  console.log(contentExtrasWrapper);
 
   var instance = new constructor(library.params, contentId, contentExtrasWrapper);
 
