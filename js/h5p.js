@@ -114,6 +114,37 @@ H5P.init = function (target) {
     H5P.on(instance, 'xAPI', H5P.xAPICompletedListener);
     H5P.on(instance, 'xAPI', H5P.externalDispatcher.trigger);
 
+    // Auto save current state if supported
+    if (H5PIntegration.saveFreq !== false && (
+        instance.getCurrentState instanceof Function ||
+        typeof instance.getCurrentState === 'function')) {
+
+      var saveTimer, save = function () {
+        var state = instance.getCurrentState();
+        if (state !== undefined) {
+          H5P.setUserData(contentId, 'state', state, true, true);
+        }
+        saveTimer = null;
+      };
+
+      if (H5PIntegration.saveFreq) {
+        // Only run the loop when there's stuff happening (reduces load)
+        H5P.$body.on('mousedown keydown touchstart', function () {
+          if (!saveTimer) {
+            saveTimer = setTimeout(save, H5PIntegration.saveFreq * 1000);
+          }
+        });
+      }
+
+      // xAPI events will schedule a save in three seconds.
+      H5P.on(instance, 'xAPI', function () {
+        if (saveTimer) {
+          clearTimeout(saveTimer);
+        }
+        saveTimer = setTimeout(save, 3000);
+      });
+    }
+
     if (H5P.isFramed) {
       var resizeDelay;
       if (H5P.externalEmbed === false) {
@@ -1512,20 +1543,22 @@ H5P.on = function(instance, eventType, handler) {
       H5P.init(document.body);
     }
 
-    // Store the current state of the H5P when leaving the page.
-    H5P.$window.on('unload', function () {
-      for (var i = 0; i < H5P.instances.length; i++) {
-        var instance = H5P.instances[i];
-        if (instance.getCurrentState instanceof Function ||
-            typeof instance.getCurrentState === 'function') {
-          var state = instance.getCurrentState();
-          if (state !== undefined) {
-            // Async is not used to prevent the request from being cancelled.
-            contentUserDataAjax(instance.contentId, 'state', undefined, state, true, true, false);
+    if (H5PIntegration.saveFreq !== false) {
+      // Store the current state of the H5P when leaving the page.
+      H5P.$window.on('unload', function () {
+        for (var i = 0; i < H5P.instances.length; i++) {
+          var instance = H5P.instances[i];
+          if (instance.getCurrentState instanceof Function ||
+              typeof instance.getCurrentState === 'function') {
+            var state = instance.getCurrentState();
+            if (state !== undefined) {
+              // Async is not used to prevent the request from being cancelled.
+              contentUserDataAjax(instance.contentId, 'state', undefined, state, true, true, false);
+            }
           }
         }
-      }
-    });
+      });
+    }
   });
 
 })(H5P.jQuery);
