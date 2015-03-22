@@ -66,13 +66,10 @@ H5P.EventDispatcher.prototype.triggerXAPICompleted = function(score, maxScore) {
  * @param {function} event - xAPI event
  */
 H5P.xAPICompletedListener = function(event) {
-  var statement = event.data.statement;
-  if ('verb' in statement) {
-    if (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
-      var score = statement.result.score.raw;
-      var maxScore = statement.result.score.max;
-      var contentId = statement.object.definition.extensions['http://h5p.org/x-api/h5p-local-content-id'];
-      H5P.setFinished(contentId, score, maxScore);
-    }
+  if (event.getVerb() === 'completed' && !event.getVerifiedStatementValue(['context', 'contextActivities', 'parent'])) {
+    var score = event.getScore();
+    var maxScore = event.getMaxScore();
+    var contentId = event.getVerifiedStatementValue(['object', 'definition', 'extensions', 'http://h5p.org/x-api/h5p-local-content-id']);
+    H5P.setFinished(contentId, score, maxScore);
   }
 };
