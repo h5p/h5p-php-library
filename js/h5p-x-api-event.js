@@ -44,8 +44,8 @@ H5P.XAPIEvent.prototype.setVerb = function(verb) {
       }
     };
   }
-  else {
-    H5P.error('illegal verb');
+  else if (verb.id !== undefined) {
+    this.data.statement.verb = verb;
   }
 };
 
