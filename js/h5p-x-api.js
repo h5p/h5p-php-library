@@ -71,7 +71,7 @@ H5P.xAPICompletedListener = function(event) {
     if (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
       var score = statement.result.score.raw;
       var maxScore = statement.result.score.max;
-      var contentId = statement.object.extensions['http://h5p.org/x-api/h5p-local-content-id'];
+      var contentId = statement.object.definition.extensions['http://h5p.org/x-api/h5p-local-content-id'];
       H5P.setFinished(contentId, score, maxScore);
     }
   }
