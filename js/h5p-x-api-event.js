@@ -171,8 +171,8 @@ H5P.XAPIEvent.prototype.getContentXAPIId = function (instance) {
   var xAPIId;
   if (instance.contentId) {
     xAPIId =  H5PIntegration.contents['cid-' + instance.contentId].url;
-    if (instance.h5pUUID) {
-      xAPIId += '?uuid=' +  instance.h5pUUID;
+    if (instance.uuid) {
+      xAPIId += '?uuid=' +  instance.uuid;
     }
   }
   return xAPIId;
