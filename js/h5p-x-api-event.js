@@ -87,13 +87,21 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
         }
       }
     };
-    if (instance.h5pUUID) {
-      this.data.statement.object.extensions['http://h5p.org/x-api/h5p-uuid'] = instance.h5pUUID;
+    if (instance.uuid) {
+      this.data.statement.object.definition.extensions['http://h5p.org/x-api/h5p-uuid'] = instance.uuid;
+      // Don't set titles on main content, title should come from publishing platform
+      if (typeof instance.getH5PTitle === 'function') {
+        this.data.statement.object.definition.name = {
+          "en-US": instance.getH5PTitle()
+        };
+      }
     }
-    if (typeof instance.getH5PTitle === 'function') {
-      this.data.statement.object.definition.name = {
-        "en-US": instance.getH5PTitle()
-      };
+    else {
+      if (H5PIntegration.contents['cid-' + instance.contentId].title) {
+        this.data.statement.object.definition.name = {
+          "en-US": H5P.createH5PTitle(H5PIntegration.contents['cid-' + instance.contentId].title)
+        };
+      }
     }
   }
 };
