@@ -576,7 +576,6 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, parent) {
   }
 
   var extras = {};
-
   if (library.uuid) {
     extras.uuid = library.uuid;
   }
@@ -1418,8 +1417,20 @@ H5P.createUUID = function() {
   });
 };
 
-H5P.createH5PTitle = function(rawTitle) {
-  return H5P.jQuery('<div></div>').text(rawTitle).text().substr(0, 60);
+H5P.createH5PTitle = function(rawTitle, maxLength) {
+  if (maxLength === undefined) {
+    maxLength = 60;
+  }
+  var title = H5P.jQuery('<div></div>')
+    .text(
+      // Strip tags
+      rawTitle.replace(/(<([^>]+)>)/ig,"")
+    // Escape
+    ).text();
+  if (title.length > maxLength) {
+    title = title.substr(0, maxLength - 3) + '...';
+  }
+  return title;
 };
 
 H5P.jQuery(document).ready(function () {
