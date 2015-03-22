@@ -6,7 +6,7 @@ var H5P = H5P || {};
  * @class
  */
 H5P.XAPIEvent = function() {
-  H5P.Event.call(this, 'xAPI', {'statement': {}});
+  H5P.Event.call(this, 'xAPI', {'statement': {}}, {bubbles: true});
 };
 
 H5P.XAPIEvent.prototype = Object.create(H5P.Event.prototype);
