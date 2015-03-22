@@ -59,7 +59,8 @@ H5P.init = function (target) {
     }
     var library = {
       library: contentData.library,
-      params: JSON.parse(contentData.jsonContent)
+      params: JSON.parse(contentData.jsonContent),
+      userDatas: contentData.contentUserDatas
     };
 
     // Create new instance.
@@ -575,7 +576,18 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
     return H5P.error('Unable to find constructor for: ' + library.library);
   }
 
-  var instance = new constructor(library.params, contentId);
+  var contentExtrasWrapper;
+  if (library.userDatas && library.userDatas.state) {
+    try {
+      contentExtrasWrapper = {
+        previousState: JSON.parse(library.userDatas.state)
+      };
+    }
+    catch (err) {}
+  }
+  console.log(contentExtrasWrapper);
+
+  var instance = new constructor(library.params, contentId, contentExtrasWrapper);
 
   if (instance.$ === undefined) {
     instance.$ = H5P.jQuery(instance);
@@ -1391,10 +1403,130 @@ H5P.on = function(instance, eventType, handler) {
   }
 };
 
+// Wrap in privates
+(function ($) {
 
-H5P.jQuery(document).ready(function () {
-  if (!H5P.preventInit) {
-    // Start script need to be an external resource to load in correct order for IE9.
-    H5P.init(document.body);
+  /**
+   * Creates ajax requests for inserting, updateing and deleteing
+   * content user data.
+   *
+   * @private
+   * @param {number} contentId What content to store the data for.
+   * @param {string} dataType Identifies the set of data for this content.
+   * @param {function} [done] Callback when ajax is done.
+   * @param {object} [data] To be stored for future use.
+   * @param {boolean} [preload=false] Data is loaded when content is loaded.
+   * @param {boolean} [invalidate=false] Data is invalidated when content changes.
+   * @param {boolean} [async=true]
+   */
+  function contentUserDataAjax(contentId, dataType, done, data, preload, invalidate, async) {
+    var options = {
+      url: H5PIntegration.ajaxPath + 'content-user-data/' + contentId + '/' + dataType,
+      dataType: 'json',
+      async: async === undefined ? true : async
+    };
+    if (data !== undefined) {
+      options.type = 'POST';
+      options.data = {
+        data: (data === null ? 0 : JSON.stringify(data)),
+        preload: (preload ? 1 : 0),
+        invalidate: (invalidate ? 1 : 0)
+      };
+    }
+    else {
+      options.type = 'GET';
+    }
+    if (done !== undefined) {
+      options.error = function (xhr, error) {
+        done(error);
+      };
+      options.success = function (response) {
+        if (!response.success) {
+          done(response.error);
+          return;
+        }
+
+        if (response.data === false || response.data === undefined) {
+          done();
+          return;
+        }
+
+        try {
+          done(undefined, JSON.parse(response.data));
+        }
+        catch (error) {
+          done('Unable to decode data.');
+        }
+      };
+    }
+
+    $.ajax(options);
   }
-});
+
+  /**
+   * Get user data for given content.
+   *
+   * @public
+   * @param {number} contentId What content to get data for.
+   * @param {string} dataId Identifies the set of data for this content.
+   * @param {function} [done] Callback with error and data parameters.
+   */
+  H5P.getUserData = function (contentId, dataId, done) {
+    contentUserDataAjax(contentId, dataId, done);
+  };
+
+  /**
+   * Set user data for given content.
+   *
+   * @public
+   * @param {number} contentId What content to get data for.
+   * @param {string} dataId Identifies the set of data for this content.
+   * @param {object} data The data that is to be stored.
+   * @param {boolean} [preloaded=false] If the data should be loaded when content is loaded.
+   * @param {boolean} [deleteOnChange=false] If the data should be invalidated when the content changes.
+   * @param {function} [errorCallback] Callback with error as parameters.
+   */
+  H5P.setUserData = function (contentId, dataId, data, preloaded, deleteOnChange, errorCallback) {
+    contentUserDataAjax(contentId, dataId, function (error, data) {
+      if (errorCallback && error) {
+        errorCallback(error);
+      }
+    }, data, preloaded, deleteOnChange);
+  };
+
+  /**
+   * Delete user data for given content.
+   *
+   * @public
+   * @param {number} contentId What content to remove data for.
+   * @param {string} dataId Identifies the set of data for this content.
+   */
+  H5P.deleteUserData = function (contentId, dataId) {
+    contentUserDataAjax(contentId, dataId, undefined, null);
+  };
+
+  // Init H5P when page is fully loadded
+  $(document).ready(function () {
+    if (!H5P.preventInit) {
+      // Note that this start script has to be an external resource for it to
+      // load in correct order in IE9.
+      H5P.init(document.body);
+    }
+
+    // Store the current state of the H5P when leaving the page.
+    H5P.$window.on('unload', function () {
+      for (var i = 0; i < H5P.instances.length; i++) {
+        var instance = H5P.instances[i];
+        if (instance.getCurrentState instanceof Function ||
+            typeof instance.getCurrentState === 'function') {
+          var state = instance.getCurrentState();
+          if (state !== undefined) {
+            // Async is not used to prevent the request from being cancelled.
+            contentUserDataAjax(instance.contentId, 'state', undefined, state, true, true, false);
+          }
+        }
+      }
+    });
+  });
+
+})(H5P.jQuery);
