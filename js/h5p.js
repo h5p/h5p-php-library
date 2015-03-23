@@ -33,8 +33,6 @@ else if (document.documentElement.msRequestFullscreen) {
 // Keep track of when the H5Ps where started
 H5P.opened = {};
 
-H5P.canHasFullScreen = (H5P.isFramed && H5P.externalEmbed !== false) ? (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled) : true;
-
 /**
  * Initialize H5P content.
  * Scans for ".h5p-content" in the document and initializes H5P instances where found.
@@ -43,6 +41,11 @@ H5P.init = function (target) {
   // Useful jQuery object.
   if (H5P.$body === undefined) {
     H5P.$body = H5P.jQuery(document.body);
+  }
+
+  // Determine if we can use full screen
+  if (H5P.canHasFullScreen === undefined) {
+    H5P.canHasFullScreen = (H5P.isFramed && H5P.externalEmbed !== false) ? (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled) : true;
   }
 
   // H5Ps added in normal DIV.

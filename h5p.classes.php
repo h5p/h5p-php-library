@@ -14,7 +14,7 @@ interface H5PFrameworkInterface {
    *   - h5pVersion: The version of the H5P plugin/module
    */
   public function getPlatformInfo();
-  
+
 
   /**
    * Fetches a file from a remote server using HTTP GET
@@ -1487,8 +1487,6 @@ Class H5PExport {
     // Build h5p.json
     $h5pJson = array (
       'title' => $content['title'],
-      // TODO - stop using 'und', this is not the preferred way.
-      // Either remove language from the json if not existing, or use "language": null
       'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes,
@@ -1519,26 +1517,50 @@ Class H5PExport {
     $results = print_r(json_encode($h5pJson), true);
     file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'h5p.json', $results);
 
+    // Get a complete file list from our tmp dir
+    $files = array();
+    self::populateFileList($tempPath, $files);
+
     // Create new zip instance.
     $zip = new ZipArchive();
     $zip->open($zipPath, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
 
-    // Get all files and folders in $tempPath
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tempPath . DIRECTORY_SEPARATOR));
-    // Add files to zip
-    foreach ($iterator as $key => $value) {
-      $test = '.';
-      // Do not add the folders '.' and '..' to the zip. This will make zip invalid.
-      if (substr_compare($key, $test, -strlen($test), strlen($test)) !== 0) {
-        // Get files path in $tempPath
-        $filePath = explode($tempPath . DIRECTORY_SEPARATOR, $key);
-        // Add files to the zip with the intended file-structure
-        $zip->addFile($key, $filePath[1]);
-      }
+    // Add all the files from the tmp dir.
+    foreach ($files as $file) {
+      // Please note that the zip format has no concept of folders, we must
+      // use forward slashes to separate our directories.
+      $zip->addFile($file->absolutePath, $file->relativePath);
     }
+
     // Close zip and remove temp dir
     $zip->close();
     H5PCore::deleteFileTree($tempPath);
+  }
+
+  /**
+   * Recursive function the will add the files of the given directory to the
+   * given files list. All files are objects with an absolute path and
+   * a relative path. The relative path is forward slashes only! Great for
+   * use in zip files and URLs.
+   *
+   * @param string $dir path
+   * @param array $files list
+   * @param string $relative prefix. Optional
+   */
+  private static function populateFileList($dir, &$files, $relative = '') {
+    $strip = strlen($dir) + 1;
+    foreach (glob($dir . DIRECTORY_SEPARATOR . '*') as $file) {
+      $rel = $relative . substr($file, $strip);
+      if (is_dir($file)) {
+        self::populateFileList($file, $files, $rel . '/');
+      }
+      else {
+        $files[] = (object) array(
+          'absolutePath' => $file,
+          'relativePath' => $rel
+        );
+      }
+    }
   }
 
   /**
@@ -1717,8 +1739,6 @@ class H5PCore {
         // Recreate export file
         $exporter = new H5PExport($this->h5pF, $this);
         $exporter->createExportFile($content);
-
-        // TODO: Should we rather create the file once first accessed, like imagecache?
       }
 
       // Cache.
@@ -2223,8 +2243,6 @@ class H5PCore {
   /**
    * Helper function for creating markup for the unsupported libraries list
    *
-   * TODO: Make help text translatable
-   *
    * @return string Html
    * */
   public function createMarkupForUnsupportedLibraryList($libraries) {
@@ -2325,7 +2343,6 @@ class H5PContentValidator {
 
     // Keep track of the libraries we load to avoid loading it multiple times.
     $this->libraries = array();
-    // TODO: Should this possible be done in core's loadLibrary? This might be done multiple places.
 
     // Keep track of all dependencies for the given content.
     $this->dependencies = array();
