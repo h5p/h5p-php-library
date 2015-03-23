@@ -266,20 +266,10 @@ H5P.init = function (target) {
  * @returns {string} HTML
  */
 H5P.getHeadTags = function (contentId) {
-  var basePath = window.location.protocol + '//' + window.location.host + H5PIntegration.basePath;
-
-  var createUrl = function (path) {
-    if (path.substring(0,7) !== 'http://' && path.substring(0,8) !== 'https://') {
-      // Not external, add base path.
-      path = basePath + path;
-    }
-    return path;
-  };
-
   var createStyleTags = function (styles) {
     var tags = '';
     for (var i = 0; i < styles.length; i++) {
-      tags += '<link rel="stylesheet" href="' + createUrl(styles[i]) + '">';
+      tags += '<link rel="stylesheet" href="' + styles[i] + '">';
     }
     return tags;
   };
@@ -287,7 +277,7 @@ H5P.getHeadTags = function (contentId) {
   var createScriptTags = function (scripts) {
     var tags = '';
     for (var i = 0; i < scripts.length; i++) {
-      tags += '<script src="' + createUrl(scripts[i]) + '"></script>';
+      tags += '<script src="' + scripts[i] + '"></script>';
     }
     return tags;
   };
