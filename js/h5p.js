@@ -514,6 +514,19 @@ H5P.getPath = function (path, contentId) {
 };
 
 /**
+ * THIS FUNCTION IS DEPRECATED, USE getPath INSTEAD
+ * Will be remove march 2016.
+ *
+ *  Find the path to the content files folder based on the id of the content
+ *
+ *  @param contentId
+ *  Id of the content requesting a path
+ */
+H5P.getContentPath = function (contentId) {
+  return H5PIntegration.url + '/content/' + contentId;
+};
+
+/**
  * Get library class constructor from H5P by classname.
  * Note that this class will only work for resolve "H5P.NameWithoutDot".
  * Also check out: H5P.newRunnable
