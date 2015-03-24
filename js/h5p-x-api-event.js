@@ -97,7 +97,7 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
       }
     }
     else {
-      if (H5PIntegration.contents['cid-' + instance.contentId].title) {
+      if (H5PIntegration && H5PIntegration.contents && H5PIntegration.contents['cid-' + instance.contentId].title) {
         this.data.statement.object.definition.name = {
           "en-US": H5P.createH5PTitle(H5PIntegration.contents['cid-' + instance.contentId].title)
         };
@@ -177,7 +177,7 @@ H5P.XAPIEvent.prototype.getScore = function() {
 
 H5P.XAPIEvent.prototype.getContentXAPIId = function (instance) {
   var xAPIId;
-  if (instance.contentId) {
+  if (instance.contentId && H5PIntegration && H5PIntegration.contents) {
     xAPIId =  H5PIntegration.contents['cid-' + instance.contentId].url;
     if (instance.uuid) {
       xAPIId += '?uuid=' +  instance.uuid;
