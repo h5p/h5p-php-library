@@ -150,7 +150,7 @@ H5P.XAPIEvent.prototype.setActor = function() {
     this.data.statement.actor = {
       'account': {
         'name': uuid,
-        'homePage': window.location.origin + H5PIntegration.basePath
+        'homePage': H5PIntegration.siteUrl
       },
       'objectType': 'Agent'
     };
