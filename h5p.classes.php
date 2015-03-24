@@ -1787,7 +1787,7 @@ class H5PCore {
     }
     foreach ($dependency[$type] as $file) {
       $assets[] = (object) array(
-        'path' => $prefix . $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
+        'path' => /*$prefix .*/ $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
         'version' => $dependency['version']
       );
     }
