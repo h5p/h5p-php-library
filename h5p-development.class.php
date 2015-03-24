@@ -86,7 +86,7 @@ class H5PDevelopment {
       $library['libraryId'] = $this->h5pF->getLibraryId($library['machineName'], $library['majorVersion'], $library['minorVersion']);
       $this->h5pF->saveLibraryData($library, $library['libraryId'] === FALSE);
 
-      $library['path'] = $libraryPath;
+      $library['path'] = $path . '/' . $contents[$i];
       $this->libraries[H5PDevelopment::libraryToString($library['machineName'], $library['majorVersion'], $library['minorVersion'])] = $library;
     }
 
@@ -139,7 +139,6 @@ class H5PDevelopment {
    */
   public function getSemantics($name, $majorVersion, $minorVersion) {
     $library = H5PDevelopment::libraryToString($name, $majorVersion, $minorVersion);
-
     if (isset($this->libraries[$library]) === FALSE) {
       return NULL;
     }

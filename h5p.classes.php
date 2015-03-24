@@ -1785,8 +1785,6 @@ class H5PCore {
     if ($type === 'preloadedCss' && (isset($dependency['dropCss']) && $dependency['dropCss'] === '1')) {
       return;
     }
-    dpm($prefix);
-    dpm($dependency['path']);
     foreach ($dependency[$type] as $file) {
       $assets[] = (object) array(
         'path' => $prefix . $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
