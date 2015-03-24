@@ -57,6 +57,12 @@ H5P.init = function (target) {
     if (contentData === undefined) {
       return H5P.error('No data for content id ' + contentId + '. Perhaps the library is gone?');
     }
+    if (contentData.contentUserDatas && contentData.contentUserDatas.state) {
+      try {
+        contentData.contentUserDatas.state = JSON.parse(contentData.contentUserDatas.state);
+      }
+      catch (err) {}
+    }
     var library = {
       library: contentData.library,
       params: JSON.parse(contentData.jsonContent),
@@ -612,12 +618,9 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize) {
 
   var contentExtrasWrapper;
   if (library.userDatas && library.userDatas.state) {
-    try {
-      contentExtrasWrapper = {
-        previousState: JSON.parse(library.userDatas.state)
-      };
-    }
-    catch (err) {}
+    contentExtrasWrapper = {
+      previousState: library.userDatas.state
+    };
   }
 
   var instance = new constructor(library.params, contentId, contentExtrasWrapper);
