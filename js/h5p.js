@@ -58,10 +58,27 @@ H5P.init = function (target) {
       return H5P.error('No data for content id ' + contentId + '. Perhaps the library is gone?');
     }
     if (contentData.contentUserDatas && contentData.contentUserDatas.state) {
-      try {
-        contentData.contentUserDatas.state = JSON.parse(contentData.contentUserDatas.state);
+      if (contentData.contentUserDatas.state === 'RESET') {
+        // Content has been reset. Display dialog.
+        delete contentData.contentUserDatas;
+        var dialog = new H5P.Dialog('content-user-data-reset', 'Data Reset', '<p>' + H5P.t('contentChanged') + '</p><p>' + H5P.t('startingOver') + '</p><div class="h5p-dialog-ok-button" tabIndex="0" role="button">OK</div>', $container);
+        H5P.jQuery(dialog).on('dialog-opened', function (event, $dialog) {
+          $dialog.find('.h5p-dialog-ok-button').click(function () {
+            dialog.close();
+          }).keypress(function (event) {
+            if (event.which === 32) {
+              dialog.close();
+            }
+          });
+        });
+        dialog.open();
       }
-      catch (err) {}
+      else {
+        try {
+          contentData.contentUserDatas.state = JSON.parse(contentData.contentUserDatas.state);
+        }
+        catch (err) {}
+      }
     }
     var library = {
       library: contentData.library,
