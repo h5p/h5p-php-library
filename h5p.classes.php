@@ -1499,7 +1499,7 @@ Class H5PExport {
       $library = $dependency['library'];
 
       // Copy library to h5p
-      $source = isset($library['path']) ? $library['path'] : $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
+      $source = $h5pDir . (isset($library['path']) ? $library['path'] : 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE));
       $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
       $this->h5pC->copyFileTree($source, $destination);
 
