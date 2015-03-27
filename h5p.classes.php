@@ -248,6 +248,13 @@ interface H5PFrameworkInterface {
   public function updateContent($content, $contentMainId = NULL);
 
   /**
+   * Resets marked user data for the given content.
+   *
+   * @param int $contentId
+   */
+  public function resetContentUserData($contentId);
+
+  /**
    * Save what libraries a library is dependending on
    *
    * @param int $libraryId
@@ -1599,7 +1606,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 4
+    'minorVersion' => 5
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -1644,7 +1651,7 @@ class H5PCore {
     $this->development_mode = $development_mode;
 
     if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
-      $this->h5pD = new H5PDevelopment($this->h5pF, $path, $language);
+      $this->h5pD = new H5PDevelopment($this->h5pF, $path . '/', $language);
     }
   }
 
@@ -1661,6 +1668,9 @@ class H5PCore {
     else {
       $content['id'] = $this->h5pF->insertContent($content, $contentMainId);
     }
+
+    // Some user data for content has to be reset when the content changes.
+    $this->h5pF->resetContentUserData($contentMainId ? $contentMainId : $content['id']);
 
     return $content['id'];
   }
@@ -1787,7 +1797,7 @@ class H5PCore {
     }
     foreach ($dependency[$type] as $file) {
       $assets[] = (object) array(
-        'path' => /*$prefix .*/ $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
+        'path' => $prefix . '/' . $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
         'version' => $dependency['version']
       );
     }
@@ -1835,7 +1845,7 @@ class H5PCore {
     );
     foreach ($dependencies as $dependency) {
       if (isset($dependency['path']) === FALSE) {
-        $dependency['path'] = '/libraries/' . H5PCore::libraryToString($dependency, TRUE);
+        $dependency['path'] = 'libraries/' . H5PCore::libraryToString($dependency, TRUE);
         $dependency['preloadedJs'] = explode(',', $dependency['preloadedJs']);
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
@@ -2739,13 +2749,13 @@ class H5PContentValidator {
       'type' => 'group',
       'fields' => $library['semantics'],
     ), FALSE);
-    $validkeys = array('library', 'params', 'uuid');
+    $validkeys = array('library', 'params', 'subContentId');
     if (isset($semantics->extraAttributes)) {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes);
     }
     $this->filterParams($value, $validkeys);
-    if (isset($value->uuid) && ! preg_match('/^\{?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\}?$/', $value->uuid)) {
-      unset($value->uuid);
+    if (isset($value->subContentId) && ! preg_match('/^\{?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\}?$/', $value->subContentId)) {
+      unset($value->subContentId);
     }
 
     // Find all dependencies for this library

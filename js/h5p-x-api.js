@@ -4,7 +4,7 @@ var H5P = H5P || {};
 H5P.externalDispatcher = new H5P.EventDispatcher();
 
 if (H5P.isFramed && H5P.externalEmbed !== true) {
-  H5P.externalDispatcher.on('xAPI', window.top.H5P.externalDispatcher.trigger);
+  H5P.externalDispatcher.on('*', window.top.H5P.externalDispatcher.trigger);
 }
 
 // EventDispatcher extensions

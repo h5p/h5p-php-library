@@ -6,7 +6,7 @@ var H5P = H5P || {};
  * @class
  */
 H5P.XAPIEvent = function() {
-  H5P.Event.call(this, 'xAPI', {'statement': {}}, {bubbles: true});
+  H5P.Event.call(this, 'xAPI', {'statement': {}}, {bubbles: true, external: true});
 };
 
 H5P.XAPIEvent.prototype = Object.create(H5P.Event.prototype);
@@ -87,8 +87,8 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
         }
       }
     };
-    if (instance.uuid) {
-      this.data.statement.object.definition.extensions['http://h5p.org/x-api/h5p-uuid'] = instance.uuid;
+    if (instance.subContentId) {
+      this.data.statement.object.definition.extensions['http://h5p.org/x-api/h5p-subContentId'] = instance.subContentId;
       // Don't set titles on main content, title should come from publishing platform
       if (typeof instance.getH5PTitle === 'function') {
         this.data.statement.object.definition.name = {
@@ -112,8 +112,8 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
  * @param {object} instance - the H5P instance
  */
 H5P.XAPIEvent.prototype.setContext = function(instance) {
-  if (instance.parent && (instance.parent.contentId || instance.parent.uuid)) {
-    var parentId = instance.parent.uuid === undefined ? instance.parent.contentId : instance.parent.uuid;
+  if (instance.parent && (instance.parent.contentId || instance.parent.subContentId)) {
+    var parentId = instance.parent.subContentId === undefined ? instance.parent.contentId : instance.parent.subContentId;
     this.data.statement.context = {
       "contextActivities": {
         "parent": [
@@ -179,8 +179,8 @@ H5P.XAPIEvent.prototype.getContentXAPIId = function (instance) {
   var xAPIId;
   if (instance.contentId && H5PIntegration && H5PIntegration.contents) {
     xAPIId =  H5PIntegration.contents['cid-' + instance.contentId].url;
-    if (instance.uuid) {
-      xAPIId += '?uuid=' +  instance.uuid;
+    if (instance.subContentId) {
+      xAPIId += '?subContentId=' +  instance.subContentId;
     }
   }
   return xAPIId;
