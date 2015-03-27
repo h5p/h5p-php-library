@@ -3,7 +3,7 @@ var H5P = H5P || {};
 // Create object where external code may register and listen for H5P Events
 H5P.externalDispatcher = new H5P.EventDispatcher();
 
-if (H5P.isFramed && H5P.externalEmbed === false) {
+if (H5P.isFramed && H5P.externalEmbed !== true) {
   H5P.externalDispatcher.on('xAPI', window.top.H5P.externalDispatcher.trigger);
 }
 
@@ -39,8 +39,11 @@ H5P.EventDispatcher.prototype.createXAPIEventTemplate = function(verb, extra) {
       event.data.statement[i] = extra[i];
     }
   }
-  if (!('object' in event)) {
+  if (!('object' in event.data.statement)) {
     event.setObject(this);
+  }
+  if (!('context' in event.data.statement)) {
+    event.setContext(this);
   }
   return event;
 };
@@ -63,13 +66,10 @@ H5P.EventDispatcher.prototype.triggerXAPICompleted = function(score, maxScore) {
  * @param {function} event - xAPI event
  */
 H5P.xAPICompletedListener = function(event) {
-  var statement = event.data.statement;
-  if ('verb' in statement) {
-    if (statement.verb.id === 'http://adlnet.gov/expapi/verbs/completed') {
-      var score = statement.result.score.raw;
-      var maxScore = statement.result.score.max;
-      var contentId = statement.object.extensions['http://h5p.org/x-api/h5p-local-content-id'];
-      H5P.setFinished(contentId, score, maxScore);
-    }
+  if (event.getVerb() === 'completed' && !event.getVerifiedStatementValue(['context', 'contextActivities', 'parent'])) {
+    var score = event.getScore();
+    var maxScore = event.getMaxScore();
+    var contentId = event.getVerifiedStatementValue(['object', 'definition', 'extensions', 'http://h5p.org/x-api/h5p-local-content-id']);
+    H5P.setFinished(contentId, score, maxScore);
   }
 };

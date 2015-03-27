@@ -6,7 +6,7 @@ var H5P = H5P || {};
  * @class
  */
 H5P.XAPIEvent = function() {
-  H5P.Event.call(this, 'xAPI', {'statement': {}});
+  H5P.Event.call(this, 'xAPI', {'statement': {}}, {bubbles: true});
 };
 
 H5P.XAPIEvent.prototype = Object.create(H5P.Event.prototype);
@@ -44,8 +44,8 @@ H5P.XAPIEvent.prototype.setVerb = function(verb) {
       }
     };
   }
-  else {
-    H5P.error('illegal verb');
+  else if (verb.id !== undefined) {
+    this.data.statement.verb = verb;
   }
 };
 
@@ -79,17 +79,50 @@ H5P.XAPIEvent.prototype.getVerb = function(full) {
 H5P.XAPIEvent.prototype.setObject = function(instance) {
   if (instance.contentId) {
     this.data.statement.object = {
-      'id': H5PIntegration.contents['cid-' + instance.contentId].url,
+      'id': this.getContentXAPIId(instance),
       'objectType': 'Activity',
-      'extensions': {
-        'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
+      'definition': {
+        'extensions': {
+          'http://h5p.org/x-api/h5p-local-content-id': instance.contentId
+        }
       }
     };
+    if (instance.uuid) {
+      this.data.statement.object.definition.extensions['http://h5p.org/x-api/h5p-uuid'] = instance.uuid;
+      // Don't set titles on main content, title should come from publishing platform
+      if (typeof instance.getH5PTitle === 'function') {
+        this.data.statement.object.definition.name = {
+          "en-US": instance.getH5PTitle()
+        };
+      }
+    }
+    else {
+      if (H5PIntegration && H5PIntegration.contents && H5PIntegration.contents['cid-' + instance.contentId].title) {
+        this.data.statement.object.definition.name = {
+          "en-US": H5P.createH5PTitle(H5PIntegration.contents['cid-' + instance.contentId].title)
+        };
+      }
+    }
   }
-  else {
-    // Not triggered by an H5P content type...
-    this.data.statement.object = {
-      'objectType': 'Activity'
+};
+
+/**
+ * Helperfunction to set the context part of the statement.
+ *
+ * @param {object} instance - the H5P instance
+ */
+H5P.XAPIEvent.prototype.setContext = function(instance) {
+  if (instance.parent && (instance.parent.contentId || instance.parent.uuid)) {
+    var parentId = instance.parent.uuid === undefined ? instance.parent.contentId : instance.parent.uuid;
+    this.data.statement.context = {
+      "contextActivities": {
+        "parent": [
+          {
+            "id": this.getContentXAPIId(instance.parent),
+            "objectType": "Activity"
+          }
+        ]
+      }
     };
   }
 };
@@ -111,10 +144,7 @@ H5P.XAPIEvent.prototype.setActor = function() {
       uuid = localStorage.H5PUserUUID;
     }
     else {
-      uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(char) {
-        var random = Math.random()*16|0, newChar = char === 'x' ? random : (random&0x3|0x8);
-        return newChar.toString(16);
-      });
+      uuid = H5P.createUUID();
       localStorage.H5PUserUUID = uuid;
     }
     this.data.statement.actor = {
@@ -144,6 +174,17 @@ H5P.XAPIEvent.prototype.getMaxScore = function() {
 H5P.XAPIEvent.prototype.getScore = function() {
   return this.getVerifiedStatementValue(['result', 'score', 'raw']);
 };
+
+H5P.XAPIEvent.prototype.getContentXAPIId = function (instance) {
+  var xAPIId;
+  if (instance.contentId && H5PIntegration && H5PIntegration.contents) {
+    xAPIId =  H5PIntegration.contents['cid-' + instance.contentId].url;
+    if (instance.uuid) {
+      xAPIId += '?uuid=' +  instance.uuid;
+    }
+  }
+  return xAPIId;
+}
 
 /**
  * Figure out if a property exists in the statement and return it

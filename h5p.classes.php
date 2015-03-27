@@ -1785,10 +1785,9 @@ class H5PCore {
     if ($type === 'preloadedCss' && (isset($dependency['dropCss']) && $dependency['dropCss'] === '1')) {
       return;
     }
-
     foreach ($dependency[$type] as $file) {
       $assets[] = (object) array(
-        'path' => $prefix . $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
+        'path' => /*$prefix .*/ $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
         'version' => $dependency['version']
       );
     }
@@ -1840,7 +1839,6 @@ class H5PCore {
         $dependency['preloadedJs'] = explode(',', $dependency['preloadedJs']);
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
-
       $dependency['version'] = "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}";
       $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts'], $prefix);
       $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles'], $prefix);
@@ -2741,11 +2739,14 @@ class H5PContentValidator {
       'type' => 'group',
       'fields' => $library['semantics'],
     ), FALSE);
-    $validkeys = array('library', 'params');
+    $validkeys = array('library', 'params', 'uuid');
     if (isset($semantics->extraAttributes)) {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes);
     }
     $this->filterParams($value, $validkeys);
+    if (isset($value->uuid) && ! preg_match('/^\{?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\}?$/', $value->uuid)) {
+      unset($value->uuid);
+    }
 
     // Find all dependencies for this library
     $depkey = 'preloaded-' . $library['machineName'];
