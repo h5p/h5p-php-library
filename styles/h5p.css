@@ -390,3 +390,18 @@ div.h5p-fullscreen {
   min-height: 30px;
   line-height: 30px;
 }
+.h5p-dialog-ok-button {
+  cursor: default;
+  float: right;
+  outline: none;
+  border: 2px solid #ccc;
+  padding: 0.25em 0.75em 0.125em;
+  background: #eee;
+}
+.h5p-dialog-ok-button:hover,
+.h5p-dialog-ok-button:focus {
+  background: #fafafa;
+}
+.h5p-dialog-ok-button:active {
+  background: #eeffee;
+}
