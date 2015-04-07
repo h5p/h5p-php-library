@@ -99,7 +99,7 @@ H5P.XAPIEvent.prototype.setObject = function(instance) {
     else {
       if (H5PIntegration && H5PIntegration.contents && H5PIntegration.contents['cid-' + instance.contentId].title) {
         this.data.statement.object.definition.name = {
-          "en-US": H5P.createH5PTitle(H5PIntegration.contents['cid-' + instance.contentId].title)
+          "en-US": H5P.createTitle(H5PIntegration.contents['cid-' + instance.contentId].title)
         };
       }
     }

@@ -1491,7 +1491,7 @@ H5P.createUUID = function() {
   });
 };
 
-H5P.createH5PTitle = function(rawTitle, maxLength) {
+H5P.createTitle = function(rawTitle, maxLength) {
   if (maxLength === undefined) {
     maxLength = 60;
   }
