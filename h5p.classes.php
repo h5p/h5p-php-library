@@ -1606,7 +1606,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 4
+    'minorVersion' => 5
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -2749,13 +2749,13 @@ class H5PContentValidator {
       'type' => 'group',
       'fields' => $library['semantics'],
     ), FALSE);
-    $validkeys = array('library', 'params', 'uuid');
+    $validkeys = array('library', 'params', 'subContentId');
     if (isset($semantics->extraAttributes)) {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes);
     }
     $this->filterParams($value, $validkeys);
-    if (isset($value->uuid) && ! preg_match('/^\{?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\}?$/', $value->uuid)) {
-      unset($value->uuid);
+    if (isset($value->subContentId) && ! preg_match('/^\{?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\}?$/', $value->subContentId)) {
+      unset($value->subContentId);
     }
 
     // Find all dependencies for this library
