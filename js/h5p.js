@@ -143,7 +143,7 @@ H5P.init = function (target) {
       var saveTimer, save = function () {
         var state = instance.getCurrentState();
         if (state !== undefined) {
-          H5P.setUserData(contentId, 'state', state, undefined, true, true);
+          H5P.setUserData(contentId, 'state', state, {deleteOnChange: true});
         }
         if (H5PIntegration.saveFreq) {
           // Continue autosave
@@ -1625,21 +1625,28 @@ H5P.createTitle = function(rawTitle, maxLength) {
    * @param {number} contentId What content to get data for.
    * @param {string} dataId Identifies the set of data for this content.
    * @param {object} data The data that is to be stored.
-   * @param {string} [subContentId] Identifies which data belongs to sub content.
-   * @param {boolean} [preloaded=false] If the data should be loaded when content is loaded.
-   * @param {boolean} [deleteOnChange=false] If the data should be invalidated when the content changes.
-   * @param {function} [errorCallback] Callback with error as parameters.
+   * @param {object} extras - object holding the following properties:
+   *  - {string} [subContentId] Identifies which data belongs to sub content.
+   *  - {boolean} [preloaded=true] If the data should be loaded when content is loaded.
+   *  - {boolean} [deleteOnChange=false] If the data should be invalidated when the content changes.
+   *  - {function} [errorCallback] Callback with error as parameters.
+   *  - {boolean} [async=true]
    */
-  H5P.setUserData = function (contentId, dataId, data, subContentId, preloaded, deleteOnChange, errorCallback, async) {
-    if (!subContentId) {
-      subContentId = 0; // Default
-    }
+  H5P.setUserData = function (contentId, dataId, data, extras) {
+    var options = H5P.jQuery.extend(true, {}, {
+      subContentId: 0,
+      preloaded: true,
+      deleteOnChange: false,
+      async: true
+    }, extras);
 
     try {
       data = JSON.stringify(data);
     }
     catch (err) {
-      errorCallback(err);
+      if (options.errorCallback) { 
+        options.errorCallback(err);
+      }
       return; // Failed to serialize.
     }
 
@@ -1648,19 +1655,19 @@ H5P.createTitle = function(rawTitle, maxLength) {
       content.contentUserData = {};
     }
     var preloadedData = content.contentUserData;
-    if (preloadedData[subContentId] === undefined) {
-      preloadedData[subContentId] = {};
+    if (preloadedData[options.subContentId] === undefined) {
+      preloadedData[options.subContentId] = {};
     }
-    if (data === preloadedData[subContentId][dataId]) {
+    if (data === preloadedData[options.subContentId][dataId]) {
       return; // No need to save this twice.
     }
 
-    preloadedData[subContentId][dataId] = data;
-    contentUserDataAjax(contentId, dataId, subContentId, function (error, data) {
-      if (errorCallback && error) {
-        errorCallback(error);
+    preloadedData[options.subContentId][dataId] = data;
+    contentUserDataAjax(contentId, dataId, options.subContentId, function (error, data) {
+      if (options.errorCallback && error) {
+        options.errorCallback(error);
       }
-    }, data, preloaded, deleteOnChange, async);
+    }, data, options.preloaded, options.deleteOnChange, options.async);
   };
 
   /**
@@ -1703,7 +1710,7 @@ H5P.createTitle = function(rawTitle, maxLength) {
             var state = instance.getCurrentState();
             if (state !== undefined) {
               // Async is not used to prevent the request from being cancelled.
-              H5P.setUserData(instance.contentId, 'state', state, undefined, true, true, undefined, false);
+              H5P.setUserData(instance.contentId, 'state', state, {deleteOnChange: true, async: false});
               
             }
           }
