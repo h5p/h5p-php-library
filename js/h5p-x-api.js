@@ -51,11 +51,25 @@ H5P.EventDispatcher.prototype.createXAPIEventTemplate = function(verb, extra) {
 /**
  * Helper function to create xAPI completed events
  *
+ * DEPRECATED - USE triggerXAPIScored instead
+ *
  * @param {int} score - will be set as the 'raw' value of the score object
  * @param {int} maxScore - will be set as the "max" value of the score object
  */
 H5P.EventDispatcher.prototype.triggerXAPICompleted = function(score, maxScore) {
-  var event = this.createXAPIEventTemplate('completed');
+  this.triggerXAPIScored(score, maxScore, 'completed');
+};
+
+/**
+ * Helper function to create scored xAPI events
+ *
+ *
+ * @param {int} score - will be set as the 'raw' value of the score object
+ * @param {int} maxScore - will be set as the "max" value of the score object
+ * @param {string} verb - short form of adl verb
+ */
+H5P.EventDispatcher.prototype.triggerXAPIScored = function(score, maxScore, verb) {
+  var event = this.createXAPIEventTemplate(verb);
   event.setScoredResult(score, maxScore);
   this.trigger(event);
 };
