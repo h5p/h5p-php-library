@@ -90,7 +90,7 @@ H5P.init = function (target) {
           state: previousState
         };
       }
-      else if (previousState === null) {
+      else if (previousState === null && H5PIntegration.saveFreq) {
         // Content has been reset. Display dialog.
         delete contentData.contentUserData;
         var dialog = new H5P.Dialog('content-user-data-reset', 'Data Reset', '<p>' + H5P.t('contentChanged') + '</p><p>' + H5P.t('startingOver') + '</p><div class="h5p-dialog-ok-button" tabIndex="0" role="button">OK</div>', $container);
