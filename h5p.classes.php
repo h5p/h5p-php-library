@@ -15,6 +15,7 @@ interface H5PFrameworkInterface {
    */
   public function getPlatformInfo();
 
+
   /**
    * Fetches a file from a remote server using HTTP GET
    *

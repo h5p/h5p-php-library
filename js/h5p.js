@@ -141,6 +141,7 @@ H5P.init = function (target) {
         });
       });
     }
+
     if (!(contentData.disable & H5P.DISABLE_ABOUT)) {
       // Add about H5P button icon
       H5P.jQuery('<li><a class="h5p-link" href="http://h5p.org" target="_blank" title="' + H5P.t('h5pDescription') + '"></a></li>').appendTo($actions);
