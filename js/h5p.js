@@ -672,7 +672,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
     extras.subContentId = library.subContentId;
   }
 
-  if (library.userDatas && library.userDatas.state) {
+  if (library.userDatas && library.userDatas.state && H5PIntegration.saveFreq) {
     extras.previousState = library.userDatas.state;
   }
 
