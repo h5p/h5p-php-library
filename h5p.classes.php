@@ -2351,17 +2351,20 @@ class H5PCore {
    */
   public static function getDisable(&$sources) {
     $disable = H5PCore::DISABLE_NONE;
-    if (!$sources['frame']) {
+    if (!isset($sources['frame']) || !$sources['frame']) {
       $disable |= H5PCore::DISABLE_FRAME;
     }
-    if (!$sources['download']) {
+    if (!isset($sources['download']) || !$sources['download']) {
       $disable |= H5PCore::DISABLE_DOWNLOAD;
     }
-    if (!$sources['copyright']) {
+    if (!isset($sources['copyright']) || !$sources['copyright']) {
       $disable |= H5PCore::DISABLE_COPYRIGHT;
     }
-    if (!$sources['embed']) {
+    if (!isset($sources['embed']) || !$sources['embed']) {
       $disable |= H5PCore::DISABLE_EMBED;
+    }
+    if (!isset($sources['about']) || !$sources['about']) {
+      $disable |= H5PCore::DISABLE_ABOUT;
     }
     return $disable;
   }
