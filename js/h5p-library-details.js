@@ -7,8 +7,8 @@ var H5PLibraryDetails= H5PLibraryDetails || {};
    * Initializing
    */
   H5PLibraryDetails.init = function () {
-    H5PLibraryDetails.$adminContainer = H5PIntegration.getAdminContainer();
-    H5PLibraryDetails.library = H5PIntegration.getLibraryInfo();
+    H5PLibraryDetails.$adminContainer = H5P.jQuery(H5PAdminIntegration.containerSelector);
+    H5PLibraryDetails.library = H5PAdminIntegration.libraryInfo;
 
     // currentContent holds the current list if data (relevant for filtering)
     H5PLibraryDetails.currentContent = H5PLibraryDetails.library.content;

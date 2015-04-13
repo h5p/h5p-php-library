@@ -7,7 +7,7 @@ var H5PUtils = H5PUtils || {};
    * @param {array} headers List of headers
    */
   H5PUtils.createTable = function (headers) {
-    var $table = $('<table class="h5p-admin-table' + (H5PIntegration.extraTableClasses !== undefined ? ' ' + H5PIntegration.extraTableClasses : '') + '"></table>');
+    var $table = $('<table class="h5p-admin-table' + (H5PAdminIntegration.extraTableClasses !== undefined ? ' ' + H5PAdminIntegration.extraTableClasses : '') + '"></table>');
 
     if(headers) {
       var $thead = $('<thead></thead>');
@@ -182,17 +182,29 @@ var H5PUtils = H5PUtils || {};
         if (sortByCol !== undefined && col.sortable === true) {
           // Make sortable
           options.role = 'button';
-          options.tabIndex = 1;
+          options.tabIndex = 0;
 
           // This is the first sortable column, use as default sort
           if (sortCol === undefined) {
             sortCol = id;
             sortDir = 0;
+          }
+
+          // This is the sort column
+          if (sortCol === id) {
             options['class'] = 'h5p-sort';
+            if (sortDir === 1) {
+              options['class'] += ' h5p-reverse';
+            }
           }
 
           options.on.click = function () {
             sort($th, id);
+          };
+          options.on.keypress = function (event) {
+            if ((event.charCode || event.keyCode) === 32) { // Space
+              sort($th, id);
+            }
           };
         }
       }
@@ -232,7 +244,10 @@ var H5PUtils = H5PUtils || {};
         sortDir = 0;
       }
 
-      sortByCol(sortCol, sortDir);
+      sortByCol({
+        by: sortCol,
+        dir: sortDir
+      });
     };
 
     /**
@@ -244,10 +259,16 @@ var H5PUtils = H5PUtils || {};
      *   "text" and "sortable". E.g.
      *   [{text: 'Col 1', sortable: true}, 'Col 2', 'Col 3']
      * @param {Function} sort Callback which is runned when sorting changes
+     * @param {Object} [order]
      */
-    this.setHeaders = function (cols, sort) {
+    this.setHeaders = function (cols, sort, order) {
       numCols = cols.length;
       sortByCol = sort;
+
+      if (order) {
+        sortCol = order.by;
+        sortDir = order.dir;
+      }
 
       // Create new head
       var $newThead = $('<thead/>');
