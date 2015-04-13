@@ -14,7 +14,7 @@ interface H5PFrameworkInterface {
    *   - h5pVersion: The version of the H5P plugin/module
    */
   public function getPlatformInfo();
-  
+
 
   /**
    * Fetches a file from a remote server using HTTP GET
@@ -73,12 +73,6 @@ interface H5PFrameworkInterface {
    *   Path to the folder where the last uploaded h5p for this session is located.
    */
   public function getUploadedH5pFolderPath();
-
-  /**
-   * @return string
-   *   Path to the folder where all h5p files are stored
-   */
-  public function getH5pPath();
 
   /**
    * Get the path to the last uploaded h5p file
@@ -252,6 +246,13 @@ interface H5PFrameworkInterface {
    *   Main id for the content if this is a system that supports versioning
    */
   public function updateContent($content, $contentMainId = NULL);
+
+  /**
+   * Resets marked user data for the given content.
+   *
+   * @param int $contentId
+   */
+  public function resetContentUserData($contentId);
 
   /**
    * Save what libraries a library is dependending on
@@ -1270,7 +1271,7 @@ class H5PStorage {
       $contentId = $this->h5pC->saveContent($content, $contentMainId);
       $this->contentId = $contentId;
 
-      $contents_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content';
+      $contents_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content';
       if (!is_dir($contents_path)) {
         mkdir($contents_path, 0777, true);
       }
@@ -1298,7 +1299,7 @@ class H5PStorage {
     $oldOnes = 0;
 
     // Find libraries directory and make sure it exists
-    $libraries_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'libraries';
+    $libraries_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries';
     if (!is_dir($libraries_path)) {
       mkdir($libraries_path, 0777, true);
     }
@@ -1396,8 +1397,9 @@ class H5PStorage {
    *  The content id
    */
   public function deletePackage($contentId) {
-    H5PCore::deleteFileTree($this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId);
+    H5PCore::deleteFileTree($this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId);
     $this->h5pF->deleteContentData($contentId);
+    // TODO: Delete export?
   }
 
   /**
@@ -1430,8 +1432,8 @@ class H5PStorage {
    *  The main id of the new content (used in frameworks that support revisioning)
    */
   public function copyPackage($contentId, $copyFromId, $contentMainId = NULL) {
-    $source_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $copyFromId;
-    $destination_path = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
+    $source_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $copyFromId;
+    $destination_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
     $this->h5pC->copyFileTree($source_path, $destination_path);
 
     $this->h5pF->copyLibraryUsage($contentId, $copyFromId, $contentMainId);
@@ -1467,7 +1469,7 @@ Class H5PExport {
    * @return string
    */
   public function createExportFile($content) {
-    $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
+    $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
     $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['id'] . '.h5p';
 
@@ -1487,8 +1489,6 @@ Class H5PExport {
     // Build h5p.json
     $h5pJson = array (
       'title' => $content['title'],
-      // TODO - stop using 'und', this is not the preferred way.
-      // Either remove language from the json if not existing, or use "language": null
       'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes,
@@ -1499,7 +1499,7 @@ Class H5PExport {
       $library = $dependency['library'];
 
       // Copy library to h5p
-      $source = isset($library['path']) ? $library['path'] : $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
+      $source = $h5pDir . (isset($library['path']) ? $library['path'] : 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE));
       $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
       $this->h5pC->copyFileTree($source, $destination);
 
@@ -1519,26 +1519,50 @@ Class H5PExport {
     $results = print_r(json_encode($h5pJson), true);
     file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'h5p.json', $results);
 
+    // Get a complete file list from our tmp dir
+    $files = array();
+    self::populateFileList($tempPath, $files);
+
     // Create new zip instance.
     $zip = new ZipArchive();
     $zip->open($zipPath, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
 
-    // Get all files and folders in $tempPath
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($tempPath . DIRECTORY_SEPARATOR));
-    // Add files to zip
-    foreach ($iterator as $key => $value) {
-      $test = '.';
-      // Do not add the folders '.' and '..' to the zip. This will make zip invalid.
-      if (substr_compare($key, $test, -strlen($test), strlen($test)) !== 0) {
-        // Get files path in $tempPath
-        $filePath = explode($tempPath . DIRECTORY_SEPARATOR, $key);
-        // Add files to the zip with the intended file-structure
-        $zip->addFile($key, $filePath[1]);
-      }
+    // Add all the files from the tmp dir.
+    foreach ($files as $file) {
+      // Please note that the zip format has no concept of folders, we must
+      // use forward slashes to separate our directories.
+      $zip->addFile($file->absolutePath, $file->relativePath);
     }
+
     // Close zip and remove temp dir
     $zip->close();
     H5PCore::deleteFileTree($tempPath);
+  }
+
+  /**
+   * Recursive function the will add the files of the given directory to the
+   * given files list. All files are objects with an absolute path and
+   * a relative path. The relative path is forward slashes only! Great for
+   * use in zip files and URLs.
+   *
+   * @param string $dir path
+   * @param array $files list
+   * @param string $relative prefix. Optional
+   */
+  private static function populateFileList($dir, &$files, $relative = '') {
+    $strip = strlen($dir) + 1;
+    foreach (glob($dir . DIRECTORY_SEPARATOR . '*') as $file) {
+      $rel = $relative . substr($file, $strip);
+      if (is_dir($file)) {
+        self::populateFileList($file, $files, $rel . '/');
+      }
+      else {
+        $files[] = (object) array(
+          'absolutePath' => $file,
+          'relativePath' => $rel
+        );
+      }
+    }
   }
 
   /**
@@ -1548,7 +1572,7 @@ Class H5PExport {
    *  Identifier for the H5P
    */
   public function deleteExport($contentId) {
-    $h5pDir = $this->h5pF->getH5pPath() . DIRECTORY_SEPARATOR;
+    $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $contentId . '.h5p';
     if (file_exists($zipPath)) {
       unlink($zipPath);
@@ -1582,7 +1606,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 4
+    'minorVersion' => 5
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -1617,16 +1641,17 @@ class H5PCore {
    * @param boolean $export enabled?
    * @param int $development_mode mode.
    */
-  public function __construct($H5PFramework, $path, $language = 'en', $export = FALSE, $development_mode = H5PDevelopment::MODE_NONE) {
+  public function __construct($H5PFramework, $path, $url, $language = 'en', $export = FALSE, $development_mode = H5PDevelopment::MODE_NONE) {
     $this->h5pF = $H5PFramework;
 
     $this->h5pF = $H5PFramework;
     $this->path = $path;
+    $this->url = $url;
     $this->exportEnabled = $export;
     $this->development_mode = $development_mode;
 
     if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
-      $this->h5pD = new H5PDevelopment($this->h5pF, $path, $language);
+      $this->h5pD = new H5PDevelopment($this->h5pF, $path . '/', $language);
     }
   }
 
@@ -1643,6 +1668,9 @@ class H5PCore {
     else {
       $content['id'] = $this->h5pF->insertContent($content, $contentMainId);
     }
+
+    // Some user data for content has to be reset when the content changes.
+    $this->h5pF->resetContentUserData($contentMainId ? $contentMainId : $content['id']);
 
     return $content['id'];
   }
@@ -1717,8 +1745,6 @@ class H5PCore {
         // Recreate export file
         $exporter = new H5PExport($this->h5pF, $this);
         $exporter->createExportFile($content);
-
-        // TODO: Should we rather create the file once first accessed, like imagecache?
       }
 
       // Cache.
@@ -1757,8 +1783,9 @@ class H5PCore {
    * @param array $dependency
    * @param string $type
    * @param array $assets
+   * @param string $prefix Optional. Make paths relative to another dir.
    */
-  private function getDependencyAssets($dependency, $type, &$assets) {
+  private function getDependencyAssets($dependency, $type, &$assets, $prefix = '') {
     // Check if dependency has any files of this type
     if (empty($dependency[$type]) || $dependency[$type][0] === '') {
       return;
@@ -1768,10 +1795,9 @@ class H5PCore {
     if ($type === 'preloadedCss' && (isset($dependency['dropCss']) && $dependency['dropCss'] === '1')) {
       return;
     }
-
     foreach ($dependency[$type] as $file) {
       $assets[] = (object) array(
-        'path' => $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
+        'path' => $prefix . '/' . $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
         'version' => $dependency['version']
       );
     }
@@ -1787,7 +1813,19 @@ class H5PCore {
     $urls = array();
 
     foreach ($assets as $asset) {
-      $urls[] = $asset->path . $asset->version;
+      $url = $asset->path;
+
+      // Add URL prefix if not external
+      if (strpos($asset->path, '://') === FALSE) {
+        $url = $this->url . $url;
+      }
+
+      // Add version/cache buster if set
+      if (isset($asset->version)) {
+        $url .= $asset->version;
+      }
+
+      $urls[] = $url;
     }
 
     return $urls;
@@ -1797,23 +1835,23 @@ class H5PCore {
    * Return file paths for all dependecies files.
    *
    * @param array $dependencies
+   * @param string $prefix Optional. Make paths relative to another dir.
    * @return array files.
    */
-  public function getDependenciesFiles($dependencies) {
+  public function getDependenciesFiles($dependencies, $prefix = '') {
     $files = array(
       'scripts' => array(),
       'styles' => array()
     );
     foreach ($dependencies as $dependency) {
       if (isset($dependency['path']) === FALSE) {
-        $dependency['path'] = $this->path . '/libraries/' . H5PCore::libraryToString($dependency, TRUE);
+        $dependency['path'] = 'libraries/' . H5PCore::libraryToString($dependency, TRUE);
         $dependency['preloadedJs'] = explode(',', $dependency['preloadedJs']);
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
-
       $dependency['version'] = "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}";
-      $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts']);
-      $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles']);
+      $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts'], $prefix);
+      $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles'], $prefix);
     }
     return $files;
   }
@@ -2223,8 +2261,6 @@ class H5PCore {
   /**
    * Helper function for creating markup for the unsupported libraries list
    *
-   * TODO: Make help text translatable
-   *
    * @return string Html
    * */
   public function createMarkupForUnsupportedLibraryList($libraries) {
@@ -2325,7 +2361,6 @@ class H5PContentValidator {
 
     // Keep track of the libraries we load to avoid loading it multiple times.
     $this->libraries = array();
-    // TODO: Should this possible be done in core's loadLibrary? This might be done multiple places.
 
     // Keep track of all dependencies for the given content.
     $this->dependencies = array();
@@ -2714,11 +2749,14 @@ class H5PContentValidator {
       'type' => 'group',
       'fields' => $library['semantics'],
     ), FALSE);
-    $validkeys = array('library', 'params');
+    $validkeys = array('library', 'params', 'subContentId');
     if (isset($semantics->extraAttributes)) {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes);
     }
     $this->filterParams($value, $validkeys);
+    if (isset($value->subContentId) && ! preg_match('/^\{?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\}?$/', $value->subContentId)) {
+      unset($value->subContentId);
+    }
 
     // Find all dependencies for this library
     $depkey = 'preloaded-' . $library['machineName'];

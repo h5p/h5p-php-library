@@ -5,9 +5,59 @@ var H5P = H5P || {};
  * The Event class for the EventDispatcher
  * @class
  */
-H5P.Event = function(type, data) {
+H5P.Event = function(type, data, extras) {
   this.type = type;
   this.data = data;
+  var bubbles = false;
+  
+  // Is this an external event?
+  var external = false;
+  
+  // Is this event scheduled to be sent externally?
+  var scheduledForExternal = false;
+  
+  if (extras === undefined) {
+    extras = {};
+  }
+  if (extras.bubbles === true) {
+    bubbles = true;
+  }
+  if (extras.external === true) {
+    external = true;
+  }
+  
+  /**
+   * Prevent this event from bubbling up to parent
+   * 
+   * @returns {undefined}
+   */
+  this.preventBubbling = function() {
+    bubbles = false;
+  };
+  
+  /**
+   * Get bubbling status
+   * 
+   * @returns {Boolean} - true if bubbling false otherwise
+   */
+  this.getBubbles = function() {
+    return bubbles;
+  };
+  
+  /**
+   * Try to schedule an event for externalDispatcher
+   * 
+   * @returns {Boolean}
+   *  - true if external and not already scheduled
+   *  - false otherwise
+   */
+  this.scheduleForExternal = function() {
+    if (external && !scheduledForExternal) {
+      scheduledForExternal = true;
+      return true;
+    }
+    return false;
+  };
 };
 
 H5P.EventDispatcher = (function () {
@@ -131,22 +181,41 @@ H5P.EventDispatcher = (function () {
      *  Custom event data(used when event type as string is used as first
      *  argument
      */
-    this.trigger = function (event, eventData) {
+    this.trigger = function (event, eventData, extras) {
       if (event === undefined) {
         return;
       }
       if (typeof event === 'string') {
-        event = new H5P.Event(event, eventData);
+        event = new H5P.Event(event, eventData, extras);
       }
       else if (eventData !== undefined) {
         event.data = eventData;
       }
-      if (triggers[event.type] === undefined) {
-        return;
+     
+      // Check to see if this event should go externally after all triggering and bubbling is done
+      var scheduledForExternal = event.scheduleForExternal();
+      
+      if (triggers[event.type] !== undefined) {
+        // Call all listeners
+        for (var i = 0; i < triggers[event.type].length; i++) {
+          triggers[event.type][i].listener.call(triggers[event.type][i].thisArg, event);
+        }
       }
-      // Call all listeners
-      for (var i = 0; i < triggers[event.type].length; i++) {
-        triggers[event.type][i].listener.call(triggers[event.type][i].thisArg, event);
+      
+      if (triggers['*'] !== undefined) {
+        // Call all * listeners
+        for (var i = 0; i < triggers['*'].length; i++) {
+          triggers['*'][i].listener.call(triggers['*'][i].thisArg, event);
+        }
+      }
+      
+      // Bubble
+      if (event.getBubbles() && self.parent instanceof H5P.EventDispatcher && typeof self.parent.trigger === 'function') {
+        self.parent.trigger(event);
+      }
+      
+      if (scheduledForExternal) {
+        H5P.externalDispatcher.trigger(event);
       }
     };
   }
