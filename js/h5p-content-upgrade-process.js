@@ -115,6 +115,11 @@ H5P.ContentUpgradeProcess = (function (Version) {
               });
             }
             catch (err) {
+              if (console && console.log) {
+                console.log("Error", err.stack);
+                console.log("Error", err.name);
+                console.log("Error", err.message);
+              }
               next(err);
             }
           }
