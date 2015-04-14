@@ -193,12 +193,14 @@ H5P.ContentUpgradeProcess = (function (Version) {
         else {
           // Go through all fields in the group
           asyncSerial(field.fields, function (index, subField, next) {
-            self.processField(subField, params[subField.name], function (err, upgradedParams) {
+            var paramsToProcess = params ? params[subField.name] : null;
+            self.processField(subField, paramsToProcess, function (err, upgradedParams) {
               if (upgradedParams) {
                 params[subField.name] = upgradedParams;
               }
               next(err);
             });
+            
           }, function (err) {
             done(err, params);
           });
