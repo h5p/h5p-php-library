@@ -1240,7 +1240,7 @@ class H5PStorage {
    *  TRUE if one or more libraries were updated
    *  FALSE otherwise
    */
-  public function savePackage($content = NULL, $contentMainId = NULL, $skipContent = FALSE) {
+  public function savePackage($content = NULL, $contentMainId = NULL, $skipContent = FALSE, $options = array()) {
     if ($this->h5pF->mayUpdateLibraries()) {
       // Save the libraries we processed during validation
       $this->saveLibraries();
@@ -1268,6 +1268,10 @@ class H5PStorage {
       }
 
       $content['params'] = file_get_contents($current_path . DIRECTORY_SEPARATOR . 'content.json');
+      
+      if (isset($options['disable'])) {
+        $content['disable'] = $options['disable'];
+      }
       $contentId = $this->h5pC->saveContent($content, $contentMainId);
       $this->contentId = $contentId;
 
@@ -1413,9 +1417,9 @@ class H5PStorage {
    *  TRUE if one or more libraries were updated
    *  FALSE otherwise
    */
-  public function updatePackage($contentId, $contentMainId = NULL) {
+  public function updatePackage($contentId, $contentMainId = NULL, $options) {
     $this->deletePackage($contentId);
-    return $this->savePackage($contentId, $contentMainId);
+    return $this->savePackage($contentId, $contentMainId, FALSE, $options);
   }
 
   /**

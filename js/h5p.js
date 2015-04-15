@@ -1525,6 +1525,9 @@ H5P.createUUID = function() {
 };
 
 H5P.createTitle = function(rawTitle, maxLength) {
+  if (!rawTitle) {
+    return '';
+  }
   if (maxLength === undefined) {
     maxLength = 60;
   }
