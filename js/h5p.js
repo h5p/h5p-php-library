@@ -1562,7 +1562,7 @@ H5P.createTitle = function(rawTitle, maxLength) {
    */
   function contentUserDataAjax(contentId, dataType, subContentId, done, data, preload, invalidate, async) {
     var options = {
-      url: H5PIntegration.ajaxPath + 'content-user-data/' + contentId + '/' + dataType + '/' + (subContentId ? subContentId : 0),
+      url: H5PIntegration.ajax.contentUserData.replace(':contentId', contentId).replace(':dataType', dataType).replace(':subContentId', subContentId ? subContentId : 0),
       dataType: 'json',
       async: async === undefined ? true : async
     };
@@ -1680,7 +1680,7 @@ H5P.createTitle = function(rawTitle, maxLength) {
       data = JSON.stringify(data);
     }
     catch (err) {
-      if (options.errorCallback) { 
+      if (options.errorCallback) {
         options.errorCallback(err);
       }
       return; // Failed to serialize.
@@ -1747,7 +1747,7 @@ H5P.createTitle = function(rawTitle, maxLength) {
             if (state !== undefined) {
               // Async is not used to prevent the request from being cancelled.
               H5P.setUserData(instance.contentId, 'state', state, {deleteOnChange: true, async: false});
-              
+
             }
           }
         }
