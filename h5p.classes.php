@@ -1493,7 +1493,7 @@ Class H5PExport {
       $library = $dependency['library'];
 
       // Copy library to h5p
-      $source = isset($library['path']) ? $library['path'] : $h5pDir . 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
+      $source = $h5pDir . (isset($library['path']) ? $library['path'] : 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE));
       $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
       $this->h5pC->copyFileTree($source, $destination);
 
@@ -1637,7 +1637,7 @@ class H5PCore {
     $this->development_mode = $development_mode;
 
     if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
-      $this->h5pD = new H5PDevelopment($this->h5pF, $path, $language);
+      $this->h5pD = new H5PDevelopment($this->h5pF, $path . '/', $language);
     }
   }
 
@@ -1783,7 +1783,7 @@ class H5PCore {
 
     foreach ($dependency[$type] as $file) {
       $assets[] = (object) array(
-        'path' => $prefix . $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
+        'path' => $prefix . '/' . $dependency['path'] . '/' . trim(is_array($file) ? $file['path'] : $file),
         'version' => $dependency['version']
       );
     }
@@ -1831,7 +1831,7 @@ class H5PCore {
     );
     foreach ($dependencies as $dependency) {
       if (isset($dependency['path']) === FALSE) {
-        $dependency['path'] = '/libraries/' . H5PCore::libraryToString($dependency, TRUE);
+        $dependency['path'] = 'libraries/' . H5PCore::libraryToString($dependency, TRUE);
         $dependency['preloadedJs'] = explode(',', $dependency['preloadedJs']);
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
