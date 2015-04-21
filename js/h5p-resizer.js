@@ -46,7 +46,7 @@
    */
   actionHandlers.prepareResize = function (iframe, data, respond) {
     responseData = {};
-    
+
     // Create spaceholder and insert after iframe.
     var spaceholder = document.createElement('div');
     spaceholder.style.height = (iframe.clientHeight - 1) + 'px';
@@ -69,7 +69,7 @@
   actionHandlers.resize = function (iframe, data, respond) {
     // Resize iframe so all content is visible.
     iframe.style.height = data.height + 'px';
-    iframe.nextSibling.remove();
+    iframe.parentNode.removeChild(iframe.nextSibling);
   };
 
   /**
