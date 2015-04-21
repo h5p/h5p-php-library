@@ -1,8 +1,9 @@
 // H5P iframe Resizer
 (function () {
-  if (!window.postMessage || !window.addEventListener) {
+  if (!window.postMessage || !window.addEventListener || window.h5pResizerInitialized) {
     return; // Not supported
   }
+  window.h5pResizerInitialized = true;
 
   // Map actions to handlers
   var actionHandlers = {};
