@@ -67,7 +67,7 @@ H5P.init = function (target) {
 
   // Determine if we can use full screen
   if (H5P.canHasFullScreen === undefined) {
-    H5P.canHasFullScreen = (H5P.isFramed && H5P.externalEmbed !== false) ? (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled) : true;
+    H5P.canHasFullScreen = (H5P.isFramed && H5P.externalEmbed !== false) ? ((document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled) ? true : false) : true;
   }
 
   // H5Ps added in normal DIV.
@@ -111,7 +111,7 @@ H5P.init = function (target) {
     var instance = H5P.newRunnable(library, contentId, $container, true);
 
     // Check if we should add and display a fullscreen button for this H5P.
-    if (contentData.fullScreen == 1) {
+    if (contentData.fullScreen == 1 && H5P.canHasFullScreen) {
       H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="1" class="h5p-enable-fullscreen" title="' + H5P.t('fullscreen') + '"></div></div>').prependTo($container).children().click(function () {
         H5P.fullScreen($container, instance);
       });
