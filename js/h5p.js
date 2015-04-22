@@ -1636,7 +1636,7 @@ H5P.createTitle = function(rawTitle, maxLength) {
 
         // Cache in preloaded
         if (content.contentUserData === undefined) {
-          content.contentUserData = preloaded = {};
+          content.contentUserData = preloadedData = {};
         }
         if (preloadedData[subContentId] === undefined) {
           preloadedData[subContentId] = {};
