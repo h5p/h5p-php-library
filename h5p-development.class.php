@@ -9,7 +9,7 @@ class H5PDevelopment {
   const MODE_CONTENT = 1;
   const MODE_LIBRARY = 2;
 
-  private $h5pF, $libraries, $language;
+  private $h5pF, $libraries, $language, $filesPath;
 
   /**
    * Constructor.
@@ -23,6 +23,7 @@ class H5PDevelopment {
   public function __construct($H5PFramework, $filesPath, $language, $libraries = NULL) {
     $this->h5pF = $H5PFramework;
     $this->language = $language;
+    $this->filesPath = $filesPath;
     if ($libraries !== NULL) {
       $this->libraries = $libraries;
     }
@@ -86,13 +87,14 @@ class H5PDevelopment {
       $library['libraryId'] = $this->h5pF->getLibraryId($library['machineName'], $library['majorVersion'], $library['minorVersion']);
       $this->h5pF->saveLibraryData($library, $library['libraryId'] === FALSE);
 
-      $library['path'] = $libraryPath;
+      $library['path'] = 'development/' . $contents[$i];
       $this->libraries[H5PDevelopment::libraryToString($library['machineName'], $library['majorVersion'], $library['minorVersion'])] = $library;
     }
 
     // TODO: Should we remove libraries without files? Not really needed, but must be cleaned up some time, right?
 
     // Go trough libraries and insert dependencies. Missing deps. will just be ignored and not available. (I guess?!)
+    $this->h5pF->lockDependencyStorage();
     foreach ($this->libraries as $library) {
       $this->h5pF->deleteLibraryDependencies($library['libraryId']);
       // This isn't optimal, but without it we would get duplicate warnings.
@@ -104,6 +106,7 @@ class H5PDevelopment {
         }
       }
     }
+    $this->h5pF->unlockDependencyStorage();
     // TODO: Deps must be inserted into h5p_nodes_libraries as well... ? But only if they are used?!
   }
 
@@ -137,12 +140,10 @@ class H5PDevelopment {
    */
   public function getSemantics($name, $majorVersion, $minorVersion) {
     $library = H5PDevelopment::libraryToString($name, $majorVersion, $minorVersion);
-
     if (isset($this->libraries[$library]) === FALSE) {
       return NULL;
     }
-
-    return $this->getFileContents($this->libraries[$library]['path'] . '/semantics.json');
+    return $this->getFileContents($this->filesPath . $this->libraries[$library]['path'] . '/semantics.json');
   }
 
   /**
@@ -160,7 +161,7 @@ class H5PDevelopment {
       return NULL;
     }
 
-    return $this->getFileContents($this->libraries[$library]['path'] . '/language/' . $language . '.json');
+    return $this->getFileContents($this->filesPath . $this->libraries[$library]['path'] . '/language/' . $language . '.json');
   }
 
   /**
