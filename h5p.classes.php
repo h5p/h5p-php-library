@@ -1268,7 +1268,7 @@ class H5PStorage {
       }
 
       $content['params'] = file_get_contents($current_path . DIRECTORY_SEPARATOR . 'content.json');
-
+      
       if (isset($options['disable'])) {
         $content['disable'] = $options['disable'];
       }
@@ -2652,17 +2652,10 @@ class H5PContentValidator {
     // Validate each element in list.
     foreach ($list as $key => &$value) {
       if (!is_int($key)) {
-        array_splice($list, $key, 1);
+        unset($list[$key]);
         continue;
       }
       $this->$function($value, $field);
-      if ($value === NULL) {
-        array_splice($list, $key, 1);
-      }
-    }
-
-    if (count($list) === 0) {
-      $list = NULL;
     }
   }
 
@@ -2772,9 +2765,6 @@ class H5PContentValidator {
         if ($found) {
           if ($function) {
             $this->$function($value, $field);
-            if ($value === NULL) {
-              unset($group->$key);
-            }
           }
           else {
             // We have a field type in semantics for which we don't have a
@@ -2810,13 +2800,9 @@ class H5PContentValidator {
    * Will recurse into validating the library's semantics too.
    */
   public function validateLibrary(&$value, $semantics) {
-    if (!isset($value->library)) {
-      $value = NULL;
-      return;
-    }
-    if (!in_array($value->library, $semantics->options)) {
+    if (!isset($value->library) || !in_array($value->library, $semantics->options)) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Library used in content is not a valid library according to semantics'));
-      $value = NULL;
+      $value = new stdClass();
       return;
     }
 
