@@ -1276,7 +1276,7 @@ class H5PStorage {
       }
 
       $content['params'] = file_get_contents($current_path . DIRECTORY_SEPARATOR . 'content.json');
-      
+
       if (isset($options['disable'])) {
         $content['disable'] = $options['disable'];
       }
@@ -1773,7 +1773,7 @@ class H5PCore {
         $content['slug'] = $this->generateContentSlug($content);
 
         // Remove old export file
-        $oldExport = $this->h5pF->getH5pPath() . '/exports/' . $content['id'] . '.h5p';
+        $oldExport = $this->path . '/exports/' . $content['id'] . '.h5p';
         if (file_exists($oldExport)) {
           unlink($oldExport);
         }
