@@ -1747,11 +1747,15 @@ H5P.createTitle = function(rawTitle, maxLength) {
             if (state !== undefined) {
               // Async is not used to prevent the request from being cancelled.
               H5P.setUserData(instance.contentId, 'state', state, {deleteOnChange: true, async: false});
-              
             }
           }
         }
       });
+    }
+
+    // Relay events to top window.
+    if (H5P.isFramed && H5P.externalEmbed === false) {
+      H5P.externalDispatcher.on('*', window.top.H5P.externalDispatcher.trigger);
     }
   });
 

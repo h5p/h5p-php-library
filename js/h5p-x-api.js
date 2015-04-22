@@ -3,10 +3,6 @@ var H5P = H5P || {};
 // Create object where external code may register and listen for H5P Events
 H5P.externalDispatcher = new H5P.EventDispatcher();
 
-if (H5P.isFramed && H5P.externalEmbed === false) {
-  H5P.externalDispatcher.on('*', window.top.H5P.externalDispatcher.trigger);
-}
-
 // EventDispatcher extensions
 
 /**
