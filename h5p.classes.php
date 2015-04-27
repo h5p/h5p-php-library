@@ -1585,7 +1585,7 @@ Class H5PExport {
    */
   public function deleteExport($contentId) {
     $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $contentId . '.h5p';
+    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . ($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p';
     if (file_exists($zipPath)) {
       unlink($zipPath);
     }
