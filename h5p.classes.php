@@ -1580,10 +1580,9 @@ Class H5PExport {
   /**
    * Delete .h5p file
    *
-   * @param int/string $contentId
-   *  Identifier for the H5P
+   * @param array $content object
    */
-  public function deleteExport($contentId) {
+  public function deleteExport($content) {
     $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . ($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p';
     if (file_exists($zipPath)) {
