@@ -124,7 +124,7 @@ div.h5p-fullscreen {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 100;
+  z-index: 1000;
 }
 .h5p-iframe-wrapper.h5p-semi-fullscreen .buttons {
   position: absolute;
