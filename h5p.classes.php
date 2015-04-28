@@ -2305,7 +2305,7 @@ class H5PCore {
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
     $platformInfo = $this->h5pF->getPlatformInfo();
     $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
-    $platformInfo['uuid'] = $this->h5pF->getOption('h5p_site_uuid', '');
+    $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
     $json = $this->h5pF->fetchExternalData('http://h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
