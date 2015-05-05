@@ -1,21 +1,26 @@
-/** @namespace H5P */
 var H5P = H5P || {};
 
 /**
- * The Event class for the EventDispatcher
+ * The Event class for the EventDispatcher.
+ *
  * @class
+ * @param {string} type
+ * @param {*} data
+ * @param {Object} [extras]
+ * @param {boolean} [extras.bubbles] 
+ * @param {boolean} [extras.external]
  */
 H5P.Event = function(type, data, extras) {
   this.type = type;
   this.data = data;
   var bubbles = false;
-  
+
   // Is this an external event?
   var external = false;
-  
+
   // Is this event scheduled to be sent externally?
   var scheduledForExternal = false;
-  
+
   if (extras === undefined) {
     extras = {};
   }
@@ -25,31 +30,29 @@ H5P.Event = function(type, data, extras) {
   if (extras.external === true) {
     external = true;
   }
-  
+
   /**
    * Prevent this event from bubbling up to parent
-   * 
-   * @returns {undefined}
    */
   this.preventBubbling = function() {
     bubbles = false;
   };
-  
+
   /**
    * Get bubbling status
-   * 
-   * @returns {Boolean} - true if bubbling false otherwise
+   *
+   * @returns {boolean}
+   *   true if bubbling false otherwise
    */
   this.getBubbles = function() {
     return bubbles;
   };
-  
+
   /**
    * Try to schedule an event for externalDispatcher
-   * 
-   * @returns {Boolean}
-   *  - true if external and not already scheduled
-   *  - false otherwise
+   *
+   * @returns {boolean}
+   *   true if external and not already scheduled, otherwise false
    */
   this.scheduleForExternal = function() {
     if (external && !scheduledForExternal) {
@@ -60,18 +63,28 @@ H5P.Event = function(type, data, extras) {
   };
 };
 
+/**
+ * Callback type for event listeners.
+ *
+ * @callback H5P.EventCallback
+ * @param {H5P.Event} event
+ */
+
 H5P.EventDispatcher = (function () {
 
   /**
    * The base of the event system.
    * Inherit this class if you want your H5P to dispatch events.
+   *
    * @class
+   * @memberof H5P
    */
   function EventDispatcher() {
     var self = this;
 
     /**
      * Keep track of listeners for each event.
+     *
      * @private
      * @type {Object}
      */
@@ -80,11 +93,14 @@ H5P.EventDispatcher = (function () {
     /**
      * Add new event listener.
      *
-     * @public
-     * @throws {TypeError} listener - Must be a function
-     * @param {String} type - Event type
-     * @param {Function} listener - Event listener
-     * @param {Function} thisArg - Optionally specify the this value when calling listener.
+     * @throws {TypeError}
+     *   listener must be a function
+     * @param {string} type
+     *   Event type
+     * @param {H5P.EventCallback} listener
+     *   Event listener
+     * @param {function} thisArg
+     *   Optionally specify the this value when calling listener.
      */
     this.on = function (type, listener, thisArg) {
       if (thisArg === undefined) {
@@ -110,11 +126,14 @@ H5P.EventDispatcher = (function () {
     /**
      * Add new event listener that will be fired only once.
      *
-     * @public
-     * @throws {TypeError} listener - must be a function
-     * @param {String} type - Event type
-     * @param {Function} listener - Event listener
-     * @param {Function} thisArg - Optionally specify the this value when calling listener.
+     * @throws {TypeError}
+     *   listener must be a function
+     * @param {string} type
+     *   Event type
+     * @param {H5P.EventCallback} listener
+     *   Event listener
+     * @param {function} thisArg
+     *   Optionally specify the this value when calling listener.
      */
     this.once = function (type, listener, thisArg) {
       if (thisArg === undefined) {
@@ -136,10 +155,12 @@ H5P.EventDispatcher = (function () {
      * Remove event listener.
      * If no listener is specified, all listeners will be removed.
      *
-     * @public
-     * @throws {TypeError} listener - must be a function
-     * @param {String} type - Event type
-     * @param {Function} listener - Event listener
+     * @throws {TypeError}
+     *   listener must be a function
+     * @param {string} type
+     *   Event type
+     * @param {H5P.EventCallback} listener
+     *   Event listener
      */
     this.off = function (type, listener) {
       if (listener !== undefined && !(listener instanceof Function)) {
@@ -175,45 +196,48 @@ H5P.EventDispatcher = (function () {
     /**
      * Dispatch event.
      *
-     * @public
-     * @param {String|Function} event - Event object or event type as string
-     * @param {mixed} eventData
-     *  Custom event data(used when event type as string is used as first
-     *  argument
+     * @param {string|H5P.Event} event
+     *   Event object or event type as string
+     * @param {*} [eventData]
+     *   Custom event data(used when event type as string is used as first
+     *   argument).
+     * @param {Object} [extras]
+     * @param {boolean} [extras.bubbles] 
+     * @param {boolean} [extras.external]
      */
     this.trigger = function (event, eventData, extras) {
       if (event === undefined) {
         return;
       }
-      if (typeof event === 'string') {
+      if (typeof event === 'string') { // TODO: Check instanceof String as well?
         event = new H5P.Event(event, eventData, extras);
       }
       else if (eventData !== undefined) {
         event.data = eventData;
       }
-     
+
       // Check to see if this event should go externally after all triggering and bubbling is done
       var scheduledForExternal = event.scheduleForExternal();
-      
+
       if (triggers[event.type] !== undefined) {
         // Call all listeners
         for (var i = 0; i < triggers[event.type].length; i++) {
           triggers[event.type][i].listener.call(triggers[event.type][i].thisArg, event);
         }
       }
-      
+
       if (triggers['*'] !== undefined) {
         // Call all * listeners
-        for (var i = 0; i < triggers['*'].length; i++) {
-          triggers['*'][i].listener.call(triggers['*'][i].thisArg, event);
+        for (var j = 0; j < triggers['*'].length; j++) {
+          triggers['*'][j].listener.call(triggers['*'][j].thisArg, event);
         }
       }
-      
+
       // Bubble
-      if (event.getBubbles() && self.parent instanceof H5P.EventDispatcher && typeof self.parent.trigger === 'function') {
+      if (event.getBubbles() && self.parent instanceof H5P.EventDispatcher && typeof self.parent.trigger === 'function') { // TODO: Check instanceof Function as well?
         self.parent.trigger(event);
       }
-      
+
       if (scheduledForExternal) {
         H5P.externalDispatcher.trigger(event);
       }

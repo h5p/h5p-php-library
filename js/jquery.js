@@ -6,4 +6,10 @@ return(!i||i!==r&&!b.contains(r,i))&&(e.type=o.origType,n=o.handler.apply(this,a
 // Snap this specific version of jQuery into H5P. jQuery.noConflict will
 // revert the globals to what they were before this file was loaded.
 var H5P = H5P || {};
+
+/**
+ * jQuery v1.9.1
+ *
+ * @member
+ */
 H5P.jQuery = jQuery.noConflict(true);
