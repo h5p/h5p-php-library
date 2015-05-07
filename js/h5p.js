@@ -146,7 +146,6 @@ H5P.init = function (target) {
 
     // Create action bar
     var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
-
     if (!(contentData.disable & H5P.DISABLE_DOWNLOAD)) {
       // Add export button
       H5P.jQuery('<li class="h5p-button h5p-export" role="button" tabindex="1" title="' + H5P.t('downloadDescription') + '">' + H5P.t('download') + '</li>').appendTo($actions).click(function () {
@@ -176,7 +175,7 @@ H5P.init = function (target) {
     }
 
     // Insert action bar if it has any content
-    if ($actions.children().length) {
+    if (!(contentData.disable & H5P.DISABLE_FRAME) && $actions.children().length) {
       $actions.insertAfter($container);
     }
     else {
