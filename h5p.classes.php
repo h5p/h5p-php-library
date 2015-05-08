@@ -2474,6 +2474,7 @@ class H5PContentValidator {
       if (in_array('del', $tags) || in_array('strike', $tags) && ! in_array('s', $tags)) {
         $tags[] = 's';
       }
+
       // Strip invalid HTML tags.
       $text = $this->filter_xss($text, $tags);
     }
@@ -3002,7 +3003,7 @@ class H5PContentValidator {
     $xhtml_slash = $count ? ' /' : '';
 
     // Clean up attributes.
-    $attr2 = implode(' ', $this->_filter_xss_attributes($attrlist));
+    $attr2 = implode(' ', $this->_filter_xss_attributes($attrlist, $elem === 'span'));
     $attr2 = preg_replace('/[<>]/', '', $attr2);
     $attr2 = strlen($attr2) ? ' ' . $attr2 : '';
 
@@ -3015,7 +3016,7 @@ class H5PContentValidator {
    * @return
    *   Cleaned up version of the HTML attributes.
    */
-  private function _filter_xss_attributes($attr) {
+  private function _filter_xss_attributes($attr, $allowStyles = FALSE) {
     $attrarr = array();
     $mode = 0;
     $attrname = '';
@@ -3055,6 +3056,23 @@ class H5PContentValidator {
         case 2:
           // Attribute value, a URL after href= for instance.
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
+
+            if ($allowStyles && $attrname === 'style') {
+              // Allow certain styles
+              $patterns = array(
+                '/^font-size: *[0-9.]+(em|px|%) *;?$/i',
+                '/^font-family: *[a-z0-9," ]+;?$/i',
+                '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i',
+                '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i',
+              );
+              foreach ($patterns as $pattern) {
+                if (preg_match($pattern, $match[1])) {
+                  $attrarr[] = 'style="' . $match[1] . '"';
+                }
+              }
+              break;
+            }
+
             $thisval = $this->filter_xss_bad_protocol($match[1]);
 
             if (!$skip) {
