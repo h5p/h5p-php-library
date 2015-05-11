@@ -2475,8 +2475,25 @@ class H5PContentValidator {
         $tags[] = 's';
       }
 
+      // Determine allowed style tags
+      $stylePatterns = array();
+      if (isset($semantics->font)) {
+        if (isset($semantics->font->size) && $semantics->font->size) {
+          $stylePatterns[] = '/^font-size: *[0-9.]+(em|px|%) *;?$/i';
+        }
+        if (isset($semantics->font->family) && $semantics->font->family) {
+          $stylePatterns[] = '/^font-family: *[a-z0-9," ]+;?$/i';
+        }
+        if (isset($semantics->font->color) && $semantics->font->color) {
+          $stylePatterns[] = '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+        }
+        if (isset($semantics->font->background) && $semantics->font->background) {
+          $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+        }
+      }
+
       // Strip invalid HTML tags.
-      $text = $this->filter_xss($text, $tags);
+      $text = $this->filter_xss($text, $tags, $stylePatterns);
     }
     else {
       // Filter text to plain text.
@@ -2899,7 +2916,7 @@ class H5PContentValidator {
    *
    * @ingroup sanitization
    */
-  private function filter_xss($string, $allowed_tags = array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd')) {
+  private function filter_xss($string, $allowed_tags = array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd'), $allowedStyles = FALSE) {
     if (strlen($string) == 0) {
       return $string;
     }
@@ -2909,6 +2926,8 @@ class H5PContentValidator {
     if (preg_match('/^./us', $string) != 1) {
       return '';
     }
+
+    $this->allowedStyles = $allowedStyles;
 
     // Store the text format.
     $this->_filter_xss_split($allowed_tags, TRUE);
@@ -3003,7 +3022,7 @@ class H5PContentValidator {
     $xhtml_slash = $count ? ' /' : '';
 
     // Clean up attributes.
-    $attr2 = implode(' ', $this->_filter_xss_attributes($attrlist, $elem === 'span'));
+    $attr2 = implode(' ', $this->_filter_xss_attributes($attrlist, ($elem === 'span' ? $this->allowedStyles : FALSE)));
     $attr2 = preg_replace('/[<>]/', '', $attr2);
     $attr2 = strlen($attr2) ? ' ' . $attr2 : '';
 
@@ -3016,7 +3035,7 @@ class H5PContentValidator {
    * @return
    *   Cleaned up version of the HTML attributes.
    */
-  private function _filter_xss_attributes($attr, $allowStyles = FALSE) {
+  private function _filter_xss_attributes($attr, $allowedStyles = FALSE) {
     $attrarr = array();
     $mode = 0;
     $attrname = '';
@@ -3056,18 +3075,12 @@ class H5PContentValidator {
         case 2:
           // Attribute value, a URL after href= for instance.
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
-
-            if ($allowStyles && $attrname === 'style') {
+            if ($allowedStyles && $attrname === 'style') {
               // Allow certain styles
-              $patterns = array(
-                '/^font-size: *[0-9.]+(em|px|%) *;?$/i',
-                '/^font-family: *[a-z0-9," ]+;?$/i',
-                '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i',
-                '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i',
-              );
-              foreach ($patterns as $pattern) {
+              foreach ($allowedStyles as $pattern) {
                 if (preg_match($pattern, $match[1])) {
                   $attrarr[] = 'style="' . $match[1] . '"';
+                  break;
                 }
               }
               break;
