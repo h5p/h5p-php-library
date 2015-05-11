@@ -152,12 +152,17 @@ H5P.init = function (target) {
         window.location.href = contentData.exportUrl;
       });
     }
-    if (!(contentData.disable & H5P.DISABLE_COPYRIGHT) &&
-        ((instance.getCopyrights !== undefined) || H5P.hasCopyrights(library.params, contentId))) {
-      // Add copyrights button
-      H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
-        H5P.openCopyrightsDialog($actions, instance, library.params, contentId);
-      });
+    if (!(contentData.disable & H5P.DISABLE_COPYRIGHT)) {
+      var copyright = H5P.getCopyrights(instance, library.params, contentId);
+
+      if (copyright) {
+        // Add copyright dialog button
+        H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
+          // Open dialog with copyright information
+          var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyright, $element);
+          dialog.open();
+        });
+      }
     }
     if (!(contentData.disable & H5P.DISABLE_EMBED)) {
       // Add embed button
@@ -864,19 +869,17 @@ H5P.Dialog = function (name, title, content, $element) {
 };
 
 /**
- * Gather copyright information and display in a dialog over the content.
+ * Gather copyright information for the given content.
  *
- * @param {H5P.jQuery} $element
- *   DOM Element to insert dialog after.
  * @param {Object} instance
  *   H5P instance to get copyright information for.
  * @param {Object} parameters
  *   Parameters of the content instance.
  * @param {number} contentId
  *   Identifies the H5P content
+ * @returns {string} Copyright information.
  */
-H5P.openCopyrightsDialog = function ($element, instance, parameters, contentId) {
-  var copyrights;
+H5P.getCopyrights = function (instance, parameters, contentId) {
   if (instance.getCopyrights !== undefined) {
     // Use the instance's own copyright generator
     copyrights = instance.getCopyrights();
@@ -891,14 +894,7 @@ H5P.openCopyrightsDialog = function ($element, instance, parameters, contentId) 
     // Convert to string
     copyrights = copyrights.toString();
   }
-  if (copyrights === undefined || copyrights === '') {
-    // Use no copyrights default text
-    copyrights = H5P.t('noCopyrights');
-  }
-
-  // Open dialog with copyright information
-  var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $element);
-  dialog.open();
+  return copyrights;
 };
 
 /**
@@ -945,51 +941,6 @@ H5P.findCopyrights = function (info, parameters, contentId) {
     else {
     }
   }
-};
-
-/**
- * Recursive function for checking if content has copyrights
- *
- * @param {(Object|Array)} parameters
- *   To search for file objects in.
- * @param {number} contentId
- *   Used to insert thumbnails for images.
- * @returns {boolean}
- *   Returns true if complete copyright information was found.
- */
-H5P.hasCopyrights = function (parameters, contentId) {
-  // Cycle through parameters
-  for (var field in parameters) {
-    if (!parameters.hasOwnProperty(field)) {
-      continue; // Do not check
-    }
-    var value = parameters[field];
-
-    if (value instanceof Array) {
-      // Cycle through array
-      if (H5P.hasCopyrights(value, contentId)) {
-        return true;
-      }
-    }
-    else if (value instanceof Object) {
-      // Check if object is a file with copyrights
-      if (value.copyright === undefined ||
-        value.copyright.license === undefined ||
-        value.path === undefined ||
-        value.mime === undefined) {
-
-        // Nope, cycle throught object
-        if (H5P.hasCopyrights(value, contentId)) {
-          return true;
-        }
-      }
-      else {
-        // Found file, return true
-        return true;
-      }
-    }
-  }
-  return false;
 };
 
 /**
