@@ -159,7 +159,7 @@ H5P.init = function (target) {
         // Add copyright dialog button
         H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="1" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
           // Open dialog with copyright information
-          var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyright, $element);
+          var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyright, $container);
           dialog.open();
         });
       }
@@ -880,6 +880,8 @@ H5P.Dialog = function (name, title, content, $element) {
  * @returns {string} Copyright information.
  */
 H5P.getCopyrights = function (instance, parameters, contentId) {
+  var copyrights;
+
   if (instance.getCopyrights !== undefined) {
     // Use the instance's own copyright generator
     copyrights = instance.getCopyrights();
