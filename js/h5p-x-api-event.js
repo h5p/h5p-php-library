@@ -95,9 +95,9 @@ H5P.XAPIEvent.prototype.setObject = function (instance) {
     if (instance.subContentId) {
       this.data.statement.object.definition.extensions['http://h5p.org/x-api/h5p-subContentId'] = instance.subContentId;
       // Don't set titles on main content, title should come from publishing platform
-      if (typeof instance.getH5PTitle === 'function') {
+      if (typeof instance.getTitle === 'function') {
         this.data.statement.object.definition.name = {
-          "en-US": instance.getH5PTitle()
+          "en-US": instance.getTitle()
         };
       }
     }
