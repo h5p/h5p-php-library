@@ -497,12 +497,12 @@ interface H5PFrameworkInterface {
   public function setOption($name, $value);
 
   /**
-   * This will set the filtered parameters for the given content.
+   * This will update selected fields on the given content.
    *
-   * @param int $content_id
-   * @param string $parameters filtered
+   * @param int $id Content identifier
+   * @param array $fields Content fields, e.g. filtered or slug.
    */
-  public function setFilteredParameters($content_id, $parameters = '');
+  public function updateContentFields($id, $fields);
 
   /**
    * Will clear filtered params for all the content that uses the specified
@@ -528,6 +528,14 @@ interface H5PFrameworkInterface {
    * @return int
    */
   public function getNumContent($libraryId);
+
+  /**
+   * Determines if content slug is used.
+   *
+   * @param string $slug
+   * @return boolean
+   */
+  public function isContentSlugAvailable($slug);
 }
 
 /**
@@ -1475,7 +1483,7 @@ Class H5PExport {
   public function createExportFile($content) {
     $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
     $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['id'] . '.h5p';
+    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['slug'] . '-' . $content['id'] . '.h5p';
 
     // Temp dir to put the h5p files in
     @mkdir($tempPath, 0777, TRUE);
@@ -1572,12 +1580,11 @@ Class H5PExport {
   /**
    * Delete .h5p file
    *
-   * @param int/string $contentId
-   *  Identifier for the H5P
+   * @param array $content object
    */
-  public function deleteExport($contentId) {
+  public function deleteExport($content) {
     $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $contentId . '.h5p';
+    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . ($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p';
     if (file_exists($zipPath)) {
       unlink($zipPath);
     }
@@ -1738,7 +1745,7 @@ class H5PCore {
    * @param Object $content
    * @return Object NULL on failure.
    */
-  public function filterParameters($content) {
+  public function filterParameters(&$content) {
     if (isset($content['filtered']) && $content['filtered'] !== '') {
       return $content['filtered'];
     }
@@ -1761,6 +1768,16 @@ class H5PCore {
       $this->h5pF->deleteLibraryUsage($content['id']);
       $this->h5pF->saveLibraryUsage($content['id'], $content['dependencies']);
 
+      if (!$content['slug']) {
+        $content['slug'] = $this->generateContentSlug($content);
+
+        // Remove old export file
+        $oldExport = $this->path . '/exports/' . $content['id'] . '.h5p';
+        if (file_exists($oldExport)) {
+          unlink($oldExport);
+        }
+      }
+
       if ($this->exportEnabled) {
         // Recreate export file
         $exporter = new H5PExport($this->h5pF, $this);
@@ -1768,9 +1785,39 @@ class H5PCore {
       }
 
       // Cache.
-      $this->h5pF->setFilteredParameters($content['id'], $params);
+      $this->h5pF->updateContentFields($content['id'], array(
+        'filtered' => $params,
+        'slug' => $content['slug']
+      ));
     }
     return $params;
+  }
+
+  /**
+   * Generate content slug
+   *
+   * @param array $content object
+   * @return string unique content slug
+   */
+  private function generateContentSlug($content) {
+    $slug = H5PCore::slugify($content['title']);
+
+    $available = NULL;
+    while (!$available) {
+      if ($available === FALSE) {
+        // If not available, add number suffix.
+        $matches = array();
+        if (preg_match('/(.+-)([0-9]+)$/', $slug, $matches)) {
+          $slug = $matches[1] . (intval($matches[2]) + 1);
+        }
+        else {
+          $slug .=  '-2';
+        }
+      }
+      $available = $this->h5pF->isContentSlugAvailable($slug);
+    }
+
+    return $slug;
   }
 
   /**
@@ -2393,6 +2440,45 @@ class H5PCore {
     }
 
     return $libraryIdMap[$libString];
+  }
+
+  /**
+   * Convert strings of text into simple kebab case slugs.
+   * Very useful for readable urls etc.
+   *
+   * @param string $input
+   * @return string
+   */
+  public static function slugify($input) {
+    // Down low
+    $input = strtolower($input);
+
+    // Replace common chars
+    $input = str_replace(
+      array('æ',  'ø',  'ö', 'ó', 'ô', 'Ò',  'Õ', 'Ý', 'ý', 'ÿ', 'ā', 'ă', 'ą', 'œ', 'å', 'ä', 'á', 'à', 'â', 'ã', 'ç', 'ć', 'ĉ', 'ċ', 'č', 'é', 'è', 'ê', 'ë', 'í', 'ì', 'î', 'ï', 'ú', 'ñ', 'ü', 'ù', 'û', 'ß',  'ď', 'đ', 'ē', 'ĕ', 'ė', 'ę', 'ě', 'ĝ', 'ğ', 'ġ', 'ģ', 'ĥ', 'ħ', 'ĩ', 'ī', 'ĭ', 'į', 'ı', 'ĳ',  'ĵ', 'ķ', 'ĺ', 'ļ', 'ľ', 'ŀ', 'ł', 'ń', 'ņ', 'ň', 'ŉ', 'ō', 'ŏ', 'ő', 'ŕ', 'ŗ', 'ř', 'ś', 'ŝ', 'ş', 'š', 'ţ', 'ť', 'ŧ', 'ũ', 'ū', 'ŭ', 'ů', 'ű', 'ų', 'ŵ', 'ŷ', 'ź', 'ż', 'ž', 'ſ', 'ƒ', 'ơ', 'ư', 'ǎ', 'ǐ', 'ǒ', 'ǔ', 'ǖ', 'ǘ', 'ǚ', 'ǜ', 'ǻ', 'ǽ',  'ǿ'),
+      array('ae', 'oe', 'o', 'o', 'o', 'oe', 'o', 'o', 'y', 'y', 'y', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'c', 'c', 'c', 'c', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'u', 'n', 'u', 'u', 'u', 'es', 'd', 'd', 'e', 'e', 'e', 'e', 'e', 'g', 'g', 'g', 'g', 'h', 'h', 'i', 'i', 'i', 'i', 'i', 'ij', 'j', 'k', 'l', 'l', 'l', 'l', 'l', 'n', 'n', 'n', 'n', 'o', 'o', 'o', 'r', 'r', 'r', 's', 's', 's', 's', 't', 't', 't', 'u', 'u', 'u', 'u', 'u', 'u', 'w', 'y', 'z', 'z', 'z', 's', 'f', 'o', 'u', 'a', 'i', 'o', 'u', 'u', 'u', 'u', 'u', 'a', 'ae', 'oe'),
+      $input);
+
+    // Replace everything else
+    $input = preg_replace('/[^a-z0-9]/', '-', $input);
+
+    // Prevent double hyphen
+    $input = preg_replace('/-{2,}/', '-', $input);
+
+    // Prevent hyphen in beginning or end
+    $input = trim($input, '-');
+
+    // Prevent to long slug
+    if (strlen($input) > 91) {
+      $inputsubstr($input, 0, 92);
+    }
+
+    // Prevent empty slug
+    if ($input === '') {
+      $input = 'interactive';
+    }
+
+    return $input;
   }
 }
 
