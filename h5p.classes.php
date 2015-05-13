@@ -1642,6 +1642,7 @@ class H5PCore {
   const DISABLE_EMBED = 4;
   const DISABLE_COPYRIGHT = 8;
   const DISABLE_ABOUT = 16;
+  const DISABLE_ALL = 31;
 
   // Map flags to string
   public static $disable = array(
