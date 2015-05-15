@@ -774,7 +774,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
  */
 H5P.error = function (err) {
   if (window.console !== undefined && console.error !== undefined) {
-    console.error(err);
+    console.error(err.stack ? err.stack : err);
   }
 };
 
@@ -883,10 +883,17 @@ H5P.getCopyrights = function (instance, parameters, contentId) {
   var copyrights;
 
   if (instance.getCopyrights !== undefined) {
-    // Use the instance's own copyright generator
-    copyrights = instance.getCopyrights();
+    try {
+      // Use the instance's own copyright generator
+      copyrights = instance.getCopyrights();
+    }
+    catch (err) {
+      // Failed, prevent crashing page.
+      H5P.error(err);
+    }
   }
-  else {
+
+  if (copyrights === undefined) {
     // Create a generic flat copyright list
     copyrights = new H5P.ContentCopyrights();
     H5P.findCopyrights(copyrights, parameters, contentId);
