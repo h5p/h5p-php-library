@@ -889,7 +889,6 @@ H5P.getCopyrights = function (instance, parameters, contentId) {
     }
     catch (err) {
       // Failed, prevent crashing page.
-      H5P.error(err);
     }
   }
 
