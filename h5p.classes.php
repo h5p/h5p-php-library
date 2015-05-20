@@ -2593,7 +2593,7 @@ class H5PContentValidator {
     }
 
     // Check if string is according to optional regexp in semantics
-    if (!($text === '' && $semantics->optional) && isset($semantics->regexp)) {
+    if (!($text === '' && isset($semantics->optional) && $semantics->optional) && isset($semantics->regexp)) {
       // Escaping '/' found in patterns, so that it does not break regexp fencing.
       $pattern = '/' . str_replace('/', '\\/', $semantics->regexp->pattern) . '/';
       $pattern .= isset($semantics->regexp->modifiers) ? $semantics->regexp->modifiers : '';
