@@ -100,10 +100,10 @@ var H5PDataView = (function ($) {
       else {
         // Update table data
         self.updateTable(data.rows);
-      }
 
-      // Update pagination widget
-      self.updatePagination(data.num);
+        // Update pagination widget
+        self.updatePagination(data.num);
+      }
 
       if (self.loaded !== undefined) {
         self.loaded();
