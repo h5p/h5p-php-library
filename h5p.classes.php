@@ -2356,10 +2356,7 @@ class H5PCore {
    */
   public function getDisable(&$sources, $current) {
     foreach (H5PCore::$disable as $bit => $option) {
-      if ($option === 'download') {
-        $option = 'export';
-      }
-      if ($this->h5pF->getOption($option, TRUE) ) {
+      if ($this->h5pF->getOption(($bit & H5PCore::DISABLE_DOWNLOAD ? 'export' : $option), TRUE)) {
         if (!isset($sources[$option]) || !$sources[$option]) {
           $current |= $bit; // Disable
         }
