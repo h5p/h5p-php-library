@@ -2367,9 +2367,6 @@ class H5PCore {
     if (!isset($sources['embed']) || !$sources['embed']) {
       $disable |= H5PCore::DISABLE_EMBED;
     }
-    if (!isset($sources['about']) || !$sources['about']) {
-      $disable |= H5PCore::DISABLE_ABOUT;
-    }
     return $disable;
   }
 
