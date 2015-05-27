@@ -2893,6 +2893,10 @@ class H5PContentValidator {
       }
     }
     if (!(isset($semantics->optional) && $semantics->optional)) {
+      if ($group === NULL) {
+        // Error no value. Errors aren't printed...
+        return;
+      }
       foreach ($semantics->fields as $field) {
         if (!(isset($field->optional) && $field->optional)) {
           // Check if field is in group.
