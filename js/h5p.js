@@ -1914,7 +1914,9 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
     // Relay events to top window.
     if (H5P.isFramed && H5P.externalEmbed === false) {
-      H5P.externalDispatcher.on('*', window.top.H5P.externalDispatcher.trigger);
+      H5P.externalDispatcher.on('*', function (event) {
+        window.top.H5P.externalDispatcher.trigger.call(this, event);
+      });
     }
   });
 
