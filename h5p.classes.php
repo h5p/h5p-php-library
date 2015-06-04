@@ -2398,23 +2398,21 @@ class H5PCore {
    * Determine disable state from sources.
    *
    * @param array $sources
+   * @param int $current
    * @return int
    */
-  public static function getDisable(&$sources) {
-    $disable = H5PCore::DISABLE_NONE;
-    if (!isset($sources['frame']) || !$sources['frame']) {
-      $disable |= H5PCore::DISABLE_FRAME;
+  public function getDisable(&$sources, $current) {
+    foreach (H5PCore::$disable as $bit => $option) {
+      if ($this->h5pF->getOption(($bit & H5PCore::DISABLE_DOWNLOAD ? 'export' : $option), TRUE)) {
+        if (!isset($sources[$option]) || !$sources[$option]) {
+          $current |= $bit; // Disable
+        }
+        else {
+          $current &= ~$bit; // Enable
+        }
+      }
     }
-    if (!isset($sources['download']) || !$sources['download']) {
-      $disable |= H5PCore::DISABLE_DOWNLOAD;
-    }
-    if (!isset($sources['copyright']) || !$sources['copyright']) {
-      $disable |= H5PCore::DISABLE_COPYRIGHT;
-    }
-    if (!isset($sources['embed']) || !$sources['embed']) {
-      $disable |= H5PCore::DISABLE_EMBED;
-    }
-    return $disable;
+    return $current;
   }
 
   // Cache for getting library ids
