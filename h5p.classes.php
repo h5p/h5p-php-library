@@ -1417,7 +1417,7 @@ class H5PStorage {
    *  TRUE if one or more libraries were updated
    *  FALSE otherwise
    */
-  public function updatePackage($contentId, $contentMainId = NULL, $options) {
+  public function updatePackage($contentId, $contentMainId = NULL, $options = array()) {
     $this->deletePackage($contentId);
     return $this->savePackage($contentId, $contentMainId, FALSE, $options);
   }
