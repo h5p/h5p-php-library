@@ -640,6 +640,22 @@ class H5PValidator {
    *  TRUE if the .h5p file is valid
    */
   public function isValidPackage($skipContent = FALSE, $upgradeOnly = FALSE) {
+    // Check that directories are writable
+    if (!H5PCore::dirReady($this->h5pC->path . DIRECTORY_SEPARATOR . 'content')) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the content directory.'));
+      return FALSE;
+    }
+    if (!H5PCore::dirReady($this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries')) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the libraries directory.'));
+      return FALSE;
+    }
+
+    // Make sure Zip is present.
+    if (!class_exists('ZipArchive')) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Your PHP version does not support ZipArchive.'));
+      return FALSE;
+    }
+
     // Create a temporary dir to extract package in.
     $tmpDir = $this->h5pF->getUploadedH5pFolderPath();
     $tmpPath = $this->h5pF->getUploadedH5pPath();
@@ -1283,12 +1299,8 @@ class H5PStorage {
       $contentId = $this->h5pC->saveContent($content, $contentMainId);
       $this->contentId = $contentId;
 
-      $contents_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content';
-      if (!is_dir($contents_path)) {
-        mkdir($contents_path, 0777, true);
-      }
-
       // Move the content folder
+      $contents_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content';
       $destination_path = $contents_path . DIRECTORY_SEPARATOR . $contentId;
       $this->h5pC->copyFileTree($current_path, $destination_path);
 
@@ -1309,12 +1321,6 @@ class H5PStorage {
     // Keep track of the number of libraries that have been saved
     $newOnes = 0;
     $oldOnes = 0;
-
-    // Find libraries directory and make sure it exists
-    $libraries_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries';
-    if (!is_dir($libraries_path)) {
-      mkdir($libraries_path, 0777, true);
-    }
 
     // Go through libraries that came with this package
     foreach ($this->h5pC->librariesJsonData as $libString => &$library) {
@@ -1345,6 +1351,7 @@ class H5PStorage {
       $this->h5pF->saveLibraryData($library, $new);
 
       // Make sure destination dir is free
+      $libraries_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries';
       $destination_path = $libraries_path . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
       H5PCore::deleteFileTree($destination_path);
 
@@ -1485,12 +1492,15 @@ Class H5PExport {
     $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
     $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['slug'] . '-' . $content['id'] . '.h5p';
 
-    // Temp dir to put the h5p files in
-    @mkdir($tempPath, 0777, TRUE);
-    @mkdir($h5pDir . 'exports', 0777, TRUE);
+    // Make sure the exports dir is ready
+    if (!H5PCore::dirReady($h5pDir . 'exports')) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the exports directory.'));
+      return FALSE;
+    }
 
     // Create content folder
     if ($this->h5pC->copyFileTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $content['id'], $tempPath . DIRECTORY_SEPARATOR . 'content') === FALSE) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the temporary directory.'));
       return FALSE;
     }
     file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json', $content['params']);
@@ -2084,14 +2094,12 @@ class H5PCore {
    *  Indicates if the directory existed.
    */
   public function copyFileTree($source, $destination) {
-    $dir = opendir($source);
-
-    if ($dir === FALSE) {
+    if (!H5PCore::dirReady($destination)) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy tree, no such directory: @dir', array('@dir' => $source)));
       return FALSE;
     }
 
-    @mkdir($destination);
+    $dir = opendir($source);
     while (false !== ($file = readdir($dir))) {
         if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
             if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
@@ -2474,6 +2482,33 @@ class H5PCore {
     }
 
     return $input;
+  }
+
+  /**
+   * Recursive function that makes sure the specified directory exists and
+   * is writable.
+   *
+   * @param string $path
+   * @return bool
+   */
+  public static function dirReady($path) {
+    if (!file_exists($path)) {
+      $parent = preg_replace("/\/[^\/]+\/?$/", '', $path);
+      if (!H5PCore::dirReady($parent)) {
+        return FALSE;
+      }
+
+      if (!is_writable($parent)) {
+        return FALSE;
+      }
+
+      mkdir($path, 0777, true);
+    }
+    if (!is_dir($path)) {
+      return FALSE;
+    }
+
+    return is_writable($path);
   }
 }
 
