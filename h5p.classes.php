@@ -1766,6 +1766,9 @@ class H5PCore {
       'library' => H5PCore::libraryToString($content['library']),
       'params' => json_decode($content['params'])
     );
+    if (!$params->params) {
+      return NULL;
+    }
     $validator->validateLibrary($params, (object) array('options' => array($params->library)));
 
     $params = json_encode($params->params);
