@@ -1505,10 +1505,10 @@ Class H5PExport {
 
     // Create content folder
     if ($this->h5pC->copyFileTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $content['id'], $tempPath . DIRECTORY_SEPARATOR . 'content') === FALSE) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the temporary directory.'));
       return FALSE;
     }
     file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json', $content['params']);
+
 
     // Make embedTypes into an array
     $embedTypes = explode(', ', $content['embedType']); // Won't content always be embedded in one way?
@@ -2103,11 +2103,16 @@ class H5PCore {
    */
   public function copyFileTree($source, $destination) {
     if (!H5PCore::dirReady($destination)) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy tree, no such directory: @dir', array('@dir' => $source)));
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy file tree.'));
       return FALSE;
     }
 
     $dir = opendir($source);
+    if ($dir === FALSE) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy file tree.'));
+      return FALSE;
+    }
+
     while (false !== ($file = readdir($dir))) {
         if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
             if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
@@ -2506,17 +2511,20 @@ class H5PCore {
         return FALSE;
       }
 
-      if (!is_writable($parent)) {
-        return FALSE;
-      }
-
       mkdir($path, 0777, true);
     }
+
     if (!is_dir($path)) {
+      trigger_error('Path is not a directory ' . $path, E_USER_WARNING);
       return FALSE;
     }
 
-    return is_writable($path);
+    if (!is_writable($path)) {
+      trigger_error('Unable to write to ' . $path . ' – check directory permissions –', E_USER_WARNING);
+      return FALSE;
+    }
+
+    return TRUE;
   }
 }
 
