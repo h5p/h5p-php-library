@@ -660,6 +660,11 @@ class H5PValidator {
     $tmpDir = $this->h5pF->getUploadedH5pFolderPath();
     $tmpPath = $this->h5pF->getUploadedH5pPath();
 
+    if (!H5PCore::dirReady($tmpDir)) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the temporary directory.'));
+      return FALSE;
+    }
+
     $valid = TRUE;
 
     // Extract and then remove the package file.
