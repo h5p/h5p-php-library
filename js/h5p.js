@@ -1692,6 +1692,12 @@ H5P.createTitle = function (rawTitle, maxLength) {
    * @param {boolean} [async=true]
    */
   function contentUserDataAjax(contentId, dataType, subContentId, done, data, preload, invalidate, async) {
+    if (H5PIntegration.user === undefined) {
+      // Not logged in, no use in saving.
+      done('Not signed in.');
+      return;
+    }
+
     var options = {
       url: H5PIntegration.ajax.contentUserData.replace(':contentId', contentId).replace(':dataType', dataType).replace(':subContentId', subContentId ? subContentId : 0),
       dataType: 'json',
