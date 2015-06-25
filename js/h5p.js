@@ -614,6 +614,7 @@ H5P.getPath = function (path, contentId) {
     return path;
   }
 
+  var prefix;
   if (contentId !== undefined) {
     prefix = H5PIntegration.url + '/content/' + contentId;
   }
