@@ -381,11 +381,6 @@ div.h5p-fullscreen {
 .h5p-expander-content p {
   margin: 0.5em 0;
 }
-.h5p-content-copyrights {
-  border-left: 0.25em solid #d0d0d0;
-  margin-left: 0.25em;
-  padding-left: 0.25em;
-}
 .h5p-throbber {
   background: url('../images/throbber.gif?ver=1.2.1') 10px center no-repeat;
   padding-left: 38px;
@@ -396,7 +391,7 @@ div.h5p-fullscreen {
   cursor: default;
   float: right;
   outline: none;
-  border: 2px solid #ccc;
+  border: 2px solid #ddd;
   padding: 0.25em 0.75em 0.125em;
   background: #eee;
 }
@@ -406,4 +401,142 @@ div.h5p-fullscreen {
 }
 .h5p-dialog-ok-button:active {
   background: #eeffee;
+}
+
+/* Copyright dialog styles*/
+
+/* Copyrights dialog css */
+.h5p-copyrights-dialog .h5p-copyright-information-wrapper {
+  display: inline-block;
+  padding: 0 1em;
+  vertical-align: top;
+  box-sizing: border-box;
+  width: calc(100% - 85px);
+
+  font-size: 12px;
+  color: #333;
+  line-height: 1.1em;
+}
+
+/* Copyright main header */
+.h5p-copyrights-dialog .h5p-scroll-content > .h5p-content-copyrights > .h5p-content-copyrights.sublevel > .h5p-content-copyrights-label {
+  font-size: 16px;
+}
+
+/* Copyright sub-level */
+.h5p-copyrights-dialog .h5p-content-copyrights.sublevel .h5p-content-copyrights-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Copyright sub-level incremental indent */
+.h5p-copyrights-dialog .h5p-content-copyrights.sublevel {
+  margin-left: 10px;
+}
+
+/* No indent for main header */
+/*.h5p-copyrights-dialog .h5p-scroll-content > .h5p-content-copyrights > .h5p-content-copyrights.sublevel {
+  margin-left: 0;
+}*/
+
+/* Media copyright */
+.h5p-copyrights-dialog .h5p-media-copyright {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Thumbnail styles */
+.h5p-copyrights-dialog .h5p-thumbnail-wrapper {
+  width: 75px;
+  margin-left: 10px;
+  display: inline-block;
+  position: relative;
+  vertical-align: text-top;
+}
+
+.h5p-copyrights-dialog .h5p-thumbnail-wrapper .h5p-thumbnail {
+  max-height: 57px;
+  max-width: 75px;
+}
+
+/* Media specific icons */
+.h5p-copyrights-dialog .h5p-media-copyright .h5p-thumbnail-wrapper:before {
+  font-family: "H5PFontAwesome4";
+  position: absolute;
+  font-size: 1.5em;
+  top: 7px;
+  width: 100%;
+  text-align: center;
+  color: #ccc;
+}
+
+.h5p-copyrights-dialog .h5p-media-copyright.video .h5p-thumbnail-wrapper:before {
+  content: "\f1c8";
+}
+
+.h5p-copyrights-dialog .h5p-media-copyright.audio .h5p-thumbnail-wrapper:before {
+  content: "\f1c7";
+}
+
+.h5p-copyrights-dialog .h5p-media-copyright.file .h5p-thumbnail-wrapper:before {
+  content: "\f016";
+}
+
+/* Copyrights entry styles */
+.h5p-copyrights-dialog .h5p-copyright-entry .h5p-copyright-title {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.h5p-copyrights-dialog .h5p-copyright-entry .h5p-copyright-label {
+  color: #999;
+  margin-right: 0.2em;
+}
+
+/* Copyrights expand button */
+.h5p-copyrights-dialog .h5p-copyright-information-wrapper .h5p-copyrights-expand-button {
+  display: inline-block;
+  cursor: pointer;
+  margin-top: 0.75em;
+}
+
+.h5p-copyrights-dialog .h5p-copyright-information-wrapper .h5p-copyrights-expand-button:before {
+  font-family: "H5PFontAwesome4";
+  font-size: 0.85em;
+  content: "\f067";
+  margin-right: 0.25em;
+}
+
+.h5p-copyrights-dialog .h5p-copyright-information-wrapper.expand .h5p-copyrights-expand-button:before {
+  content: "\f068";
+}
+
+/* Copyright preview */
+.h5p-copyrights-dialog .h5p-copyright-preview .h5p-copyright-entry {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.h5p-copyrights-dialog .h5p-copyright-information-wrapper.expand .h5p-copyright-preview .h5p-copyright-entry {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+/* Copyright details */
+.h5p-copyrights-dialog .h5p-copyright-information-wrapper .h5p-copyright-details {
+  display: none;
+}
+
+.h5p-copyrights-dialog .h5p-copyright-information-wrapper.expand .h5p-copyright-details {
+  display: block;
+  margin-top: 0.75em;
+}
+
+.h5p-copyrights-dialog .h5p-copyright-entry .h5p-copyright-details .h5p-copyright-label:after {
+  content: ":";
 }
