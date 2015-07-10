@@ -682,9 +682,6 @@ H5P.classFromName = function (name) {
  *   Instance.
  */
 H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
-  // TODO: Should we check if version matches the library?
-  // TODO: Dynamically try to load libraries currently not loaded? That will require a callback.
-
   var nameSplit, versionSplit, machineName;
   try {
     nameSplit = library.library.split(' ', 2);
