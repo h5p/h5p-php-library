@@ -748,6 +748,15 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
   if (instance.parent === undefined && extras && extras.parent) {
     instance.parent = extras.parent;
   }
+  if (instance.libraryInfo === undefined) {
+    instance.libraryInfo = {
+      versionedName: library.library,
+      versionedNameNoSpaces: machineName + '-' + versionSplit[0] + '.' + versionSplit[1],
+      machineName: machineName,
+      majorVersion: versionSplit[0],
+      minorVersion: versionSplit[1]
+    };
+  }
 
   if ($attachTo !== undefined) {
     instance.attach($attachTo);

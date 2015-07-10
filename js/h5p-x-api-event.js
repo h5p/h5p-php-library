@@ -131,6 +131,17 @@ H5P.XAPIEvent.prototype.setContext = function (instance) {
       }
     };
   }
+  if (instance.libraryInfo) {
+    if (this.data.statement.context === undefined) {
+      this.data.statement.context = {"contextActivities":{}};
+    }
+    this.data.statement.context.contextActivities.category = [
+      {
+        "id": "http://h5p.org/libraries/" + instance.libraryInfo.versionedNameNoSpaces,
+        "objectType": "Activity"
+      }
+    ];
+  }
 };
 
 /**
