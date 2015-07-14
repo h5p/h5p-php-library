@@ -97,7 +97,8 @@ H5P.Base = function (constructor, standalone, library) {
    * @return {string} The full path to the file
    */
   this.getLibraryFilePath = function (filePath) {
-    return H5P.getLibraryPath(library.library) + '/' + filePath;
+    var libraryObject = H5P.libraryFromString(library.library);
+    return H5P.getLibraryPath(libraryObject.machineName + '-' + libraryObject.majorVersion + '.' + libraryObject.minorVersion) + '/' + filePath;
   };
 
   // This order makes it possible for an H5P library to override H5P.Base functions!
