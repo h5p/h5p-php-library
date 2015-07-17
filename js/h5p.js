@@ -73,39 +73,6 @@ H5P.DISABLE_ABOUT = 16;
 H5P.opened = {};
 
 /**
- * H5P Base class. Adds utility functions to a library's prototype object.
- *
- * Functions here may be overridable by the libraries. In special cases,
- * it is also possible to override H5P.Base on a global level.
- * */
-H5P.Base = function (constructor, standalone, library) {
-  /**
-   * Is library standalone or not? Not beeing standalone, means it is
-   * included in another library
-   *
-   * @method isStandalone
-   * @return {Boolean}
-   */
-  this.isStandalone = function () {
-    return standalone;
-  };
-
-  /**
-   * Returns the file path of a file in the current library
-   * @method getLibraryFilePath
-   * @param  {string} filePath The path to the file relative to the library folder
-   * @return {string} The full path to the file
-   */
-  this.getLibraryFilePath = function (filePath) {
-    var libraryObject = H5P.libraryFromString(library.library);
-    return H5P.getLibraryPath(libraryObject.machineName + '-' + libraryObject.majorVersion + '.' + libraryObject.minorVersion) + '/' + filePath;
-  };
-
-  // This order makes it possible for an H5P library to override H5P.Base functions!
-  return H5P.jQuery.extend({}, this, constructor.prototype);
-};
-
-/**
  * Initialize H5P content.
  * Scans for ".h5p-content" in the document and initializes H5P instances where found.
  *
@@ -757,9 +724,10 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
     extras.previousState = library.userDatas.state;
   }
 
-  // Makes all H5P libraries extend H5P.Base:
+  // Makes all H5P libraries extend H5P.ContentType:
   var standalone = extras.standalone || false;
-  constructor.prototype = H5P.Base(constructor, standalone, library);
+  // This order makes it possible for an H5P library to override H5P.ContentType functions!
+  constructor.prototype = H5P.jQuery.extend({}, H5P.ContentType(standalone, library).prototype, constructor.prototype);
 
   var instance;
   // Some old library versions have their own custom third parameter.

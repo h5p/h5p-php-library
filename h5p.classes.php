@@ -1643,6 +1643,7 @@ class H5PCore {
     'js/h5p-event-dispatcher.js',
     'js/h5p-x-api-event.js',
     'js/h5p-x-api.js',
+    'js/h5p-content-type.js',
   );
   public static $adminScripts = array(
     'js/jquery.js',
