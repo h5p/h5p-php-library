@@ -727,7 +727,7 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
   // Makes all H5P libraries extend H5P.ContentType:
   var standalone = extras.standalone || false;
   // This order makes it possible for an H5P library to override H5P.ContentType functions!
-  constructor.prototype = H5P.jQuery.extend({}, H5P.ContentType(standalone, library).prototype, constructor.prototype);
+  constructor.prototype = H5P.jQuery.extend({}, H5P.ContentType(standalone).prototype, constructor.prototype);
 
   var instance;
   // Some old library versions have their own custom third parameter.

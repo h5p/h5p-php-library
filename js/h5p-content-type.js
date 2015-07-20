@@ -4,7 +4,7 @@
  * Functions here may be overridable by the libraries. In special cases,
  * it is also possible to override H5P.ContentType on a global level.
  * */
-H5P.ContentType = function (standalone, library) {
+H5P.ContentType = function (isRootLibrary, library) {
 
   function ContentType() {};
 
@@ -18,8 +18,8 @@ H5P.ContentType = function (standalone, library) {
    * @method isStandalone
    * @return {Boolean}
    */
-  ContentType.prototype.isStandalone = function () {
-    return standalone;
+  ContentType.prototype.isRoot = function () {
+    return isRootLibrary;
   };
 
   /**
@@ -29,8 +29,7 @@ H5P.ContentType = function (standalone, library) {
    * @return {string} The full path to the file
    */
   ContentType.prototype.getLibraryFilePath = function (filePath) {
-    var libraryObject = H5P.libraryFromString(library.library);
-    return H5P.getLibraryPath(libraryObject.machineName + '-' + libraryObject.majorVersion + '.' + libraryObject.minorVersion) + '/' + filePath;
+    return H5P.getLibraryPath(this.libraryInfo.versionedNameNoSpaces) + '/' + filePath;
   };
 
   return ContentType;
