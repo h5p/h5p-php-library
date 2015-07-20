@@ -82,8 +82,12 @@ H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore) 
  */
 H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, verb) {
   var event = this.createXAPIEventTemplate(verb);
-  event.setScoredResult(score, maxScore);
+  event.setScoredResult(score, maxScore, this);
   this.trigger(event);
+};
+
+H5P.EventDispatcher.prototype.setActivityStarted = function() {
+  this.activityStartTime = Date.now();
 };
 
 /**
