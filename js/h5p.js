@@ -182,6 +182,7 @@ H5P.init = function (target) {
     // Insert action bar if it has any content
     if (!(contentData.disable & H5P.DISABLE_FRAME) && $actions.children().length) {
       $actions.insertAfter($container);
+      $element.addClass('h5p-frame');
     }
     else {
       $element.addClass('h5p-no-frame');
