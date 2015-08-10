@@ -1029,9 +1029,9 @@ class H5PValidator {
             ($h5pData['coreApi']['minorVersion'] > H5PCore::$coreApi['minorVersion'])))
       {
         $this->h5pF->setErrorMessage(
-          $this->h5pF->t('The library "%library_name" requires H5P %requiredVersion, but only H5P %coreApi is installed.',
+          $this->h5pF->t('The library "%libraryName" requires H5P %requiredVersion, but only H5P %coreApi is installed.',
           array(
-            '%library_name' => $library_name,
+            '%libraryName' => $library_name,
             '%requiredVersion' => $h5pData['coreApi']['majorVersion'] . '.' . $h5pData['coreApi']['minorVersion'],
             '%coreApi' => H5PCore::$coreApi['majorVersion'] . '.' . H5PCore::$coreApi['minorVersion']
           )));
