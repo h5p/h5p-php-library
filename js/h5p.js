@@ -135,7 +135,7 @@ H5P.init = function (target) {
     });
 
     // Create new instance.
-    var instance = H5P.newRunnable(library, contentId, $container, true);
+    var instance = H5P.newRunnable(library, contentId, $container, true, {standalone: true});
 
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1 && H5P.canHasFullScreen) {
@@ -182,6 +182,7 @@ H5P.init = function (target) {
     // Insert action bar if it has any content
     if (!(contentData.disable & H5P.DISABLE_FRAME) && $actions.children().length) {
       $actions.insertAfter($container);
+      $element.addClass('h5p-frame');
     }
     else {
       $element.addClass('h5p-no-frame');
@@ -682,9 +683,6 @@ H5P.classFromName = function (name) {
  *   Instance.
  */
 H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
-  // TODO: Should we check if version matches the library?
-  // TODO: Dynamically try to load libraries currently not loaded? That will require a callback.
-
   var nameSplit, versionSplit, machineName;
   try {
     nameSplit = library.library.split(' ', 2);
@@ -727,6 +725,11 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
     extras.previousState = library.userDatas.state;
   }
 
+  // Makes all H5P libraries extend H5P.ContentType:
+  var standalone = extras.standalone || false;
+  // This order makes it possible for an H5P library to override H5P.ContentType functions!
+  constructor.prototype = H5P.jQuery.extend({}, H5P.ContentType(standalone).prototype, constructor.prototype);
+
   var instance;
   // Some old library versions have their own custom third parameter.
   // Make sure we don't send them the extras.
@@ -751,8 +754,18 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
   if (instance.parent === undefined && extras && extras.parent) {
     instance.parent = extras.parent;
   }
+  if (instance.libraryInfo === undefined) {
+    instance.libraryInfo = {
+      versionedName: library.library,
+      versionedNameNoSpaces: machineName + '-' + versionSplit[0] + '.' + versionSplit[1],
+      machineName: machineName,
+      majorVersion: versionSplit[0],
+      minorVersion: versionSplit[1]
+    };
+  }
 
   if ($attachTo !== undefined) {
+    $attachTo.toggleClass('h5p-standalone', standalone);
     instance.attach($attachTo);
     H5P.trigger(instance, 'domChanged', {
       '$target': $attachTo,
