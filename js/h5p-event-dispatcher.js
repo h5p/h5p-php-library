@@ -7,7 +7,7 @@ var H5P = H5P || {};
  * @param {string} type
  * @param {*} data
  * @param {Object} [extras]
- * @param {boolean} [extras.bubbles] 
+ * @param {boolean} [extras.bubbles] 
  * @param {boolean} [extras.external]
  */
 H5P.Event = function(type, data, extras) {
@@ -194,7 +194,7 @@ H5P.EventDispatcher = (function () {
      * @private
      * @param {string} Event type
      */
-    var call = function (type, event) {
+    var call = function (type, event) {
       if (triggers[type] === undefined) {
         return;
       }
@@ -216,7 +216,7 @@ H5P.EventDispatcher = (function () {
      *   Custom event data(used when event type as string is used as first
      *   argument).
      * @param {Object} [extras]
-     * @param {boolean} [extras.bubbles] 
+     * @param {boolean} [extras.bubbles] 
      * @param {boolean} [extras.external]
      */
     this.trigger = function (event, eventData, extras) {

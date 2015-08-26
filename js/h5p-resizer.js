@@ -74,11 +74,11 @@
   };
 
   /**
-   * Keyup event handler. Exits full screen on escape.
-   *
+   * Keyup event handler. Exits full screen on escape.asdasd a
+   * 
    * @param {Event} event
    */
-  var escape = function (event) {
+  var escape = function (event) {
     if (event.keyCode === 27) {
       exitFullScreen();
     }

@@ -111,7 +111,7 @@ H5P.init = function (target) {
       params: JSON.parse(contentData.jsonContent)
     };
 
-    H5P.getUserData(contentId, 'state', function (err, previousState) {
+    H5P.getUserData(contentId, 'state', function (err, previousState) {
       if (previousState) {
         library.userDatas = {
           state: previousState
@@ -206,7 +206,7 @@ H5P.init = function (target) {
         instance.getCurrentState instanceof Function ||
         typeof instance.getCurrentState === 'function')) {
 
-      var saveTimer, save = function () {
+      var saveTimer, save = function () {
         var state = instance.getCurrentState();
         if (state !== undefined) {
           H5P.setUserData(contentId, 'state', state, {deleteOnChange: true});
@@ -381,7 +381,7 @@ H5P.getHeadTags = function (contentId) {
  *
  * @type {Communicator}
  */
-H5P.communicator = (function () {
+H5P.communicator = (function () {
   /**
    * @class
    * @private
@@ -420,7 +420,7 @@ H5P.communicator = (function () {
      * @param {string} action
      * @param {Object} [data] payload
      */
-    self.send = function (action, data) {
+    self.send = function (action, data) {
       if (data === undefined) {
         data = {};
       }
@@ -893,7 +893,7 @@ H5P.Dialog = function (name, title, content, $element) {
  *   Identifies the H5P content
  * @returns {string} Copyright information.
  */
-H5P.getCopyrights = function (instance, parameters, contentId) {
+H5P.getCopyrights = function (instance, parameters, contentId) {
   var copyrights;
 
   if (instance.getCopyrights !== undefined) {
@@ -1010,7 +1010,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
       }
       return Math.ceil(num);
     };
-    var updateEmbed = function () {
+    var updateEmbed = function () {
       $dialog.find('.h5p-embed-code-container:first').val(fullEmbedCode.replace(':w', getNum($w, size.width)).replace(':h', getNum($h, size.height)));
     };
 
@@ -1028,7 +1028,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
     positionInner();
 
     // Expand advanced embed
-    var expand = function () {
+    var expand = function () {
       var $expander = H5P.jQuery(this);
       var $content = $expander.next();
       if ($content.is(':visible')) {
@@ -1729,7 +1729,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
       options.type = 'GET';
     }
     if (done !== undefined) {
-      options.error = function (xhr, error) {
+      options.error = function (xhr, error) {
         done(error);
       };
       options.success = function (response) {
@@ -1782,7 +1782,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
       }
     }
     else {
-      contentUserDataAjax(contentId, dataId, subContentId, function (err, data) {
+      contentUserDataAjax(contentId, dataId, subContentId, function (err, data) {
         if (err || data === undefined) {
           done(err, data);
           return; // Error or no data
@@ -1934,7 +1934,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
     // Relay events to top window.
     if (H5P.isFramed && H5P.externalEmbed === false) {
-      H5P.externalDispatcher.on('*', function (event) {
+      H5P.externalDispatcher.on('*', function (event) {
         window.top.H5P.externalDispatcher.trigger.call(this, event);
       });
     }
