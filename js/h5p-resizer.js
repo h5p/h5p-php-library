@@ -74,7 +74,7 @@
   };
 
   /**
-   * Keyup event handler. Exits full screen on escape.asdasd a
+   * Keyup event handler. Exits full screen on escape.
    * 
    * @param {Event} event
    */

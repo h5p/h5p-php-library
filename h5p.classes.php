@@ -2536,6 +2536,7 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
+  private static $allowed_stylable_tags = array('span', 'p', 'div');
 
   /**
    * Constructor for the H5PContentValidator
@@ -2624,6 +2625,9 @@ class H5PContentValidator {
           $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
         }
       }
+
+      // Aligment is allowed for all wysiwyg texts
+      $stylePatterns[] = '/^text-align: *(center|left|right);?$/i';
 
       // Strip invalid HTML tags.
       $text = $this->filter_xss($text, $tags, $stylePatterns);
@@ -3159,7 +3163,8 @@ class H5PContentValidator {
     $xhtml_slash = $count ? ' /' : '';
 
     // Clean up attributes.
-    $attr2 = implode(' ', $this->_filter_xss_attributes($attrlist, ($elem === 'span' ? $this->allowedStyles : FALSE)));
+
+    $attr2 = implode(' ', $this->_filter_xss_attributes($attrlist, (in_array($elem, self::$allowed_stylable_tags) ? $this->allowedStyles : FALSE)));
     $attr2 = preg_replace('/[<>]/', '', $attr2);
     $attr2 = strlen($attr2) ? ' ' . $attr2 : '';
 
