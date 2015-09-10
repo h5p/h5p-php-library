@@ -8,7 +8,7 @@ var H5P = H5P || {};
  * Tells us if we're inside of an iframe.
  * @member {boolean}
  */
-H5P.isFramed = (window.self !== window.top);
+H5P.isFramed = (window.self !== window.parent);
 
 /**
  * jQuery instance of current window.
@@ -319,7 +319,7 @@ H5P.init = function (target) {
 
     if (!H5P.isFramed || H5P.externalEmbed === false) {
       // Resize everything when window is resized.
-      H5P.jQuery(window.top).resize(function () {
+      H5P.jQuery(window.parent).resize(function () {
         if (window.parent.H5P.isFullscreen) {
           // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
           H5P.trigger(instance, 'resize');
@@ -373,7 +373,7 @@ H5P.getHeadTags = function (contentId) {
          createStyleTags(H5PIntegration.contents['cid-' + contentId].styles) +
          createScriptTags(H5PIntegration.core.scripts) +
          createScriptTags(H5PIntegration.contents['cid-' + contentId].scripts) +
-         '<script>H5PIntegration = window.top.H5PIntegration; var H5P = H5P || {}; H5P.externalEmbed = false;</script>';
+         '<script>H5PIntegration = window.parent.H5PIntegration; var H5P = H5P || {}; H5P.externalEmbed = false;</script>';
 };
 
 /**
@@ -450,10 +450,10 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
 
   if (H5P.isFramed && H5P.externalEmbed === false) {
     // Trigger resize on wrapper in parent window.
-    window.top.H5P.fullScreen($element, instance, exitCallback, H5P.$body.get());
+    window.parent.H5P.fullScreen($element, instance, exitCallback, H5P.$body.get());
     H5P.isFullscreen = true;
     H5P.exitFullScreen = function () {
-      window.top.H5P.exitFullScreen();
+      window.parent.H5P.exitFullScreen();
     };
     H5P.on(instance, 'exitFullScreen', function () {
       H5P.isFullscreen = false;
@@ -1935,7 +1935,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
     // Relay events to top window.
     if (H5P.isFramed && H5P.externalEmbed === false) {
       H5P.externalDispatcher.on('*', function (event) {
-        window.top.H5P.externalDispatcher.trigger.call(this, event);
+        window.parent.H5P.externalDispatcher.trigger.call(this, event);
       });
     }
   });
