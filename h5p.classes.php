@@ -2487,7 +2487,7 @@ class H5PCore {
 
     // Prevent to long slug
     if (strlen($input) > 91) {
-      $inputsubstr($input, 0, 92);
+      $input = substr($input, 0, 92);
     }
 
     // Prevent empty slug
