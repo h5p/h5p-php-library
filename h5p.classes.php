@@ -2823,6 +2823,12 @@ class H5PContentValidator {
 
   // Validate a filelike object, such as video, image, audio and file.
   private function _validateFilelike(&$file, $semantics, $typevalidkeys = array()) {
+    // Do not allow to use files from other content folders.
+    $matches = array();
+    if (preg_match('/^(\.\.\/){1,2}(\d+|editor)\/(.+)$/', $file->path, $matches)) {
+      $file->path = $matches[3];
+    }
+
     // Make sure path and mime does not have any special chars
     $file->path = htmlspecialchars($file->path, ENT_QUOTES, 'UTF-8', FALSE);
     if (isset($file->mime)) {
