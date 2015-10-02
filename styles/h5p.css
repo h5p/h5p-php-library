@@ -49,6 +49,9 @@ html.h5p-iframe .h5p-semi-fullscreen .h5p-content {
   position: relative;
   z-index: 1;
 }
+.h5p-iframe-wrapper.h5p-fullscreen {
+  background-color: #000;
+}
 body.h5p-semi-fullscreen {
   position: fixed;
   width: 100%;
