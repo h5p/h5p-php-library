@@ -1578,16 +1578,19 @@ Class H5PExport {
    */
   private static function populateFileList($dir, &$files, $relative = '') {
     $strip = strlen($dir) + 1;
-    foreach (glob($dir . DIRECTORY_SEPARATOR . '*') as $file) {
-      $rel = $relative . substr($file, $strip);
-      if (is_dir($file)) {
-        self::populateFileList($file, $files, $rel . '/');
-      }
-      else {
-        $files[] = (object) array(
-          'absolutePath' => $file,
-          'relativePath' => $rel
-        );
+    $contents = glob($dir . DIRECTORY_SEPARATOR . '*');
+    if (!empty($contents)) {
+      foreach ($contents as $file) {
+        $rel = $relative . substr($file, $strip);
+        if (is_dir($file)) {
+          self::populateFileList($file, $files, $rel . '/');
+        }
+        else {
+          $files[] = (object) array(
+            'absolutePath' => $file,
+            'relativePath' => $rel
+          );
+        }
       }
     }
   }
