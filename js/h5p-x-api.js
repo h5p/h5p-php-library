@@ -65,9 +65,16 @@ H5P.EventDispatcher.prototype.createXAPIEventTemplate = function (verb, extra) {
  *   Will be set as the 'raw' value of the score object
  * @param {number} maxScore
  *   will be set as the "max" value of the score object
+ * @param {boolean} success
+ *   will be set as the "success" value of the result object
  */
-H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore) {
-  this.triggerXAPIScored(score, maxScore, 'completed');
+H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore, success) {
+  var verb = 'completed';
+  if (typeof success !== 'undefined') {
+    if (success) {verb = "passed";}
+    else {verb = "failed";}
+  }
+  this.triggerXAPIScored(score, maxScore, verb, true, success);
 };
 
 /**
@@ -80,9 +87,9 @@ H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore) 
  * @param {string} verb
  *   Short form of adl verb
  */
-H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, verb) {
+H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, verb, completion, success) {
   var event = this.createXAPIEventTemplate(verb);
-  event.setScoredResult(score, maxScore, this);
+  event.setScoredResult(score, maxScore, this, completion, success);
   this.trigger(event);
 };
 
