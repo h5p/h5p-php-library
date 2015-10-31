@@ -96,7 +96,7 @@ H5P.EventDispatcher.prototype.setActivityStarted = function() {
  * @param {H5P.XAPIEvent} event
  */
 H5P.xAPICompletedListener = function (event) {
-  if (event.getVerb() === 'completed' && !event.getVerifiedStatementValue(['context', 'contextActivities', 'parent'])) {
+  if ((event.getVerb() === 'completed' || event.getVerb() === 'answered') && !event.getVerifiedStatementValue(['context', 'contextActivities', 'parent'])) {
     var score = event.getScore();
     var maxScore = event.getMaxScore();
     var contentId = event.getVerifiedStatementValue(['object', 'definition', 'extensions', 'http://h5p.org/x-api/h5p-local-content-id']);
