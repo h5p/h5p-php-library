@@ -42,7 +42,7 @@ H5P.XAPIEvent.prototype.setScoredResult = function (score, maxScore, instance, c
   }
   
   if (typeof completion === 'undefined') {
-    this.data.statement.result.completion = true;
+    this.data.statement.result.completion = (this.getVerb() === 'completed' || this.getVerb() === 'answered');
   }
   else {
     this.data.statement.result.completion = completion;
