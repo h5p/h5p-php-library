@@ -69,12 +69,7 @@ H5P.EventDispatcher.prototype.createXAPIEventTemplate = function (verb, extra) {
  *   will be set as the "success" value of the result object
  */
 H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore, success) {
-  var verb = 'completed';
-  if (typeof success !== 'undefined') {
-    if (success) {verb = "passed";}
-    else {verb = "failed";}
-  }
-  this.triggerXAPIScored(score, maxScore, verb, true, success);
+  this.triggerXAPIScored(score, maxScore, 'completed', true, success);
 };
 
 /**
@@ -86,6 +81,10 @@ H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore, 
  *   Will be set as the "max" value of the score object
  * @param {string} verb
  *   Short form of adl verb
+ * @param {boolean} completion
+ *   Is this a statement from a completed activity?
+ * @param {boolean} success
+ *   Is this a statement from an activity that was done successfully?
  */
 H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, verb, completion, success) {
   var event = this.createXAPIEventTemplate(verb);
