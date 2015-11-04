@@ -539,7 +539,13 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
 
     before('h5p-semi-fullscreen');
     var $disable = H5P.jQuery('<div role="button" tabindex="1" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
-    var keyup, disableSemiFullscreen = function () {
+    var keyup, disableSemiFullscreen = H5P.exitFullScreen = function () {
+      if (lastViewport) {
+        metaTags[i].content = lastViewport;
+      }
+      else {
+        head.removeChild(metaTag);
+      }
       $disable.remove();
       $body.unbind('keyup', keyup);
       done('h5p-semi-fullscreen');
@@ -551,6 +557,27 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     };
     $disable.click(disableSemiFullscreen);
     $body.keyup(keyup);
+
+    // Disable zoom
+    var lastViewport;
+    var metaTags = document.getElementsByTagName('meta');
+    for (var i = 0; i < metaTags.length; i++) {
+      if (metaTags[i].name === 'viewport') {
+        lastViewport = metaTags[i].content;
+        break;
+      }
+    }
+    if (!lastViewport) {
+      // Create tag
+      metaTags[i] = document.createElement('meta');
+      metaTags[i].name = 'viewport';
+    }
+    metaTags[i].content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
+    if (!lastViewport) {
+      var head = document.getElementsByTagName('head')[0];
+      head.appendChild(metaTag);
+    }
+
     entered();
   }
   else {

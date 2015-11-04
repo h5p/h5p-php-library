@@ -19,6 +19,7 @@
   actionHandlers.hello = function (iframe, data, respond) {
     // Make iframe responsive
     iframe.style.width = '100%';
+    iframe.contentDocument.body.style.height = 'auto';
 
     // Tell iframe that it needs to resize when our window resizes
     var resize = function (event) {
@@ -46,16 +47,6 @@
    * @param {Function} respond Send a response to the iframe
    */
   actionHandlers.prepareResize = function (iframe, data, respond) {
-    responseData = {};
-
-    // Create spaceholder and insert after iframe.
-    var spaceholder = document.createElement('div');
-    spaceholder.style.height = (iframe.clientHeight - 1) + 'px';
-    iframe.parentNode.insertBefore(spaceholder, iframe.nextSibling);
-
-    // Reset iframe height, in case content has shrinked.
-    iframe.style.height = '1px';
-
     respond('resizePrepared');
   };
 
@@ -68,14 +59,21 @@
    * @param {Function} respond Send a response to the iframe
    */
   actionHandlers.resize = function (iframe, data, respond) {
-    // Resize iframe so all content is visible.
-    iframe.style.height = data.height + 'px';
-    iframe.parentNode.removeChild(iframe.nextSibling);
+    if (iframe.clientHeight === iframe.contentDocument.body.scrollHeight &&
+        iframe.contentDocument.body.scrollHeight === iframe.contentWindow.document.body.clientHeight) {
+      return; // Do not resize unless page and scrolling differs
+    }
+
+    // Reset iframe height, in case content has shrinked.
+    iframe.style.height = iframe.contentWindow.document.body.clientHeight + 'px';
+
+    // Resize iframe so all content is visible. Use scrollHeight to make sure we get everything
+    iframe.style.height = iframe.contentDocument.body.scrollHeight + 'px';
   };
 
   /**
    * Keyup event handler. Exits full screen on escape.
-   * 
+   *
    * @param {Event} event
    */
   var escape = function (event) {

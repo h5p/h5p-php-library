@@ -65,9 +65,11 @@ H5P.EventDispatcher.prototype.createXAPIEventTemplate = function (verb, extra) {
  *   Will be set as the 'raw' value of the score object
  * @param {number} maxScore
  *   will be set as the "max" value of the score object
+ * @param {boolean} success
+ *   will be set as the "success" value of the result object
  */
-H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore) {
-  this.triggerXAPIScored(score, maxScore, 'completed');
+H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore, success) {
+  this.triggerXAPIScored(score, maxScore, 'completed', true, success);
 };
 
 /**
@@ -79,10 +81,14 @@ H5P.EventDispatcher.prototype.triggerXAPICompleted = function (score, maxScore) 
  *   Will be set as the "max" value of the score object
  * @param {string} verb
  *   Short form of adl verb
+ * @param {boolean} completion
+ *   Is this a statement from a completed activity?
+ * @param {boolean} success
+ *   Is this a statement from an activity that was done successfully?
  */
-H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, verb) {
+H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, verb, completion, success) {
   var event = this.createXAPIEventTemplate(verb);
-  event.setScoredResult(score, maxScore, this);
+  event.setScoredResult(score, maxScore, this, completion, success);
   this.trigger(event);
 };
 
@@ -96,7 +102,7 @@ H5P.EventDispatcher.prototype.setActivityStarted = function() {
  * @param {H5P.XAPIEvent} event
  */
 H5P.xAPICompletedListener = function (event) {
-  if (event.getVerb() === 'completed' && !event.getVerifiedStatementValue(['context', 'contextActivities', 'parent'])) {
+  if ((event.getVerb() === 'completed' || event.getVerb() === 'answered') && !event.getVerifiedStatementValue(['context', 'contextActivities', 'parent'])) {
     var score = event.getScore();
     var maxScore = event.getMaxScore();
     var contentId = event.getVerifiedStatementValue(['object', 'definition', 'extensions', 'http://h5p.org/x-api/h5p-local-content-id']);
