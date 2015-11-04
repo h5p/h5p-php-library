@@ -1794,7 +1794,8 @@ H5P.createTitle = function (rawTitle, maxLength) {
       subContentId = 0; // Default
     }
 
-    var content = H5PIntegration.contents['cid-' + contentId];
+    H5PIntegration.contents = H5PIntegration.contents || {};
+    var content = H5PIntegration.contents['cid-' + contentId] || {};
     var preloadedData = content.contentUserData;
     if (preloadedData && preloadedData[subContentId] && preloadedData[subContentId][dataId]) {
       if (preloadedData[subContentId][dataId] === 'RESET') {
@@ -1882,6 +1883,9 @@ H5P.createTitle = function (rawTitle, maxLength) {
     }
 
     var content = H5PIntegration.contents['cid-' + contentId];
+    if (content === undefined) {
+      content = H5PIntegration.contents['cid-' + contentId] = {};
+    }
     if (!content.contentUserData) {
       content.contentUserData = {};
     }
