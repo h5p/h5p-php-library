@@ -544,7 +544,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
         metaTags[i].content = lastViewport;
       }
       else {
-        head.removeChild(metaTag);
+        head.removeChild(metaTags);
       }
       $disable.remove();
       $body.unbind('keyup', keyup);
@@ -575,7 +575,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     metaTags[i].content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
     if (!lastViewport) {
       var head = document.getElementsByTagName('head')[0];
-      head.appendChild(metaTag);
+      head.appendChild(metaTags);
     }
 
     entered();
