@@ -540,11 +540,13 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     before('h5p-semi-fullscreen');
     var $disable = H5P.jQuery('<div role="button" tabindex="1" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
     var keyup, disableSemiFullscreen = H5P.exitFullScreen = function () {
-      if (lastViewport) {
-        metaTags[i].content = lastViewport;
+      if (prevViewportContent) {
+        // Use content from the previous viewport tag
+        h5pViewport.content = prevViewportContent;
       }
       else {
-        head.removeChild(metaTags[i]);
+        // Remove viewport tag
+        head.removeChild(h5pViewport);
       }
       $disable.remove();
       $body.unbind('keyup', keyup);
@@ -559,23 +561,26 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
     $body.keyup(keyup);
 
     // Disable zoom
-    var lastViewport;
+    var prevViewportContent, h5pViewport;
     var metaTags = document.getElementsByTagName('meta');
     for (var i = 0; i < metaTags.length; i++) {
       if (metaTags[i].name === 'viewport') {
-        lastViewport = metaTags[i].content;
+        // Use the existing viewport tag
+        h5pViewport = metaTags[i];
+        prevViewportContent = h5pViewport.content;
         break;
       }
     }
-    if (!lastViewport) {
-      // Create tag
-      metaTags[i] = document.createElement('meta');
-      metaTags[i].name = 'viewport';
+    if (!prevViewportContent) {
+      // Create a new viewport tag
+      h5pViewport = document.createElement('meta');
+      h5pViewport.name = 'viewport';
     }
-    metaTags[i].content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
-    if (!lastViewport) {
+    h5pViewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0';
+    if (!prevViewportContent) {
+      // Insert the new viewport tag
       var head = document.getElementsByTagName('head')[0];
-      head.appendChild(metaTags[i]);
+      head.appendChild(h5pViewport);
     }
 
     entered();
