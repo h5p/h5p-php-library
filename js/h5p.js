@@ -1948,7 +1948,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
     if (H5PIntegration.saveFreq !== false) {
       // Store the current state of the H5P when leaving the page.
-      H5P.$window.on('beforeunload', function () {
+      var storeCurrentState = function () {
         for (var i = 0; i < H5P.instances.length; i++) {
           var instance = H5P.instances[i];
           if (instance.getCurrentState instanceof Function ||
@@ -1960,7 +1960,9 @@ H5P.createTitle = function (rawTitle, maxLength) {
             }
           }
         }
-      });
+      };
+      H5P.$window.one('beforeunload unload', storeCurrentState);
+      H5P.$window.on('pagehide', storeCurrentState);
     }
 
     /**
