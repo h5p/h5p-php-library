@@ -95,7 +95,8 @@ H5P.EventDispatcher.prototype.triggerXAPIScored = function (score, maxScore, ver
 H5P.EventDispatcher.prototype.setActivityStarted = function() {
   if (this.activityStartTime === undefined) {
     // Don't trigger xAPI events in the editor
-    if (H5PIntegration.contents !== undefined &&
+    if (this.contentId !== undefined &&
+        H5PIntegration.contents !== undefined &&
         H5PIntegration.contents['cid-' + this.contentId] !== undefined) {
       this.triggerXAPI('attempted');
     }
