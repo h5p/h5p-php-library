@@ -1947,21 +1947,34 @@ H5P.createTitle = function (rawTitle, maxLength) {
     }
 
     if (H5PIntegration.saveFreq !== false) {
+      // When was the last state stored
+      var lastStoredOn = 0;
       // Store the current state of the H5P when leaving the page.
       var storeCurrentState = function () {
-        for (var i = 0; i < H5P.instances.length; i++) {
-          var instance = H5P.instances[i];
-          if (instance.getCurrentState instanceof Function ||
-              typeof instance.getCurrentState === 'function') {
-            var state = instance.getCurrentState();
-            if (state !== undefined) {
-              // Async is not used to prevent the request from being cancelled.
-              H5P.setUserData(instance.contentId, 'state', state, {deleteOnChange: true, async: false});
+        // Make sure at least 250 ms has passed since last save
+        var currentTime = new Date().getTime();
+        if (currentTime - lastStoredOn > 250) {
+          lastStoredOn = currentTime;
+          for (var i = 0; i < H5P.instances.length; i++) {
+            var instance = H5P.instances[i];
+            if (instance.getCurrentState instanceof Function ||
+                typeof instance.getCurrentState === 'function') {
+              var state = instance.getCurrentState();
+              if (state !== undefined) {
+                // Async is not used to prevent the request from being cancelled.
+                H5P.setUserData(instance.contentId, 'state', state, {deleteOnChange: true, async: false});
+              }
             }
           }
         }
       };
-      H5P.$window.one('beforeunload unload', storeCurrentState);
+      // iPad does not support beforeunload, therefore using unload
+      H5P.$window.one('beforeunload unload', function () {
+        // Only want to do this once
+        H5P.$window.off('pagehide beforeunload unload');
+        storeCurrentState();
+      });
+      // pagehide is used on iPad when tabs are switched
       H5P.$window.on('pagehide', storeCurrentState);
     }
 
