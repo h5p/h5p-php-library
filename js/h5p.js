@@ -279,6 +279,9 @@ H5P.init = function (target) {
           // Initial setup/handshake is done
           parentIsFriendly = true;
 
+          // Make iframe responsive
+          document.body.style.height = 'auto';
+
           // Hide scrollbars for correct size
           document.body.style.overflow = 'hidden';
 
@@ -289,7 +292,7 @@ H5P.init = function (target) {
         // When resize has been prepared tell parent window to resize
         H5P.communicator.on('resizePrepared', function (data) {
           H5P.communicator.send('resize', {
-            height: document.body.scrollHeight
+            scrollHeight: document.body.scrollHeight
           });
         });
 
@@ -307,7 +310,10 @@ H5P.init = function (target) {
           resizeDelay = setTimeout(function () {
             // Only resize if the iframe can be resized
             if (parentIsFriendly) {
-              H5P.communicator.send('prepareResize');
+              H5P.communicator.send('prepareResize', {
+                scrollHeight: document.body.scrollHeight,
+                clientHeight: document.body.clientHeight
+              });
             }
             else {
               H5P.communicator.send('hello');
