@@ -640,17 +640,7 @@ class H5PValidator {
    *  TRUE if the .h5p file is valid
    */
   public function isValidPackage($skipContent = FALSE, $upgradeOnly = FALSE) {
-    // Check that directories are writable
-    if (!H5PCore::dirReady($this->h5pC->path . DIRECTORY_SEPARATOR . 'content')) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the content directory.'));
-      return FALSE;
-    }
-    if (!H5PCore::dirReady($this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries')) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the libraries directory.'));
-      return FALSE;
-    }
-
-    // Make sure Zip is present.
+    // Check dependencies, make sure Zip is present
     if (!class_exists('ZipArchive')) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Your PHP version does not support ZipArchive.'));
       return FALSE;
@@ -659,13 +649,6 @@ class H5PValidator {
     // Create a temporary dir to extract package in.
     $tmpDir = $this->h5pF->getUploadedH5pFolderPath();
     $tmpPath = $this->h5pF->getUploadedH5pPath();
-
-    if (!H5PCore::dirReady($tmpDir)) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the temporary directory.'));
-      return FALSE;
-    }
-
-    $valid = TRUE;
 
     // Extract and then remove the package file.
     $zip = new ZipArchive;
@@ -689,6 +672,7 @@ class H5PValidator {
     unlink($tmpPath);
 
     // Process content and libraries
+    $valid = TRUE;
     $libraries = array();
     $files = scandir($tmpDir);
     $mainH5pData;
@@ -1304,10 +1288,13 @@ class H5PStorage {
       $contentId = $this->h5pC->saveContent($content, $contentMainId);
       $this->contentId = $contentId;
 
-      // Move the content folder
-      $contents_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content';
-      $destination_path = $contents_path . DIRECTORY_SEPARATOR . $contentId;
-      $this->h5pC->copyFileTree($current_path, $destination_path);
+      try {
+        // Save content folder contents
+        $this->h5pC->fs->saveContent($current_path, $contentId);
+      }
+      catch (Exception $e) {
+        $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+      }
 
       // Remove temp content folder
       H5PCore::deleteFileTree($basePath);
@@ -1355,13 +1342,10 @@ class H5PStorage {
       // Save library meta data
       $this->h5pF->saveLibraryData($library, $new);
 
-      // Make sure destination dir is free
-      $libraries_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'libraries';
-      $destination_path = $libraries_path . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE);
-      H5PCore::deleteFileTree($destination_path);
+      // Save library folder
+      $this->h5pC->fs->saveLibrary($library);
 
-      // Move library folder
-      $this->h5pC->copyFileTree($library['uploadDirectory'], $destination_path);
+      // Remove tmp folder
       H5PCore::deleteFileTree($library['uploadDirectory']);
 
       if ($new) {
@@ -1420,26 +1404,10 @@ class H5PStorage {
    * @param int $contentId
    *  The content id
    */
-  public function deletePackage($contentId) {
-    H5PCore::deleteFileTree($this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId);
-    $this->h5pF->deleteContentData($contentId);
-    // TODO: Delete export?
-  }
-
-  /**
-   * Update an H5P package
-   *
-   * @param int $contentId
-   *  The content id
-   * @param int $contentMainId
-   *  The content main id (used by frameworks supporting revisioning)
-   * @return boolean
-   *  TRUE if one or more libraries were updated
-   *  FALSE otherwise
-   */
-  public function updatePackage($contentId, $contentMainId = NULL, $options = array()) {
-    $this->deletePackage($contentId);
-    return $this->savePackage($contentId, $contentMainId, FALSE, $options);
+  public function deletePackage($content) {
+    $this->h5pC->fs->deleteContent($content['id']);
+    $this->h5pC->fs->removeExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p');
+    $this->h5pF->deleteContentData($content['id']);
   }
 
   /**
@@ -1456,10 +1424,7 @@ class H5PStorage {
    *  The main id of the new content (used in frameworks that support revisioning)
    */
   public function copyPackage($contentId, $copyFromId, $contentMainId = NULL) {
-    $source_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $copyFromId;
-    $destination_path = $this->h5pC->path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . $contentId;
-    $this->h5pC->copyFileTree($source_path, $destination_path);
-
+    $this->h5pC->fs->cloneContent($contentId, $newContentId);
     $this->h5pF->copyLibraryUsage($contentId, $copyFromId, $contentMainId);
   }
 }
@@ -1493,25 +1458,27 @@ Class H5PExport {
    * @return string
    */
   public function createExportFile($content) {
-    $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
-    $tempPath = $h5pDir . 'temp' . DIRECTORY_SEPARATOR . $content['id'];
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . $content['slug'] . '-' . $content['id'] . '.h5p';
 
-    // Make sure the exports dir is ready
-    if (!H5PCore::dirReady($h5pDir . 'exports')) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to write to the exports directory.'));
+    // Get path to temporary folder, where export will be contained
+    $tmpPath = $this->h5pC->fs->getTmpPath();
+    mkdir($tmpPath, 0777, true);
+
+    try {
+      // Create content folder and populate with files
+      $this->h5pC->fs->exportContent($content['id'], "{$tmpPath}/content");
+    }
+    catch (Exception $e) {
+      var_dump('Fail 1');
+      $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+      H5PCore::deleteFileTree($tmpPath);
       return FALSE;
     }
 
-    // Create content folder
-    if ($this->h5pC->copyFileTree($h5pDir . 'content' . DIRECTORY_SEPARATOR . $content['id'], $tempPath . DIRECTORY_SEPARATOR . 'content') === FALSE) {
-      return FALSE;
-    }
-    file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json', $content['params']);
+    // Update content.json with content from database
+    file_put_contents("{$tmpPath}/content/content.json", $content['params']);
 
-
-    // Make embedTypes into an array
-    $embedTypes = explode(', ', $content['embedType']); // Won't content always be embedded in one way?
+    // Make embedType into an array
+    $embedTypes = explode(', ', $content['embedType']);
 
     // Build h5p.json
     $h5pJson = array (
@@ -1525,16 +1492,23 @@ Class H5PExport {
     foreach ($content['dependencies'] as $dependency) {
       $library = $dependency['library'];
 
-      // Copy library to h5p
-      $source = $h5pDir . (isset($library['path']) ? $library['path'] : 'libraries' . DIRECTORY_SEPARATOR . H5PCore::libraryToString($library, TRUE));
-      $destination = $tempPath . DIRECTORY_SEPARATOR . $library['machineName'];
-      $this->h5pC->copyFileTree($source, $destination);
+      try {
+        // Export required libraries
+        $this->h5pC->fs->exportLibrary($library, $tmpPath);
+      }
+      catch (Exception $e) {
+        var_dump('Fail 2');
+        $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+        H5PCore::deleteFileTree($tmpPath);
+        return FALSE;
+      }
 
       // Do not add editor dependencies to h5p json.
       if ($dependency['type'] === 'editor') {
         continue;
       }
 
+      // Add to h5p.json dependencies
       $h5pJson[$dependency['type'] . 'Dependencies'][] = array(
         'machineName' => $library['machineName'],
         'majorVersion' => $library['majorVersion'],
@@ -1544,15 +1518,18 @@ Class H5PExport {
 
     // Save h5p.json
     $results = print_r(json_encode($h5pJson), true);
-    file_put_contents($tempPath . DIRECTORY_SEPARATOR . 'h5p.json', $results);
+    file_put_contents("{$tmpPath}/h5p.json", $results);
 
     // Get a complete file list from our tmp dir
     $files = array();
-    self::populateFileList($tempPath, $files);
+    self::populateFileList($tmpPath, $files);
+
+    // Get path to temporary export target file
+    $tmpFile = $this->h5pC->fs->getTmpPath();
 
     // Create new zip instance.
     $zip = new ZipArchive();
-    $zip->open($zipPath, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+    $zip->open($tmpFile, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
 
     // Add all the files from the tmp dir.
     foreach ($files as $file) {
@@ -1561,9 +1538,19 @@ Class H5PExport {
       $zip->addFile($file->absolutePath, $file->relativePath);
     }
 
-    // Close zip and remove temp dir
+    // Close zip and remove tmp dir
     $zip->close();
-    H5PCore::deleteFileTree($tempPath);
+    H5PCore::deleteFileTree($tmpPath);
+
+    try {
+      // Save export
+      $this->h5pC->fs->saveExport($tmpFile, $content['slug'] . '-' . $content['id'] . '.h5p');
+    }
+    catch (Exception $e) {
+      $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+    }
+
+    unlink($tmpFile);
   }
 
   /**
@@ -1601,11 +1588,7 @@ Class H5PExport {
    * @param array $content object
    */
   public function deleteExport($content) {
-    $h5pDir = $this->h5pC->path . DIRECTORY_SEPARATOR;
-    $zipPath = $h5pDir . 'exports' . DIRECTORY_SEPARATOR . ($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p';
-    if (file_exists($zipPath)) {
-      unlink($zipPath);
-    }
+    $this->h5pC->fs->removeExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p');
   }
 
   /**
@@ -1656,7 +1639,7 @@ class H5PCore {
   public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
-  public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $path, $development_mode, $h5pD, $disableFileCheck;
+  public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $development_mode, $h5pD, $disableFileCheck;
   const SECONDS_IN_WEEK = 604800;
 
   private $exportEnabled;
@@ -1682,7 +1665,8 @@ class H5PCore {
    *
    * @param object $H5PFramework
    *  The frameworks implementation of the H5PFrameworkInterface
-   * @param string $path H5P file storage directory.
+   * @param string|\H5P\FileStorage $path H5P file storage directory or class.
+   * @param string $url To file storage directory.
    * @param string $language code. Defaults to english.
    * @param boolean $export enabled?
    * @param int $development_mode mode.
@@ -1690,8 +1674,8 @@ class H5PCore {
   public function __construct($H5PFramework, $path, $url, $language = 'en', $export = FALSE, $development_mode = H5PDevelopment::MODE_NONE) {
     $this->h5pF = $H5PFramework;
 
-    $this->h5pF = $H5PFramework;
-    $this->path = $path;
+    $this->fs = ($path instanceof \H5P\FileStorage ? $path : new \H5P\DefaultStorage($path));
+
     $this->url = $url;
     $this->exportEnabled = $export;
     $this->development_mode = $development_mode;
@@ -1766,7 +1750,7 @@ class H5PCore {
    */
   public function filterParameters(&$content) {
     if (isset($content['filtered']) && $content['filtered'] !== '') {
-      return $content['filtered'];
+      //return $content['filtered'];
     }
 
     // Validate and filter against main library semantics.
@@ -1794,10 +1778,7 @@ class H5PCore {
         $content['slug'] = $this->generateContentSlug($content);
 
         // Remove old export file
-        $oldExport = $this->path . '/exports/' . $content['id'] . '.h5p';
-        if (file_exists($oldExport)) {
-          unlink($oldExport);
-        }
+        $this->fs->removeExport($content['id'] . '.h5p');
       }
 
       if ($this->exportEnabled) {
@@ -2095,39 +2076,6 @@ class H5PCore {
       (is_dir("$dir/$file")) ? self::deleteFileTree("$dir/$file") : unlink("$dir/$file");
     }
     return rmdir($dir);
-  }
-
-  /**
-   * Recursive function for copying directories.
-   *
-   * @param string $source
-   *  Path to the directory we'll be copying
-   * @return boolean
-   *  Indicates if the directory existed.
-   */
-  public function copyFileTree($source, $destination) {
-    if (!H5PCore::dirReady($destination)) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy file tree.'));
-      return FALSE;
-    }
-
-    $dir = opendir($source);
-    if ($dir === FALSE) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to copy file tree.'));
-      return FALSE;
-    }
-
-    while (false !== ($file = readdir($dir))) {
-        if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
-            if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
-              $this->copyFileTree($source . DIRECTORY_SEPARATOR . $file, $destination . DIRECTORY_SEPARATOR . $file);
-            }
-            else {
-              copy($source . DIRECTORY_SEPARATOR . $file,$destination . DIRECTORY_SEPARATOR . $file);
-            }
-        }
-    }
-    closedir($dir);
   }
 
   /**
@@ -2499,36 +2447,6 @@ class H5PCore {
     }
 
     return $input;
-  }
-
-  /**
-   * Recursive function that makes sure the specified directory exists and
-   * is writable.
-   *
-   * @param string $path
-   * @return bool
-   */
-  public static function dirReady($path) {
-    if (!file_exists($path)) {
-      $parent = preg_replace("/\/[^\/]+\/?$/", '', $path);
-      if (!H5PCore::dirReady($parent)) {
-        return FALSE;
-      }
-
-      mkdir($path, 0777, true);
-    }
-
-    if (!is_dir($path)) {
-      trigger_error('Path is not a directory ' . $path, E_USER_WARNING);
-      return FALSE;
-    }
-
-    if (!is_writable($path)) {
-      trigger_error('Unable to write to ' . $path . ' – check directory permissions –', E_USER_WARNING);
-      return FALSE;
-    }
-
-    return TRUE;
   }
 }
 
