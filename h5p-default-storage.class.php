@@ -1,25 +1,34 @@
 <?php
 
 /**
- *
+ * File info?
  */
 
 namespace H5P;
 
 /**
+ * The default file storage class for H5P. Will carry out the requested file
+ * operations using PHP's standard file operation functions.
  *
+ * Some implementations of H5P that doesn't use the standard file system will
+ * want to create their own implementation of the \H5P\FileStorage interface.
+ *
+ * @package    H5P
+ * @copyright  2016 Joubel AS
+ * @license    MIT
  */
 class DefaultStorage implements \H5P\FileStorage {
   private $path;
 
   /**
    * The great Constructor!
+   *
+   * @param string $path
+   *  The base location of H5P files
    */
   function __construct($path) {
     // Set H5P storage path
     $this->path = $path;
-
-    // TODO: Check if Dirs are ready? Perhaps in each function?
   }
 
   /**
@@ -47,7 +56,12 @@ class DefaultStorage implements \H5P\FileStorage {
    *  What makes this content unique.
    */
   public function saveContent($source, $id) {
-    self::copyFileTree($source, $this->path . '/content/' . $id);
+    $dest = "{$this->path}/content/{$id}";
+
+    // Remove any old content
+    \H5PCore::deleteFileTree($dest);
+
+    self::copyFileTree($source, $dest);
   }
 
   /**
@@ -57,7 +71,7 @@ class DefaultStorage implements \H5P\FileStorage {
    *  Content identifier
    */
   public function deleteContent($id) {
-    // TODO
+    \H5PCore::deleteFileTree("{$this->path}/content/{$id}");
   }
 
   /**
@@ -80,7 +94,7 @@ class DefaultStorage implements \H5P\FileStorage {
    *  Path
    */
   public function getTmpPath() {
-    // TODO
+    return $this->path . '/temp/' . uniqid('h5p-');
   }
 
   /**
@@ -92,7 +106,7 @@ class DefaultStorage implements \H5P\FileStorage {
    *  Where the content folder will be saved
    */
   public function exportContent($id, $target) {
-    self::copyFileTree($this->path . '/content/' . $id, $target);
+    self::copyFileTree("{$this->path}/content/{$id}", $target);
   }
 
   /**
@@ -104,7 +118,8 @@ class DefaultStorage implements \H5P\FileStorage {
    *  Where the library folder will be saved
    */
   public function exportLibrary($library, $target) {
-    // TODO
+    $folder = \H5PCore::libraryToString($library, TRUE);
+    self::copyFileTree("{$this->path}/libraries/{$folder}", $target);
   }
 
   /**
@@ -116,7 +131,9 @@ class DefaultStorage implements \H5P\FileStorage {
    *  Name of export file.
    */
   public function saveExport($source, $filename) {
-    // TODO
+    $this->deleteExport($filename);
+    self::dirReady("{$this->path}/exports");
+    copy($source, "{$this->path}/exports/{$filename}");
   }
 
   /**
@@ -125,7 +142,10 @@ class DefaultStorage implements \H5P\FileStorage {
    * @param string $filename
    */
   public function deleteExport($filename) {
-    // TODO
+    $target = "{$this->path}/exports/{$filename}";
+    if (file_exists($target)) {
+      unlink($target);
+    }
   }
 
   /**
@@ -151,11 +171,11 @@ class DefaultStorage implements \H5P\FileStorage {
 
     while (false !== ($file = readdir($dir))) {
       if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore') {
-        if (is_dir($source . DIRECTORY_SEPARATOR . $file)) {
-          self::copyFileTree($source . DIRECTORY_SEPARATOR . $file, $destination . DIRECTORY_SEPARATOR . $file);
+        if (is_dir("{$source}/{$file}")) {
+          self::copyFileTree("{$source}/{$file}", "{$destination}/{$file}");
         }
         else {
-          copy($source . DIRECTORY_SEPARATOR . $file,$destination . DIRECTORY_SEPARATOR . $file);
+          copy("{$source}/{$file}", "{$destination}/{$file}");
         }
       }
     }
