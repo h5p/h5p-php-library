@@ -90,5 +90,5 @@ interface FileStorage {
    *
    * @param string $filename
    */
-  public function removeExport($filename);
+  public function deleteExport($filename);
 }
