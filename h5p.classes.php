@@ -1909,10 +1909,24 @@ class H5PCore {
    * @return array files.
    */
   public function getDependenciesFiles($dependencies, $prefix = '') {
+    $aggregateAssets = TRUE;
+
+    if ($aggregateAssets) {
+      // Get aggregated files for assets
+      $key = self::getDependenciesHash($dependencies);
+
+      $files = $this->fs->getCachedAssets($key);
+      if ($files) {
+        return $files; // Using cached assets
+      }
+    }
+
+    // Build files list for assets
     $files = array(
       'scripts' => array(),
       'styles' => array()
     );
+    // Using content dependencies
     foreach ($dependencies as $dependency) {
       if (isset($dependency['path']) === FALSE) {
         $dependency['path'] = 'libraries/' . H5PCore::libraryToString($dependency, TRUE);
@@ -1923,7 +1937,32 @@ class H5PCore {
       $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts'], $prefix);
       $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles'], $prefix);
     }
+
+    if ($aggregateAssets) {
+      // Aggregate and store assets
+      $this->fs->cacheAssets($files, $key);
+
+      // TODO: Update cache table
+    }
+
     return $files;
+  }
+
+  private static function getDependenciesHash(&$dependencies) {
+    // Build hash of dependencies
+    $toHash = array();
+
+    // Use unique identifier for each library version
+    for ($i = 0, $s = count($dependencies); $i < $s; $i++) {
+      $dep = $dependencies[$i];
+      $toHash[] = "{$dep['machineName']}-{$dep['majorVersion']}.{$dep['minorVersion']}.{$dep['patchVersion']}";
+    }
+
+    // Sort in case the same dependencies comes in a different order
+    sort($toHash);
+
+    // Calculate hash sum
+    return hash('sha1', implode('', $toHash));
   }
 
   /**
