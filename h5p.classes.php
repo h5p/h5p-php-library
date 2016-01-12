@@ -1750,7 +1750,7 @@ class H5PCore {
    */
   public function filterParameters(&$content) {
     if (isset($content['filtered']) && $content['filtered'] !== '') {
-      //return $content['filtered'];
+      return $content['filtered'];
     }
 
     // Validate and filter against main library semantics.
