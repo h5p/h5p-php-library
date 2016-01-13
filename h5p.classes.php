@@ -536,6 +536,29 @@ interface H5PFrameworkInterface {
    * @return boolean
    */
   public function isContentSlugAvailable($slug);
+
+  /**
+   * Stores hash keys for cached assets, aggregated JavaScripts and
+   * stylesheets, and connects it to libraries so that we know which cache file
+   * to delete when a library is updated.
+   *
+   * @param string $key
+   *  Hash key for the given libraries
+   * @param array $libraries
+   *  List of dependencies(libraries) used to create the key
+   */
+  public function saveCachedAssets($key, $libraries);
+
+  /**
+   * Locate hash keys for given library and delete them.
+   * Used when cache file are deleted.
+   *
+   * @param int $library_id
+   *  Library identifier
+   * @return array
+   *  List of hash keys removed
+   */
+  public function deleteCachedAssets($library_id);
 }
 
 /**
@@ -1345,6 +1368,12 @@ class H5PStorage {
       // Save library folder
       $this->h5pC->fs->saveLibrary($library);
 
+      // Remove cachedassets that uses this library
+      if ($this->h5pC->aggregateAssets && isset($library['libraryId'])) {
+        $removedKeys = $this->h5pF->deleteCachedAssets($library['libraryId']);
+        $this->h5pC->fs->deleteCachedAssets($removedKeys);
+      }
+
       // Remove tmp folder
       H5PCore::deleteFileTree($library['uploadDirectory']);
 
@@ -1680,6 +1709,8 @@ class H5PCore {
     $this->exportEnabled = $export;
     $this->development_mode = $development_mode;
 
+    $this->aggregateAssets = FALSE; // Off by default.. for now
+
     if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
       $this->h5pD = new H5PDevelopment($this->h5pF, $path . '/', $language);
     }
@@ -1909,9 +1940,7 @@ class H5PCore {
    * @return array files.
    */
   public function getDependenciesFiles($dependencies, $prefix = '') {
-    $aggregateAssets = TRUE;
-
-    if ($aggregateAssets) {
+    if ($this->aggregateAssets) {
       // Get aggregated files for assets
       $key = self::getDependenciesHash($dependencies);
 
@@ -1938,11 +1967,12 @@ class H5PCore {
       $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles'], $prefix);
     }
 
-    if ($aggregateAssets) {
+    if ($this->aggregateAssets) {
       // Aggregate and store assets
       $this->fs->cacheAssets($files, $key);
 
-      // TODO: Update cache table
+      // Keep track of which libraries have been cached in case they are updated
+      $this->h5pF->saveCachedAssets($key, $dependencies);
     }
 
     return $files;

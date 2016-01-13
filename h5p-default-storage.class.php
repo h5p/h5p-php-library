@@ -149,6 +149,104 @@ class DefaultStorage implements \H5P\FileStorage {
   }
 
   /**
+   * Will concatenate all JavaScrips and Stylesheets into two files in order
+   * to improve page performance.
+   *
+   * @param array $files
+   *  A set of all the assets required for content to display
+   * @param string $key
+   *  Hashed key for cached asset
+   */
+  public function cacheAssets(&$files, $key) {
+    foreach ($files as $type => $assets) {
+      $content = '';
+
+      foreach ($assets as $asset) {
+        // Get content from asset file
+        $assetContent = file_get_contents($this->path . $asset->path);
+        $cssRelPath = preg_replace('/[^\/]+$/', '', $asset->path);
+
+        // Get file content and concatenate
+        if ($type === 'scripts') {
+          $content .= $assetContent . ";\n";
+        }
+        else {
+          // Rewrite relative URLs used inside stylesheets
+          $content .= preg_replace_callback(
+              '/url\([\'"]?([^"\')]+)[\'"]?\)/i',
+              function ($matches) use ($cssRelPath) {
+                return substr($matches[1], 0, 3) !== '../' ? $matches[0] : 'url("../' . $cssRelPath . $matches[1] . '")';
+              },
+              $assetContent
+          ) . "\n";
+        }
+      }
+
+      self::dirReady("{$this->path}/cachedassets");
+      $ext = ($type === 'scripts' ? 'js' : 'css');
+      file_put_contents("{$this->path}/cachedassets/{$key}.{$ext}", $content);
+    }
+
+    // Use the newly created cache
+    $files = self::formatCachedAssets($key);
+  }
+
+  /**
+   * Will check if there are cache assets available for content.
+   *
+   * @param string $key
+   *  Hashed key for cached asset
+   * @return array
+   */
+  public function getCachedAssets($key) {
+    if (!file_exists("{$this->path}/cachedassets/{$key}.js") ||
+        !file_exists("{$this->path}/cachedassets/{$key}.css") {
+      return NULL;
+    }
+    return self::formatCachedAssets($key);
+  }
+
+  /**
+   * Remove the aggregated cache files.
+   *
+   * @param array $keys
+   *   The hash keys of removed files
+   */
+  public function deleteCachedAssets($keys) {
+    $context = \context_system::instance();
+    $fs = get_file_storage();
+
+    foreach ($keys as $hash) {
+      foreach (array('js', 'css') as $ext) {
+        $path = "{$this->path}/cachedassets/{$key}.{$ext}";
+        if (file_exists($path)) {
+          unlink($path);
+        }
+      }
+    }
+  }
+
+  /**
+   * Format the cached assets data the way it's supposed to be.
+   *
+   * @param string $key
+   *  Hashed key for cached asset
+   * @return array
+   */
+  private static function formatCachedAssets($key) {
+    return array(
+      'scripts' => array((object) array(
+        'path' => "/cachedassets/{$key}.js",
+        'version' => ''
+      )),
+      'styles' => array((object) array(
+        'path' => "/cachedassets/{$key}.css",
+        'version' => ''
+      ))
+    );
+  }
+
+  /**
    * Recursive function for copying directories.
    *
    * @param string $source

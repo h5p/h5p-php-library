@@ -91,4 +91,32 @@ interface FileStorage {
    * @param string $filename
    */
   public function deleteExport($filename);
+
+  /**
+   * Will concatenate all JavaScrips and Stylesheets into two files in order
+   * to improve page performance.
+   *
+   * @param array $files
+   *  A set of all the assets required for content to display
+   * @param string $key
+   *  Hashed key for cached asset
+   */
+  public function cacheAssets(&$files, $key);
+
+  /**
+   * Will check if there are cache assets available for content.
+   *
+   * @param string $key
+   *  Hashed key for cached asset
+   * @return array
+   */
+  public function getCachedAssets($key);
+
+  /**
+   * Remove the aggregated cache files.
+   *
+   * @param array $keys
+   *   The hash keys of removed files
+   */
+  public function deleteCachedAssets($keys);
 }
