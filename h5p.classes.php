@@ -2408,6 +2408,10 @@ class H5PCore {
       if($platformInfo['uuid'] === '' && isset($json->uuid)) {
         $this->h5pF->setOption('site_uuid', $json->uuid);
       }
+      if (isset($json->latest) && !empty($json->latest)) {
+        $this->h5pF->setOption('update_available', $json->latest->releasedAt);
+        $this->h5pF->setOption('update_available_path', $json->latest->path);
+      }
     }
   }
 

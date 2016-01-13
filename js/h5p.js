@@ -279,6 +279,9 @@ H5P.init = function (target) {
           // Initial setup/handshake is done
           parentIsFriendly = true;
 
+          // Make iframe responsive
+          document.body.style.height = 'auto';
+
           // Hide scrollbars for correct size
           document.body.style.overflow = 'hidden';
 
@@ -289,7 +292,7 @@ H5P.init = function (target) {
         // When resize has been prepared tell parent window to resize
         H5P.communicator.on('resizePrepared', function (data) {
           H5P.communicator.send('resize', {
-            height: document.body.scrollHeight
+            scrollHeight: document.body.scrollHeight
           });
         });
 
@@ -307,7 +310,10 @@ H5P.init = function (target) {
           resizeDelay = setTimeout(function () {
             // Only resize if the iframe can be resized
             if (parentIsFriendly) {
-              H5P.communicator.send('prepareResize');
+              H5P.communicator.send('prepareResize', {
+                scrollHeight: document.body.scrollHeight,
+                clientHeight: document.body.clientHeight
+              });
             }
             else {
               H5P.communicator.send('hello');
@@ -1947,20 +1953,35 @@ H5P.createTitle = function (rawTitle, maxLength) {
     }
 
     if (H5PIntegration.saveFreq !== false) {
+      // When was the last state stored
+      var lastStoredOn = 0;
       // Store the current state of the H5P when leaving the page.
-      H5P.$window.on('beforeunload', function () {
-        for (var i = 0; i < H5P.instances.length; i++) {
-          var instance = H5P.instances[i];
-          if (instance.getCurrentState instanceof Function ||
-              typeof instance.getCurrentState === 'function') {
-            var state = instance.getCurrentState();
-            if (state !== undefined) {
-              // Async is not used to prevent the request from being cancelled.
-              H5P.setUserData(instance.contentId, 'state', state, {deleteOnChange: true, async: false});
+      var storeCurrentState = function () {
+        // Make sure at least 250 ms has passed since last save
+        var currentTime = new Date().getTime();
+        if (currentTime - lastStoredOn > 250) {
+          lastStoredOn = currentTime;
+          for (var i = 0; i < H5P.instances.length; i++) {
+            var instance = H5P.instances[i];
+            if (instance.getCurrentState instanceof Function ||
+                typeof instance.getCurrentState === 'function') {
+              var state = instance.getCurrentState();
+              if (state !== undefined) {
+                // Async is not used to prevent the request from being cancelled.
+                H5P.setUserData(instance.contentId, 'state', state, {deleteOnChange: true, async: false});
+              }
             }
           }
         }
+      };
+      // iPad does not support beforeunload, therefore using unload
+      H5P.$window.one('beforeunload unload', function () {
+        // Only want to do this once
+        H5P.$window.off('pagehide beforeunload unload');
+        storeCurrentState();
       });
+      // pagehide is used on iPad when tabs are switched
+      H5P.$window.on('pagehide', storeCurrentState);
     }
 
     /**
