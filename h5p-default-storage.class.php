@@ -4,8 +4,6 @@
  * File info?
  */
 
-namespace H5P;
-
 /**
  * The default file storage class for H5P. Will carry out the requested file
  * operations using PHP's standard file operation functions.
@@ -17,7 +15,7 @@ namespace H5P;
  * @copyright  2016 Joubel AS
  * @license    MIT
  */
-class DefaultStorage implements \H5P\FileStorage {
+class DefaultStorage implements \H5PFileStorage {
   private $path;
 
   /**

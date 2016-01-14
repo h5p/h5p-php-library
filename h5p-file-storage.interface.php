@@ -4,12 +4,10 @@
  * File info?
  */
 
-namespace H5P;
-
 /**
  * Interface needed to handle storage and export of H5P Content.
  */
-interface FileStorage {
+interface H5PFileStorage {
 
   /**
    * Store the library folder.
