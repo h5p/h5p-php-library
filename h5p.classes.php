@@ -1497,7 +1497,6 @@ Class H5PExport {
       $this->h5pC->fs->exportContent($content['id'], "{$tmpPath}/content");
     }
     catch (Exception $e) {
-      var_dump('Fail 1');
       $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
       H5PCore::deleteFileTree($tmpPath);
       return FALSE;
@@ -1526,7 +1525,6 @@ Class H5PExport {
         $this->h5pC->fs->exportLibrary($library, $tmpPath);
       }
       catch (Exception $e) {
-        var_dump('Fail 2');
         $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
         H5PCore::deleteFileTree($tmpPath);
         return FALSE;
