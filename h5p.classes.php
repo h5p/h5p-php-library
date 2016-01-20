@@ -130,18 +130,19 @@ interface H5PFrameworkInterface {
   public function getAdminUrl();
 
   /**
-   * Get id to an existing library
+   * Get id to an existing library.
+   * If version number is not specified, the newest version will be returned.
    *
    * @param string $machineName
    *   The librarys machine name
    * @param int $majorVersion
-   *   The librarys major version
+   *   Optional major version number for library
    * @param int $minorVersion
-   *   The librarys minor version
+   *   Optional minor version number for library
    * @return int
    *   The id of the specified library or FALSE
    */
-  public function getLibraryId($machineName, $majorVersion, $minorVersion);
+  public function getLibraryId($machineName, $majorVersion = NULL, $minorVersion = NULL);
 
   /**
    * Get file extension whitelist
@@ -798,12 +799,12 @@ class H5PValidator {
     }
     if ($valid) {
       if ($upgradeOnly) {
-        // When upgrading, we opnly add allready installed libraries,
-        // and new dependent libraries
+        // When upgrading, we only add the already installed libraries, and
+        // the new dependent libraries
         $upgrades = array();
         foreach ($libraries as $libString => &$library) {
           // Is this library already installed?
-          if ($this->h5pC->getLibraryId($library, $libString) !== FALSE) {
+          if ($this->h5pF->getLibraryId($library['machineName']) !== FALSE) {
             $upgrades[$libString] = $library;
           }
         }
