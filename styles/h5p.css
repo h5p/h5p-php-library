@@ -421,15 +421,3 @@ div.h5p-fullscreen {
 .h5p-dialog-ok-button:active {
   background: #eeffee;
 }
-
-/* Override some theme rules that might be a bit extreme */
-.h5p-content span {
-  display: initial;
-  float: initial;
-  width: initial;
-  min-height: initial;
-  margin-left: initial;
-  -webkit-box-sizing: initial;
-  -moz-box-sizing: initial;
-  box-sizing: initial;
-}
