@@ -285,10 +285,13 @@ class H5PDefaultStorage implements \H5PFileStorage {
    * Recursive function that makes sure the specified directory exists and
    * is writable.
    *
+   * TODO: Will be made private when the editor file handling is done by this
+   * class!
+   *
    * @param string $path
    * @return bool
    */
-  private static function dirReady($path) {
+  public static function dirReady($path) {
     if (!file_exists($path)) {
       $parent = preg_replace("/\/[^\/]+\/?$/", '', $path);
       if (!self::dirReady($parent)) {
