@@ -1939,6 +1939,17 @@ class H5PCore {
    * @return array files.
    */
   public function getDependenciesFiles($dependencies, $prefix = '') {
+    // Build files list for assets
+    $files = array(
+      'scripts' => array(),
+      'styles' => array()
+    );
+
+    // Avoid caching empty files
+    if (empty($dependencies)) {
+      return $files;
+    }
+
     if ($this->aggregateAssets) {
       // Get aggregated files for assets
       $key = self::getDependenciesHash($dependencies);
@@ -1949,11 +1960,6 @@ class H5PCore {
       }
     }
 
-    // Build files list for assets
-    $files = array(
-      'scripts' => array(),
-      'styles' => array()
-    );
     // Using content dependencies
     foreach ($dependencies as $dependency) {
       if (isset($dependency['path']) === FALSE) {
