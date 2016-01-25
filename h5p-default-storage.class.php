@@ -117,7 +117,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    */
   public function exportLibrary($library, $target) {
     $folder = \H5PCore::libraryToString($library, TRUE);
-    self::copyFileTree("{$this->path}/libraries/{$folder}", $target);
+    self::copyFileTree("{$this->path}/libraries/{$folder}", "{$target}/{$folder}");
   }
 
   /**
