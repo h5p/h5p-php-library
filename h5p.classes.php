@@ -1988,8 +1988,7 @@ class H5PCore {
     $toHash = array();
 
     // Use unique identifier for each library version
-    for ($i = 0, $s = count($dependencies); $i < $s; $i++) {
-      $dep = $dependencies[$i];
+    foreach ($dependencies as $dep) {
       $toHash[] = "{$dep['machineName']}-{$dep['majorVersion']}.{$dep['minorVersion']}.{$dep['patchVersion']}";
     }
 
