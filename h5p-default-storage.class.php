@@ -157,8 +157,11 @@ class H5PDefaultStorage implements \H5PFileStorage {
    */
   public function cacheAssets(&$files, $key) {
     foreach ($files as $type => $assets) {
-      $content = '';
+      if (empty($assets)) {
+        continue; // Skip no assets
+      }
 
+      $content = '';
       foreach ($assets as $asset) {
         // Get content from asset file
         $assetContent = file_get_contents($this->path . $asset->path);
