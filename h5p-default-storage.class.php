@@ -92,7 +92,9 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  Path
    */
   public function getTmpPath() {
-    return $this->path . '/temp/' . uniqid('h5p-');
+    $temp = "{$this->path}/temp";
+    self::dirReady($temp);
+    return "{$temp}/" . uniqid('h5p-');
   }
 
   /**
@@ -187,11 +189,13 @@ class H5PDefaultStorage implements \H5PFileStorage {
 
       self::dirReady("{$this->path}/cachedassets");
       $ext = ($type === 'scripts' ? 'js' : 'css');
-      file_put_contents("{$this->path}/cachedassets/{$key}.{$ext}", $content);
+      $outputfile = "/cachedassets/{$key}.{$ext}";
+      file_put_contents($this->path . $outputfile, $content);
+      $files[$type] = array((object) array(
+        'path' => $outputfile,
+        'version' => ''
+      ));
     }
-
-    // Use the newly created cache
-    $files = self::formatCachedAssets($key);
   }
 
   /**
@@ -202,11 +206,25 @@ class H5PDefaultStorage implements \H5PFileStorage {
    * @return array
    */
   public function getCachedAssets($key) {
-    if (!file_exists("{$this->path}/cachedassets/{$key}.js") ||
-        !file_exists("{$this->path}/cachedassets/{$key}.css") {
-      return NULL;
+    $files = array();
+
+    $js = "/cachedassets/{$key}.js";
+    if (file_exists($this->path . $js)) {
+      $files['scripts'] = array((object) array(
+        'path' => $js,
+        'version' => ''
+      ));
     }
-    return self::formatCachedAssets($key);
+
+    $css = "/cachedassets/{$key}.css";
+    if (file_exists($this->path . $css)) {
+      $files['styles'] = array((object) array(
+        'path' => $css,
+        'version' => ''
+      ));
+    }
+
+    return empty($files) ? NULL : $files;
   }
 
   /**
@@ -216,37 +234,14 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *   The hash keys of removed files
    */
   public function deleteCachedAssets($keys) {
-    $context = \context_system::instance();
-    $fs = get_file_storage();
-
     foreach ($keys as $hash) {
       foreach (array('js', 'css') as $ext) {
-        $path = "{$this->path}/cachedassets/{$key}.{$ext}";
+        $path = "{$this->path}/cachedassets/{$hash}.{$ext}";
         if (file_exists($path)) {
           unlink($path);
         }
       }
     }
-  }
-
-  /**
-   * Format the cached assets data the way it's supposed to be.
-   *
-   * @param string $key
-   *  Hashed key for cached asset
-   * @return array
-   */
-  private static function formatCachedAssets($key) {
-    return array(
-      'scripts' => array((object) array(
-        'path' => "/cachedassets/{$key}.js",
-        'version' => ''
-      )),
-      'styles' => array((object) array(
-        'path' => "/cachedassets/{$key}.css",
-        'version' => ''
-      ))
-    );
   }
 
   /**
