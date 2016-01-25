@@ -15,7 +15,7 @@
  * @copyright  2016 Joubel AS
  * @license    MIT
  */
-class DefaultStorage implements \H5PFileStorage {
+class H5PDefaultStorage implements \H5PFileStorage {
   private $path;
 
   /**
