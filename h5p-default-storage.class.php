@@ -176,10 +176,12 @@ class H5PDefaultStorage implements \H5PFileStorage {
           $content .= preg_replace_callback(
               '/url\([\'"]?([^"\')]+)[\'"]?\)/i',
               function ($matches) use ($cssRelPath) {
-                return substr($matches[1], 0, 3) !== '../' ? $matches[0] : 'url("../' . $cssRelPath . $matches[1] . '")';
+                  if (preg_match("/^([a-z0-9]+:)?\//i", $matches[1]) === 1) {
+                    return $matches[0]; // Not relative, skip
+                  }
+                  return 'url("../' . $cssRelPath . $matches[1] . '")';
               },
-              $assetContent
-          ) . "\n";
+              $assetContent) . "\n";
         }
       }
 
