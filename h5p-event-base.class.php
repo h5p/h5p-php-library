@@ -16,7 +16,7 @@ class H5PEventBase {
 
   // Static options
   public static $log_level = self::LOG_EXTRAS;
-  public static $log_time = 86400 * 30; // 30 Days
+  public static $log_time = 2592000; // 30 Days
 
   // Protected variables
   protected $type, $sub_type, $content_id, $content_title, $library_name, $library_version, $time;
