@@ -335,6 +335,16 @@ interface H5PFrameworkInterface {
   public function getLibraryUsage($libraryId);
 
   /**
+   * Get a key value list of library version and count of content created
+   * using that library.
+   *
+   * @return array
+   *  Array containing library, major and minor version - content count
+   *  e.g. "H5P.CoursePresentation 1.6" => "14"
+   */
+  public function getLibraryContentCount();
+
+  /**
    * Loads a library
    *
    * @param string $machineName
@@ -2405,6 +2415,7 @@ class H5PCore {
     $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
     $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
     $platformInfo['siteType'] = $this->h5pF->getOption('site_type', 'local');
+    $platformInfo['libraryContentCount'] = $this->h5pF->getLibraryContentCount();
 
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
