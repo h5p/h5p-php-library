@@ -2406,6 +2406,28 @@ class H5PCore {
   }
 
   /**
+   * Get a list of installed libraries, different minor versions will
+   * return separate entries.
+   *
+   * @return array
+   *  A distinct array of installed libraries
+   */
+  public function getLibrariesInstalled() {
+    $librariesInstalled = [];
+
+    $libs = $this->h5pF->loadLibraries();
+
+    foreach($libs as $library) {
+      foreach($library as $libVersion) {
+
+        $librariesInstalled[] = $libVersion->name.' '.$libVersion->major_version.'.'.$libVersion->minor_version.'.'.$libVersion->patch_version;
+      }
+    }
+
+    return $librariesInstalled;
+  }
+
+  /**
    * Fetch a list of libraries' metadata from h5p.org.
    * Save URL tutorial to database. Each platform implementation
    * is responsible for invoking this, eg using cron
@@ -2416,6 +2438,7 @@ class H5PCore {
     $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
     $platformInfo['siteType'] = $this->h5pF->getOption('site_type', 'local');
     $platformInfo['libraryContentCount'] = $this->h5pF->getLibraryContentCount();
+    $platformInfo['librariesInstalled'] = $this->getLibrariesInstalled();
 
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
