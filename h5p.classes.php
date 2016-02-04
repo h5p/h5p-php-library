@@ -547,6 +547,15 @@ interface H5PFrameworkInterface {
    * @return boolean
    */
   public function isContentSlugAvailable($slug);
+
+  /**
+   * Generates statistics from the event log per library
+   *
+   * @param string $type Type of event to generate stats for
+   * @param string $sub_type
+   * @return array Number values indexed by library name and version
+   */
+  public function getLibraryStats($type, $sub_type = '');
 }
 
 /**
@@ -2411,18 +2420,32 @@ class H5PCore {
    *  A distinct array of installed libraries
    */
   public function getLibrariesInstalled() {
-    $librariesInstalled = [];
-
+    $librariesInstalled = array();
     $libs = $this->h5pF->loadLibraries();
 
     foreach($libs as $library) {
       foreach($library as $libVersion) {
-
-        $librariesInstalled[] = $libVersion->name.' '.$libVersion->major_version.'.'.$libVersion->minor_version.'.'.$libVersion->patch_version;
+        $librariesInstalled[$libVersion->name.' '.$libVersion->major_version.'.'.$libVersion->minor_version] = $libVersion->patch_version;
       }
     }
 
     return $librariesInstalled;
+  }
+
+  /**
+   * Easy way to combine smiliar data sets.
+   *
+   * @param array $inputs Multiple arrays with data
+   * @return array
+   */
+  public function combineArrayValues($inputs) {
+    $results = array();
+    foreach ($inputs as $index => $values) {
+      foreach ($values as $key => $value) {
+        $results[$key][$index] = $value;
+      }
+    }
+    return $results;
   }
 
   /**
@@ -2435,8 +2458,16 @@ class H5PCore {
     $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
     $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
     $platformInfo['siteType'] = $this->h5pF->getOption('site_type', 'local');
-    $platformInfo['libraryContentCount'] = $this->h5pF->getLibraryContentCount();
-    $platformInfo['librariesInstalled'] = $this->getLibrariesInstalled();
+    $platformInfo['libraryStats'] = $core->combineArrayValues(array(
+      'patch' => $this->getLibrariesInstalled(),
+      'content' => $this->h5pF->getLibraryContentCount(),
+      'loaded' => $this->h5pF->getLibraryStats('library'),
+      'created' => $this->h5pF->getLibraryStats('content', 'create'),
+      'createdUpload' => $this->h5pF->getLibraryStats('content', 'create upload'),
+      'deleted' => $this->h5pF->getLibraryStats('content', 'deleted'),
+      'resultViews' => $this->h5pF->getLibraryStats('results', 'content'),
+      'shortcodeInserts' => $this->h5pF->getLibraryStats('content', 'shortcode insert')
+    ))
 
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
