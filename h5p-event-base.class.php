@@ -19,7 +19,7 @@ class H5PEventBase {
   public static $log_time = 2592000; // 30 Days
 
   // Protected variables
-  protected $type, $sub_type, $content_id, $content_title, $library_name, $library_version, $time;
+  protected $id, $type, $sub_type, $content_id, $content_title, $library_name, $library_version, $time;
 
   /**
    * Adds event type, h5p library and timestamp to event before saving it.
@@ -103,6 +103,36 @@ class H5PEventBase {
         }
         return FALSE;
     }
+  }
+
+  /**
+   * A helper which makes it easier for some systems to save the data.
+   * No NULL values, empty string or 0 used instead.
+   * Used in e.g. WordPress.
+   *
+   * @return array with two arrays: $data, $format
+   */
+  protected function toArray() {
+    return array(
+      array(
+        'created_at' => $this->time,
+        'type' => $this->type,
+        'sub_type' => empty($this->sub_type) ? '' : $this->sub_type,
+        'content_id' => empty($this->content_id) ? 0 : $this->content_id,
+        'content_title' => empty($this->content_title) ? '' : $this->content_title,
+        'library_name' => empty($this->library_name) ? '' : $this->library_name,
+        'library_version' => empty($this->library_version) ? '' : $this->library_version
+      ),
+      array(
+        '%d',
+        '%s',
+        '%s',
+        '%d',
+        '%s',
+        '%s',
+        '%s'
+      )
+    );
   }
 
   /**
