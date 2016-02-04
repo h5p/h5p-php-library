@@ -2390,10 +2390,8 @@ class H5PCore {
     $type = $this->h5pF->getOption('site_type', 'local');
 
     // Determine remote/visitor origin
-    $localhostPattern = '/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i';
-
-    // localhost
-    if ($type !== 'internet' && !preg_match($localhostPattern, $_SERVER['REMOTE_ADDR'])) {
+    if ($type === 'network' ||
+        ($type === 'local' && !preg_match('/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i', $_SERVER['REMOTE_ADDR']))) {
       if (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
         // Internet
         $this->h5pF->setOption('site_type', 'internet');
