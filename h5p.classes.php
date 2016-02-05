@@ -2458,7 +2458,7 @@ class H5PCore {
     $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
     $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
     $platformInfo['siteType'] = $this->h5pF->getOption('site_type', 'local');
-    $platformInfo['libraryStats'] = $core->combineArrayValues(array(
+    $platformInfo['libraryStats'] = $this->combineArrayValues(array(
       'patch' => $this->getLibrariesInstalled(),
       'content' => $this->h5pF->getLibraryContentCount(),
       'loaded' => $this->h5pF->getLibraryStats('library'),
@@ -2467,7 +2467,7 @@ class H5PCore {
       'deleted' => $this->h5pF->getLibraryStats('content', 'deleted'),
       'resultViews' => $this->h5pF->getLibraryStats('results', 'content'),
       'shortcodeInserts' => $this->h5pF->getLibraryStats('content', 'shortcode insert')
-    ))
+    ));
 
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
