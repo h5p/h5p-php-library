@@ -1721,6 +1721,7 @@ class H5PCore {
     }
 
     $this->detectSiteType();
+    $this->fullPluginPath = preg_replace('/\/[^\/]+[\/]?$/', '' , dirname(__FILE__));
   }
 
   /**
@@ -2458,6 +2459,7 @@ class H5PCore {
     $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
     $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
     $platformInfo['siteType'] = $this->h5pF->getOption('site_type', 'local');
+    $platformInfo['localID'] = hash('crc32', $this->fullPluginPath);
     $platformInfo['libraryStats'] = $this->combineArrayValues(array(
       'patch' => $this->getLibrariesInstalled(),
       'content' => $this->h5pF->getLibraryContentCount(),
