@@ -2455,42 +2455,61 @@ class H5PCore {
    * is responsible for invoking this, eg using cron
    */
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
-    $platformInfo = $this->h5pF->getPlatformInfo();
-    $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
-    $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
-    $platformInfo['siteType'] = $this->h5pF->getOption('site_type', 'local');
-    $platformInfo['localID'] = hash('crc32', $this->fullPluginPath);
-    $platformInfo['libraryStats'] = $this->combineArrayValues(array(
-      'patch' => $this->getLibrariesInstalled(),
-      'content' => $this->h5pF->getLibraryContentCount(),
-      'loaded' => $this->h5pF->getLibraryStats('library'),
-      'created' => $this->h5pF->getLibraryStats('content', 'create'),
-      'createdUpload' => $this->h5pF->getLibraryStats('content', 'create upload'),
-      'deleted' => $this->h5pF->getLibraryStats('content', 'deleted'),
-      'resultViews' => $this->h5pF->getLibraryStats('results', 'content'),
-      'shortcodeInserts' => $this->h5pF->getLibraryStats('content', 'shortcode insert')
-    ));
+    // Gather data
+    $uuid = $this->h5pF->getOption('site_uuid', '');
+    $data = array(
+      'api_version' => 2,
+      'platform' => $this->h5pF->getPlatformInfo(),
+      'uuid' => $uuid,
+      'local_id' => hash('crc32', $this->fullPluginPath),
+      'type' => $this->h5pF->getOption('site_type', 'local'),
+      'libraries' => $this->combineArrayValues(array(
+        'patch' => $this->getLibrariesInstalled(),
+        'content' => $this->h5pF->getLibraryContentCount(),
+        'loaded' => $this->h5pF->getLibraryStats('library'),
+        'created' => $this->h5pF->getLibraryStats('content', 'create'),
+        'createdUpload' => $this->h5pF->getLibraryStats('content', 'create upload'),
+        'deleted' => $this->h5pF->getLibraryStats('content', 'deleted'),
+        'resultViews' => $this->h5pF->getLibraryStats('results', 'content'),
+        'shortcodeInserts' => $this->h5pF->getLibraryStats('content', 'shortcode insert')
+      ))
+    );
 
-    // Adding random string to GET to be sure nothing is cached
-    $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
-    $json = $this->h5pF->fetchExternalData('http://h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
-    if ($json !== NULL) {
-      $json = json_decode($json);
-      if (isset($json->libraries)) {
-        foreach ($json->libraries as $machineName => $libInfo) {
-          $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
-        }
+    // Send request
+    $protocol = (extension_loaded('openssl') ? 'https' : 'http');
+    $result = $this->h5pF->fetchExternalData("{$protocol}://h5p.org/libraries-metadata.json", $data);
+    if (empty($result)) {
+      return;
+    }
+
+    // Process results
+    $json = json_decode($result);
+    if (empty($json)) {
+      return;
+    }
+
+    // Handle libraries metadata
+    if (isset($json->libraries)) {
+      foreach ($json->libraries as $machineName => $libInfo) {
+        $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
       }
-      if($platformInfo['uuid'] === '' && isset($json->uuid)) {
-        $this->h5pF->setOption('site_uuid', $json->uuid);
-      }
-      if (isset($json->latest) && !empty($json->latest)) {
-        $this->h5pF->setOption('update_available', $json->latest->releasedAt);
-        $this->h5pF->setOption('update_available_path', $json->latest->path);
-      }
+    }
+
+    // Handle new uuid
+    if ($uuid === '' && isset($json->uuid)) {
+      $this->h5pF->setOption('site_uuid', $json->uuid);
+    }
+
+    // Handle lastest version of H5P
+    if (!empty($json->latest)) {
+      $this->h5pF->setOption('update_available', $json->latest->releasedAt);
+      $this->h5pF->setOption('update_available_path', $json->latest->path);
     }
   }
 
+  /**
+   *
+   */
   public function getGlobalDisable() {
     $disable = self::DISABLE_NONE;
 
