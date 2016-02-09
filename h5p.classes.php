@@ -2457,13 +2457,18 @@ class H5PCore {
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
     // Gather data
     $uuid = $this->h5pF->getOption('site_uuid', '');
+    $platform = $this->h5pF->getPlatformInfo();
     $data = array(
       'api_version' => 2,
-      'platform' => $this->h5pF->getPlatformInfo(),
       'uuid' => $uuid,
+      'platform_name' => $platform->name,
+      'platform_version' => $platform->version,
+      'h5p_version' => $platform->h5pVersion,
+      'disabled' => $fetchingDisabled,
       'local_id' => hash('crc32', $this->fullPluginPath),
       'type' => $this->h5pF->getOption('site_type', 'local'),
-      'libraries' => $this->combineArrayValues(array(
+      'num_authors' => $this->h5pF->getNumAuthors(),
+      'libraries' => json_encode($this->combineArrayValues(array(
         'patch' => $this->getLibrariesInstalled(),
         'content' => $this->h5pF->getLibraryContentCount(),
         'loaded' => $this->h5pF->getLibraryStats('library'),
@@ -2472,7 +2477,7 @@ class H5PCore {
         'deleted' => $this->h5pF->getLibraryStats('content', 'deleted'),
         'resultViews' => $this->h5pF->getLibraryStats('results', 'content'),
         'shortcodeInserts' => $this->h5pF->getLibraryStats('content', 'shortcode insert')
-      ))
+      )))
     );
 
     // Send request
