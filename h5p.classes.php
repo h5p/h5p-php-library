@@ -556,6 +556,12 @@ interface H5PFrameworkInterface {
    * @return array Number values indexed by library name and version
    */
   public function getLibraryStats($type, $sub_type = '');
+
+  /**
+   * Aggregate the current number of H5P authors
+   * @return int
+   */
+  public function getNumAuthors();
 }
 
 /**
