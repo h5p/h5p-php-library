@@ -71,14 +71,19 @@ class H5PEventBase {
     if (self::validLogLevel($type, $sub_type)) {
       $this->save();
     }
+    if (self::validCount($type, $sub_type)) {
+      $this->count();
+    }
   }
 
   /**
-   * Determines if the log type should be saved.
+   * Determines if the event type should be saved/logged.
+   *
    * @param string $type
    *  Name of event type
    * @param string $sub_type
    *  Name of event sub type
+   * @return boolean
    */
   public static function validLogLevel($type, $sub_type) {
     switch (self::$log_level) {
@@ -86,23 +91,51 @@ class H5PEventBase {
       case self::LOG_NONE:
         return FALSE;
       case self::LOG_ALL:
-        return TRUE;
-
-      case self::LOG_EXTRAS:
-        // Extras help provide H5P with valuable anonymous user data!
-        if ( ($type === 'content' && $sub_type === 'shortcode insert') || // Log number of shortcode inserts
-             ($type === 'library' && $sub_type === NULL) || // Log number of times library is loaded in editor
-             ($type === 'results' && $sub_type === 'content') ) { // Log number of times results page has been opened
-          return TRUE;
-        }
-        // Fall through by intention!
+        return TRUE; // Log everything
       case self::LOG_ACTIONS:
-        if ( ($type === 'content' && in_array($sub_type, array('create', 'create upload', 'update', 'update upload', 'upgrade', 'delete'))) ||
-             ($type === 'library' && in_array($sub_type, array('create', 'update'))) ) {
+        if (self::isAction($type, $sub_type)) {
           return TRUE; // Log actions
         }
         return FALSE;
     }
+  }
+
+  /**
+   * Check if event type should be added to counter.
+   *
+   * @param string $type
+   *  Name of event type
+   * @param string $sub_type
+   *  Name of event sub type
+   * @return boolean
+   */
+  public static function validCount($type, $sub_type) {
+    if ( ($type === 'content' && $sub_type === 'shortcode insert') || // Count number of shortcode inserts
+         ($type === 'library' && $sub_type === NULL) || // Count number of times library is loaded in editor
+         ($type === 'results' && $sub_type === 'content') ) { // Count number of times results page has been opened
+      return TRUE;
+    }
+    elseif (self::isAction($type, $sub_type)) { // Count all actions
+      return TRUE;
+    }
+    return FALSE;
+  }
+
+  /**
+   * Check if event type is action.
+   *
+   * @param string $type
+   *  Name of event type
+   * @param string $sub_type
+   *  Name of event sub type
+   * @return boolean
+   */
+  public static function isAction($type, $sub_type) {
+    if ( ($type === 'content' && in_array($sub_type, array('create', 'create upload', 'update', 'update upload', 'upgrade', 'delete'))) ||
+         ($type === 'library' && in_array($sub_type, array('create', 'update'))) ) {
+      return TRUE; // Log actions
+    }
+    return FALSE;
   }
 
   /**
@@ -139,6 +172,13 @@ class H5PEventBase {
    * Store the event.
    */
   protected function save() {
+    // Does nothing by default, should be overriden by plugin
+  }
+
+  /**
+   * Count number of events.
+   */
+  protected function count() {
     // Does nothing by default, should be overriden by plugin
   }
 }
