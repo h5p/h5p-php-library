@@ -2478,11 +2478,11 @@ class H5PCore {
         'patch' => $this->getLibrariesInstalled(),
         'content' => $this->h5pF->getLibraryContentCount(),
         'loaded' => $this->h5pF->getLibraryStats('library'),
-        'created' => $this->h5pF->getLibraryStats('content', 'create'),
-        'createdUpload' => $this->h5pF->getLibraryStats('content', 'create upload'),
-        'deleted' => $this->h5pF->getLibraryStats('content', 'deleted'),
-        'resultViews' => $this->h5pF->getLibraryStats('results', 'content'),
-        'shortcodeInserts' => $this->h5pF->getLibraryStats('content', 'shortcode insert')
+        'created' => $this->h5pF->getLibraryStats('content create'),
+        'createdUpload' => $this->h5pF->getLibraryStats('content create upload'),
+        'deleted' => $this->h5pF->getLibraryStats('content deleted'),
+        'resultViews' => $this->h5pF->getLibraryStats('results content'),
+        'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
       )))
     );
 
