@@ -552,10 +552,9 @@ interface H5PFrameworkInterface {
    * Generates statistics from the event log per library
    *
    * @param string $type Type of event to generate stats for
-   * @param string $sub_type
    * @return array Number values indexed by library name and version
    */
-  public function getLibraryStats($type, $sub_type = '');
+  public function getLibraryStats($type);
 
   /**
    * Aggregate the current number of H5P authors
