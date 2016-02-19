@@ -7,15 +7,14 @@
  * @copyright  2016 Joubel AS
  * @license    MIT
  */
-class H5PEventBase {
+abstract class H5PEventBase {
   // Constants
   const LOG_NONE = 0;
   const LOG_ALL = 1;
   const LOG_ACTIONS = 2;
-  const LOG_EXTRAS = 4;
 
   // Static options
-  public static $log_level = self::LOG_EXTRAS;
+  public static $log_level = self::LOG_ACTIONS;
   public static $log_time = 2592000; // 30 Days
 
   // Protected variables
@@ -71,8 +70,8 @@ class H5PEventBase {
     if (self::validLogLevel($type, $sub_type)) {
       $this->save();
     }
-    if (self::validCount($type, $sub_type)) {
-      $this->count();
+    if (self::validStats($type, $sub_type)) {
+      $this->saveStats();
     }
   }
 
@@ -85,7 +84,7 @@ class H5PEventBase {
    *  Name of event sub type
    * @return boolean
    */
-  public static function validLogLevel($type, $sub_type) {
+  private static function validLogLevel($type, $sub_type) {
     switch (self::$log_level) {
       default:
       case self::LOG_NONE:
@@ -101,7 +100,7 @@ class H5PEventBase {
   }
 
   /**
-   * Check if event type should be added to counter.
+   * Check if the event should be included in the statistics counter.
    *
    * @param string $type
    *  Name of event type
@@ -109,7 +108,7 @@ class H5PEventBase {
    *  Name of event sub type
    * @return boolean
    */
-  public static function validCount($type, $sub_type) {
+  private static function validStats($type, $sub_type) {
     if ( ($type === 'content' && $sub_type === 'shortcode insert') || // Count number of shortcode inserts
          ($type === 'library' && $sub_type === NULL) || // Count number of times library is loaded in editor
          ($type === 'results' && $sub_type === 'content') ) { // Count number of times results page has been opened
@@ -122,7 +121,7 @@ class H5PEventBase {
   }
 
   /**
-   * Check if event type is action.
+   * Check if event type is an action.
    *
    * @param string $type
    *  Name of event type
@@ -130,7 +129,7 @@ class H5PEventBase {
    *  Name of event sub type
    * @return boolean
    */
-  public static function isAction($type, $sub_type) {
+  private static function isAction($type, $sub_type) {
     if ( ($type === 'content' && in_array($sub_type, array('create', 'create upload', 'update', 'update upload', 'upgrade', 'delete'))) ||
          ($type === 'library' && in_array($sub_type, array('create', 'update'))) ) {
       return TRUE; // Log actions
@@ -139,46 +138,54 @@ class H5PEventBase {
   }
 
   /**
-   * A helper which makes it easier for some systems to save the data.
-   * No NULL values, empty string or 0 used instead.
-   * Used in e.g. WordPress.
+   * A helper which makes it easier for systems to save the data.
+   * Add all relevant properties to a assoc. array.
+   * There are no NULL values. Empty string or 0 is used instead.
+   * Used by both Drupal and WordPress.
    *
-   * @return array with two arrays: $data, $format
+   * @return array with keyed values
    */
-  protected function toArray() {
+  protected function getDataArray() {
     return array(
-      array(
-        'created_at' => $this->time,
-        'type' => $this->type,
-        'sub_type' => empty($this->sub_type) ? '' : $this->sub_type,
-        'content_id' => empty($this->content_id) ? 0 : $this->content_id,
-        'content_title' => empty($this->content_title) ? '' : $this->content_title,
-        'library_name' => empty($this->library_name) ? '' : $this->library_name,
-        'library_version' => empty($this->library_version) ? '' : $this->library_version
-      ),
-      array(
-        '%d',
-        '%s',
-        '%s',
-        '%d',
-        '%s',
-        '%s',
-        '%s'
-      )
+      'created_at' => $this->time,
+      'type' => $this->type,
+      'sub_type' => empty($this->sub_type) ? '' : $this->sub_type,
+      'content_id' => empty($this->content_id) ? 0 : $this->content_id,
+      'content_title' => empty($this->content_title) ? '' : $this->content_title,
+      'library_name' => empty($this->library_name) ? '' : $this->library_name,
+      'library_version' => empty($this->library_version) ? '' : $this->library_version
     );
   }
 
   /**
-   * Store the event.
+   * A helper which makes it easier for systems to save the data.
+   * Used in WordPress.
+   *
+   * @return array with strings
    */
-  protected function save() {
-    // Does nothing by default, should be overriden by plugin
+  protected function getFormatArray() {
+    return array(
+      '%d',
+      '%s',
+      '%s',
+      '%d',
+      '%s',
+      '%s',
+      '%s'
+    );
   }
 
   /**
-   * Count number of events.
+   * Stores the event data in the database.
+   *
+   * Must be overriden by plugin.
    */
-  protected function count() {
-    // Does nothing by default, should be overriden by plugin
-  }
+  abstract protected function save();
+
+  /**
+   * Add current event data to statistics counter.
+   *
+   * Must be overriden by plugin.
+   */
+  abstract protected function saveStats();
 }
