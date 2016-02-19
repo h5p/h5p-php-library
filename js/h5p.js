@@ -1580,46 +1580,97 @@ H5P.shuffleArray = function (array) {
   return array;
 };
 
-/**
- * Post finished results for user.
- *
- * @deprecated
- *   Do not use this function directly, trigger the finish event instead.
- *   Will be removed march 2016
- * @param {number} contentId
- *   Identifies the content
- * @param {number} score
- *   Achieved score/points
- * @param {number} maxScore
- *   The maximum score/points that can be achieved
- * @param {number} [time]
- *   Reported time consumption/usage
- */
-H5P.setFinished = function (contentId, score, maxScore, time) {
-  if (H5PIntegration.postUserStatistics === true) {
-    /**
-     * Return unix timestamp for the given JS Date.
-     *
-     * @private
-     * @param {Date} date
-     * @returns {Number}
-     */
-    var toUnix = function (date) {
-      return Math.round(date.getTime() / 1000);
-    };
+(function ($) {
+  var token;
+  var queue = [];
+
+  /**
+   * Return unix timestamp for the given JS Date.
+   *
+   * @private
+   * @param {Date} date
+   * @returns {Number}
+   */
+  var toUnix = function (date) {
+    return Math.round(date.getTime() / 1000);
+  };
+
+  /**
+   * Post results to server
+   *
+   * @param Object result
+   */
+  var post = function (result) {
+    // Add token to post
+    result.token = token;
+    token = null;
 
     // Post the results
     // TODO: Should we use a variable with the complete path?
-    H5P.jQuery.post(H5PIntegration.ajaxPath + 'setFinished', {
+    H5P.jQuery.post(H5PIntegration.ajaxPath + 'setFinished', result).fail(function() {
+      // Reuse token
+      token = result.token;
+    }).done(function(data) {
+      token = data.token;
+    }).always(function() {
+      // Check for more requests to run
+      if (queue[0] !== undefined) {
+        post(queue.splice(0, 1));
+      }
+    });
+  };
+
+  /**
+   * Creates the finished result object for the user and schedules it for
+   * posting to the server.
+   *
+   * @deprecated
+   *   Do not use this function directly, trigger the finish event instead.
+   *   Will be removed march 2016
+   * @param {number} contentId
+   *   Identifies the content
+   * @param {number} score
+   *   Achieved score/points
+   * @param {number} maxScore
+   *   The maximum score/points that can be achieved
+   * @param {number} [time]
+   *   Reported time consumption/usage
+   */
+  H5P.setFinished = function (contentId, score, maxScore, time) {
+    if (H5PIntegration.postUserStatistics !== true) {
+      return;
+    }
+
+    var result = {
       contentId: contentId,
       score: score,
       maxScore: maxScore,
       opened: toUnix(H5P.opened[contentId]),
       finished: toUnix(new Date()),
       time: time
-    });
-  }
-};
+    };
+
+    if (token === undefined) {
+      if (H5PIntegration.tokens === undefined ||
+          H5PIntegration.tokens.result === undefined) {
+        token = 'canHasDummyToken';
+      }
+      else {
+        token = H5PIntegration.tokens.result;
+      }
+    }
+
+    if (token === null) {
+      // Already in progress, add to queue
+      queue.push(result);
+    }
+    else {
+      post(result);
+    }
+  };
+
+})(H5P.jQuery);
+
 
 // Add indexOf to browsers that lack them. (IEs)
 if (!Array.prototype.indexOf) {
@@ -1728,6 +1779,8 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
 // Wrap in privates
 (function ($) {
+  var token;
+  var queue = [];
 
   /**
    * Creates ajax requests for inserting, updateing and deleteing
@@ -1748,6 +1801,16 @@ H5P.createTitle = function (rawTitle, maxLength) {
       // Not logged in, no use in saving.
       done('Not signed in.');
       return;
+    }
+    if (token === undefined) {
+      // Load initial token
+      if (H5PIntegration.tokens === undefined ||
+          H5PIntegration.tokens.contentUserData === undefined) {
+        token = 'canHasDummyToken';
+      }
+      else {
+        token = H5PIntegration.tokens.contentUserData;
+      }
     }
 
     var options = {
@@ -1784,9 +1847,43 @@ H5P.createTitle = function (rawTitle, maxLength) {
         done(undefined, response.data);
       };
     }
+    if (options.type === 'POST') {
+      if (token === null) {
+        // We must queue and wait for a new token
+        queue.push(options);
+      }
+      else {
+        // Use token
+        options.data.token = token;
+        token = null;
+      }
+    }
 
-    $.ajax(options);
+    runAjaxRequest(options);
   }
+
+  /**
+   *
+   *
+   * @param Object options Details for request
+   */
+  var runAjaxRequest = function (options) {
+    var $req = $.ajax(options);
+    if (options.type === 'POST') {
+      $req.fail(function() {
+        // Reuse token
+        token = options.data.token;
+      }).done(function(data) {
+        // Set new token
+        token = data.token;
+      }).always(function() {
+        // Check for more requests to run
+        if (queue[0] !== undefined) {
+          runAjaxRequest(queue.splice(0, 1));
+        }
+      });
+    }
+  };
 
   /**
    * Get user data for given content.
