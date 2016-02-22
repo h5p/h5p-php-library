@@ -1774,7 +1774,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
       };
       options.success = function (response) {
         if (!response.success) {
-          done(response.error);
+          done(response.message);
           return;
         }
 
