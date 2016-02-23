@@ -1609,8 +1609,7 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     };
 
     // Post the results
-    // TODO: Should we use a variable with the complete path?
-    H5P.jQuery.post(H5PIntegration.ajaxPath + 'setFinished', {
+    H5P.jQuery.post(H5PIntegration.ajax.setFinished, {
       contentId: contentId,
       score: score,
       maxScore: maxScore,
