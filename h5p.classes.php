@@ -2535,6 +2535,91 @@ class H5PCore {
 
     return TRUE;
   }
+
+  /**
+   * Makes it easier to print response when AJAX request succeeds.
+   *
+   * @param mixed $data
+   * @since 1.6.0
+   */
+  public static function ajaxSuccess($data = NULL) {
+    $response = array(
+      'success' => TRUE
+    );
+    if ($message !== NULL) {
+      $response['data'] = $data;
+    }
+    self::printJson($response);
+  }
+
+  /**
+   * Makes it easier to print response when AJAX request fails.
+   * Will exit after printing error.
+   *
+   * @param string $message
+   * @since 1.6.0
+   */
+  public static function ajaxError($message = NULL) {
+    $response = array(
+      'success' => FALSE
+    );
+    if ($message !== NULL) {
+      $response['message'] = $message;
+    }
+    self::printJson($response);
+  }
+
+  /**
+   * Print JSON headers with UTF-8 charset and json encode response data.
+   * Makes it easier to respond using JSON.
+   *
+   * @param mixed $data
+   */
+  private static function printJson($data) {
+    header('Cache-Control: no-cache');
+    header('Content-type: application/json; charset=utf-8');
+    print json_encode($data);
+  }
+
+  /**
+   * Get a new H5P security token for the given action.
+   *
+   * @param string $action
+   * @return string token
+   */
+  public static function createToken($action) {
+    if (!isset($_SESSION['h5p_token'])) {
+      // Create an unique key which is used to create action tokens for this session.
+      $_SESSION['h5p_token'] = uniqid();
+    }
+
+    // Timefactor
+    $time_factor = self::getTimeFactor();
+
+    // Create and return token
+    return substr(hash('md5', $action . $time_factor . $_SESSION['h5p_token']), -16, 13);
+  }
+
+  /**
+   * Create a time based number which is unique for each 12 hour.
+   * @return int
+   */
+  private static function getTimeFactor() {
+    return ceil(time() / (86400 / 2));
+  }
+
+  /**
+   * Verify if the given token is valid for the given action.
+   *
+   * @param string $action
+   * @param string $token
+   * @return boolean valid token
+   */
+  public static function validToken($action, $token) {
+    $time_factor = self::getTimeFactor();
+    return $token === substr(hash('md5', $action . $time_factor . $_SESSION['h5p_token']), -16, 13) || // Under 12 hours
+           $token === substr(hash('md5', $action . ($time_factor - 1) . $_SESSION['h5p_token']), -16, 13); // Between 12-24 hours
+  }
 }
 
 /**
