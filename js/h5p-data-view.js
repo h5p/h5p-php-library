@@ -222,7 +222,7 @@ var H5PDataView = (function ($) {
       facets += '<span class="h5p-facet" role="button" tabindex="0" data-id="' + input.id + '" data-col="' + col + '">' + input.title + '</span>';
     }
 
-    return facets;
+    return facets === '' ? '—' : facets;
   };
 
   /**

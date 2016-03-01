@@ -257,8 +257,8 @@ button.h5p-admin.disabled:hover {
 }
 .h5p-data-view input[type="text"] {
   margin-bottom: 0.5em;
+  margin-right: 0.5em;
   float: left;
-  margin-right: 10px;
 }
 .h5p-data-view input[type="text"]::-ms-clear {
   display: none;
@@ -299,10 +299,11 @@ button.h5p-admin.disabled:hover {
   box-shadow: 0 0 0 1px #5b9dd9,0 0 2px 1px rgba(30,140,190,.8);
 }
 .h5p-data-view .h5p-facet-wrapper {
-  line-height: 27px;
+  line-height: 23px;
 }
 .h5p-data-view .h5p-facet-tag {
-  margin-left: 10px;
+  margin: 2px 0 0 0.5em;
+  font-size: 12px;
   background: #e8e8e8;
   border: 1px solid #cbcbcc;
   border-radius: 5px;
