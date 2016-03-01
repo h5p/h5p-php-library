@@ -90,14 +90,7 @@ var H5PDataView = (function ($) {
         continue;
       }
 
-      var facets = self.facets[col];
-      for (var facet in facets) {
-        if (!facets.hasOwnProperty(facet)) {
-          continue;
-        }
-
-        url += '&facets[' + col + '][]=' + facet;
-      }
+      url += '&facets[' + col + ']=' + self.facets[col].id;
     }
 
     // Fire ajax request
@@ -235,52 +228,55 @@ var H5PDataView = (function ($) {
   H5PDataView.prototype.filterByFacet = function (col, id, text) {
     var self = this;
 
-    if (self.facets[col] === undefined) {
-      self.facets[col] = {};
+    if (self.facets[col] !== undefined) {
+      if (self.facets[col].id === id) {
+        return; // Don't use the same filter again
+      }
+
+      // Remove current filter for this col
+      self.facets[col].$tag.remove();
     }
 
-    // Only add if it isn't already added
-    if (self.facets[col][id] === undefined) {
-      self.facets[col][id] = text;
-
-      // Add to UI
-      var $tag = $('<span/>', {
+    // Add to UI
+    self.facets[col] = {
+      id: id,
+      '$tag': $('<span/>', {
         'class': 'h5p-facet-tag',
         text: text,
         appendTo: self.$facets,
-      });
+      })
+    };
 
-      /**
-       * Callback for removing filter
-       *
-       * @private
-       */
-      var remove = function () {
-        delete self.facets[col][id];
-        $tag.remove();
-        self.loadData();
-      };
+    /**
+     * Callback for removing filter.
+     *
+     * @private
+     */
+    var remove = function () {
+      self.facets[col].$tag.remove();
+      delete self.facets[col];
+      self.loadData();
+    };
 
-      // Remove button
-      $('<span/>', {
-        role: 'button',
-        tabindex: 0,
-        appendTo: $tag,
-        text: self.l10n.remove,
-        title: self.l10n.remove,
-        on: {
-          click: remove,
-          keypress: function (event) {
-            if (event.which === 32) {
-              remove();
-            }
+    // Remove button
+    $('<span/>', {
+      role: 'button',
+      tabindex: 0,
+      appendTo: self.facets[col].$tag,
+      text: self.l10n.remove,
+      title: self.l10n.remove,
+      on: {
+        click: remove,
+        keypress: function (event) {
+          if (event.which === 32) {
+            remove();
           }
         }
-      });
+      }
+    });
 
-      // Load data with new filter
-      self.loadData();
-    }
+    // Load data with new filter
+    self.loadData();
   };
 
   /**
