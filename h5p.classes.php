@@ -2479,7 +2479,7 @@ class H5PCore {
         'loaded' => $this->h5pF->getLibraryStats('library'),
         'created' => $this->h5pF->getLibraryStats('content create'),
         'createdUpload' => $this->h5pF->getLibraryStats('content create upload'),
-        'deleted' => $this->h5pF->getLibraryStats('content deleted'),
+        'deleted' => $this->h5pF->getLibraryStats('content delete'),
         'resultViews' => $this->h5pF->getLibraryStats('results content'),
         'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
       )))
