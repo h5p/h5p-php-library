@@ -2951,7 +2951,7 @@ class H5PContentValidator {
    * Validate given image data
    */
   public function validateImage(&$image, $semantics) {
-    $this->_validateFilelike($image, $semantics, array('ratio', 'width', 'height', 'originalImage'));
+    $this->_validateFilelike($image, $semantics, array('width', 'height', 'originalImage'));
   }
 
   /**
