@@ -2906,7 +2906,7 @@ class H5PContentValidator {
 
     // Remove attributes that should not exist, they may contain JSON escape
     // code.
-    $validkeys = array_merge(array('path', 'mime', 'copyright', 'originalImage'), $typevalidkeys);
+    $validkeys = array_merge(array('path', 'mime', 'copyright'), $typevalidkeys);
     if (isset($semantics->extraAttributes)) {
       $validkeys = array_merge($validkeys, $semantics->extraAttributes); // TODO: Validate extraAttributes
     }
@@ -2951,7 +2951,7 @@ class H5PContentValidator {
    * Validate given image data
    */
   public function validateImage(&$image, $semantics) {
-    $this->_validateFilelike($image, $semantics, array('width', 'height'));
+    $this->_validateFilelike($image, $semantics, array('ratio', 'width', 'height', 'originalImage'));
   }
 
   /**
