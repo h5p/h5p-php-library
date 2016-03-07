@@ -2437,10 +2437,9 @@ class H5PCore {
 
     $libs = $this->h5pF->loadLibraries();
 
-    foreach($libs as $library) {
+    foreach($libs as $libName => $library) {
       foreach($library as $libVersion) {
-
-        $librariesInstalled[] = $libVersion->name.' '.$libVersion->major_version.'.'.$libVersion->minor_version.'.'.$libVersion->patch_version;
+        $librariesInstalled[] = $libName.' '.$libVersion->major_version.'.'.$libVersion->minor_version.'.'.$libVersion->patch_version;
       }
     }
 
