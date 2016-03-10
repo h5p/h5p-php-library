@@ -2546,7 +2546,7 @@ class H5PCore {
     $response = array(
       'success' => TRUE
     );
-    if ($message !== NULL) {
+    if ($data !== NULL) {
       $response['data'] = $data;
     }
     self::printJson($response);
