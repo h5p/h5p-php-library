@@ -335,16 +335,6 @@ interface H5PFrameworkInterface {
   public function getLibraryUsage($libraryId);
 
   /**
-   * Get a key value list of library version and count of content created
-   * using that library.
-   *
-   * @return array
-   *  Array containing library, major and minor version - content count
-   *  e.g. "H5P.CoursePresentation 1.6" => "14"
-   */
-  public function getLibraryContentCount();
-
-  /**
    * Loads a library
    *
    * @param string $machineName
@@ -1710,8 +1700,6 @@ class H5PCore {
     if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
       $this->h5pD = new H5PDevelopment($this->h5pF, $path . '/', $language);
     }
-
-    $this->detectSiteType();
   }
 
   /**
@@ -2383,51 +2371,6 @@ class H5PCore {
   }
 
   /**
-   * Detects if the site was accessed from localhost,
-   * through a local network or from the internet.
-   */
-  public function detectSiteType() {
-    $type = $this->h5pF->getOption('site_type', 'local');
-
-    // Determine remote/visitor origin
-    $localhostPattern = '/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i';
-
-    // localhost
-    if ($type !== 'internet' && !preg_match($localhostPattern, $_SERVER['REMOTE_ADDR'])) {
-      if (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
-        // Internet
-        $this->h5pF->setOption('site_type', 'internet');
-      }
-      elseif ($type === 'local') {
-        // Local network
-        $this->h5pF->setOption('site_type', 'network');
-      }
-    }
-  }
-
-  /**
-   * Get a list of installed libraries, different minor versions will
-   * return separate entries.
-   *
-   * @return array
-   *  A distinct array of installed libraries
-   */
-  public function getLibrariesInstalled() {
-    $librariesInstalled = [];
-
-    $libs = $this->h5pF->loadLibraries();
-
-    foreach($libs as $library) {
-      foreach($library as $libVersion) {
-
-        $librariesInstalled[] = $libVersion->name.' '.$libVersion->major_version.'.'.$libVersion->minor_version.'.'.$libVersion->patch_version;
-      }
-    }
-
-    return $librariesInstalled;
-  }
-
-  /**
    * Fetch a list of libraries' metadata from h5p.org.
    * Save URL tutorial to database. Each platform implementation
    * is responsible for invoking this, eg using cron
@@ -2436,10 +2379,6 @@ class H5PCore {
     $platformInfo = $this->h5pF->getPlatformInfo();
     $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
     $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
-    $platformInfo['siteType'] = $this->h5pF->getOption('site_type', 'local');
-    $platformInfo['libraryContentCount'] = $this->h5pF->getLibraryContentCount();
-    $platformInfo['librariesInstalled'] = $this->getLibrariesInstalled();
-
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
     $json = $this->h5pF->fetchExternalData('http://h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
