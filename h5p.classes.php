@@ -335,16 +335,6 @@ interface H5PFrameworkInterface {
   public function getLibraryUsage($libraryId);
 
   /**
-   * Get a key value list of library version and count of content created
-   * using that library.
-   *
-   * @return array
-   *  Array containing library, major and minor version - content count
-   *  e.g. "H5P.CoursePresentation 1.6" => "14"
-   */
-  public function getLibraryContentCount();
-
-  /**
    * Loads a library
    *
    * @param string $machineName
