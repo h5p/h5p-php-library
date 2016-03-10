@@ -1700,8 +1700,6 @@ class H5PCore {
     if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
       $this->h5pD = new H5PDevelopment($this->h5pF, $path . '/', $language);
     }
-
-    $this->detectSiteType();
   }
 
   /**
@@ -2373,29 +2371,6 @@ class H5PCore {
   }
 
   /**
-   * Detects if the site was accessed from localhost,
-   * through a local network or from the internet.
-   */
-  public function detectSiteType() {
-    $type = $this->h5pF->getOption('site_type', 'local');
-
-    // Determine remote/visitor origin
-    $localhostPattern = '/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i';
-
-    // localhost
-    if ($type !== 'internet' && !preg_match($localhostPattern, $_SERVER['REMOTE_ADDR'])) {
-      if (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
-        // Internet
-        $this->h5pF->setOption('site_type', 'internet');
-      }
-      elseif ($type === 'local') {
-        // Local network
-        $this->h5pF->setOption('site_type', 'network');
-      }
-    }
-  }
-
-  /**
    * Fetch a list of libraries' metadata from h5p.org.
    * Save URL tutorial to database. Each platform implementation
    * is responsible for invoking this, eg using cron
@@ -2404,8 +2379,6 @@ class H5PCore {
     $platformInfo = $this->h5pF->getPlatformInfo();
     $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
     $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
-    $platformInfo['siteType'] = $this->h5pF->getOption('site_type', 'local');
-
     // Adding random string to GET to be sure nothing is cached
     $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
     $json = $this->h5pF->fetchExternalData('http://h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
