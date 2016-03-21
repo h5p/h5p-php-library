@@ -539,6 +539,20 @@ interface H5PFrameworkInterface {
   public function isContentSlugAvailable($slug);
 
   /**
+   * Generates statistics from the event log per library
+   *
+   * @param string $type Type of event to generate stats for
+   * @return array Number values indexed by library name and version
+   */
+  public function getLibraryStats($type);
+
+  /**
+   * Aggregate the current number of H5P authors
+   * @return int
+   */
+  public function getNumAuthors();
+
+  /**
    * Stores hash keys for cached assets, aggregated JavaScripts and
    * stylesheets, and connects it to libraries so that we know which cache file
    * to delete when a library is updated.
@@ -1713,6 +1727,9 @@ class H5PCore {
     if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
       $this->h5pD = new H5PDevelopment($this->h5pF, $path . '/', $language);
     }
+
+    $this->detectSiteType();
+    $this->fullPluginPath = preg_replace('/\/[^\/]+[\/]?$/', '' , dirname(__FILE__));
   }
 
   /**
@@ -2398,10 +2415,8 @@ class H5PCore {
     $type = $this->h5pF->getOption('site_type', 'local');
 
     // Determine remote/visitor origin
-    $localhostPattern = '/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i';
-
-    // localhost
-    if ($type !== 'internet' && !preg_match($localhostPattern, $_SERVER['REMOTE_ADDR'])) {
+    if ($type === 'network' ||
+        ($type === 'local' && !preg_match('/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i', $_SERVER['REMOTE_ADDR']))) {
       if (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
         // Internet
         $this->h5pF->setOption('site_type', 'internet');
@@ -2421,17 +2436,32 @@ class H5PCore {
    *  A distinct array of installed libraries
    */
   public function getLibrariesInstalled() {
-    $librariesInstalled = [];
-
+    $librariesInstalled = array();
     $libs = $this->h5pF->loadLibraries();
 
     foreach($libs as $libName => $library) {
       foreach($library as $libVersion) {
-        $librariesInstalled[] = $libName.' '.$libVersion->major_version.'.'.$libVersion->minor_version.'.'.$libVersion->patch_version;
+        $librariesInstalled[$libName.' '.$libVersion->major_version.'.'.$libVersion->minor_version] = $libVersion->patch_version;
       }
     }
 
     return $librariesInstalled;
+  }
+
+  /**
+   * Easy way to combine smiliar data sets.
+   *
+   * @param array $inputs Multiple arrays with data
+   * @return array
+   */
+  public function combineArrayValues($inputs) {
+    $results = array();
+    foreach ($inputs as $index => $values) {
+      foreach ($values as $key => $value) {
+        $results[$key][$index] = $value;
+      }
+    }
+    return $results;
   }
 
   /**
@@ -2440,29 +2470,66 @@ class H5PCore {
    * is responsible for invoking this, eg using cron
    */
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
-    $platformInfo = $this->h5pF->getPlatformInfo();
-    $platformInfo['autoFetchingDisabled'] = $fetchingDisabled;
-    $platformInfo['uuid'] = $this->h5pF->getOption('site_uuid', '');
-    // Adding random string to GET to be sure nothing is cached
-    $random = substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 5);
-    $json = $this->h5pF->fetchExternalData('http://h5p.org/libraries-metadata.json?api=1&platform=' . urlencode(json_encode($platformInfo)) . '&x=' . urlencode($random));
-    if ($json !== NULL) {
-      $json = json_decode($json);
-      if (isset($json->libraries)) {
-        foreach ($json->libraries as $machineName => $libInfo) {
-          $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
-        }
+    // Gather data
+    $uuid = $this->h5pF->getOption('site_uuid', '');
+    $platform = $this->h5pF->getPlatformInfo();
+    $data = array(
+      'api_version' => 2,
+      'uuid' => $uuid,
+      'platform_name' => $platform['name'],
+      'platform_version' => $platform['version'],
+      'h5p_version' => $platform['h5pVersion'],
+      'disabled' => $fetchingDisabled ? 1 : 0,
+      'local_id' => hash('crc32', $this->fullPluginPath),
+      'type' => $this->h5pF->getOption('site_type', 'local'),
+      'num_authors' => $this->h5pF->getNumAuthors(),
+      'libraries' => json_encode($this->combineArrayValues(array(
+        'patch' => $this->getLibrariesInstalled(),
+        'content' => $this->h5pF->getLibraryContentCount(),
+        'loaded' => $this->h5pF->getLibraryStats('library'),
+        'created' => $this->h5pF->getLibraryStats('content create'),
+        'createdUpload' => $this->h5pF->getLibraryStats('content create upload'),
+        'deleted' => $this->h5pF->getLibraryStats('content delete'),
+        'resultViews' => $this->h5pF->getLibraryStats('results content'),
+        'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
+      )))
+    );
+
+    // Send request
+    $protocol = (extension_loaded('openssl') ? 'https' : 'http');
+    $result = $this->h5pF->fetchExternalData("{$protocol}://h5p.org/libraries-metadata.json", $data);
+    if (empty($result)) {
+      return;
+    }
+
+    // Process results
+    $json = json_decode($result);
+    if (empty($json)) {
+      return;
+    }
+
+    // Handle libraries metadata
+    if (isset($json->libraries)) {
+      foreach ($json->libraries as $machineName => $libInfo) {
+        $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
       }
-      if($platformInfo['uuid'] === '' && isset($json->uuid)) {
-        $this->h5pF->setOption('site_uuid', $json->uuid);
-      }
-      if (isset($json->latest) && !empty($json->latest)) {
-        $this->h5pF->setOption('update_available', $json->latest->releasedAt);
-        $this->h5pF->setOption('update_available_path', $json->latest->path);
-      }
+    }
+
+    // Handle new uuid
+    if ($uuid === '' && isset($json->uuid)) {
+      $this->h5pF->setOption('site_uuid', $json->uuid);
+    }
+
+    // Handle lastest version of H5P
+    if (!empty($json->latest)) {
+      $this->h5pF->setOption('update_available', $json->latest->releasedAt);
+      $this->h5pF->setOption('update_available_path', $json->latest->path);
     }
   }
 
+  /**
+   *
+   */
   public function getGlobalDisable() {
     $disable = self::DISABLE_NONE;
 
