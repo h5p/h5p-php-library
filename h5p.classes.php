@@ -2441,7 +2441,7 @@ class H5PCore {
 
     foreach($libs as $libName => $library) {
       foreach($library as $libVersion) {
-        $librariesInstalled[] = $libName.' '.$libVersion->major_version.'.'.$libVersion->minor_version.'.'.$libVersion->patch_version;
+        $librariesInstalled[$libName.' '.$libVersion->major_version.'.'.$libVersion->minor_version] = $libVersion->patch_version;
       }
     }
 
