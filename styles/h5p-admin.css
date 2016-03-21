@@ -9,6 +9,7 @@
 .h5p-admin-table,
 .h5p-admin-table > tbody {
   border: none;
+  width: 100%;
 }
 
 .h5p-admin-table tr:nth-child(odd),
