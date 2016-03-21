@@ -2415,15 +2415,8 @@ class H5PCore {
     $type = $this->h5pF->getOption('site_type', 'local');
 
     // Determine remote/visitor origin
-<<<<<<< HEAD
     if ($type === 'network' ||
         ($type === 'local' && !preg_match('/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i', $_SERVER['REMOTE_ADDR']))) {
-=======
-    $localhostPattern = '/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i';
-
-    // localhost
-    if ($type !== 'internet' && !preg_match($localhostPattern, $_SERVER['REMOTE_ADDR'])) {
->>>>>>> 14605dc7900f71801720972608b3a3d431ffedce
       if (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
         // Internet
         $this->h5pF->setOption('site_type', 'internet');
@@ -2443,22 +2436,12 @@ class H5PCore {
    *  A distinct array of installed libraries
    */
   public function getLibrariesInstalled() {
-<<<<<<< HEAD
     $librariesInstalled = array();
-    $libs = $this->h5pF->loadLibraries();
-
-    foreach($libs as $library) {
-      foreach($library as $libVersion) {
-        $librariesInstalled[$libVersion->name.' '.$libVersion->major_version.'.'.$libVersion->minor_version] = $libVersion->patch_version;
-=======
-    $librariesInstalled = [];
-
     $libs = $this->h5pF->loadLibraries();
 
     foreach($libs as $libName => $library) {
       foreach($library as $libVersion) {
         $librariesInstalled[] = $libName.' '.$libVersion->major_version.'.'.$libVersion->minor_version.'.'.$libVersion->patch_version;
->>>>>>> 14605dc7900f71801720972608b3a3d431ffedce
       }
     }
 
@@ -2466,7 +2449,6 @@ class H5PCore {
   }
 
   /**
-<<<<<<< HEAD
    * Easy way to combine smiliar data sets.
    *
    * @param array $inputs Multiple arrays with data
@@ -2483,8 +2465,6 @@ class H5PCore {
   }
 
   /**
-=======
->>>>>>> 14605dc7900f71801720972608b3a3d431ffedce
    * Fetch a list of libraries' metadata from h5p.org.
    * Save URL tutorial to database. Each platform implementation
    * is responsible for invoking this, eg using cron
