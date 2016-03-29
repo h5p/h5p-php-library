@@ -2818,6 +2818,12 @@ class H5PContentValidator {
         if (isset($semantics->font->background) && $semantics->font->background) {
           $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
         }
+        if (isset($semantics->font->spacing) && $semantics->font->spacing) {
+          $stylePatterns[] = '/^letter-spacing: *[0-9.]+(em|px|%) *;?$/i';
+        }
+        if (isset($semantics->font->height) && $semantics->font->height) {
+          $stylePatterns[] = '/^line-height: *[0-9.]+(em|px|%|) *;?$/i';
+        }
       }
 
       // Aligment is allowed for all wysiwyg texts
