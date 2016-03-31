@@ -903,7 +903,12 @@ H5P.Dialog = function (name, title, content, $element) {
           self.close();
         })
         .end()
-      .end();
+      .find('a')
+        .click(function (e) {
+          e.stopPropagation();
+        })
+      .end()
+    .end();
 
   this.open = function () {
     setTimeout(function () {
@@ -1293,15 +1298,15 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
  */
 H5P.copyrightLicenses = {
   'U': 'Undisclosed',
-  'CC BY': 'Attribution',
-  'CC BY-SA': 'Attribution-ShareAlike',
-  'CC BY-ND': 'Attribution-NoDerivs',
-  'CC BY-NC': 'Attribution-NonCommercial',
-  'CC BY-NC-SA': 'Attribution-NonCommercial-ShareAlike',
-  'CC BY-NC-ND': 'Attribution-NonCommercial-NoDerivs',
-  'GNU GPL': 'General Public License',
+  'CC BY': '<a href="http://creativecommons.org/licenses/by/4.0/legalcode" target="_blank">Attribution 4.0</a>',
+  'CC BY-SA': '<a href="https://creativecommons.org/licenses/by-sa/4.0/legalcode" target="_blank">Attribution-ShareAlike 4.0</a>',
+  'CC BY-ND': '<a href="https://creativecommons.org/licenses/by-nd/4.0/legalcode" target="_blank">Attribution-NoDerivs 4.0</a>',
+  'CC BY-NC': '<a href="https://creativecommons.org/licenses/by-nc/4.0/legalcode" target="_blank">Attribution-NonCommercial 4.0</a>',
+  'CC BY-NC-SA': '<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode" target="_blank">Attribution-NonCommercial-ShareAlike 4.0</a>',
+  'CC BY-NC-ND': '<a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode" target="_blank">Attribution-NonCommercial-NoDerivs 4.0</a>',
+  'GNU GPL': '<a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html" target="_blank">General Public License v3</a>',
   'PD': 'Public Domain',
-  'ODC PDDL': 'Public Domain Dedication and Licence',
+  'ODC PDDL': '<a href="http://opendatacommons.org/licenses/pddl/1.0/" target="_blank">Public Domain Dedication and Licence</a>',
   'CC PDM': 'Public Domain Mark',
   'C': 'Copyright'
 };
