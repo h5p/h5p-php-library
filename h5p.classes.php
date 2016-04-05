@@ -1664,6 +1664,8 @@ class H5PCore {
   );
   public static $styles = array(
     'styles/h5p.css',
+    'styles/h5p-confirmation-dialog.css',
+    'styles/h5p-core-button.css'
   );
   public static $scripts = array(
     'js/jquery.js',
@@ -1672,6 +1674,7 @@ class H5PCore {
     'js/h5p-x-api-event.js',
     'js/h5p-x-api.js',
     'js/h5p-content-type.js',
+    'js/h5p-confirmation-dialog.js'
   );
   public static $adminScripts = array(
     'js/jquery.js',
