@@ -836,9 +836,9 @@ H5P.error = function (err) {
  *
  * @param {string} key
  *   Translation identifier, may only contain a-zA-Z0-9. No spaces or special chars.
- * @param {Object} vars
+ * @param {Object} [vars]
  *   Data for placeholders.
- * @param {string} ns
+ * @param {string} [ns]
  *   Translation namespace. Defaults to H5P.
  * @returns {string}
  *   Translated text

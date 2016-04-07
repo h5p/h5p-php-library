@@ -18,12 +18,14 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     // Default options
     options = options || {};
-    options.headerText = options.headerText ||
-      'Confirm action';
-    options.dialogText = options.dialogText ||
-      'Please confirm that you wish to proceed. This action will not be reversible.';
-    options.cancelText = options.cancelText || 'Cancel';
-    options.confirmText = options.confirmText || 'Confirm';
+    options.headerText = options.headerText || H5P.t('confirmDialogHeader');
+    options.dialogText = options.dialogText || H5P.t('confirmDialogBody');
+    options.cancelText = options.cancelText || H5P.t('cancelLabel');
+    options.confirmText = options.confirmText || H5P.t('confirmLabel');
+
+    // Offset of exit button
+    var exitButtonOffset = 2 * 16;
+    var shadowOffset = 8;
 
     // Create background
     var popupBackground = document.createElement('div');
@@ -63,35 +65,71 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     body.appendChild(buttons);
 
     // Cancel button
-    var cancelButton = document.createElement('button');
+    var cancelButton = document.createElement('a');
     cancelButton.classList.add('h5p-core-cancel-button');
-    cancelButton.tabindex = 0;
+    cancelButton.href = '#';
     cancelButton.textContent = options.cancelText;
-    cancelButton.onclick = function () {
+    cancelButton.onclick = function (e) {
       self.hide();
       self.trigger('canceled');
+      e.preventDefault();
+    };
+    cancelButton.onkeydown = function (e) {
+      if (e.which === 32) { // Space
+        // Prevent jumping
+        e.preventDefault();
+      }
+      else if (e.which === 13) { // Enter
+        self.hide();
+        self.trigger('canceled');
+        e.preventDefault();
+      }
     };
     buttons.appendChild(cancelButton);
 
     // Confirm button
-    var confirmButton = document.createElement('button');
+    var confirmButton = document.createElement('a');
     confirmButton.classList.add('h5p-core-button',
       'h5p-confirmation-dialog-confirm-button');
-    confirmButton.tabindex = 0;
+    confirmButton.href = '#';
     confirmButton.textContent = options.confirmText;
-    confirmButton.onclick = function () {
+    confirmButton.onclick = function (e) {
       self.hide();
       self.trigger('confirmed');
+      e.preventDefault();
+    };
+    confirmButton.onkeydown = function (e) {
+      if (e.which === 32) { // Space
+        // Prevent jumping
+        e.preventDefault();
+      }
+      else if (e.which === 13) { // Enter
+        self.hide();
+        self.trigger('confirmed');
+        e.preventDefault();
+      }
     };
     buttons.appendChild(confirmButton);
 
     // Exit button
-    var exitButton = document.createElement('button');
+    var exitButton = document.createElement('a');
+    exitButton.href = '#';
     exitButton.classList.add('h5p-confirmation-dialog-exit');
-    exitButton.tabindex = 0;
-    exitButton.onclick = function () {
+    exitButton.onclick = function (e) {
       self.hide();
       self.trigger('canceled');
+      e.preventDefault();
+    };
+    exitButton.onkeydown = function (e) {
+      if (e.which === 32) { // Space
+        // Prevent jumping
+        e.preventDefault();
+      }
+      else if (e.which === 13) { // Enter
+        self.hide();
+        self.trigger('canceled');
+        e.preventDefault();
+      }
     };
     popup.appendChild(exitButton);
 
@@ -114,22 +152,45 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * Fit popup to container. Makes sure it doesn't overflow.
      */
     var fitToContainer = function () {
-      var popupOffset = parseInt(popup.style.top, 10) + popup.offsetHeight;
+      var popupOffsetTop = parseInt(popup.style.top, 10);
 
-      // Overflows wrapper
-      if (popupOffset > wrapperElement.offsetHeight) {
-        var overflowedContainerOffset = wrapperElement.offsetHeight - popup.offsetHeight;
-        popup.style.top = overflowedContainerOffset + 'px';
+      // Overflows height
+      if (popupOffsetTop + popup.offsetHeight > wrapperElement.offsetHeight) {
+        popupOffsetTop = wrapperElement.offsetHeight - popup.offsetHeight;
       }
+
+      if (popupOffsetTop - exitButtonOffset <= 0) {
+        popupOffsetTop = exitButtonOffset;
+      }
+      popup.style.top = popupOffsetTop + 'px';
+
+      // Overflows width
+      var popupOffsetLeft = parseInt(popup.style.left, 10);
+
+      if (popupOffsetLeft + popup.offsetWidth + exitButtonOffset + shadowOffset > wrapperElement.offsetWidth) {
+        popupOffsetLeft = wrapperElement.offsetWidth - exitButtonOffset - shadowOffset - popup.offsetWidth;
+      }
+
+      if (popupOffsetLeft < 0) {
+        popupOffsetLeft = 0;
+      }
+
+      popup.style.left = popupOffsetLeft + 'px';
     };
 
     /**
      * Show confirmation dialog
      * @params {number} offsetTop Offset top
+     * @params {number} [offsetLeft] Offset left
      * @returns {H5P.ConfirmationDialog}
      */
-    this.show = function (offsetTop) {
+    this.show = function (offsetTop, offsetLeft) {
+      popup.classList.remove('not-centered');
       popup.style.top = offsetTop + 'px';
+      if (offsetLeft !== undefined) {
+        popup.classList.add('not-centered');
+        popup.style.left = offsetLeft + 'px';
+      }
       popupBackground.classList.remove('hidden');
       fitToContainer();
       popupBackground.classList.remove('hiding');

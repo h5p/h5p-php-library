@@ -32,7 +32,7 @@
   justify-content: center;
 
   box-sizing: border-box;
-  max-width: calc(100% - 2em);
+  max-width: 35em;
   min-width: 25em;
 
   top: 2em;
@@ -46,6 +46,18 @@
 
   -webkit-transition: transform 0.1s ease-in;
   transition: transform 0.1s ease-in;
+}
+
+.h5p-confirmation-dialog-popup.not-centered {
+  -webkit-transform: translate(0.5em, 0%);
+  -ms-transform: translate(0.5em, 0%);
+  transform: translate(0.5em, 0%);
+}
+
+.h5p-confirmation-dialog-popup.hidden.not-centered {
+  -webkit-transform: translate(0.5em, 50%);
+  -ms-transform: translate(0.5em, 50%);
+  transform: translate(0.5em, 50%);
 }
 
 .h5p-confirmation-dialog-popup.hidden {
@@ -75,6 +87,11 @@
 
 .h5p-confirmation-dialog-buttons {
   float: right;
+}
+
+.h5p-confirmation-dialog-exit:focus,
+.h5p-confirmation-dialog-exit:hover {
+  color: #555;
 }
 
 .h5p-confirmation-dialog-exit {
