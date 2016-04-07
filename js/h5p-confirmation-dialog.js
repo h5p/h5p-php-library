@@ -163,34 +163,15 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         popupOffsetTop = exitButtonOffset;
       }
       popup.style.top = popupOffsetTop + 'px';
-
-      // Overflows width
-      var popupOffsetLeft = parseInt(popup.style.left, 10);
-
-      if (popupOffsetLeft + popup.offsetWidth + exitButtonOffset + shadowOffset > wrapperElement.offsetWidth) {
-        popupOffsetLeft = wrapperElement.offsetWidth - exitButtonOffset - shadowOffset - popup.offsetWidth;
-      }
-
-      if (popupOffsetLeft < 0) {
-        popupOffsetLeft = 0;
-      }
-
-      popup.style.left = popupOffsetLeft + 'px';
     };
 
     /**
      * Show confirmation dialog
      * @params {number} offsetTop Offset top
-     * @params {number} [offsetLeft] Offset left
      * @returns {H5P.ConfirmationDialog}
      */
-    this.show = function (offsetTop, offsetLeft) {
-      popup.classList.remove('not-centered');
+    this.show = function (offsetTop) {
       popup.style.top = offsetTop + 'px';
-      if (offsetLeft !== undefined) {
-        popup.classList.add('not-centered');
-        popup.style.left = offsetLeft + 'px';
-      }
       popupBackground.classList.remove('hidden');
       fitToContainer();
       popupBackground.classList.remove('hiding');
