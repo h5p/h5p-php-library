@@ -16,6 +16,7 @@
   text-align: center;
   text-shadow: none;
   vertical-align: baseline;
+  text-decoration: none;
 }
 .h5p-core-button:hover,
 .h5p-core-button:focus {
@@ -49,6 +50,7 @@
   color: #a00;
   margin-right: 1em;
   font-size: 1em;
+  text-decoration: none;
 }
 
 .h5p-core-cancel-button:hover,

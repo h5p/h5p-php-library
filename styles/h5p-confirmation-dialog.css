@@ -48,18 +48,6 @@
   transition: transform 0.1s ease-in;
 }
 
-.h5p-confirmation-dialog-popup.not-centered {
-  -webkit-transform: translate(0.5em, 0%);
-  -ms-transform: translate(0.5em, 0%);
-  transform: translate(0.5em, 0%);
-}
-
-.h5p-confirmation-dialog-popup.hidden.not-centered {
-  -webkit-transform: translate(0.5em, 50%);
-  -ms-transform: translate(0.5em, 50%);
-  transform: translate(0.5em, 50%);
-}
-
 .h5p-confirmation-dialog-popup.hidden {
   -webkit-transform: translate(-50%, 50%);
   -ms-transform: translate(-50%, 50%);
@@ -103,6 +91,7 @@
   right: -1.15em;
   color: #777;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .h5p-confirmation-dialog-exit:before {
