@@ -25,6 +25,10 @@
   transition: opacity 0.1s linear 0s, visibility 0s linear 0.1s;
 }
 
+.h5p-confirmation-dialog-popup:focus {
+  outline: none;
+}
+
 .h5p-confirmation-dialog-popup {
   position: absolute;
   display: flex;
@@ -32,7 +36,7 @@
   justify-content: center;
 
   box-sizing: border-box;
-  max-width: calc(100% - 2em);
+  max-width: 35em;
   min-width: 25em;
 
   top: 2em;
@@ -77,6 +81,11 @@
   float: right;
 }
 
+.h5p-confirmation-dialog-exit:focus,
+.h5p-confirmation-dialog-exit:hover {
+  color: #555;
+}
+
 .h5p-confirmation-dialog-exit {
   position: absolute;
   background: none;
@@ -86,6 +95,7 @@
   right: -1.15em;
   color: #777;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .h5p-confirmation-dialog-exit:before {
