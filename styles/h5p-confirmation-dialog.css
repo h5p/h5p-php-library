@@ -25,6 +25,10 @@
   transition: opacity 0.1s linear 0s, visibility 0s linear 0.1s;
 }
 
+.h5p-confirmation-dialog-popup:focus {
+  outline: none;
+}
+
 .h5p-confirmation-dialog-popup {
   position: absolute;
   display: flex;
