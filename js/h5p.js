@@ -146,18 +146,49 @@ H5P.init = function (target) {
 
     // Create action bar
     var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
+
+    /**
+     * Helper for creating action bar buttons.
+     *
+     * @private
+     * @param {string} type
+     * @param {function} handler
+     * @param {string} customClass Instead of type class
+     */
+    var addActionButton = function (type, handler, customClass) {
+      H5P.jQuery('<li/>', {
+        'class': 'h5p-button h5p-' + (customClass ? customClass : type),
+        role: 'button',
+        tabindex: 0,
+        title: H5P.t(type + 'Description'),
+        html: H5P.t(type),
+        on: {
+          click: handler,
+          keypress: function (e) {
+            if (e.which === 32) {
+              handler();
+              e.preventDefault(); // (since return false will block other inputs)
+            }
+          }
+        },
+        appendTo: $actions
+      });
+    };
+
+    // Register action bar buttons
     if (!(contentData.disable & H5P.DISABLE_DOWNLOAD)) {
       // Add export button
-      H5P.jQuery('<li class="h5p-button h5p-export" role="button" tabindex="0" title="' + H5P.t('downloadDescription') + '">' + H5P.t('download') + '</li>').appendTo($actions).click(function () {
+      addActionButton('download', function () {
+        // Use button for download to avoid people linking directly to the .h5p
         window.location.href = contentData.exportUrl;
-      });
+      }, 'export');
     }
     if (!(contentData.disable & H5P.DISABLE_COPYRIGHT)) {
       var copyright = H5P.getCopyrights(instance, library.params, contentId);
 
       if (copyright) {
         // Add copyright dialog button
-        H5P.jQuery('<li class="h5p-button h5p-copyrights" role="button" tabindex="0" title="' + H5P.t('copyrightsDescription') + '">' + H5P.t('copyrights') + '</li>').appendTo($actions).click(function () {
+        addActionButton('copyrights', function () {
           // Open dialog with copyright information
           var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyright, $container);
           dialog.open();
@@ -166,7 +197,8 @@ H5P.init = function (target) {
     }
     if (!(contentData.disable & H5P.DISABLE_EMBED)) {
       // Add embed button
-      H5P.jQuery('<li class="h5p-button h5p-embed" role="button" tabindex="0" title="' + H5P.t('embedDescription') + '">' + H5P.t('embed') + '</li>').appendTo($actions).click(function () {
+      addActionButton('embed', function () {
+        // Open dialog with embed information
         H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
           width: $element.width(),
           height: $element.height()
