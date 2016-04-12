@@ -1971,9 +1971,9 @@ class H5PCore {
       // Get aggregated files for assets
       $key = self::getDependenciesHash($dependencies);
 
-      $files = $this->fs->getCachedAssets($key);
-      if ($files) {
-        return $files; // Using cached assets
+      $cachedAssets = $this->fs->getCachedAssets($key);
+      if ($cachedAssets !== NULL) {
+        return array_merge($files, $cachedAssets); // Using cached assets
       }
     }
 
