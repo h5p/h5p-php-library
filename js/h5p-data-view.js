@@ -255,6 +255,7 @@ var H5PDataView = (function ($) {
     var remove = function () {
       self.facets[col].$tag.remove();
       delete self.facets[col];
+      self.offset = 0; // Reset to page 1
       self.loadData();
     };
 
@@ -274,6 +275,9 @@ var H5PDataView = (function ($) {
         }
       }
     });
+
+    // Reset to page 1
+    self.offset = 0;
 
     // Load data with new filter
     self.loadData();
