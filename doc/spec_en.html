@@ -1,5 +1,5 @@
 ﻿<h2>Overview</h2>
-<p>H5P is a file format for content/applications made using modern, open web technlogies (HTML5). The format enables easy installation and transfer of applications/content on different CMSes, LMSes and other platforms. An H5P can be uploaded and published on a platform in mostly the same way one would publish a Flash file today. H5P files may also be updated by simply uploading a new version of the file, the same way as one would using Flash.</p>
+<p>H5P is a file format for content/applications made using modern, open web technologies (HTML5). The format enables easy installation and transfer of applications/content on different CMSes, LMSes and other platforms. An H5P can be uploaded and published on a platform in mostly the same way one would publish a Flash file today. H5P files may also be updated by simply uploading a new version of the file, the same way as one would using Flash.</p>
 <p>H5P opens for extensive reuse of code and wide flexibility regarding what may be developed as an H5P.</p>
 <p>The system uses package files containing all necessary files and libraries for the application to function. These files are based on open formats.</p>
 <h2>Overview of package files</h2>
@@ -74,7 +74,7 @@
 
 <p>The root of a library folder shall contain a file name <i>library.json</i> formatted similar to the package's <i>hp5.json</i>, but with a few differences. The library shall also have one or more images in the root folder, named <i>library.jpg</i>, <i>library1.jpg</i> etc. Image sizes 512px × 512px, and will be used in the H5P editor tool.</p>
 
-<p>Libraries are not allowed to modify the document tree in ways that will have consequences for the web site or will be noticable by the user without the library explicitly being initialized from the main package library or another invoked library.</p>
+<p>Libraries are not allowed to modify the document tree in ways that will have consequences for the web site or will be noticeable by the user without the library explicitly being initialized from the main package library or another invoked library.</p>
 
 <p>The library shall always include a JavaScript object function named the same as the defined library <i>machineName</i> (defined in <i>library.json</i> and used as the library folder name).  This object will be instantiated with the library options as parameter. The resulting object must contain a function <i>attach(target)</i> that will be called after instantiation to attach the library DOM to the main DOM inside <i>target</i></p>
 

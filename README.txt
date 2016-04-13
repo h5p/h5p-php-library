@@ -1,6 +1,6 @@
 This folder contains the h5p general library. The files within this folder are not specific to any framework.
 
-Any interaction with LMS, CMS or other frameworks is done through interfaces. Plattforms needs to implement
+Any interaction with LMS, CMS or other frameworks is done through interfaces. Platforms needs to implement
 the H5PFrameworkInterface(in h5p.classes.php) and also do the following:
 
  - Provide a form for uploading h5p packages.
