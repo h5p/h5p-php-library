@@ -1550,8 +1550,25 @@ Class H5PExport {
       $library = $dependency['library'];
 
       try {
+        $exportFolder = NULL;
+
+        // Determine path of export library
+        if (isset($this->h5pC) && isset($this->h5pC->h5pD)) {
+
+          // Tries to find library in development folder
+          $isDevLibrary = $this->h5pC->h5pD->getLibrary(
+              $library['machineName'],
+              $library['majorVersion'],
+              $library['minorVersion']
+          );
+
+          if ($isDevLibrary !== NULL) {
+            $exportFolder = "/" . $library['path'];
+          }
+        }
+
         // Export required libraries
-        $this->h5pC->fs->exportLibrary($library, $tmpPath);
+        $this->h5pC->fs->exportLibrary($library, $tmpPath, $exportFolder);
       }
       catch (Exception $e) {
         $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
