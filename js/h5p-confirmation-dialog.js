@@ -174,8 +174,10 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       popup.style.top = offsetTop + 'px';
       popupBackground.classList.remove('hidden');
       fitToContainer();
-      popupBackground.classList.remove('hiding');
-      popup.classList.remove('hidden');
+      setTimeout(function () {
+        popup.classList.remove('hidden');
+        popupBackground.classList.remove('hiding');
+      }, 0);
 
       // Programmatically focus popup
       popup.setAttribute('tabindex', '-1');
