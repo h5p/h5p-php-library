@@ -1503,7 +1503,7 @@ H5P.Coords = function (x, y, w, h) {
  *   return false if the library parameter is invalid
  */
 H5P.libraryFromString = function (library) {
-  var regExp = /(.+)\s(\d)+\.(\d)$/g;
+  var regExp = /(.+)\s(\d+)\.(\d+)$/g;
   var res = regExp.exec(library);
   if (res !== null) {
     return {
