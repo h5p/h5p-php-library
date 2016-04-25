@@ -81,12 +81,9 @@
   float: right;
 }
 
-.h5p-confirmation-dialog-exit:focus,
-.h5p-confirmation-dialog-exit:hover {
-  color: #555;
-}
-
-.h5p-confirmation-dialog-exit {
+a.h5p-confirmation-dialog-exit:visited,
+a.h5p-confirmation-dialog-exit:link,
+a.h5p-confirmation-dialog-exit {
   position: absolute;
   background: none;
   border: none;
@@ -96,6 +93,11 @@
   color: #777;
   cursor: pointer;
   text-decoration: none;
+}
+
+a.h5p-confirmation-dialog-exit:focus,
+a.h5p-confirmation-dialog-exit:hover {
+  color: #555;
 }
 
 .h5p-confirmation-dialog-exit:before {
