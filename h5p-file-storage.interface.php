@@ -117,4 +117,12 @@ interface H5PFileStorage {
    *   The hash keys of removed files
    */
   public function deleteCachedAssets($keys);
+
+  /**
+   * Read file content of given file and then return it.
+   *
+   * @param string $file_path
+   * @return string contents
+   */
+  public function getContent($file_path);
 }
