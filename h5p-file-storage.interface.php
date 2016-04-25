@@ -125,4 +125,13 @@ interface H5PFileStorage {
    * @return string contents
    */
   public function getContent($file_path);
+
+  /**
+   * Save files uploaded through the editor.
+   * The files must be marked as temporary until the content form is saved.
+   *
+   * @param \H5peditorFile $file
+   * @param int $contentid
+   */
+  public function saveFile($file, $contentId);
 }

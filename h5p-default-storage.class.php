@@ -258,6 +258,26 @@ class H5PDefaultStorage implements \H5PFileStorage {
   }
 
   /**
+  * Save files uploaded through the editor.
+  * The files must be marked as temporary until the content form is saved.
+  *
+  * @param \H5peditorFile $file
+  * @param int $contentid
+   */
+  public function saveFile($file, $contentId) {
+    $path = $this->path . '/' . ($contentId === 0 ? 'editor' : 'content') . '/' . $file->getType() . 's/' . $file->getName();
+    self::dirReady($path);
+
+    $fileData = $file->getData();
+    if ($fileData) {
+      file_put_contents($path, $fileData);
+    }
+    else {
+      copy($_FILES['file']['tmp_name'], $path);
+    }
+  }
+
+  /**
    * Recursive function for copying directories.
    *
    * @param string $source
