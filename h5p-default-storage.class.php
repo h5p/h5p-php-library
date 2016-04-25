@@ -248,16 +248,6 @@ class H5PDefaultStorage implements \H5PFileStorage {
   }
 
   /**
-   * Read file content of given file and then return it.
-   *
-   * @param string $file_path
-   * @return string
-   */
-  public function getContent($file_path) {
-    return file_get_contents($this->path . $file_path);
-  }
-
-  /**
    * Recursive function for copying directories.
    *
    * @param string $source
