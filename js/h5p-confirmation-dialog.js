@@ -6,6 +6,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
    * Create a confirmation dialog
    *
    * @param [options] Options for confirmation dialog
+   * @param [options.instance] Instance that uses confirmation dialog
    * @param [options.headerText] Header text
    * @param [options.dialogText] Dialog text
    * @param [options.cancelText] Cancel dialog button text
@@ -26,6 +27,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Offset of exit button
     var exitButtonOffset = 2 * 16;
     var shadowOffset = 8;
+
+    // Determine if we are too large for our container and must resize
+    var resizeIFrame = false;
 
     // Create background
     var popupBackground = document.createElement('div');
@@ -156,11 +160,14 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
       // Overflows height
       if (popupOffsetTop + popup.offsetHeight > wrapperElement.offsetHeight) {
-        popupOffsetTop = wrapperElement.offsetHeight - popup.offsetHeight;
+        popupOffsetTop = wrapperElement.offsetHeight - popup.offsetHeight - shadowOffset;
       }
 
       if (popupOffsetTop - exitButtonOffset <= 0) {
-        popupOffsetTop = exitButtonOffset;
+        popupOffsetTop = exitButtonOffset + shadowOffset;
+
+        // We are too big and must resize
+        resizeIFrame = true;
       }
       popup.style.top = popupOffsetTop + 'px';
     };
@@ -177,6 +184,18 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       setTimeout(function () {
         popup.classList.remove('hidden');
         popupBackground.classList.remove('hiding');
+
+        // Resize iFrame if necessary
+        if (resizeIFrame && options.instance) {
+          setTimeout(function () {
+            var minHeight = parseInt(popup.offsetHeight, 10) +
+              exitButtonOffset + (2 * shadowOffset);
+            wrapperElement.style.minHeight = minHeight + 'px';
+            options.instance.trigger('resize');
+            resizeIFrame = false;
+          }, 100);
+        }
+
       }, 0);
 
       // Programmatically focus popup
