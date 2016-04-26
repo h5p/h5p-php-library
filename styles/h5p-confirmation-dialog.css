@@ -11,7 +11,7 @@
   -webkit-transition: opacity 0.1s, linear 0s, visibility 0s linear 0s;
   transition: opacity 0.1s linear 0s, visibility 0s linear 0s;
 
-  z-index: 101;
+  z-index: 201;
 }
 
 .h5p-confirmation-dialog-background.hidden {
