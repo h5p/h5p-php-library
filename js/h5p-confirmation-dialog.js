@@ -185,6 +185,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         popup.classList.remove('hidden');
         popupBackground.classList.remove('hiding');
 
+        // Focus confirm button
+        confirmButton.focus();
+
         // Resize iFrame if necessary
         if (resizeIFrame && options.instance) {
           setTimeout(function () {
@@ -197,10 +200,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         }
 
       }, 0);
-
-      // Programmatically focus popup
-      popup.setAttribute('tabindex', '-1');
-      popup.focus();
 
       return this;
     };
