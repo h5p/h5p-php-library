@@ -188,20 +188,19 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         popup.classList.remove('hidden');
         popupBackground.classList.remove('hiding');
 
-        // Focus confirm button
-        confirmButton.focus();
+        setTimeout(function () {
+          // Focus confirm button
+          confirmButton.focus();
 
-        // Resize iFrame if necessary
-        if (resizeIFrame && options.instance) {
-          setTimeout(function () {
+          // Resize iFrame if necessary
+          if (resizeIFrame && options.instance) {
             var minHeight = parseInt(popup.offsetHeight, 10) +
               exitButtonOffset + (2 * shadowOffset);
             wrapperElement.style.minHeight = minHeight + 'px';
             options.instance.trigger('resize');
             resizeIFrame = false;
-          }, 100);
-        }
-
+          }
+        }, 100);
       }, 0);
 
       return this;
