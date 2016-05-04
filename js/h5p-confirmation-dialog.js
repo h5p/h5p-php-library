@@ -154,9 +154,13 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     /**
      * Fit popup to container. Makes sure it doesn't overflow.
+     * @params {number} [offsetTop] Offset of popup
      */
-    var fitToContainer = function () {
+    var fitToContainer = function (offsetTop) {
       var popupOffsetTop = parseInt(popup.style.top, 10);
+      if (offsetTop) {
+        popupOffsetTop = offsetTop;
+      }
 
       // Overflows height
       if (popupOffsetTop + popup.offsetHeight > wrapperElement.offsetHeight) {
@@ -178,9 +182,8 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * @returns {H5P.ConfirmationDialog}
      */
     this.show = function (offsetTop) {
-      popup.style.top = offsetTop + 'px';
       popupBackground.classList.remove('hidden');
-      fitToContainer();
+      fitToContainer(offsetTop);
       setTimeout(function () {
         popup.classList.remove('hidden');
         popupBackground.classList.remove('hiding');
