@@ -278,6 +278,68 @@ class H5PDefaultStorage implements \H5PFileStorage {
   }
 
   /**
+   * Copy a file from another content or editor tmp dir.
+   * Used when copy pasting content in H5P Editor.
+   *
+   * @param string $file path + name
+   * @param string|int $fromid Content ID or 'editor' string
+   * @param int $toid Target Content ID
+   */
+  public function cloneContentFile($file, $fromId, $toId) {
+    // Determine source path
+    if ($formId === 'editor') {
+      $sourcepath = (empty($this->editorpath) ? "{$this->path}/editor" : $this->editorpath);
+    }
+    else {
+      $sourcepath = "{$this->path}/content/{$fromId}";
+    }
+    $sourcepath .= '/' . $file;
+
+    // Determine target path
+    $targetpath = "{$this->path}/content/{$toId}";
+
+    // Make sure it's ready
+    self::dirReady($targetpath);
+
+    $targetpath .= '/' . $file;
+
+    // Check to see if source exist and if target doesn't
+    if (!file_exists($sourcepath) || file_exists($targetpath)) {
+      return; // Nothing to copy from or target already exists
+    }
+
+    copy($sourcepath, $targetpath);
+  }
+
+  /**
+   * Checks to see if content has the given file.
+   * Used when saving content.
+   *
+   * @param string $file path + name
+   * @param int $contentId
+   * @return string File ID or NULL if not found
+   */
+  public function getContentFile($file, $contentId) {
+    $path = "{$this->path}/content/{$contentId}/{$file}";
+    return file_exists($path) ? $path : NULL;
+  }
+
+  /**
+   * Checks to see if content has the given file.
+   * Used when saving content.
+   *
+   * @param string $file path + name
+   * @param int $contentid
+   * @return string|int File ID or NULL if not found
+   */
+  public function removeContentFile($file, $contentId) {
+    $path = "{$this->path}/content/{$contentId}/{$file}";
+    if (file_exists($path)) {
+      unlink($path);
+    }
+  }
+
+  /**
    * Recursive function for copying directories.
    *
    * @param string $source
