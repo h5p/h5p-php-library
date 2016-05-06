@@ -204,7 +204,7 @@ button.h5p-admin.disabled:hover {
   line-height: 130%;
   border: none;
   background: none;
-  font-family: 'H5P'; /* TODO: Find content */
+  font-family: 'H5P';
   font-size: 1.4em;
 }
 .h5p-content-pager > button:focus {
