@@ -150,7 +150,7 @@ interface H5PFileStorage {
    * Used when saving content.
    *
    * @param string $file path + name
-   * @param int $contentid
+   * @param int $contentId
    * @return string|int File ID or NULL if not found
    */
   public function getContentFile($file, $contentId);
@@ -160,8 +160,7 @@ interface H5PFileStorage {
    * Used when saving content.
    *
    * @param string $file path + name
-   * @param int $contentid
-   * @return string|int File ID or NULL if not found
+   * @param int $contentId
    */
   public function removeContentFile($file, $contentId);
 }
