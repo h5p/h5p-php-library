@@ -108,10 +108,10 @@ var H5PDataView = (function ($) {
       else {
         // Update table data
         self.updateTable(data.rows);
-
-        // Update pagination widget
-        self.updatePagination(data.num);
       }
+
+      // Update pagination widget
+      self.updatePagination(data.num);
 
       if (self.loaded !== undefined) {
         self.loaded();
@@ -255,7 +255,6 @@ var H5PDataView = (function ($) {
     var remove = function () {
       self.facets[col].$tag.remove();
       delete self.facets[col];
-      self.offset = 0; // Reset to page 1
       self.loadData();
     };
 
@@ -275,9 +274,6 @@ var H5PDataView = (function ($) {
         }
       }
     });
-
-    // Reset to page 1
-    self.offset = 0;
 
     // Load data with new filter
     self.loadData();
