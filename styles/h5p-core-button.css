@@ -54,6 +54,7 @@ button.h5p-core-cancel-button {
   margin-right: 1em;
   font-size: 1em;
   text-decoration: none;
+  cursor: pointer;
 }
 
 button.h5p-core-cancel-button:hover,
