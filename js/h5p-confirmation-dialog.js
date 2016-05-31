@@ -128,14 +128,12 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     var wrapperElement;
 
     /**
-     * Append confirmation dialog
+     * Set parent of confirmation dialog
      * @param {HTMLElement} wrapper
      * @returns {H5P.ConfirmationDialog}
      */
     this.appendTo = function (wrapper) {
-      wrapper.appendChild(popupBackground);
       wrapperElement = wrapper;
-
       return this;
     };
 
@@ -169,6 +167,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * @returns {H5P.ConfirmationDialog}
      */
     this.show = function (offsetTop) {
+      wrapperElement.appendChild(popupBackground);
       popupBackground.classList.remove('hidden');
       fitToContainer(offsetTop);
       setTimeout(function () {
@@ -202,6 +201,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       popup.classList.add('hidden');
       setTimeout(function () {
         popupBackground.classList.add('hidden');
+        wrapperElement.removeChild(popupBackground);
       }, 100);
 
       return this;
