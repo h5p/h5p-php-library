@@ -1799,9 +1799,13 @@ H5P.createTitle = function (rawTitle, maxLength) {
         data: (data === null ? 0 : data),
         preload: (preload ? 1 : 0),
         invalidate: (invalidate ? 1 : 0),
-        token: H5PIntegration.tokens.contentUserData,
-        contextId: H5PIntegration.editor.uploadParams.contextId
+        token: H5PIntegration.tokens.contentUserData
       };
+
+      // Set editor context
+      if (H5PIntegration.editor && H5PIntegration.editor.uploadParams) {
+        options.data.contextId = H5PIntegration.editor.uploadParams.contextId;
+      }
     }
     else {
       options.type = 'GET';
