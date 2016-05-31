@@ -1055,24 +1055,27 @@ class H5PValidator {
     $valid = $this->isValidRequiredH5pData($h5pData, $required, $library_name);
     $valid = $this->isValidOptionalH5pData($h5pData, $optional, $library_name) && $valid;
 
-    // Test library core version requirement.  If no requirement is set,
-    // this implicitly means 1.0, which shall work on newer versions
-    // too.
+    // Check the library's required API version of Core.
+    // If no requirement is set this implicitly means 1.0.
     if (isset($h5pData['coreApi']) && !empty($h5pData['coreApi'])) {
       if (($h5pData['coreApi']['majorVersion'] > H5PCore::$coreApi['majorVersion']) ||
-          (($h5pData['coreApi']['majorVersion'] == H5PCore::$coreApi['majorVersion']) &&
-            ($h5pData['coreApi']['minorVersion'] > H5PCore::$coreApi['minorVersion'])))
-      {
+          ( ($h5pData['coreApi']['majorVersion'] == H5PCore::$coreApi['majorVersion']) &&
+            ($h5pData['coreApi']['minorVersion'] > H5PCore::$coreApi['minorVersion']) )) {
+
         $this->h5pF->setErrorMessage(
-          $this->h5pF->t('The library "%libraryName" requires H5P %requiredVersion, but only H5P %coreApi is installed.',
-          array(
-            '%libraryName' => $library_name,
-            '%requiredVersion' => $h5pData['coreApi']['majorVersion'] . '.' . $h5pData['coreApi']['minorVersion'],
-            '%coreApi' => H5PCore::$coreApi['majorVersion'] . '.' . H5PCore::$coreApi['minorVersion']
-          )));
+            $this->h5pF->t('The system was unable to install the <em>%component</em> component from the package, it requires a newer version of the H5P plugin. This site is currently running version %current, whereas the required version is %required or higher. You should consider upgrading and then try again.',
+                array(
+                  '%component' => (isset($h5pData['title']) ? $h5pData['title'] : $library_name),
+                  '%current' => H5PCore::$coreApi['majorVersion'] . '.' . H5PCore::$coreApi['minorVersion'],
+                  '%required' => $h5pData['coreApi']['majorVersion'] . '.' . $h5pData['coreApi']['minorVersion']
+                )
+            )
+        );
+
         $valid = false;
       }
     }
+
     return $valid;
   }
 

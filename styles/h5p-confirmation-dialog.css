@@ -81,9 +81,9 @@
   float: right;
 }
 
-a.h5p-confirmation-dialog-exit:visited,
-a.h5p-confirmation-dialog-exit:link,
-a.h5p-confirmation-dialog-exit {
+button.h5p-confirmation-dialog-exit:visited,
+button.h5p-confirmation-dialog-exit:link,
+button.h5p-confirmation-dialog-exit {
   position: absolute;
   background: none;
   border: none;
@@ -95,8 +95,8 @@ a.h5p-confirmation-dialog-exit {
   text-decoration: none;
 }
 
-a.h5p-confirmation-dialog-exit:focus,
-a.h5p-confirmation-dialog-exit:hover {
+button.h5p-confirmation-dialog-exit:focus,
+button.h5p-confirmation-dialog-exit:hover {
   color: #555;
 }
 
