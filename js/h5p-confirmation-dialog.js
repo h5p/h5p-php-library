@@ -141,22 +141,24 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     var wrapperElement;
 
     /**
-     * Append confirmation dialog
+     * Set parent of confirmation dialog
      * @param {HTMLElement} wrapper
      * @returns {H5P.ConfirmationDialog}
      */
     this.appendTo = function (wrapper) {
-      wrapper.appendChild(popupBackground);
       wrapperElement = wrapper;
-
       return this;
     };
 
     /**
      * Fit popup to container. Makes sure it doesn't overflow.
+     * @params {number} [offsetTop] Offset of popup
      */
-    var fitToContainer = function () {
+    var fitToContainer = function (offsetTop) {
       var popupOffsetTop = parseInt(popup.style.top, 10);
+      if (offsetTop) {
+        popupOffsetTop = offsetTop;
+      }
 
       // Overflows height
       if (popupOffsetTop + popup.offsetHeight > wrapperElement.offsetHeight) {
@@ -178,29 +180,27 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * @returns {H5P.ConfirmationDialog}
      */
     this.show = function (offsetTop) {
-      popup.style.top = offsetTop + 'px';
+      wrapperElement.appendChild(popupBackground);
       popupBackground.classList.remove('hidden');
-      fitToContainer();
+      fitToContainer(offsetTop);
       setTimeout(function () {
         popup.classList.remove('hidden');
         popupBackground.classList.remove('hiding');
 
-        // Resize iFrame if necessary
-        if (resizeIFrame && options.instance) {
-          setTimeout(function () {
+        setTimeout(function () {
+          // Focus confirm button
+          confirmButton.focus();
+
+          // Resize iFrame if necessary
+          if (resizeIFrame && options.instance) {
             var minHeight = parseInt(popup.offsetHeight, 10) +
               exitButtonOffset + (2 * shadowOffset);
             wrapperElement.style.minHeight = minHeight + 'px';
             options.instance.trigger('resize');
             resizeIFrame = false;
-          }, 100);
-        }
-
+          }
+        }, 100);
       }, 0);
-
-      // Programmatically focus popup
-      popup.setAttribute('tabindex', '-1');
-      popup.focus();
 
       return this;
     };
@@ -214,6 +214,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       popup.classList.add('hidden');
       setTimeout(function () {
         popupBackground.classList.add('hidden');
+        wrapperElement.removeChild(popupBackground);
       }, 100);
 
       return this;
