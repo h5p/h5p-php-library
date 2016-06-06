@@ -103,6 +103,7 @@ H5P.init = function (target) {
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
     var contentData = H5PIntegration.contents['cid-' + contentId];
+    var resetUserState = false;
     if (contentData === undefined) {
       return H5P.error('No data for content id ' + contentId + '. Perhaps the library is gone?');
     }
@@ -118,6 +119,7 @@ H5P.init = function (target) {
         };
       }
       else if (previousState === null && H5PIntegration.saveFreq) {
+        resetUserState = true;
         // Content has been reset. Display dialog.
         delete contentData.contentUserData;
         var dialog = new H5P.Dialog('content-user-data-reset', 'Data Reset', '<p>' + H5P.t('contentChanged') + '</p><p>' + H5P.t('startingOver') + '</p><div class="h5p-dialog-ok-button" tabIndex="0" role="button">OK</div>', $container);
@@ -136,6 +138,10 @@ H5P.init = function (target) {
 
     // Create new instance.
     var instance = H5P.newRunnable(library, contentId, $container, true, {standalone: true});
+
+    if (resetUserState) {
+      H5P.deleteUserData(contentId, 'state', instance.subContentId);
+    }
 
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1 && H5P.canHasFullScreen) {
