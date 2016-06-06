@@ -80,6 +80,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Popup text
     var text = document.createElement('div');
     text.classList.add('h5p-confirmation-dialog-text');
+    text.setAttribute('role', 'alert');
     text.innerHTML = options.dialogText;
     body.appendChild(text);
 
@@ -116,6 +117,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Exit button
     var exitButton = document.createElement('button');
     exitButton.classList.add('h5p-confirmation-dialog-exit');
+    exitButton.title = options.cancelText;
     exitButton.onclick = dialogCanceled;
     exitButton.onkeydown = function (e) {
       if (e.which === 32) { // Space
