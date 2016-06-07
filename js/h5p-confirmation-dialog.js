@@ -158,6 +158,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Wrapper element
     var wrapperElement;
 
+    // Focus capturing
+    var focusPredator;
+
     /**
      * Set parent of confirmation dialog
      * @param {HTMLElement} wrapper
@@ -166,6 +169,32 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     this.appendTo = function (wrapper) {
       wrapperElement = wrapper;
       return this;
+    };
+
+    /**
+     * Capture the focus element, send it to confirmation button
+     * @param {Event} e Original focus event
+     */
+    var captureFocus = function (e) {
+      if (!popupBackground.contains(e.target)) {
+        e.preventDefault();
+        confirmButton.focus();
+      }
+    };
+
+    /**
+     * Start capturing focus of parent and send it to dialog
+     */
+    var startCapturingFocus = function () {
+      focusPredator = wrapperElement.parentNode || wrapperElement;
+      focusPredator.addEventListener('focus', captureFocus, true);
+    };
+
+    /**
+     * Clean up event listener for capturing focus
+     */
+    var stopCapturingFocus = function () {
+      focusPredator.removeEventListener('focus', captureFocus, true);
     };
 
     /**
@@ -199,6 +228,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      */
     this.show = function (offsetTop) {
       wrapperElement.appendChild(popupBackground);
+      startCapturingFocus();
       popupBackground.classList.remove('hidden');
       fitToContainer(offsetTop);
       setTimeout(function () {
@@ -232,6 +262,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       popup.classList.add('hidden');
       setTimeout(function () {
         popupBackground.classList.add('hidden');
+        stopCapturingFocus();
         wrapperElement.removeChild(popupBackground);
       }, 100);
 
