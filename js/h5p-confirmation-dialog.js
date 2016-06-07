@@ -71,12 +71,12 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     popup.classList.add('h5p-confirmation-dialog-popup', 'hidden');
     popup.setAttribute('role', 'dialog');
     popupBackground.appendChild(popup);
-    popup.onkeydown = function (e) {
+    popup.addEventListener('keydown', function (e) {
       if (e.which === 27) {// Esc key
         // Exit dialog
         dialogCanceled(e);
       }
-    };
+    });
 
     // Popup header
     var header = document.createElement('div');
@@ -123,36 +123,36 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     exitButton.title = options.cancelText;
 
     // Cancel handler
-    cancelButton.onclick = dialogCanceled;
-    cancelButton.onkeydown = function (e) {
+    cancelButton.addEventListener('click', dialogCanceled);
+    cancelButton.addEventListener('keydown', function (e) {
       if (e.which === 32) { // Space
         dialogCanceled(e);
       }
       else if (e.which === 9 && e.shiftKey) { // Shift-tab
         flowTo(exitButton, e);
       }
-    };
+    });
     buttons.appendChild(cancelButton);
 
     // Confirm handler
-    confirmButton.onclick = dialogConfirmed;
-    confirmButton.onkeydown = function (e) {
+    confirmButton.addEventListener('click', dialogConfirmed);
+    confirmButton.addEventListener('keydown', function (e) {
       if (e.which === 32) { // Space
         dialogConfirmed(e);
       }
-    };
+    });
     buttons.appendChild(confirmButton);
 
     // Exit handler
-    exitButton.onclick = dialogCanceled;
-    exitButton.onkeydown = function (e) {
+    exitButton.addEventListener('click', dialogCanceled);
+    exitButton.addEventListener('keydown', function (e) {
       if (e.which === 32) { // Space
         dialogCanceled(e);
       }
       else if (e.which === 9 && !e.shiftKey) { // Tab
         flowTo(cancelButton, e);
       }
-    };
+    });
     popup.appendChild(exitButton);
 
     // Wrapper element
