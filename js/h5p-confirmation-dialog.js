@@ -161,6 +161,13 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Focus capturing
     var focusPredator;
 
+    // Maintains hidden state of elements
+    var wrapperSiblingsHidden = [];
+    var popupSiblingsHidden = [];
+
+    // Element with focus before dialog
+    var previouslyFocused;
+    
     /**
      * Set parent of confirmation dialog
      * @param {HTMLElement} wrapper
@@ -183,6 +190,44 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     };
 
     /**
+     * Hide siblings of element from assistive technology
+     * 
+     * @param {HTMLElement} element
+     * @returns {Array} The previous hidden state of all siblings
+     */
+    var hideSiblings = function (element) {
+      var hiddenSiblings = [];
+      var siblings = element.parentNode.children;
+      var i;
+      for (i = 0; i < siblings.length; i += 1) {
+        // Preserve hidden state
+        hiddenSiblings[i] = siblings[i].getAttribute('aria-hidden') ?
+          true : false;
+
+        if (siblings[i] !== element) {
+          siblings[i].setAttribute('aria-hidden', true);
+        }
+      }
+      return hiddenSiblings;
+    };
+
+    /**
+     * Restores assistive technology state of element's siblings
+     * 
+     * @param {HTMLElement} element
+     * @param {Array} hiddenSiblings Hidden state of all siblings
+     */
+    var restoreSiblings = function (element, hiddenSiblings) {
+      var siblings = element.parentNode.children;
+      var i;
+      for (i = 0; i < siblings.length; i += 1) {
+        if (siblings[i] !== element && !hiddenSiblings[i]) {
+          siblings[i].removeAttribute('aria-hidden');
+        }
+      }
+    };
+
+    /**
      * Start capturing focus of parent and send it to dialog
      */
     var startCapturingFocus = function () {
@@ -194,7 +239,24 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * Clean up event listener for capturing focus
      */
     var stopCapturingFocus = function () {
+      focusPredator.removeAttribute('aria-hidden');
       focusPredator.removeEventListener('focus', captureFocus, true);
+    };
+
+    /**
+     * Hide siblings in underlay from assistive technologies
+     */
+    var disableUnderlay = function () {
+      wrapperSiblingsHidden = hideSiblings(wrapperElement);
+      popupSiblingsHidden = hideSiblings(popupBackground);
+    };
+
+    /**
+     * Restore state of underlay for assistive technologies
+     */
+    var restoreUnderlay = function () {
+      restoreSiblings(wrapperElement, wrapperSiblingsHidden);
+      restoreSiblings(popupBackground, popupSiblingsHidden);
     };
 
     /**
@@ -227,8 +289,11 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * @returns {H5P.ConfirmationDialog}
      */
     this.show = function (offsetTop) {
+      // Capture focused item
+      previouslyFocused = document.activeElement;
       wrapperElement.appendChild(popupBackground);
       startCapturingFocus();
+      disableUnderlay();
       popupBackground.classList.remove('hidden');
       fitToContainer(offsetTop);
       setTimeout(function () {
@@ -260,9 +325,13 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     this.hide = function () {
       popupBackground.classList.add('hiding');
       popup.classList.add('hidden');
+
+      // Restore focus
+      stopCapturingFocus();
+      previouslyFocused.focus();
+      restoreUnderlay();
       setTimeout(function () {
         popupBackground.classList.add('hidden');
-        stopCapturingFocus();
         wrapperElement.removeChild(popupBackground);
       }, 100);
 
