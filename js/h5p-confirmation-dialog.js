@@ -120,6 +120,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Exit button
     var exitButton = document.createElement('button');
     exitButton.classList.add('h5p-confirmation-dialog-exit');
+    exitButton.setAttribute('aria-hidden', 'true');
     exitButton.title = options.cancelText;
 
     // Cancel handler
@@ -167,7 +168,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     // Element with focus before dialog
     var previouslyFocused;
-    
+
     /**
      * Set parent of confirmation dialog
      * @param {HTMLElement} wrapper
@@ -191,7 +192,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     /**
      * Hide siblings of element from assistive technology
-     * 
+     *
      * @param {HTMLElement} element
      * @returns {Array} The previous hidden state of all siblings
      */
@@ -213,7 +214,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     /**
      * Restores assistive technology state of element's siblings
-     * 
+     *
      * @param {HTMLElement} element
      * @param {Array} hiddenSiblings Hidden state of all siblings
      */
