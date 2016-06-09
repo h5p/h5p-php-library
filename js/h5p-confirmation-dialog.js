@@ -16,7 +16,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
   function ConfirmationDialog(options) {
     EventDispatcher.call(this);
     var self = this;
-    
+
     // Make sure confirmation dialogs have unique id
     H5P.ConfirmationDialog.uniqueId += 1;
     var uniqueId = H5P.ConfirmationDialog.uniqueId;
@@ -126,6 +126,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     var exitButton = document.createElement('button');
     exitButton.classList.add('h5p-confirmation-dialog-exit');
     exitButton.setAttribute('aria-hidden', 'true');
+    exitButton.tabIndex = -1;
     exitButton.title = options.cancelText;
 
     // Cancel handler
@@ -135,7 +136,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         dialogCanceled(e);
       }
       else if (e.which === 9 && e.shiftKey) { // Shift-tab
-        flowTo(exitButton, e);
+        flowTo(confirmButton, e);
       }
     });
     buttons.appendChild(cancelButton);
@@ -146,6 +147,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       if (e.which === 32) { // Space
         dialogConfirmed(e);
       }
+      else if (e.which === 9 && !e.shiftKey) { // Tab
+        flowTo(cancelButton, e);
+      }
     });
     buttons.appendChild(confirmButton);
 
@@ -154,9 +158,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     exitButton.addEventListener('keydown', function (e) {
       if (e.which === 32) { // Space
         dialogCanceled(e);
-      }
-      else if (e.which === 9 && !e.shiftKey) { // Tab
-        flowTo(cancelButton, e);
       }
     });
     popup.appendChild(exitButton);
