@@ -2898,7 +2898,12 @@ class H5PContentValidator {
 
     // Check if string is within allowed length
     if (isset($semantics->maxLength)) {
-      $text = mb_substr($text, 0, $semantics->maxLength);
+      if (!extension_loaded('mbstring')) {
+        $this->h5pF->setErrorMessage($this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly'), 'error');
+      }
+      else {
+        $text = mb_substr($text, 0, $semantics->maxLength);
+      }
     }
 
     // Check if string is according to optional regexp in semantics
@@ -2948,7 +2953,11 @@ class H5PContentValidator {
         // file name, 2. testing against a returned error array that could
         // never be more than 1 element long anyway, 3. recreating the regex
         // for every file.
-        if (!preg_match($wl_regex, mb_strtolower($file))) {
+        if (!extension_loaded('mbstring')) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly'), 'error');
+          $valid = FALSE;
+        }
+        else if (!preg_match($wl_regex, mb_strtolower($file))) {
           $this->h5pF->setErrorMessage($this->h5pF->t('File "%filename" not allowed. Only files with the following extensions are allowed: %files-allowed.', array('%filename' => $file, '%files-allowed' => $whitelist)), 'error');
           $valid = FALSE;
         }
