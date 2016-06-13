@@ -1655,8 +1655,7 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
       maxScore: maxScore,
       opened: toUnix(H5P.opened[contentId]),
       finished: toUnix(new Date()),
-      time: time,
-      token: H5PIntegration.tokens.result
+      time: time
     });
   }
 };
@@ -1800,14 +1799,8 @@ H5P.createTitle = function (rawTitle, maxLength) {
       options.data = {
         data: (data === null ? 0 : data),
         preload: (preload ? 1 : 0),
-        invalidate: (invalidate ? 1 : 0),
-        token: H5PIntegration.tokens.contentUserData
+        invalidate: (invalidate ? 1 : 0)
       };
-
-      // Set editor context
-      if (H5PIntegration.editor && H5PIntegration.editor.uploadParams) {
-        options.data.contextId = H5PIntegration.editor.uploadParams.contextId;
-      }
     }
     else {
       options.type = 'GET';
