@@ -265,8 +265,12 @@ class H5PDefaultStorage implements \H5PFileStorage {
   * @param int $contentid
    */
   public function saveFile($file, $contentId) {
-    $path = $this->path . '/' . ($contentId === 0 ? 'editor' : 'content') . '/' . $file->getType() . 's/' . $file->getName();
+    // Prepare directory
+    $path = $this->path . '/' . (empty($contentId) ? 'editor' : 'content/' . $contentId) . '/' . $file->getType() . 's';
     self::dirReady($path);
+
+    // Add filename to path
+    $path .= '/' . $file->getName();
 
     $fileData = $file->getData();
     if ($fileData) {
