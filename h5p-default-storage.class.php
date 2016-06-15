@@ -16,17 +16,20 @@
  * @license    MIT
  */
 class H5PDefaultStorage implements \H5PFileStorage {
-  private $path;
+  private $path, $alteditorpath;
 
   /**
    * The great Constructor!
    *
    * @param string $path
    *  The base location of H5P files
+   * @param string $alteditorpath
+   *  Optional. Use a different editor path
    */
-  function __construct($path) {
+  function __construct($path, $alteditorpath = NULL) {
     // Set H5P storage path
     $this->path = $path;
+    $this->alteditorpath = $alteditorpath;
   }
 
   /**
@@ -258,15 +261,23 @@ class H5PDefaultStorage implements \H5PFileStorage {
   }
 
   /**
-  * Save files uploaded through the editor.
-  * The files must be marked as temporary until the content form is saved.
-  *
-  * @param \H5peditorFile $file
-  * @param int $contentid
+   * Save files uploaded through the editor.
+   * The files must be marked as temporary until the content form is saved.
+   *
+   * @param \H5peditorFile $file
+   * @param int $contentid
    */
   public function saveFile($file, $contentId) {
     // Prepare directory
-    $path = $this->path . '/' . (empty($contentId) ? 'editor' : 'content/' . $contentId) . '/' . $file->getType() . 's';
+    if (empty($contentId)) {
+      // Should be in editor tmp folder
+      $path = ($this->alteditorpath !== NULL ? $this->alteditorpath : $path . '/editor');
+    }
+    else {
+      // Should be in content folder
+      $path = $this->path . '/content/' . $contentId;
+    }
+    $path .= '/' . $file->getType() . 's';
     self::dirReady($path);
 
     // Add filename to path
@@ -291,8 +302,8 @@ class H5PDefaultStorage implements \H5PFileStorage {
    */
   public function cloneContentFile($file, $fromId, $toId) {
     // Determine source path
-    if ($formId === 'editor') {
-      $sourcepath = (empty($this->editorpath) ? "{$this->path}/editor" : $this->editorpath);
+    if ($fromId === 'editor') {
+      $sourcepath = ($this->alteditorpath !== NULL ? $this->alteditorpath : "{$this->path}/editor");
     }
     else {
       $sourcepath = "{$this->path}/content/{$fromId}";
@@ -300,12 +311,14 @@ class H5PDefaultStorage implements \H5PFileStorage {
     $sourcepath .= '/' . $file;
 
     // Determine target path
-    $targetpath = "{$this->path}/content/{$toId}";
+    $filename = basename($file);
+    $filedir = str_replace($filename, '', $file);
+    $targetpath = "{$this->path}/content/{$toId}/{$filedir}";
 
     // Make sure it's ready
     self::dirReady($targetpath);
 
-    $targetpath .= '/' . $file;
+    $targetpath .= $filename;
 
     // Check to see if source exist and if target doesn't
     if (!file_exists($sourcepath) || file_exists($targetpath)) {
