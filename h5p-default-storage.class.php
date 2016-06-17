@@ -112,7 +112,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
     $source = "{$this->path}/content/{$id}";
     if (file_exists($source)) {
       // Copy content folder if it exists
-      self::copyFileTree("{$this->path}/content/{$id}", $target);
+      self::copyFileTree($source, $target);
     }
     else {
       // No contnet folder, create emty dir for content.json
