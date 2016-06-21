@@ -1055,24 +1055,27 @@ class H5PValidator {
     $valid = $this->isValidRequiredH5pData($h5pData, $required, $library_name);
     $valid = $this->isValidOptionalH5pData($h5pData, $optional, $library_name) && $valid;
 
-    // Test library core version requirement.  If no requirement is set,
-    // this implicitly means 1.0, which shall work on newer versions
-    // too.
+    // Check the library's required API version of Core.
+    // If no requirement is set this implicitly means 1.0.
     if (isset($h5pData['coreApi']) && !empty($h5pData['coreApi'])) {
       if (($h5pData['coreApi']['majorVersion'] > H5PCore::$coreApi['majorVersion']) ||
-          (($h5pData['coreApi']['majorVersion'] == H5PCore::$coreApi['majorVersion']) &&
-            ($h5pData['coreApi']['minorVersion'] > H5PCore::$coreApi['minorVersion'])))
-      {
+          ( ($h5pData['coreApi']['majorVersion'] == H5PCore::$coreApi['majorVersion']) &&
+            ($h5pData['coreApi']['minorVersion'] > H5PCore::$coreApi['minorVersion']) )) {
+
         $this->h5pF->setErrorMessage(
-          $this->h5pF->t('The library "%libraryName" requires H5P %requiredVersion, but only H5P %coreApi is installed.',
-          array(
-            '%libraryName' => $library_name,
-            '%requiredVersion' => $h5pData['coreApi']['majorVersion'] . '.' . $h5pData['coreApi']['minorVersion'],
-            '%coreApi' => H5PCore::$coreApi['majorVersion'] . '.' . H5PCore::$coreApi['minorVersion']
-          )));
+            $this->h5pF->t('The system was unable to install the <em>%component</em> component from the package, it requires a newer version of the H5P plugin. This site is currently running version %current, whereas the required version is %required or higher. You should consider upgrading and then try again.',
+                array(
+                  '%component' => (isset($h5pData['title']) ? $h5pData['title'] : $library_name),
+                  '%current' => H5PCore::$coreApi['majorVersion'] . '.' . H5PCore::$coreApi['minorVersion'],
+                  '%required' => $h5pData['coreApi']['majorVersion'] . '.' . $h5pData['coreApi']['minorVersion']
+                )
+            )
+        );
+
         $valid = false;
       }
     }
+
     return $valid;
   }
 
@@ -2469,7 +2472,9 @@ class H5PCore {
 
     // Determine remote/visitor origin
     if ($type === 'network' ||
-        ($type === 'local' && !preg_match('/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i', $_SERVER['REMOTE_ADDR']))) {
+        ($type === 'local' &&
+         isset($_SERVER['REMOTE_ADDR']) &&
+         !preg_match('/^localhost$|^127(?:\.[0-9]+){0,2}\.[0-9]+$|^(?:0*\:)*?:?0*1$/i', $_SERVER['REMOTE_ADDR']))) {
       if (isset($_SERVER['REMOTE_ADDR']) && filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
         // Internet
         $this->h5pF->setOption('site_type', 'internet');
@@ -2893,7 +2898,12 @@ class H5PContentValidator {
 
     // Check if string is within allowed length
     if (isset($semantics->maxLength)) {
-      $text = mb_substr($text, 0, $semantics->maxLength);
+      if (!extension_loaded('mbstring')) {
+        $this->h5pF->setErrorMessage($this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly'), 'error');
+      }
+      else {
+        $text = mb_substr($text, 0, $semantics->maxLength);
+      }
     }
 
     // Check if string is according to optional regexp in semantics
@@ -2943,7 +2953,11 @@ class H5PContentValidator {
         // file name, 2. testing against a returned error array that could
         // never be more than 1 element long anyway, 3. recreating the regex
         // for every file.
-        if (!preg_match($wl_regex, mb_strtolower($file))) {
+        if (!extension_loaded('mbstring')) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly'), 'error');
+          $valid = FALSE;
+        }
+        else if (!preg_match($wl_regex, mb_strtolower($file))) {
           $this->h5pF->setErrorMessage($this->h5pF->t('File "%filename" not allowed. Only files with the following extensions are allowed: %files-allowed.', array('%filename' => $file, '%files-allowed' => $whitelist)), 'error');
           $valid = FALSE;
         }

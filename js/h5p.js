@@ -122,13 +122,15 @@ H5P.init = function (target) {
         delete contentData.contentUserData;
         var dialog = new H5P.Dialog('content-user-data-reset', 'Data Reset', '<p>' + H5P.t('contentChanged') + '</p><p>' + H5P.t('startingOver') + '</p><div class="h5p-dialog-ok-button" tabIndex="0" role="button">OK</div>', $container);
         H5P.jQuery(dialog).on('dialog-opened', function (event, $dialog) {
-          $dialog.find('.h5p-dialog-ok-button').click(function () {
-            dialog.close();
-          }).keypress(function (event) {
-            if (event.which === 32) {
+
+          var closeDialog = function (event) {
+            if (event.type === 'click' || event.which === 32) {
               dialog.close();
+              H5P.deleteUserData(contentId, 'state', 0);
             }
-          });
+          };
+
+          $dialog.find('.h5p-dialog-ok-button').click(closeDialog).keypress(closeDialog);
         });
         dialog.open();
       }
