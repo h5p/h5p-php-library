@@ -111,6 +111,9 @@ H5P.init = function (target) {
       params: JSON.parse(contentData.jsonContent)
     };
 
+    // Add dir-ltr|rtl to h5p-content div, based on iframe parent document directionality.
+    $element.addClass('dir-' + window.parent.document.dir);
+
     H5P.getUserData(contentId, 'state', function (err, previousState) {
       if (previousState) {
         library.userDatas = {
