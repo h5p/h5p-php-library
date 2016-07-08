@@ -78,7 +78,7 @@ class H5PDevelopment {
       }
 
       $library = json_decode($libraryJSON, TRUE);
-      if ($library === FALSE) {
+      if ($library === NULL) {
         continue; // Invalid JSON.
       }
 
