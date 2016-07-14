@@ -2344,7 +2344,7 @@ class H5PCore {
    *                rebuilt only if non-existing
    */
   public function validateLibrarySupport($force = false) {
-    if (!($this->h5pF->getUnsupportedLibraries() === NULL || $force)) {
+    if (!$force && $this->h5pF->getUnsupportedLibraries() !== NULL) {
       return;
     }
 
@@ -2379,9 +2379,8 @@ class H5PCore {
           );
         }
       }
-
-      $this->h5pF->setUnsupportedLibraries(empty($unsupportedLibraries) ? NULL : $unsupportedLibraries);
     }
+    $this->h5pF->setUnsupportedLibraries($unsupportedLibraries);
   }
 
   /**
@@ -3428,7 +3427,7 @@ class H5PContentValidator {
       return '&lt;';
     }
 
-    if (!preg_match('%^<\s*(/\s*)?([a-zA-Z0-9]+)([^>]*)>?|(<!--.*?-->)$%', $string, $matches)) {
+    if (!preg_match('%^<\s*(/\s*)?([a-zA-Z0-9\-]+)([^>]*)>?|(<!--.*?-->)$%', $string, $matches)) {
       // Seriously malformed.
       return '';
     }
