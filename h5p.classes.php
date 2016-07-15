@@ -2863,6 +2863,7 @@ class H5PContentValidator {
 
       // Determine allowed style tags
       $stylePatterns = array();
+      // All styles must be start to end patterns (^...$)
       if (isset($semantics->font)) {
         if (isset($semantics->font->size) && $semantics->font->size) {
           $stylePatterns[] = '/^font-size: *[0-9.]+(em|px|%) *;?$/i';
@@ -3519,6 +3520,7 @@ class H5PContentValidator {
               // Allow certain styles
               foreach ($allowedStyles as $pattern) {
                 if (preg_match($pattern, $match[1])) {
+                  // All patterns are start to end patterns, and CKEditor adds one span per style
                   $attrArr[] = 'style="' . $match[1] . '"';
                   break;
                 }
