@@ -1738,6 +1738,9 @@ class H5PCore {
 
     $this->detectSiteType();
     $this->fullPluginPath = preg_replace('/\/[^\/]+[\/]?$/', '' , dirname(__FILE__));
+
+    // Standard regex for converting copied files paths
+    $this->relativePathRegExp = '/^((\.\.\/){1,2})(.*content\/)?(\d+|editor)\/(.+)$/';
   }
 
   /**
@@ -2938,8 +2941,8 @@ class H5PContentValidator {
   private function _validateFilelike(&$file, $semantics, $typeValidKeys = array()) {
     // Do not allow to use files from other content folders.
     $matches = array();
-    if (preg_match('/^(\.\.\/){1,2}(.*content\/)?(\d+|editor)\/(.+)$/', $file->path, $matches)) {
-      $file->path = $matches[4];
+    if (preg_match($this->h5pC->relativePathRegExp, $file->path, $matches)) {
+      $file->path = $matches[5];
     }
 
     // Make sure path and mime does not have any special chars
