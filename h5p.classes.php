@@ -3101,8 +3101,8 @@ class H5PContentValidator {
   private function _validateFilelike(&$file, $semantics, $typeValidKeys = array()) {
     // Do not allow to use files from other content folders.
     $matches = array();
-    if (preg_match('/^(\.\.\/){1,2}(\d+|editor)\/(.+)$/', $file->path, $matches)) {
-      $file->path = $matches[3];
+    if (preg_match('/^(\.\.\/){1,2}(.*content\/)?(\d+|editor)\/(.+)$/', $file->path, $matches)) {
+      $file->path = $matches[4];
     }
 
     // Make sure path and mime does not have any special chars
