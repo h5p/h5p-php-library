@@ -93,36 +93,6 @@ interface H5PFrameworkInterface {
   public function loadLibraries();
 
   /**
-   * Saving the unsupported library list
-   *
-   * @param array
-   *   A list of unsupported libraries. Each list entry contains:
-   *   - name: MachineName for the library
-   *   - downloadUrl: URL to a location a new version of the library may be downloaded from
-   *   - currentVersion: The unsupported version of the library installed on the system.
-   *     This is an associative array containing:
-   *     - major: The major version of the library
-   *     - minor: The minor version of the library
-   *     - patch: The patch version of the library
-   */
-  public function setUnsupportedLibraries($libraries);
-
-  /**
-   * Returns unsupported libraries
-   *
-   * @return array
-   *   A list of unsupported libraries. Each entry contains an associative array with:
-   *   - name: MachineName for the library
-   *   - downloadUrl: URL to a location a new version of the library may be downloaded from
-   *   - currentVersion: The unsupported version of the library installed on the system.
-   *     This is an associative array containing:
-   *     - major: The major version of the library
-   *     - minor: The minor version of the library
-   *     - patch: The patch version of the library
-   */
-  public function getUnsupportedLibraries();
-
-  /**
    * Returns the URL to the library admin page
    *
    * @return string
@@ -1355,9 +1325,6 @@ class H5PStorage {
       // Remove temp content folder
       H5PCore::deleteFileTree($basePath);
     }
-
-    // Update supported library list if necessary:
-    $this->h5pC->validateLibrarySupport(TRUE);
   }
 
   /**
@@ -1698,7 +1665,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 7
+    'minorVersion' => 8
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -1771,6 +1738,9 @@ class H5PCore {
 
     $this->detectSiteType();
     $this->fullPluginPath = preg_replace('/\/[^\/]+[\/]?$/', '' , dirname(__FILE__));
+
+    // Standard regex for converting copied files paths
+    $this->relativePathRegExp = '/^((\.\.\/){1,2})(.*content\/)?(\d+|editor)\/(.+)$/';
   }
 
   /**
@@ -2122,9 +2092,6 @@ class H5PCore {
    */
   public function deleteLibrary($libraryId) {
     $this->h5pF->deleteLibrary($libraryId);
-
-    // Force update of unsupported libraries list:
-    $this->validateLibrarySupport(TRUE);
   }
 
   /**
@@ -2333,133 +2300,6 @@ class H5PCore {
     }
 
     return $obj ? (object) $newArr : $newArr;
-  }
-
-  /**
-   * Check if currently installed H5P libraries are supported by
-   * the current version of core. Which versions of which libraries are supported is
-   * defined in the library-support.json file.
-   *
-   * @param boolean $force If TRUE, unsupported libraries list are rebuilt. If FALSE, list is
-   *                rebuilt only if non-existing
-   */
-  public function validateLibrarySupport($force = false) {
-    if (!$force && $this->h5pF->getUnsupportedLibraries() !== NULL) {
-      return;
-    }
-
-    $minVersions = $this->getMinimumVersionsSupported(realpath(dirname(__FILE__)) . '/library-support.json');
-    if ($minVersions === NULL) {
-      return;
-    }
-
-    // Get all libraries installed, check if any of them is not supported:
-    $libraries = $this->h5pF->loadLibraries();
-    $unsupportedLibraries = array();
-
-    // Iterate over all installed libraries
-    foreach ($libraries as $library_name => $versions) {
-      if (!isset($minVersions[$library_name])) {
-        continue;
-      }
-      $min = $minVersions[$library_name];
-
-      // For each version of this library, check if it is supported
-      foreach ($versions as $library) {
-        if (!$this->isLibraryVersionSupported($library, $min->versions)) {
-          // Current version of this library is not supported
-          $unsupportedLibraries[] = array (
-            'name' => $library_name,
-            'downloadUrl' => $min->downloadUrl,
-            'currentVersion' => array (
-              'major' => $library->major_version,
-              'minor' => $library->minor_version,
-              'patch' => $library->patch_version,
-            )
-          );
-        }
-      }
-    }
-    $this->h5pF->setUnsupportedLibraries($unsupportedLibraries);
-  }
-
-  /**
-   * Returns a list of the minimum version of libraries that are supported.
-   * This is needed because some old libraries are no longer supported by core.
-   *
-   * TODO: Make it possible for the systems to cache this list between requests.
-   *
-   * @param string $path to json file
-   * @return array indexed using library names
-   */
-  public function getMinimumVersionsSupported($path) {
-    $minSupported = array();
-
-    // Get list of minimum version for libraries. Some old libraries are no longer supported.
-    $libraries = file_get_contents($path);
-    if ($libraries !== FALSE) {
-      $libraries = json_decode($libraries);
-      if ($libraries !== NULL) {
-        foreach ($libraries as $library) {
-          $minSupported[$library->machineName] = (object) array(
-            'versions' => $library->minimumVersions,
-            'downloadUrl' => $library->downloadUrl
-          );
-        }
-      }
-    }
-
-    return empty($minSupported) ? NULL : $minSupported;
-  }
-
-  /**
-   * Check if a specific version of a library is supported
-   *
-   * @param array $library An array containing versions
-   * @param array $minimumVersions
-   * @return bool TRUE if supported, otherwise FALSE
-   */
-  public function isLibraryVersionSupported ($library, $minimumVersions) {
-    $major_supported = $minor_supported = $patch_supported = false;
-    foreach ($minimumVersions as $minimumVersion) {
-      // A library is supported if:
-      // --- major is higher than any minimum version
-      // --- minor is higher than any minimum version for a given major
-      // --- major and minor equals and patch is >= supported
-      /** @var object $library */
-      $major_supported |= ($library->major_version > $minimumVersion->major);
-
-      if ($library->major_version == $minimumVersion->major) {
-        $minor_supported |= ($library->minor_version > $minimumVersion->minor);
-      }
-
-      if ($library->major_version == $minimumVersion->major &&
-          $library->minor_version == $minimumVersion->minor) {
-        $patch_supported |= ($library->patch_version >= $minimumVersion->patch);
-      }
-    }
-
-    return ($patch_supported || $minor_supported || $major_supported);
-  }
-
-  /**
-   * Helper function for creating markup for the unsupported libraries list
-   *
-   * @param $libraries
-   * @return string Html
-   */
-  public function createMarkupForUnsupportedLibraryList($libraries) {
-    $html = '<div><span>The following versions of H5P libraries are not supported anymore:<span><ul>';
-
-    foreach ($libraries as $library) {
-      $downloadUrl = $library['downloadUrl'];
-      $libraryName = $library['name'];
-      $currentVersion = $library['currentVersion']['major'] . '.' . $library['currentVersion']['minor'] .'.' . $library['currentVersion']['patch'];
-      $html .= "<li><a href=\"$downloadUrl\">$libraryName</a> ($currentVersion)</li>";
-    }
-
-    $html .= '</ul><span><br>These libraries may cause problems on this site. See <a href="http://h5p.org/releases/h5p-core-1.3">here</a> for more info</div>';
-    return $html;
   }
 
   /**
@@ -2863,6 +2703,7 @@ class H5PContentValidator {
 
       // Determine allowed style tags
       $stylePatterns = array();
+      // All styles must be start to end patterns (^...$)
       if (isset($semantics->font)) {
         if (isset($semantics->font->size) && $semantics->font->size) {
           $stylePatterns[] = '/^font-size: *[0-9.]+(em|px|%) *;?$/i';
@@ -3100,8 +2941,8 @@ class H5PContentValidator {
   private function _validateFilelike(&$file, $semantics, $typeValidKeys = array()) {
     // Do not allow to use files from other content folders.
     $matches = array();
-    if (preg_match('/^(\.\.\/){1,2}(\d+|editor)\/(.+)$/', $file->path, $matches)) {
-      $file->path = $matches[3];
+    if (preg_match($this->h5pC->relativePathRegExp, $file->path, $matches)) {
+      $file->path = $matches[5];
     }
 
     // Make sure path and mime does not have any special chars
@@ -3519,6 +3360,7 @@ class H5PContentValidator {
               // Allow certain styles
               foreach ($allowedStyles as $pattern) {
                 if (preg_match($pattern, $match[1])) {
+                  // All patterns are start to end patterns, and CKEditor adds one span per style
                   $attrArr[] = 'style="' . $match[1] . '"';
                   break;
                 }
