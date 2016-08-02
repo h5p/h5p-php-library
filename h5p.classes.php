@@ -1665,7 +1665,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 7
+    'minorVersion' => 8
   );
   public static $styles = array(
     'styles/h5p.css',
