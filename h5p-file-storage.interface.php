@@ -80,17 +80,15 @@ interface H5PFileStorage {
    *  Path on file system to temporary export file.
    * @param string $filename
    *  Name of export file.
-   * @param int $contentId
    */
-  public function saveExport($source, $filename, $contentId);
+  public function saveExport($source, $filename);
 
   /**
    * Removes given export file
    *
    * @param string $filename
-   * @param int $contentId
    */
-  public function deleteExport($filename, $contentId);
+  public function deleteExport($filename);
 
   /**
    * Will concatenate all JavaScrips and Stylesheets into two files in order

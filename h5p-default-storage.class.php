@@ -144,7 +144,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    * @param string $filename
    *  Name of export file.
    */
-  public function saveExport($source, $filename, $contentId) {
+  public function saveExport($source, $filename) {
     $this->deleteExport($filename);
     self::dirReady("{$this->path}/exports");
     copy($source, "{$this->path}/exports/{$filename}");
@@ -155,7 +155,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *
    * @param string $filename
    */
-  public function deleteExport($filename, $contentId) {
+  public function deleteExport($filename) {
     $target = "{$this->path}/exports/{$filename}";
     if (file_exists($target)) {
       unlink($target);
