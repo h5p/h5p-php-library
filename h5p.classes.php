@@ -1434,7 +1434,7 @@ class H5PStorage {
    */
   public function deletePackage($content) {
     $this->h5pC->fs->deleteContent($content['id']);
-    $this->h5pC->fs->deleteExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p');
+    $this->h5pC->fs->deleteExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p', $content['id']);
     $this->h5pF->deleteContentData($content['id']);
   }
 
@@ -1587,7 +1587,7 @@ Class H5PExport {
 
     try {
       // Save export
-      $this->h5pC->fs->saveExport($tmpFile, $content['slug'] . '-' . $content['id'] . '.h5p');
+      $this->h5pC->fs->saveExport($tmpFile, $content['slug'] . '-' . $content['id'] . '.h5p', $content['id']);
     }
     catch (Exception $e) {
       $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
@@ -1633,7 +1633,7 @@ Class H5PExport {
    * @param array $content object
    */
   public function deleteExport($content) {
-    $this->h5pC->fs->deleteExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p');
+    $this->h5pC->fs->deleteExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p', $content['id']);
   }
 
   /**
@@ -1837,7 +1837,7 @@ class H5PCore {
         $content['slug'] = $this->generateContentSlug($content);
 
         // Remove old export file
-        $this->fs->deleteExport($content['id'] . '.h5p');
+        $this->fs->deleteExport($content['id'] . '.h5p', $content['id']);
       }
 
       if ($this->exportEnabled) {
