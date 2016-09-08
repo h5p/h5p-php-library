@@ -691,7 +691,11 @@ H5P.getPath = function (path, contentId) {
 
   var prefix;
   if (contentId !== undefined) {
-    prefix = H5PIntegration.url + '/content/' + contentId;
+    // Check for custom override URL
+    prefix = H5PIntegration.contents['cid-' + contentId].contentUrl;
+    if (!prefix) {
+      prefix = H5PIntegration.url + '/content/' + contentId;
+    }
   }
   else if (window.H5PEditor !== undefined) {
     prefix = H5PEditor.filesPath;
