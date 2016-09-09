@@ -692,7 +692,9 @@ H5P.getPath = function (path, contentId) {
   var prefix;
   if (contentId !== undefined) {
     // Check for custom override URL
-    prefix = H5PIntegration.contents['cid-' + contentId].contentUrl;
+    if (H5PIntegration.contents !== undefined) {
+      prefix = H5PIntegration.contents['cid-' + contentId].contentUrl;
+    }
     if (!prefix) {
       prefix = H5PIntegration.url + '/content/' + contentId;
     }
