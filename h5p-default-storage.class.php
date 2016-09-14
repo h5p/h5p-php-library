@@ -53,11 +53,11 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *
    * @param string $source
    *  Path on file system to content directory.
-   * @param int $id
-   *  What makes this content unique.
+   * @param array $content
+   *  Content properties
    */
-  public function saveContent($source, $id) {
-    $dest = "{$this->path}/content/{$id}";
+  public function saveContent($source, $content) {
+    $dest = "{$this->path}/content/{$content['id']}";
 
     // Remove any old content
     \H5PCore::deleteFileTree($dest);
@@ -68,11 +68,11 @@ class H5PDefaultStorage implements \H5PFileStorage {
   /**
    * Remove content folder.
    *
-   * @param int $id
-   *  Content identifier
+   * @param array $content
+   *  Content properties
    */
-  public function deleteContent($id) {
-    \H5PCore::deleteFileTree("{$this->path}/content/{$id}");
+  public function deleteContent($content) {
+    \H5PCore::deleteFileTree("{$this->path}/content/{$content['id']}");
   }
 
   /**

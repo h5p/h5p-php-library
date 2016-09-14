@@ -22,18 +22,18 @@ interface H5PFileStorage {
    *
    * @param string $source
    *  Path on file system to content directory.
-   * @param int $id
-   *  What makes this content unique.
+   * @param array $content
+   *  Content properties
    */
-  public function saveContent($source, $id);
+  public function saveContent($source, $content);
 
   /**
    * Remove content folder.
    *
-   * @param int $id
-   *  Content identifier
+   * @param array $content
+   *  Content properties
    */
-  public function deleteContent($id);
+  public function deleteContent($content);
 
   /**
    * Creates a stored copy of the content folder.

@@ -1311,15 +1311,15 @@ class H5PStorage {
       if (isset($options['disable'])) {
         $content['disable'] = $options['disable'];
       }
-      $contentId = $this->h5pC->saveContent($content, $contentMainId);
-      $this->contentId = $contentId;
+      $content['id'] = $this->h5pC->saveContent($content, $contentMainId);
+      $this->contentId = $content['id'];
 
       try {
         // Save content folder contents
-        $this->h5pC->fs->saveContent($current_path, $contentId);
+        $this->h5pC->fs->saveContent($current_path, $content);
       }
       catch (Exception $e) {
-        $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+        $this->h5pF->setErrorMessage($e->getMessage());
       }
 
       // Remove temp content folder
@@ -1433,7 +1433,7 @@ class H5PStorage {
    * @param $content
    */
   public function deletePackage($content) {
-    $this->h5pC->fs->deleteContent($content['id']);
+    $this->h5pC->fs->deleteContent($content);
     $this->h5pC->fs->deleteExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p');
     $this->h5pF->deleteContentData($content['id']);
   }
