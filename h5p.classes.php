@@ -1812,7 +1812,10 @@ class H5PCore {
    * @return Object NULL on failure.
    */
   public function filterParameters(&$content) {
-    if (isset($content['filtered']) && $content['filtered'] !== '') {
+    if (!empty($content['filtered']) &&
+        (!$this->exportEnabled ||
+         ($content['slug'] &&
+          $this->fs->hasExport($content['slug'] . '-' . $content['id'] . '.h5p')))) {
       return $content['filtered'];
     }
 

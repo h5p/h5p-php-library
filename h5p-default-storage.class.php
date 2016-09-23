@@ -152,6 +152,17 @@ class H5PDefaultStorage implements \H5PFileStorage {
   }
 
   /**
+   * Check if the given export file exists
+   *
+   * @param string $filename
+   * @return boolean
+   */
+  public function hasExport($filename) {
+    $target = "{$this->path}/exports/{$filename}";
+    return file_exists($target);
+  }
+
+  /**
    * Will concatenate all JavaScrips and Stylesheets into two files in order
    * to improve page performance.
    *
