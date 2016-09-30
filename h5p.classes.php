@@ -1595,6 +1595,7 @@ Class H5PExport {
     }
     catch (Exception $e) {
       $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+      return false;
     }
 
     unlink($tmpFile);
