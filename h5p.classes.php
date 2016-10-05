@@ -1586,8 +1586,8 @@ Class H5PExport {
     foreach ($files as $file) {
       // Please note that the zip format has no concept of folders, we must
       // use forward slashes to separate our directories.
-      $zip->addFile($file->absolutePath, $file->relativePath);
-      $zip->addFile($rootPrefix . $file->absolutePath, $file->relativePath);
+      if (file_exists($file->absolutePath)) $zip->addFile($file->absolutePath, $file->relativePath);
+      if (file_exists($rootPrefix . $file->absolutePath)) $zip->addFile($rootPrefix . $file->absolutePath, $file->relativePath);
     }
 
     // Close zip and remove tmp dir
