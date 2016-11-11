@@ -85,14 +85,14 @@ H5P.init = function (target) {
   }
 
   // Determine if we can use full screen
-  if (H5P.canHasFullScreen === undefined) {
+  if (H5P.fullscreenEnabled === undefined) {
     /**
      * Use this variable to check if fullscreen is supported. Fullscreen can be
      * restricted when embedding since not all browsers support the native
      * fullscreen, and the semi-fullscreen solution doesn't work when embedded.
      * @type {boolean}
      */
-    H5P.canHasFullScreen = (H5P.isFramed && H5P.externalEmbed !== false) ? ((document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled) ? true : false) : true;
+    H5P.fullscreenEnabled = (H5P.isFramed && H5P.externalEmbed !== false) ? ((document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled) ? true : false) : true;
     // We should consider document.msFullscreenEnabled when they get their
     // element sizing corrected. Ref. https://connect.microsoft.com/IE/feedback/details/838286/ie-11-incorrectly-reports-dom-element-sizes-in-fullscreen-mode-when-fullscreened-element-is-within-an-iframe
   }
@@ -141,7 +141,7 @@ H5P.init = function (target) {
     var instance = H5P.newRunnable(library, contentId, $container, true, {standalone: true});
 
     // Check if we should add and display a fullscreen button for this H5P.
-    if (contentData.fullScreen == 1 && H5P.canHasFullScreen) {
+    if (contentData.fullScreen == 1 && H5P.fullscreenEnabled) {
       H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="0" class="h5p-enable-fullscreen" title="' + H5P.t('fullscreen') + '"></div></div>').prependTo($container).children().click(function () {
         H5P.fullScreen($container, instance);
       });
