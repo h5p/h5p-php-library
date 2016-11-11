@@ -478,21 +478,35 @@ H5P.communicator = (function () {
 })();
 
 /**
+ * Enter semi fullscreen for the given H5P instance
+ *
+ * @method semiFullScreen
+ * @param {H5P.jQuery} $element Content container.
+ * @param {Object} instance
+ * @param {function} exitCallback Callback function called when user exits fullscreen.
+ * @param {H5P.jQuery} $body For internal use. Gives the body of the iframe.
+ */
+H5P.semiFullScreen = function ($element, instance, exitCallback, body) {
+  H5P.fullScreen($element, instance, exitCallback, body, true);
+};
+
+/**
  * Enter fullscreen for the given H5P instance.
  *
  * @param {H5P.jQuery} $element Content container.
  * @param {Object} instance
  * @param {function} exitCallback Callback function called when user exits fullscreen.
  * @param {H5P.jQuery} $body For internal use. Gives the body of the iframe.
+ * @param {Boolean} forceSemiFullScreen 
  */
-H5P.fullScreen = function ($element, instance, exitCallback, body) {
+H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFullScreen) {
   if (H5P.exitFullScreen !== undefined) {
     return; // Cannot enter new fullscreen until previous is over
   }
 
   if (H5P.isFramed && H5P.externalEmbed === false) {
     // Trigger resize on wrapper in parent window.
-    window.parent.H5P.fullScreen($element, instance, exitCallback, H5P.$body.get());
+    window.parent.H5P.fullScreen($element, instance, exitCallback, H5P.$body.get(), forceSemiFullScreen);
     H5P.isFullscreen = true;
     H5P.exitFullScreen = function () {
       window.parent.H5P.exitFullScreen();
@@ -572,7 +586,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
   };
 
   H5P.isFullscreen = true;
-  if (H5P.fullScreenBrowserPrefix === undefined) {
+  if (H5P.fullScreenBrowserPrefix === undefined || forceSemiFullScreen === true) {
     // Create semi fullscreen.
 
     if (H5P.isFramed) {
