@@ -1984,6 +1984,21 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
   // Init H5P when page is fully loadded
   $(document).ready(function () {
+
+    /**
+     * Indicates if H5P is embedded on an external page using iframe.
+     * @member {boolean} H5P.externalEmbed
+     */
+
+    // Relay events to top window. This must be done before H5P.init
+    // since events may be fired on initialization.
+    if (H5P.isFramed && H5P.externalEmbed === false) {
+      H5P.externalDispatcher.on('*', function (event) {
+        console.log("external dispatcher got event, relaying it", event);
+        window.parent.H5P.externalDispatcher.trigger.call(this, event);
+      });
+    }
+
     /**
      * Prevent H5P Core from initializing. Must be overriden before document ready.
      * @member {boolean} H5P.preventInit
@@ -2024,18 +2039,6 @@ H5P.createTitle = function (rawTitle, maxLength) {
       });
       // pagehide is used on iPad when tabs are switched
       H5P.$window.on('pagehide', storeCurrentState);
-    }
-
-    /**
-     * Indicates if H5P is embedded on an external page using iframe.
-     * @member {boolean} H5P.externalEmbed
-     */
-
-    // Relay events to top window.
-    if (H5P.isFramed && H5P.externalEmbed === false) {
-      H5P.externalDispatcher.on('*', function (event) {
-        window.parent.H5P.externalDispatcher.trigger.call(this, event);
-      });
     }
   });
 
