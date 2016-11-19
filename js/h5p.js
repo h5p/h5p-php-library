@@ -1637,7 +1637,8 @@ H5P.shuffleArray = function (array) {
  *   Reported time consumption/usage
  */
 H5P.setFinished = function (contentId, score, maxScore, time) {
-  if (typeof score === 'number' && H5PIntegration.postUserStatistics === true) {
+  var validScore = typeof score === 'number' || score instanceof Number;
+  if (validScore && H5PIntegration.postUserStatistics === true) {
     /**
      * Return unix timestamp for the given JS Date.
      *
