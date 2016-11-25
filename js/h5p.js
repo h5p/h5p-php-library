@@ -335,6 +335,13 @@ H5P.init = function (target) {
           H5P.trigger(instance, 'resize');
         });
 
+        // Forward xAPI events to parent window, making it possible to use the
+        // following code from parent window to get events:
+        // window.addEventListener('message', function (event) { <...> });
+        H5P.externalDispatcher.on('xAPI', function (event) {
+          H5P.communicator.send('xAPI', event.data);
+        });
+
         H5P.on(instance, 'resize', function () {
           if (H5P.isFullscreen) {
             return; // Skip iframe resize
