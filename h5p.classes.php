@@ -3063,6 +3063,11 @@ class H5PContentValidator {
     }
     else {
       foreach ($group as $key => &$value) {
+        // If subContentId is set, keep value
+        if($key == 'subContentId' && $value == TRUE){
+          continue;
+        }
+
         // Find semantics for name=$key
         $found = FALSE;
         foreach ($semantics->fields as $field) {
