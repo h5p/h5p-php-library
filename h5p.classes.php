@@ -3056,7 +3056,9 @@ class H5PContentValidator {
     $function = null;
     $field = null;
 
-    if (count($semantics->fields) == 1 && $flatten) {
+    $isSubContent = isset($semantics->isSubContent) && $semantics->isSubContent === TRUE;
+
+    if (count($semantics->fields) == 1 && $flatten && !$isSubContent) {
       $field = $semantics->fields[0];
       $function = $this->typeMap[$field->type];
       $this->$function($group, $field);
@@ -3064,7 +3066,7 @@ class H5PContentValidator {
     else {
       foreach ($group as $key => &$value) {
         // If subContentId is set, keep value
-        if($key == 'subContentId' && $value == TRUE){
+        if($isSubContent && ($key == 'subContentId')){
           continue;
         }
 
