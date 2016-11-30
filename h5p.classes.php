@@ -1676,7 +1676,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 10
+    'minorVersion' => 11
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -3056,13 +3056,20 @@ class H5PContentValidator {
     $function = null;
     $field = null;
 
-    if (count($semantics->fields) == 1 && $flatten) {
+    $isSubContent = isset($semantics->isSubContent) && $semantics->isSubContent === TRUE;
+
+    if (count($semantics->fields) == 1 && $flatten && !$isSubContent) {
       $field = $semantics->fields[0];
       $function = $this->typeMap[$field->type];
       $this->$function($group, $field);
     }
     else {
       foreach ($group as $key => &$value) {
+        // If subContentId is set, keep value
+        if($isSubContent && ($key == 'subContentId')){
+          continue;
+        }
+
         // Find semantics for name=$key
         $found = FALSE;
         foreach ($semantics->fields as $field) {
