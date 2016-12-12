@@ -97,6 +97,15 @@ H5P.init = function (target) {
     // element sizing corrected. Ref. https://connect.microsoft.com/IE/feedback/details/838286/ie-11-incorrectly-reports-dom-element-sizes-in-fullscreen-mode-when-fullscreened-element-is-within-an-iframe
   }
 
+  // Deprecated variable, kept to maintain backwards compatability 
+  if (H5P.canHasFullScreen === undefined) {
+    /**
+     * @deprecated since version 1.11
+     * @type {boolean}
+     */
+    H5P.canHasFullScreen = (H5P.isFramed && H5P.externalEmbed !== false) ? ((document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled) ? true : false) : true;
+  }
+
   // H5Ps added in normal DIV.
   var $containers = H5P.jQuery('.h5p-content:not(.h5p-initialized)', target).each(function () {
     var $element = H5P.jQuery(this).addClass('h5p-initialized');
@@ -147,6 +156,13 @@ H5P.init = function (target) {
       });
     }
 
+    // Check if we should add and display a fullscreen button for this H5P using
+    // the deprecated variable for backwards compatability. 
+    if (contentData.fullScreen == 1 && H5P.canHasFullScreen) {
+      H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="0" class="h5p-enable-fullscreen" title="' + H5P.t('fullscreen') + '"></div></div>').prependTo($container).children().click(function () {
+        H5P.fullScreen($container, instance);
+      });
+    }
     // Create action bar
     var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
 
