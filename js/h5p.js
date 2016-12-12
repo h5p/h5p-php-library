@@ -32,7 +32,7 @@ if (document.documentElement.requestFullScreen) {
   H5P.fullScreenBrowserPrefix = '';
 }
 else if (document.documentElement.webkitRequestFullScreen) {
-  H5P.safariBrowser = navigator.userAgent.match(/Version\/(\d)/);
+  H5P.safariBrowser = navigator.userAgent.match(/version\/([.\d]+)/i);
   H5P.safariBrowser = (H5P.safariBrowser === null ? 0 : parseInt(H5P.safariBrowser[1]));
 
   // Do not allow fullscreen for safari < 7.
@@ -497,7 +497,7 @@ H5P.semiFullScreen = function ($element, instance, exitCallback, body) {
  * @param {Object} instance
  * @param {function} exitCallback Callback function called when user exits fullscreen.
  * @param {H5P.jQuery} $body For internal use. Gives the body of the iframe.
- * @param {Boolean} forceSemiFullScreen 
+ * @param {Boolean} forceSemiFullScreen
  */
 H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFullScreen) {
   if (H5P.exitFullScreen !== undefined) {
