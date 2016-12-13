@@ -559,7 +559,15 @@ interface H5PFrameworkInterface {
    */
   public function afterExportCreated();
 
-  public function hasPermission($permission, $content_id = NULL);
+  /**
+   * Check if user has permissions to an action
+   *
+   * @method hasPermission
+   * @param  [H5PPermission] $permission Permission type, ref H5PPermission
+   * @param  [int]           $id         Id need by platform to determine permission
+   * @return boolean
+   */
+  public function hasPermission($permission, $id = NULL);
 }
 
 /**
