@@ -235,6 +235,7 @@ div.h5p-fullscreen {
 }
 .h5p-actions > li {
   margin: 0;
+  list-style: none;
 }
 .h5p-popup-dialog {
   position: absolute;
