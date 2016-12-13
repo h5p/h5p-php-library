@@ -103,7 +103,7 @@ H5P.init = function (target) {
      * @deprecated since version 1.11
      * @type {boolean}
      */
-    H5P.canHasFullScreen = HFP.fullscreenSupported;
+    H5P.canHasFullScreen = (H5P.isFramed && H5P.externalEmbed !== false) ? ((document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled) ? true : false) : true;
   }
 
   // H5Ps added in normal DIV.
