@@ -2517,6 +2517,30 @@ class H5PCore {
   }
 
   /**
+   * Helper function used to figure out embed & download behaviour
+   *
+   * @method setDisplayOptionOverrides
+   * @param  string                 $option_name
+   * @param  H5PPermission          $permission
+   * @param  int                    $id
+   * @param  bool                   &$value
+   */
+  private function setDisplayOptionOverrides($option_name, $permission, $id, &$value) {
+    $behaviour = $this->h5pF->getOption($option_name, H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+    // If never show globally, force hide
+    if ($behaviour == H5PDisplayOptionBehaviour::NEVER_SHOW) {
+      $value = false;
+    }
+    elseif ($behaviour == H5PDisplayOptionBehaviour::ALWAYS_SHOW) {
+      // If always show or permissions say so, force show
+      $value = true;
+    }
+    elseif ($behaviour == H5PDisplayOptionBehaviour::CONTROLLED_BY_PERMISSIONS) {
+      $value = $this->h5pF->hasPermission($permission, $id);
+    }
+  }
+
+  /**
    * Determine display option visibility when viewing H5P
    *
    * @method getDisplayOptionsForView
@@ -2532,25 +2556,8 @@ class H5PCore {
       $display_options['showFrame'] = false;
     }
     else {
-      $export = $this->h5pF->getOption('export', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
-      if ($export == H5PDisplayOptionBehaviour::NEVER_SHOW) {
-        // If never show globally, force hide
-        $display_options['showDownload'] = false;
-      }
-      elseif ($export == H5PDisplayOptionBehaviour::ALWAYS_SHOW || ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_PERMISSIONS && $this->h5pF->hasPermission(H5PPermission::DOWNLOAD_H5P, $id))) {
-        // If always show or permissions say so, force show
-        $display_options['showDownload'] = true;
-      }
-
-      $embed = $this->h5pF->getOption('embed', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
-      if ($embed == H5PDisplayOptionBehaviour::NEVER_SHOW) {
-        // If never show globally, force hide
-        $display_options['showEmbed'] = false;
-      }
-      elseif ($embed == H5PDisplayOptionBehaviour::ALWAYS_SHOW || ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_PERMISSIONS && $this->h5pF->hasPermission(H5PPermission::EMBED_H5P, $id))) {
-        // If always show or permissions say so, force show
-        $display_options['showEmbed'] = true;
-      }
+      $this->setDisplayOptionOverrides('export', H5PPermission::DOWNLOAD_H5P, $id, $display_options['showDownload']);
+      $this->setDisplayOptionOverrides('embed', H5PPermission::EMBED_H5P, $id, $display_options['showEmbed']);
 
       if ($this->h5pF->getOption('copyright', TRUE) == FALSE) {
         $display_options['showCopyright'] = false;
