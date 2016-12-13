@@ -2423,7 +2423,9 @@ class H5PCore {
     // Handle libraries metadata
     if (isset($json->libraries)) {
       foreach ($json->libraries as $machineName => $libInfo) {
-        $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
+        if (isset($libInfo->tutorialUrl)) {
+          $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
+        }
       }
     }
 
