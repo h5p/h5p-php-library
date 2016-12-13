@@ -156,13 +156,6 @@ H5P.init = function (target) {
       });
     }
 
-    // Check if we should add and display a fullscreen button for this H5P using
-    // the deprecated variable for backwards compatability. 
-    if (contentData.fullScreen == 1 && H5P.canHasFullScreen) {
-      H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="0" class="h5p-enable-fullscreen" title="' + H5P.t('fullscreen') + '"></div></div>').prependTo($container).children().click(function () {
-        H5P.fullScreen($container, instance);
-      });
-    }
     // Create action bar
     var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
 
