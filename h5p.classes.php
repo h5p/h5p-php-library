@@ -558,6 +558,8 @@ interface H5PFrameworkInterface {
    * Will trigger after the export file is created.
    */
   public function afterExportCreated();
+
+  public function hasPermission($permission, $content_id = NULL);
 }
 
 /**
@@ -1669,6 +1671,20 @@ Class H5PExport {
   }
 }
 
+abstract class H5PPermission {
+  const DOWNLOAD_H5P = 0;
+  const EMBED_H5P = 1;
+}
+
+abstract class H5PDisplayOptionBehaviour {
+  const NEVER_SHOW = 0;
+  const CONTROLLED_BY_AUTHOR_DEFAULT_ON = 1;
+  const CONTROLLED_BY_AUTHOR_DEFAULT_OFF = 2;
+  const ALWAYS_SHOW = 3;
+  const CONTROLLED_BY_PERMISSIONS = 4;
+}
+
+
 /**
  * Functions and storage shared by the other H5P classes
  */
@@ -1690,7 +1706,8 @@ class H5PCore {
     'js/h5p-x-api-event.js',
     'js/h5p-x-api.js',
     'js/h5p-content-type.js',
-    'js/h5p-confirmation-dialog.js'
+    'js/h5p-confirmation-dialog.js',
+    'js/h5p-action-bar.js'
   );
   public static $adminScripts = array(
     'js/jquery.js',
@@ -2440,41 +2457,13 @@ class H5PCore {
   }
 
   /**
-   *
-   */
-  public function getGlobalDisable() {
-    $disable = self::DISABLE_NONE;
-
-    // Allow global settings to override and disable options
-    if (!$this->h5pF->getOption('frame', TRUE)) {
-      $disable |= self::DISABLE_FRAME;
-    }
-    else {
-      if (!$this->h5pF->getOption('export', TRUE)) {
-        $disable |= self::DISABLE_DOWNLOAD;
-      }
-      if (!$this->h5pF->getOption('embed', TRUE)) {
-        $disable |= self::DISABLE_EMBED;
-      }
-      if (!$this->h5pF->getOption('copyright', TRUE)) {
-        $disable |= self::DISABLE_COPYRIGHT;
-      }
-      if (!$this->h5pF->getOption('icon', TRUE)) {
-        $disable |= self::DISABLE_ABOUT;
-      }
-    }
-
-    return $disable;
-  }
-
-  /**
    * Determine disable state from sources.
    *
    * @param array $sources
    * @param int $current
    * @return int
    */
-  public function getDisable(&$sources, $current) {
+  public function getDisplayOptionsAsByte(&$sources, $current) {
     foreach (H5PCore::$disable as $bit => $option) {
       if ($this->h5pF->getOption(($bit & H5PCore::DISABLE_DOWNLOAD ? 'export' : $option), TRUE)) {
         if (!isset($sources[$option]) || !$sources[$option]) {
@@ -2486,6 +2475,98 @@ class H5PCore {
       }
     }
     return $current;
+  }
+
+  /**
+   * Determine display options visibility and value on edit
+   *
+   * @method getDisplayOptionsForEdit
+   * @param  [int]  $disable
+   * @return [Array]
+   */
+  public function getDisplayOptionsForEdit($disable = NULL) {
+    $display_options = [];
+
+    $current_display_options = $disable === NULL ? [] : $this->getDisplayOptionsAsArray($disable);
+
+    if ($this->h5pF->getOption('frame', TRUE)) {
+      $display_options['frame'] = isset($current_display_options['showFrame']) ? $current_display_options['showFrame'] : TRUE;
+
+      $export = $this->h5pF->getOption('export', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+      if ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON || $export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
+        $display_options['download'] = isset($current_display_options['showDownload']) ? $current_display_options['showDownload'] : ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
+      }
+      $embed = $this->h5pF->getOption('embed', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+      if ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON || $embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
+        $display_options['embed'] = isset($current_display_options['showEmbed']) ? $current_display_options['showEmbed'] : ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
+      }
+      if ($this->h5pF->getOption('copyright', TRUE)) {
+        $display_options['copyright'] = isset($current_display_options['showCopyright']) ? $current_display_options['showCopyright'] : TRUE;
+      }
+    }
+
+    return $display_options;
+  }
+
+  /**
+   * Determine display option visibility when viewing H5P
+   *
+   * @method getDisplayOptionsForView
+   * @param  [int]                   $display_options
+   * @param  [int]                   $id Might be content id or user id.
+   *                                     Depends on what the platform needs to be able to determine permissions.
+   * @return [Array]
+   */
+  public function getDisplayOptionsForView($disable, $id) {
+    $display_options = $this->getDisplayOptionsAsArray($disable);
+
+    if ($this->h5pF->getOption('frame', TRUE) == FALSE) {
+      $display_options['showFrame'] = false;
+    }
+    else {
+      $export = $this->h5pF->getOption('export', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+      if ($export == H5PDisplayOptionBehaviour::NEVER_SHOW) {
+        // If never show globally, force hide
+        $display_options['showDownload'] = false;
+      }
+      elseif ($export == H5PDisplayOptionBehaviour::ALWAYS_SHOW || ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_PERMISSIONS && $this->h5pF->hasPermission(H5PPermission::DOWNLOAD_H5P, $id))) {
+        // If always show or permissions say so, force show
+        $display_options['showDownload'] = true;
+      }
+
+      $embed = $this->h5pF->getOption('embed', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+      if ($embed == H5PDisplayOptionBehaviour::NEVER_SHOW) {
+        // If never show globally, force hide
+        $display_options['showEmbed'] = false;
+      }
+      elseif ($embed == H5PDisplayOptionBehaviour::ALWAYS_SHOW || ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_PERMISSIONS && $this->h5pF->hasPermission(H5PPermission::EMBED_H5P, $id))) {
+        // If always show or permissions say so, force show
+        $display_options['showEmbed'] = true;
+      }
+
+      if ($this->h5pF->getOption('copyright', TRUE) == FALSE) {
+        $display_options['showCopyright'] = false;
+      }
+    }
+
+    return $display_options;
+  }
+
+  /**
+   * Convert display options as single byte to array
+   *
+   * @method getDisplayOptionsAsArray
+   * @param  [int]            $disable
+   * @return [Array]
+   */
+  private function getDisplayOptionsAsArray($disable) {
+    return array(
+      'showFrame' => !($disable & H5PCore::DISABLE_FRAME),
+      'showDownload' => !($disable & H5PCore::DISABLE_DOWNLOAD),
+      'showEmbed' => !($disable & H5PCore::DISABLE_EMBED),
+      'showCopyright' => !($disable & H5PCore::DISABLE_COPYRIGHT),
+      'showAbout' => $this->h5pF->getOption('icon', TRUE),
+    );
   }
 
   /**
@@ -3147,7 +3228,6 @@ class H5PContentValidator {
           break;
         }
       }
-
       // Using a library in content that is not present at all in semantics
       if ($message === NULL) {
         $message = $this->h5pF->t('The H5P library %library used in the content is not valid', array(
