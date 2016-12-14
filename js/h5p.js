@@ -92,7 +92,7 @@ H5P.init = function (target) {
      * fullscreen, and the semi-fullscreen solution doesn't work when embedded.
      * @type {boolean}
      */
-    H5P.fullscreenSupported = (H5P.isFramed && H5P.externalEmbed !== false) ? ((document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled) ? true : false) : true;
+    H5P.fullscreenSupported = !(H5P.isFramed && H5P.externalEmbed !== false) || !!(document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled);
     // We should consider document.msFullscreenEnabled when they get their
     // element sizing corrected. Ref. https://connect.microsoft.com/IE/feedback/details/838286/ie-11-incorrectly-reports-dom-element-sizes-in-fullscreen-mode-when-fullscreened-element-is-within-an-iframe
   }
@@ -103,7 +103,7 @@ H5P.init = function (target) {
      * @deprecated since version 1.11
      * @type {boolean}
      */
-    H5P.canHasFullScreen = (H5P.isFramed && H5P.externalEmbed !== false) ? ((document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled) ? true : false) : true;
+    H5P.canHasFullScreen = H5P.fullscreenSupported;
   }
 
   // H5Ps added in normal DIV.
