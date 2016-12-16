@@ -2488,9 +2488,8 @@ class H5PCore {
   /**
    * Determine display options visibility and value on edit
    *
-   * @method getDisplayOptionsForEdit
-   * @param  [int]  $disable
-   * @return [Array]
+   * @param int $disable
+   * @return array
    */
   public function getDisplayOptionsForEdit($disable = NULL) {
     $display_options = [];
@@ -2519,11 +2518,10 @@ class H5PCore {
   /**
    * Helper function used to figure out embed & download behaviour
    *
-   * @method setDisplayOptionOverrides
-   * @param  string                 $option_name
-   * @param  H5PPermission          $permission
-   * @param  int                    $id
-   * @param  bool                   &$value
+   * @param string $option_name
+   * @param H5PPermission $permission
+   * @param int $id
+   * @param bool &$value
    */
   private function setDisplayOptionOverrides($option_name, $permission, $id, &$value) {
     $behaviour = $this->h5pF->getOption($option_name, H5PDisplayOptionBehaviour::ALWAYS_SHOW);
@@ -2543,11 +2541,10 @@ class H5PCore {
   /**
    * Determine display option visibility when viewing H5P
    *
-   * @method getDisplayOptionsForView
-   * @param  [int]                   $display_options
-   * @param  [int]                   $id Might be content id or user id.
-   *                                     Depends on what the platform needs to be able to determine permissions.
-   * @return [Array]
+   * @param int $display_options
+   * @param int  $id Might be content id or user id.
+   * Depends on what the platform needs to be able to determine permissions.
+   * @return array
    */
   public function getDisplayOptionsForView($disable, $id) {
     $display_options = $this->getDisplayOptionsAsArray($disable);
@@ -2570,9 +2567,8 @@ class H5PCore {
   /**
    * Convert display options as single byte to array
    *
-   * @method getDisplayOptionsAsArray
-   * @param  [int]            $disable
-   * @return [Array]
+   * @param int $disable
+   * @return array
    */
   private function getDisplayOptionsAsArray($disable) {
     return array(

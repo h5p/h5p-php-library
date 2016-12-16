@@ -60,10 +60,22 @@ H5P.ActionBar = (function ($, EventDispatcher) {
       hasActions = true;
     }
 
+    /**
+     * Returns a reference to the dom element
+     *
+     * @method getDOMElement
+     * @return {H5P.jQuery}
+     */
     self.getDOMElement = function () {
       return $actions;
     };
 
+    /**
+     * Does the actionbar contain actions?
+     *
+     * @method hasActions
+     * @return {Boolean}
+     */
     self.hasActions = function () {
       return hasActions;
     }
