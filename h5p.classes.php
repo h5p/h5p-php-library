@@ -2499,16 +2499,32 @@ class H5PCore {
     if ($this->h5pF->getOption('frame', TRUE)) {
       $display_options['frame'] = isset($current_display_options['showFrame']) ? $current_display_options['showFrame'] : TRUE;
 
+      // Download
       $export = $this->h5pF->getOption('export', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
-      if ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON || $export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
-        $display_options['download'] = isset($current_display_options['showDownload']) ? $current_display_options['showDownload'] : ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
+      if ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON ||
+          $export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
+        $display_options['download'] =
+          isset($current_display_options['showDownload']) ?
+          $current_display_options['showDownload'] :
+          ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
       }
+
+      // Embed
       $embed = $this->h5pF->getOption('embed', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
-      if ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON || $embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
-        $display_options['embed'] = isset($current_display_options['showEmbed']) ? $current_display_options['showEmbed'] : ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
+      if ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON ||
+          $embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
+        $display_options['embed'] =
+          isset($current_display_options['showEmbed']) ?
+          $current_display_options['showEmbed'] :
+          ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
       }
+
+      // Copyright
       if ($this->h5pF->getOption('copyright', TRUE)) {
-        $display_options['copyright'] = isset($current_display_options['showCopyright']) ? $current_display_options['showCopyright'] : TRUE;
+        $display_options['copyright'] =
+          isset($current_display_options['showCopyright']) ?
+          $current_display_options['showCopyright'] :
+          TRUE;
       }
     }
 
