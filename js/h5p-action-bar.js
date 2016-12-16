@@ -48,7 +48,7 @@ H5P.ActionBar = (function ($, EventDispatcher) {
       // Add export button
       addActionButton('download', 'export');
     }
-    if (displayOptions.showCopyrights) {
+    if (displayOptions.showCopyright) {
       addActionButton('copyrights');
     }
     if (displayOptions.showEmbed) {

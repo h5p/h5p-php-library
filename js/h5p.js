@@ -135,10 +135,10 @@ H5P.init = function (target) {
     var displayOptions = contentData.displayOptions;
     if (displayOptions.showFrame) {
       // Special handling of copyrights
-      if (displayOptions.showCopyrights) {
+      if (displayOptions.showCopyright) {
         var copyrights = H5P.getCopyrights(instance, library.params, contentId);
         if (!copyrights) {
-          displayOptions.showCopyrights = false;
+          displayOptions.showCopyright = false;
         }
       }
 
