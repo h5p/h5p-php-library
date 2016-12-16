@@ -44,17 +44,17 @@ H5P.ActionBar = (function ($, EventDispatcher) {
     };
 
     // Register action bar buttons
-    if (displayOptions.showDownload) {
+    if (displayOptions.export) {
       // Add export button
       addActionButton('download', 'export');
     }
-    if (displayOptions.showCopyright) {
+    if (displayOptions.copyright) {
       addActionButton('copyrights');
     }
-    if (displayOptions.showEmbed) {
+    if (displayOptions.embed) {
       addActionButton('embed');
     }
-    if (displayOptions.showAbout) {
+    if (displayOptions.icon) {
       // Add about H5P button icon
       H5P.jQuery('<li><a class="h5p-link" href="http://h5p.org" target="_blank" title="' + H5P.t('h5pDescription') + '"></a></li>').appendTo($actions);
       hasActions = true;

@@ -1738,12 +1738,18 @@ class H5PCore {
   const DISABLE_COPYRIGHT = 8;
   const DISABLE_ABOUT = 16;
 
+  const DISPLAY_OPTION_FRAME = 'frame';
+  const DISPLAY_OPTION_DOWNLOAD = 'export';
+  const DISPLAY_OPTION_EMBED = 'embed';
+  const DISPLAY_OPTION_COPYRIGHT = 'copyright';
+  const DISPLAY_OPTION_ABOUT = 'icon';
+
   // Map flags to string
   public static $disable = array(
-    self::DISABLE_FRAME => 'frame',
-    self::DISABLE_DOWNLOAD => 'download',
-    self::DISABLE_EMBED => 'embed',
-    self::DISABLE_COPYRIGHT => 'copyright'
+    self::DISABLE_FRAME => self::DISPLAY_OPTION_FRAME,
+    self::DISABLE_DOWNLOAD => self::DISPLAY_OPTION_DOWNLOAD,
+    self::DISABLE_EMBED => self::DISPLAY_OPTION_EMBED,
+    self::DISABLE_COPYRIGHT => self::DISPLAY_OPTION_COPYRIGHT
   );
 
   /**
@@ -2473,17 +2479,17 @@ class H5PCore {
    */
   public function getStorableDisplayOptions(&$sources, $current) {
     // Download - force setting it if always on or always off
-    $export = $this->h5pF->getOption('export', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
-    if ($export == H5PDisplayOptionBehaviour::ALWAYS_SHOW ||
-        $export == H5PDisplayOptionBehaviour::NEVER_SHOW) {
-      $sources['download'] = ($export == H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+    $download = $this->h5pF->getOption(self::DISPLAY_OPTION_DOWNLOAD, H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+    if ($download == H5PDisplayOptionBehaviour::ALWAYS_SHOW ||
+        $download == H5PDisplayOptionBehaviour::NEVER_SHOW) {
+      $sources[self::DISPLAY_OPTION_DOWNLOAD] = ($download == H5PDisplayOptionBehaviour::ALWAYS_SHOW);
     }
 
     // Embed - force setting it if always on or always off
-    $embed = $this->h5pF->getOption('embed', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+    $embed = $this->h5pF->getOption(self::DISPLAY_OPTION_EMBED, H5PDisplayOptionBehaviour::ALWAYS_SHOW);
     if ($embed == H5PDisplayOptionBehaviour::ALWAYS_SHOW ||
         $embed == H5PDisplayOptionBehaviour::NEVER_SHOW) {
-      $sources['embed'] = ($embed == H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+      $sources[self::DISPLAY_OPTION_EMBED] = ($embed == H5PDisplayOptionBehaviour::ALWAYS_SHOW);
     }
 
     foreach (H5PCore::$disable as $bit => $option) {
@@ -2508,34 +2514,37 @@ class H5PCore {
 
     $current_display_options = $disable === NULL ? [] : $this->getDisplayOptionsAsArray($disable);
 
-    if ($this->h5pF->getOption('frame', TRUE)) {
-      $display_options['frame'] = isset($current_display_options['showFrame']) ? $current_display_options['showFrame'] : TRUE;
+    if ($this->h5pF->getOption(self::DISPLAY_OPTION_FRAME, TRUE)) {
+      $display_options[self::DISPLAY_OPTION_FRAME] =
+        isset($current_display_options[self::DISPLAY_OPTION_FRAME]) ?
+        $current_display_options[self::DISPLAY_OPTION_FRAME] :
+        TRUE;
 
       // Download
-      $export = $this->h5pF->getOption('export', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+      $export = $this->h5pF->getOption(self::DISPLAY_OPTION_DOWNLOAD, H5PDisplayOptionBehaviour::ALWAYS_SHOW);
       if ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON ||
           $export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
-        $display_options['download'] =
-          isset($current_display_options['showDownload']) ?
-          $current_display_options['showDownload'] :
+        $display_options[self::DISPLAY_OPTION_DOWNLOAD] =
+          isset($current_display_options[self::DISPLAY_OPTION_DOWNLOAD]) ?
+          $current_display_options[self::DISPLAY_OPTION_DOWNLOAD] :
           ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
       }
 
       // Embed
-      $embed = $this->h5pF->getOption('embed', H5PDisplayOptionBehaviour::ALWAYS_SHOW);
+      $embed = $this->h5pF->getOption(self::DISPLAY_OPTION_EMBED, H5PDisplayOptionBehaviour::ALWAYS_SHOW);
       if ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON ||
           $embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
-        $display_options['embed'] =
-          isset($current_display_options['showEmbed']) ?
-          $current_display_options['showEmbed'] :
+        $display_options[self::DISPLAY_OPTION_EMBED] =
+          isset($current_display_options[self::DISPLAY_OPTION_EMBED]) ?
+          $current_display_options[self::DISPLAY_OPTION_EMBED] :
           ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
       }
 
       // Copyright
-      if ($this->h5pF->getOption('copyright', TRUE)) {
-        $display_options['copyright'] =
-          isset($current_display_options['showCopyright']) ?
-          $current_display_options['showCopyright'] :
+      if ($this->h5pF->getOption(self::DISPLAY_OPTION_COPYRIGHT, TRUE)) {
+        $display_options[self::DISPLAY_OPTION_COPYRIGHT] =
+          isset($current_display_options[self::DISPLAY_OPTION_COPYRIGHT]) ?
+          $current_display_options[self::DISPLAY_OPTION_COPYRIGHT] :
           TRUE;
       }
     }
@@ -2577,15 +2586,15 @@ class H5PCore {
   public function getDisplayOptionsForView($disable, $id) {
     $display_options = $this->getDisplayOptionsAsArray($disable);
 
-    if ($this->h5pF->getOption('frame', TRUE) == FALSE) {
-      $display_options['showFrame'] = false;
+    if ($this->h5pF->getOption(self::DISPLAY_OPTION_FRAME, TRUE) == FALSE) {
+      $display_options[self::DISPLAY_OPTION_FRAME] = false;
     }
     else {
-      $this->setDisplayOptionOverrides('export', H5PPermission::DOWNLOAD_H5P, $id, $display_options['showDownload']);
-      $this->setDisplayOptionOverrides('embed', H5PPermission::EMBED_H5P, $id, $display_options['showEmbed']);
+      $this->setDisplayOptionOverrides(self::DISPLAY_OPTION_DOWNLOAD, H5PPermission::DOWNLOAD_H5P, $id, $display_options[self::DISPLAY_OPTION_DOWNLOAD]);
+      $this->setDisplayOptionOverrides(self::DISPLAY_OPTION_EMBED, H5PPermission::EMBED_H5P, $id, $display_options[self::DISPLAY_OPTION_EMBED]);
 
-      if ($this->h5pF->getOption('copyright', TRUE) == FALSE) {
-        $display_options['showCopyright'] = false;
+      if ($this->h5pF->getOption(self::DISPLAY_OPTION_COPYRIGHT, TRUE) == FALSE) {
+        $display_options[self::DISPLAY_OPTION_COPYRIGHT] = false;
       }
     }
 
@@ -2600,11 +2609,11 @@ class H5PCore {
    */
   private function getDisplayOptionsAsArray($disable) {
     return array(
-      'showFrame' => !($disable & H5PCore::DISABLE_FRAME),
-      'showDownload' => !($disable & H5PCore::DISABLE_DOWNLOAD),
-      'showEmbed' => !($disable & H5PCore::DISABLE_EMBED),
-      'showCopyright' => !($disable & H5PCore::DISABLE_COPYRIGHT),
-      'showAbout' => $this->h5pF->getOption('icon', TRUE),
+      self::DISPLAY_OPTION_FRAME => !($disable & H5PCore::DISABLE_FRAME),
+      self::DISPLAY_OPTION_DOWNLOAD => !($disable & H5PCore::DISABLE_DOWNLOAD),
+      self::DISPLAY_OPTION_EMBED => !($disable & H5PCore::DISABLE_EMBED),
+      self::DISPLAY_OPTION_COPYRIGHT => !($disable & H5PCore::DISABLE_COPYRIGHT),
+      self::DISPLAY_OPTION_ABOUT => $this->h5pF->getOption(self::DISPLAY_OPTION_ABOUT, TRUE),
     );
   }
 

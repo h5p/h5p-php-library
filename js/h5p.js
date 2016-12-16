@@ -133,12 +133,12 @@ H5P.init = function (target) {
      * Create action bar
      */
     var displayOptions = contentData.displayOptions;
-    if (displayOptions.showFrame) {
+    if (displayOptions.frame) {
       // Special handling of copyrights
-      if (displayOptions.showCopyright) {
+      if (displayOptions.copyright) {
         var copyrights = H5P.getCopyrights(instance, library.params, contentId);
         if (!copyrights) {
-          displayOptions.showCopyright = false;
+          displayOptions.copyright = false;
         }
       }
 
@@ -163,7 +163,7 @@ H5P.init = function (target) {
       $actions.insertAfter($container);
     }
 
-    if (displayOptions.showFrame && actionBar.hasActions()) {
+    if (displayOptions.frame && actionBar.hasActions()) {
       $element.addClass('h5p-frame');
     }
     else {
