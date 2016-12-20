@@ -1063,6 +1063,7 @@ H5P.findCopyrights = function (info, parameters, contentId) {
       }
     }
     else {
+      return;
     }
   }
 };
