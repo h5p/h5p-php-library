@@ -133,6 +133,7 @@ H5P.init = function (target) {
      * Create action bar
      */
     var displayOptions = contentData.displayOptions;
+    var displayFrame = false;
     if (displayOptions.frame) {
       // Special handling of copyrights
       if (displayOptions.copyright) {
@@ -160,15 +161,13 @@ H5P.init = function (target) {
         });
       });
 
-      $actions.insertAfter($container);
+      if (actionBar.hasActions()) {
+        displayFrame = true;
+        $actions.insertAfter($container);
+      }
     }
 
-    if (displayOptions.frame && actionBar.hasActions()) {
-      $element.addClass('h5p-frame');
-    }
-    else {
-      $element.addClass('h5p-no-frame');
-    }
+    $element.addClass(displayFrame ? 'h5p-frame' : 'h5p-no-frame');
 
     // Keep track of when we started
     H5P.opened[contentId] = new Date();
