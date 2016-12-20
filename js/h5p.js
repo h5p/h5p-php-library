@@ -32,7 +32,7 @@ if (document.documentElement.requestFullScreen) {
   H5P.fullScreenBrowserPrefix = '';
 }
 else if (document.documentElement.webkitRequestFullScreen) {
-  H5P.safariBrowser = navigator.userAgent.match(/Version\/(\d)/);
+  H5P.safariBrowser = navigator.userAgent.match(/version\/([.\d]+)/i);
   H5P.safariBrowser = (H5P.safariBrowser === null ? 0 : parseInt(H5P.safariBrowser[1]));
 
   // Do not allow fullscreen for safari < 7.
@@ -74,9 +74,18 @@ H5P.init = function (target) {
      * fullscreen, and the semi-fullscreen solution doesn't work when embedded.
      * @type {boolean}
      */
-    H5P.fullscreenSupported = (H5P.isFramed && H5P.externalEmbed !== false) ? ((document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled) ? true : false) : true;
+    H5P.fullscreenSupported = !(H5P.isFramed && H5P.externalEmbed !== false) || !!(document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled);
     // We should consider document.msFullscreenEnabled when they get their
     // element sizing corrected. Ref. https://connect.microsoft.com/IE/feedback/details/838286/ie-11-incorrectly-reports-dom-element-sizes-in-fullscreen-mode-when-fullscreened-element-is-within-an-iframe
+  }
+
+  // Deprecated variable, kept to maintain backwards compatability 
+  if (H5P.canHasFullScreen === undefined) {
+    /**
+     * @deprecated since version 1.11
+     * @type {boolean}
+     */
+    H5P.canHasFullScreen = H5P.fullscreenSupported;
   }
 
   // H5Ps added in normal DIV.
@@ -424,21 +433,35 @@ H5P.communicator = (function () {
 })();
 
 /**
+ * Enter semi fullscreen for the given H5P instance
+ *
+ * @method semiFullScreen
+ * @param {H5P.jQuery} $element Content container.
+ * @param {Object} instance
+ * @param {function} exitCallback Callback function called when user exits fullscreen.
+ * @param {H5P.jQuery} $body For internal use. Gives the body of the iframe.
+ */
+H5P.semiFullScreen = function ($element, instance, exitCallback, body) {
+  H5P.fullScreen($element, instance, exitCallback, body, true);
+};
+
+/**
  * Enter fullscreen for the given H5P instance.
  *
  * @param {H5P.jQuery} $element Content container.
  * @param {Object} instance
  * @param {function} exitCallback Callback function called when user exits fullscreen.
  * @param {H5P.jQuery} $body For internal use. Gives the body of the iframe.
+ * @param {Boolean} forceSemiFullScreen
  */
-H5P.fullScreen = function ($element, instance, exitCallback, body) {
+H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFullScreen) {
   if (H5P.exitFullScreen !== undefined) {
     return; // Cannot enter new fullscreen until previous is over
   }
 
   if (H5P.isFramed && H5P.externalEmbed === false) {
     // Trigger resize on wrapper in parent window.
-    window.parent.H5P.fullScreen($element, instance, exitCallback, H5P.$body.get());
+    window.parent.H5P.fullScreen($element, instance, exitCallback, H5P.$body.get(), forceSemiFullScreen);
     H5P.isFullscreen = true;
     H5P.exitFullScreen = function () {
       window.parent.H5P.exitFullScreen();
@@ -518,7 +541,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body) {
   };
 
   H5P.isFullscreen = true;
-  if (H5P.fullScreenBrowserPrefix === undefined) {
+  if (H5P.fullScreenBrowserPrefix === undefined || forceSemiFullScreen === true) {
     // Create semi fullscreen.
 
     if (H5P.isFramed) {
@@ -1583,7 +1606,8 @@ H5P.shuffleArray = function (array) {
  *   Reported time consumption/usage
  */
 H5P.setFinished = function (contentId, score, maxScore, time) {
-  if (typeof score === 'number' && H5PIntegration.postUserStatistics === true) {
+  var validScore = typeof score === 'number' || score instanceof Number;
+  if (validScore && H5PIntegration.postUserStatistics === true) {
     /**
      * Return unix timestamp for the given JS Date.
      *

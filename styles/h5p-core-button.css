@@ -1,13 +1,15 @@
 button.h5p-core-button:visited,
 button.h5p-core-button:link,
 button.h5p-core-button {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 600;
   font-size: 1em;
   line-height: 1.2;
   padding: 0.5em 1.25em;
   border-radius: 2em;
 
-  background: #1a73d9;
-  color: #ffffff;
+  background: #488ac9;
+  color: #fff;
 
   cursor: pointer;
   border: none;
@@ -22,7 +24,7 @@ button.h5p-core-button {
 }
 button.h5p-core-button:hover,
 button.h5p-core-button:focus {
-  background: #1356a3;
+  background: #3b71a5;
   color: #fff;
   text-decoration: none;
   -webkit-transition: initial;

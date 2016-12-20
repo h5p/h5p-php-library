@@ -1700,7 +1700,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 10
+    'minorVersion' => 12
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -2454,7 +2454,9 @@ class H5PCore {
     // Handle libraries metadata
     if (isset($json->libraries)) {
       foreach ($json->libraries as $machineName => $libInfo) {
-        $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
+        if (isset($libInfo->tutorialUrl)) {
+          $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
+        }
       }
     }
 
@@ -3185,7 +3187,9 @@ class H5PContentValidator {
     $function = null;
     $field = null;
 
-    if (count($semantics->fields) == 1 && $flatten) {
+    $isSubContent = isset($semantics->isSubContent) && $semantics->isSubContent === TRUE;
+
+    if (count($semantics->fields) == 1 && $flatten && !$isSubContent) {
       $field = $semantics->fields[0];
       $function = $this->typeMap[$field->type];
       $this->$function($group, $field);
@@ -3193,7 +3197,7 @@ class H5PContentValidator {
     else {
       foreach ($group as $key => &$value) {
         // If subContentId is set, keep value
-        if($key == 'subContentId' && $value == TRUE){
+        if($isSubContent && ($key == 'subContentId')){
           continue;
         }
 
