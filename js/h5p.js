@@ -47,24 +47,6 @@ else if (document.documentElement.msRequestFullscreen) {
   H5P.fullScreenBrowserPrefix = 'ms';
 }
 
-/** @const {number} */
-H5P.DISABLE_NONE = 0;
-
-/** @const {number} */
-H5P.DISABLE_FRAME = 1;
-
-/** @const {number} */
-H5P.DISABLE_DOWNLOAD = 2;
-
-/** @const {number} */
-H5P.DISABLE_EMBED = 4;
-
-/** @const {number} */
-H5P.DISABLE_COPYRIGHT = 8;
-
-/** @const {number} */
-H5P.DISABLE_ABOUT = 16;
-
 /**
  * Keep track of when the H5Ps where started.
  *
@@ -156,81 +138,45 @@ H5P.init = function (target) {
       });
     }
 
-    // Create action bar
-    var $actions = H5P.jQuery('<ul class="h5p-actions"></ul>');
-
     /**
-     * Helper for creating action bar buttons.
-     *
-     * @private
-     * @param {string} type
-     * @param {function} handler
-     * @param {string} customClass Instead of type class
+     * Create action bar
      */
-    var addActionButton = function (type, handler, customClass) {
-      H5P.jQuery('<li/>', {
-        'class': 'h5p-button h5p-' + (customClass ? customClass : type),
-        role: 'button',
-        tabindex: 0,
-        title: H5P.t(type + 'Description'),
-        html: H5P.t(type),
-        on: {
-          click: handler,
-          keypress: function (e) {
-            if (e.which === 32) {
-              handler();
-              e.preventDefault(); // (since return false will block other inputs)
-            }
-          }
-        },
-        appendTo: $actions
-      });
-    };
-
-    // Register action bar buttons
-    if (!(contentData.disable & H5P.DISABLE_DOWNLOAD)) {
-      // Add export button
-      addActionButton('download', function () {
-        // Use button for download to avoid people linking directly to the .h5p
-        window.location.href = contentData.exportUrl;
-      }, 'export');
-    }
-    if (!(contentData.disable & H5P.DISABLE_COPYRIGHT)) {
-      var copyright = H5P.getCopyrights(instance, library.params, contentId);
-
-      if (copyright) {
-        // Add copyright dialog button
-        addActionButton('copyrights', function () {
-          // Open dialog with copyright information
-          var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyright, $container);
-          dialog.open();
-        });
+    var displayOptions = contentData.displayOptions;
+    var displayFrame = false;
+    if (displayOptions.frame) {
+      // Special handling of copyrights
+      if (displayOptions.copyright) {
+        var copyrights = H5P.getCopyrights(instance, library.params, contentId);
+        if (!copyrights) {
+          displayOptions.copyright = false;
+        }
       }
-    }
-    if (!(contentData.disable & H5P.DISABLE_EMBED)) {
-      // Add embed button
-      addActionButton('embed', function () {
-        // Open dialog with embed information
+
+      // Create action bar
+      var actionBar = new H5P.ActionBar(displayOptions);
+      var $actions = actionBar.getDOMElement();
+
+      actionBar.on('download', function () {
+        window.location.href = contentData.exportUrl;
+      });
+      actionBar.on('copyrights', function () {
+        var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container);
+        dialog.open();
+      });
+      actionBar.on('embed', function () {
         H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
           width: $element.width(),
           height: $element.height()
         });
       });
+
+      if (actionBar.hasActions()) {
+        displayFrame = true;
+        $actions.insertAfter($container);
+      }
     }
 
-    if (!(contentData.disable & H5P.DISABLE_ABOUT)) {
-      // Add about H5P button icon
-      H5P.jQuery('<li><a class="h5p-link" href="http://h5p.org" target="_blank" title="' + H5P.t('h5pDescription') + '"></a></li>').appendTo($actions);
-    }
-
-    // Insert action bar if it has any content
-    if (!(contentData.disable & H5P.DISABLE_FRAME) && $actions.children().length) {
-      $actions.insertAfter($container);
-      $element.addClass('h5p-frame');
-    }
-    else {
-      $element.addClass('h5p-no-frame');
-    }
+    $element.addClass(displayFrame ? 'h5p-frame' : 'h5p-no-frame');
 
     // Keep track of when we started
     H5P.opened[contentId] = new Date();
