@@ -2615,7 +2615,7 @@ class H5PCore {
       self::DISPLAY_OPTION_DOWNLOAD => !($disable & H5PCore::DISABLE_DOWNLOAD),
       self::DISPLAY_OPTION_EMBED => !($disable & H5PCore::DISABLE_EMBED),
       self::DISPLAY_OPTION_COPYRIGHT => !($disable & H5PCore::DISABLE_COPYRIGHT),
-      self::DISPLAY_OPTION_ABOUT => $this->h5pF->getOption(self::DISPLAY_OPTION_ABOUT, TRUE),
+      self::DISPLAY_OPTION_ABOUT => !!$this->h5pF->getOption(self::DISPLAY_OPTION_ABOUT, TRUE),
     );
   }
 
