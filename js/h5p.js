@@ -97,7 +97,7 @@ H5P.init = function (target) {
     // element sizing corrected. Ref. https://connect.microsoft.com/IE/feedback/details/838286/ie-11-incorrectly-reports-dom-element-sizes-in-fullscreen-mode-when-fullscreened-element-is-within-an-iframe
   }
 
-  // Deprecated variable, kept to maintain backwards compatability 
+  // Deprecated variable, kept to maintain backwards compatability
   if (H5P.canHasFullScreen === undefined) {
     /**
      * @deprecated since version 1.11
@@ -1037,6 +1037,28 @@ H5P.findCopyrights = function (info, parameters, contentId) {
     if (!parameters.hasOwnProperty(field)) {
       continue; // Do not check
     }
+
+    /*
+     * TODO: Make parameters clean again
+     * Some content types adds jQuery or other objects to parameters
+     * in order to determine override settings for sub-content-types.
+     * For instance Question Set tells Multiple Choice that it should
+     * attach Multi Choice's confirmation dialog to a Question Set
+     * jQuery element, so that the confirmation dialog will not be restricted
+     * to the space confined by Multi Choice.
+     * Ideally this should not be added to parameters, we must make a better
+     * solution. We should likely be adding these to sub-content through
+     * functions/setters instead of passing them down as params.
+     *
+     * This solution is implemented as a hack that will ignore all parameters
+     * inside a "overrideSettings" field, this should suffice for now since
+     * all overridden objects are added to this field, however this is not very
+     * robust solution and will very likely lead to problems in the future.
+     */
+    if (field === 'overrideSettings') {
+      continue;
+    }
+
     var value = parameters[field];
 
     if (value instanceof Array) {
@@ -1061,9 +1083,6 @@ H5P.findCopyrights = function (info, parameters, contentId) {
         }
         info.addMedia(copyrights);
       }
-    }
-    else {
-      return;
     }
   }
 };
