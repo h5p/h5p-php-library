@@ -46,7 +46,7 @@
   transform: translate(-50%, 0%);
 
   color: #555;
-  box-shadow: 0 0 6px 3px #424242;
+  box-shadow: 0 0 6px 6px rgba(10,10,10,0.3);
 
   -webkit-transition: transform 0.1s ease-in;
   transition: transform 0.1s ease-in;
