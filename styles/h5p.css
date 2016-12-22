@@ -3,11 +3,11 @@
 /* Custom H5P font to use for icons. */
 @font-face {
   font-family: 'h5p';
-  src:    url('../fonts/h5p-core-16.eot?vqz3xj');
-  src:    url('../fonts/h5p-core-16.eot?vqz3xj#iefix') format('embedded-opentype'),
-  url('../fonts/h5p-core-16.ttf?vqz3xj') format('truetype'),
-  url('../fonts/h5p-core-16.woff?vqz3xj') format('woff'),
-  url('../fonts/h5p-core-16.svg?vqz3xj#h5p-core-16') format('svg');
+  src:    url('../fonts/h5p-core-16.eot?80e76o');
+  src:    url('../fonts/h5p-core-16.eot?80e76o#iefix') format('embedded-opentype'),
+  url('../fonts/h5p-core-16.ttf?80e76o') format('truetype'),
+  url('../fonts/h5p-core-16.woff?80e76o') format('woff'),
+  url('../fonts/h5p-core-16.svg?80e76o#h5p-core-15') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -235,6 +235,7 @@ div.h5p-fullscreen {
 }
 .h5p-actions > li {
   margin: 0;
+  list-style: none;
 }
 .h5p-popup-dialog {
   position: absolute;
