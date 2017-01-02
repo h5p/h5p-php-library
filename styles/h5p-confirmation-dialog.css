@@ -109,11 +109,6 @@ button.h5p-confirmation-dialog-exit:hover {
 .h5p-core-button.h5p-confirmation-dialog-confirm-button {
   padding-left: 0.75em;
   margin-bottom: 0;
-  background-color: #2579c6;
-}
-
-.h5p-core-button.h5p-confirmation-dialog-confirm-button:hover {
-  background-color: #1f67a8;
 }
 
 .h5p-core-button.h5p-confirmation-dialog-confirm-button:before {
