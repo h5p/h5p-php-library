@@ -5,7 +5,7 @@
   left: 0;
   top: 0;
 
-  background: rgba(28, 34, 41, 0.9);
+  background: rgba(44, 44, 44, 0.9);
   opacity: 1;
   visibility: visible;
   -webkit-transition: opacity 0.1s, linear 0s, visibility 0s linear 0s;
