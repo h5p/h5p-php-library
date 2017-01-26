@@ -2512,9 +2512,9 @@ class H5PCore {
    * @return array
    */
   public function getDisplayOptionsForEdit($disable = NULL) {
-    $display_options = [];
+    $display_options = array();
 
-    $current_display_options = $disable === NULL ? [] : $this->getDisplayOptionsAsArray($disable);
+    $current_display_options = $disable === NULL ? array() : $this->getDisplayOptionsAsArray($disable);
 
     if ($this->h5pF->getOption(self::DISPLAY_OPTION_FRAME, TRUE)) {
       $display_options[self::DISPLAY_OPTION_FRAME] =
@@ -3267,9 +3267,11 @@ class H5PContentValidator {
     if (!in_array($value->library, $semantics->options)) {
       $message = NULL;
       // Create an understandable error message:
-      $machineName = explode(' ', $value->library)[0];
+      $machineNameArray = explode(' ', $value->library);
+      $machineName = $machineNameArray[0];
       foreach ($semantics->options as $semanticsLibrary) {
-        $semanticsMachineName = explode(' ', $semanticsLibrary)[0];
+        $semanticsMachineNameArray = explode(' ', $semanticsLibrary);
+        $semanticsMachineName = $semanticsMachineNameArray[0];
         if ($machineName === $semanticsMachineName) {
           // Using the wrong version of the library in the content
           $message = $this->h5pF->t('The version of the H5P library %machineName used in this content is not valid. Content contains %contentLibrary, but it should be %semanticsLibrary.', array(
