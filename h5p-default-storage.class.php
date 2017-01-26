@@ -316,6 +316,8 @@ class H5PDefaultStorage implements \H5PFileStorage {
     else {
       copy($_FILES['file']['tmp_name'], $path);
     }
+
+    return $path;
   }
 
   /**
