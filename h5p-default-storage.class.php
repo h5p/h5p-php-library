@@ -297,7 +297,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
     // Prepare directory
     if (empty($contentId)) {
       // Should be in editor tmp folder
-      $path = ($this->alteditorpath !== NULL ? $this->alteditorpath : $path . '/editor');
+      $path = ($this->alteditorpath !== NULL ? $this->alteditorpath : $this->path . '/editor');
     }
     else {
       // Should be in content folder
