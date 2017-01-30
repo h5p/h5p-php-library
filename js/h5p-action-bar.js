@@ -19,6 +19,9 @@ H5P.ActionBar = (function ($, EventDispatcher) {
      * @param {string} customClass Instead of type class
      */
     var addActionButton = function (type, customClass) {
+      /**
+       * Handles selection of action
+       */
       var handler = function () {
         self.trigger(type);
       };
@@ -78,8 +81,8 @@ H5P.ActionBar = (function ($, EventDispatcher) {
      */
     self.hasActions = function () {
       return hasActions;
-    }
-  };
+    };
+  }
 
   ActionBar.prototype = Object.create(EventDispatcher.prototype);
   ActionBar.prototype.constructor = ActionBar;
