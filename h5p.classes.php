@@ -580,7 +580,7 @@ class H5PValidator {
   // Schemas used to validate the h5p files
   private $h5pRequired = array(
     'title' => '/^.{1,255}$/',
-    'language' => '/^[/-,a-z]{1,5}$/',
+    'language' => '/^[-a-zA-Z]{1,10}$/',
     'preloadedDependencies' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
@@ -1725,7 +1725,7 @@ class H5PCore {
   public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
-  public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $development_mode, $h5pD, $disableFileCheck;
+  public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $h5pD, $disableFileCheck;
   const SECONDS_IN_WEEK = 604800;
 
   private $exportEnabled;
@@ -1761,22 +1761,16 @@ class H5PCore {
    * @param string $url To file storage directory.
    * @param string $language code. Defaults to english.
    * @param boolean $export enabled?
-   * @param int $development_mode mode.
    */
-  public function __construct(H5PFrameworkInterface $H5PFramework, $path, $url, $language = 'en', $export = FALSE, $development_mode = H5PDevelopment::MODE_NONE) {
+  public function __construct(H5PFrameworkInterface $H5PFramework, $path, $url, $language = 'en', $export = FALSE) {
     $this->h5pF = $H5PFramework;
 
     $this->fs = ($path instanceof \H5PFileStorage ? $path : new \H5PDefaultStorage($path));
 
     $this->url = $url;
     $this->exportEnabled = $export;
-    $this->development_mode = $development_mode;
 
     $this->aggregateAssets = FALSE; // Off by default.. for now
-
-    if ($development_mode & H5PDevelopment::MODE_LIBRARY) {
-      $this->h5pD = new H5PDevelopment($this->h5pF, $path . '/', $language);
-    }
 
     $this->detectSiteType();
     $this->fullPluginPath = preg_replace('/\/[^\/]+[\/]?$/', '' , dirname(__FILE__));
@@ -1784,6 +1778,8 @@ class H5PCore {
     // Standard regex for converting copied files paths
     $this->relativePathRegExp = '/^((\.\.\/){1,2})(.*content\/)?(\d+|editor)\/(.+)$/';
   }
+
+
 
   /**
    * Save content and clear cache.
@@ -1827,7 +1823,7 @@ class H5PCore {
       unset($content['libraryId'], $content['libraryName'], $content['libraryEmbedTypes'], $content['libraryFullscreen']);
 
 //      // TODO: Move to filterParameters?
-//      if ($this->development_mode & H5PDevelopment::MODE_CONTENT) {
+//      if (isset($this->h5pD)) {
 //        // TODO: Remove Drupal specific stuff
 //        $json_content_path = file_create_path(file_directory_path() . '/' . variable_get('h5p_default_path', 'h5p') . '/content/' . $id . '/content.json');
 //        if (file_exists($json_content_path) === TRUE) {
@@ -1937,7 +1933,7 @@ class H5PCore {
   public function loadContentDependencies($id, $type = NULL) {
     $dependencies = $this->h5pF->loadContentDependencies($id, $type);
 
-    if ($this->development_mode & H5PDevelopment::MODE_LIBRARY) {
+    if (isset($this->h5pD)) {
       $developmentLibraries = $this->h5pD->getLibraries();
 
       foreach ($dependencies as $key => $dependency) {
@@ -2086,7 +2082,7 @@ class H5PCore {
    */
   public function loadLibrarySemantics($name, $majorVersion, $minorVersion) {
     $semantics = NULL;
-    if ($this->development_mode & H5PDevelopment::MODE_LIBRARY) {
+    if (isset($this->h5pD)) {
       // Try to load from dev lib
       $semantics = $this->h5pD->getSemantics($name, $majorVersion, $minorVersion);
     }
@@ -2114,7 +2110,7 @@ class H5PCore {
    */
   public function loadLibrary($name, $majorVersion, $minorVersion) {
     $library = NULL;
-    if ($this->development_mode & H5PDevelopment::MODE_LIBRARY) {
+    if (isset($this->h5pD)) {
       // Try to load from dev
       $library = $this->h5pD->getLibrary($name, $majorVersion, $minorVersion);
       if ($library !== NULL) {

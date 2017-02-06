@@ -158,16 +158,19 @@ H5P.init = function (target) {
 
       actionBar.on('download', function () {
         window.location.href = contentData.exportUrl;
+        instance.triggerXAPI('downloaded');
       });
       actionBar.on('copyrights', function () {
         var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container);
         dialog.open();
+        instance.triggerXAPI('accessed-copyright');
       });
       actionBar.on('embed', function () {
         H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
           width: $element.width(),
           height: $element.height()
         });
+        instance.triggerXAPI('accessed-embed');
       });
 
       if (actionBar.hasActions()) {
