@@ -438,7 +438,6 @@ H5P.communicator = (function () {
 /**
  * Enter semi fullscreen for the given H5P instance
  *
- * @method semiFullScreen
  * @param {H5P.jQuery} $element Content container.
  * @param {Object} instance
  * @param {function} exitCallback Callback function called when user exits fullscreen.
@@ -896,6 +895,7 @@ H5P.t = function (key, vars, ns) {
  *   Which DOM element the dialog should be inserted after.
  */
 H5P.Dialog = function (name, title, content, $element) {
+  /** @alias H5P.Dialog# */
   var self = this;
   var $dialog = H5P.jQuery('<div class="h5p-popup-dialog h5p-' + name + '-dialog">\
                               <div class="h5p-inner">\
@@ -924,7 +924,10 @@ H5P.Dialog = function (name, title, content, $element) {
       .end()
     .end();
 
-  this.open = function () {
+  /**
+   * Opens the dialog.
+   */
+  self.open = function () {
     setTimeout(function () {
       $dialog.addClass('h5p-open'); // Fade in
       // Triggering an event, in case something has to be done after dialog has been opened.
@@ -932,7 +935,10 @@ H5P.Dialog = function (name, title, content, $element) {
     }, 1);
   };
 
-  this.close = function () {
+  /**
+   * Closes the dialog.
+   */
+  self.close = function () {
     $dialog.removeClass('h5p-open'); // Fade out
     setTimeout(function () {
       $dialog.remove();
