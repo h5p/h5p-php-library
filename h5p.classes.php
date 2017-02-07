@@ -1769,6 +1769,7 @@ class H5PCore {
 
     $this->url = $url;
     $this->exportEnabled = $export;
+    $this->development_mode = H5PDevelopment::MODE_NONE;
 
     $this->aggregateAssets = FALSE; // Off by default.. for now
 
