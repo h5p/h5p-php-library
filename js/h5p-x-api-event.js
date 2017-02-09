@@ -249,6 +249,16 @@ H5P.XAPIEvent.prototype.getContentXAPIId = function (instance) {
 };
 
 /**
+ * Check if this event is sent from a child (i.e not from grandchild)
+ *
+ * @return {Boolean}
+ */
+H5P.XAPIEvent.prototype.isFromChild = function () {
+  var parentId = this.getVerifiedStatementValue(['context', 'contextActivities', 'parent', 0, 'id']);
+  return !parentId || parentId.indexOf('subContentId') === -1;
+}
+
+/**
  * Figure out if a property exists in the statement and return it
  *
  * @param {string[]} keys
@@ -298,5 +308,10 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
   'shared',
   'suspended',
   'terminated',
-  'voided'
+  'voided',
+
+  // Custom verbs used for action toolbar below content
+  'downloaded',
+  'accessed-embed',
+  'accessed-copyright'
 ];

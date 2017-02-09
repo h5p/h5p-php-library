@@ -22,18 +22,18 @@ interface H5PFileStorage {
    *
    * @param string $source
    *  Path on file system to content directory.
-   * @param int $id
-   *  What makes this content unique.
+   * @param array $content
+   *  Content properties
    */
-  public function saveContent($source, $id);
+  public function saveContent($source, $content);
 
   /**
    * Remove content folder.
    *
-   * @param int $id
-   *  Content identifier
+   * @param array $content
+   *  Content properties
    */
-  public function deleteContent($id);
+  public function deleteContent($content);
 
   /**
    * Creates a stored copy of the content folder.
@@ -125,4 +125,50 @@ interface H5PFileStorage {
    *   The hash keys of removed files
    */
   public function deleteCachedAssets($keys);
+
+  /**
+   * Read file content of given file and then return it.
+   *
+   * @param string $file_path
+   * @return string contents
+   */
+  public function getContent($file_path);
+
+  /**
+   * Save files uploaded through the editor.
+   * The files must be marked as temporary until the content form is saved.
+   *
+   * @param \H5peditorFile $file
+   * @param int $contentid
+   */
+  public function saveFile($file, $contentId);
+
+  /**
+   * Copy a file from another content or editor tmp dir.
+   * Used when copy pasting content in H5P.
+   *
+   * @param string $file path + name
+   * @param string|int $fromid Content ID or 'editor' string
+   * @param int $toid Target Content ID
+   */
+  public function cloneContentFile($file, $fromId, $toId);
+
+  /**
+   * Checks to see if content has the given file.
+   * Used when saving content.
+   *
+   * @param string $file path + name
+   * @param int $contentId
+   * @return string|int File ID or NULL if not found
+   */
+  public function getContentFile($file, $contentId);
+
+  /**
+   * Remove content files that are no longer used.
+   * Used when saving content.
+   *
+   * @param string $file path + name
+   * @param int $contentId
+   */
+  public function removeContentFile($file, $contentId);
 }
