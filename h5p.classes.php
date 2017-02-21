@@ -2762,7 +2762,7 @@ class H5PCore {
     /**
      * Check that all H5P requirements for the server setup is met.
      */
-  public function check_setup_for_requirements() {
+  public function checkSetupForRequirements() {
       $disable_hub = FALSE;
 
       if (!class_exists('ZipArchive')) {
