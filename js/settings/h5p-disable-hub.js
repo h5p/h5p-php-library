@@ -21,8 +21,6 @@
  */
 (function ($) {
 
-
-
   $(document).on('ready', function () {
 
     // No data found
@@ -35,7 +33,11 @@
       return;
     }
 
-    var selector = H5PDisableHubData.selector;
+    H5PDisableHubData.selector = H5PDisableHubData.selector ||
+      '.h5p-settings-disable-hub-checkbox';
+    H5PDisableHubData.overlaySelector = H5PDisableHubData.overlaySelector ||
+      '.h5p-settings-container';
+
     var dialogHtml = '<div>' +
       '<p>' + H5PDisableHubData.errors.join('</p><p>') + '</p>' +
       '<p>' + H5PDisableHubData.confirmationDialogMsg + '</p>';
@@ -56,7 +58,7 @@
       disableButton.get(0).checked = true;
     });
 
-    var disableButton = $(selector);
+    var disableButton = $(H5PDisableHubData.selector);
     disableButton.change(function () {
       if (!$(this).is(':checked')) {
         confirmationDialog.show(disableButton.offset().top);
