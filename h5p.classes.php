@@ -2758,6 +2758,84 @@ class H5PCore {
     return $token === substr(hash('md5', $action . $time_factor . $_SESSION['h5p_token']), -16, 13) || // Under 12 hours
            $token === substr(hash('md5', $action . ($time_factor - 1) . $_SESSION['h5p_token']), -16, 13); // Between 12-24 hours
   }
+
+    /**
+     * Check that all H5P requirements for the server setup is met.
+     */
+  public function check_setup_for_requirements() {
+      $disable_hub = FALSE;
+
+      if (!class_exists('ZipArchive')) {
+          $this->h5pF->setErrorMessage('Your PHP version does not support ZipArchive.');
+          $disable_hub = TRUE;
+      }
+
+      if (!extension_loaded('mbstring')) {
+          $this->h5pF->setErrorMessage(
+              $this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly')
+          );
+          $disable_hub = TRUE;
+      }
+
+      // Check php version >= 5.2
+      $php_version = explode('.', phpversion());
+      if ($php_version[0] < 5 || ($php_version[0] === 5 && $php_version[1] < 2)) {
+          $this->h5pF->setErrorMessage(
+              $this->h5pF->t('Your PHP version is too old. H5P needs at least version 5.2 to function properly')
+          );
+          $disable_hub = TRUE;
+      }
+
+      // Check max upload and post size
+      function return_bytes($val) {
+          $val = trim($val);
+          $last = strtolower($val[strlen($val)-1]);
+          switch($last) {
+              case 'g':
+                  $val *= 1024;
+              case 'm':
+                  $val *= 1024;
+              case 'k':
+                  $val *= 1024;
+          }
+
+          return $val;
+      }
+
+      $max_upload_size = ini_get('upload_max_filesize');
+      $max_post_size = ini_get('post_max_size');
+      $byte_threshold = 5000000; // 5MB
+      if (return_bytes($max_upload_size) < $byte_threshold) {
+          $this->h5pF->setErrorMessage(
+              $this->h5pF->t('Your PHP max upload size option is too small. You should consider to increase it to more than 5MB.')
+          );
+      }
+
+      if (return_bytes($max_post_size) < $byte_threshold) {
+          $this->h5pF->setErrorMessage(
+              $this->h5pF->t('Your PHP max post size option is too small. You should consider to increase it to more than 5MB.')
+          );
+      }
+
+      // Check SSL
+      if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+          $this->h5pF->setErrorMessage(
+              $this->h5pF->t('Your server does not have SSL enabled. SSL should be enabled to ensure a secure connection with the H5P hub.')
+          );
+          $disable_hub = TRUE;
+      }
+
+      // Disable hub, and inform how to re-enable it
+      $this->h5pF->setOption('disable_hub', $disable_hub);
+      if ($disable_hub) {
+          $this->h5pF->setErrorMessage(
+              $this->h5pF->t('H5P hub communication has been disabled because one or more H5P requirements failed.')
+          );
+          $this->h5pF->setErrorMessage(
+              $this->h5pF->t('When you have revised your server setup you may re-enable H5P hub communication in H5P Settings.')
+          );
+      }
+  }
 }
 
 /**
