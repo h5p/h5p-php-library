@@ -568,6 +568,24 @@ interface H5PFrameworkInterface {
    * @return boolean
    */
   public function hasPermission($permission, $id = NULL);
+
+  /**
+   * Get content type cache from an external url.
+   *
+   * @param string $endpoint Endpoint containing content type cache
+   *
+   * @return object Json object with an array called 'libraries' containing
+   *  all content types that should be cached
+   */
+  public function getExternalContentTypeCache($endpoint);
+
+  /**
+   * Replaces existing content type cache with the one passed in
+   *
+   * @param object $contentTypeCache Json with an array called 'libraries'
+   *  containing the new content type cache that should replace the old one.
+   */
+  public function replaceContentTypeCache($contentTypeCache);
 }
 
 /**
@@ -2753,6 +2771,45 @@ class H5PCore {
     $time_factor = self::getTimeFactor();
     return $token === substr(hash('md5', $action . $time_factor . $_SESSION['h5p_token']), -16, 13) || // Under 12 hours
            $token === substr(hash('md5', $action . ($time_factor - 1) . $_SESSION['h5p_token']), -16, 13); // Between 12-24 hours
+  }
+
+  /**
+   * Update content type cache
+   *
+   * @return bool True if successfully updated
+   */
+  function updateContentTypeCache() {
+    // Get content type cache
+    $endpoint = 'http://hubendpoints';
+
+    $interface = $this->h5pF;
+    $data      = $interface->getExternalContentTypeCache($endpoint);
+
+    // No data received
+    if (!$data) {
+      $interface->setErrorMessage(
+        $interface->t('Could not connect to the H5P Content Type Hub. Please try again later.')
+      );
+      return FALSE;
+    }
+
+    $json = json_decode($data);
+
+    // No libraries received
+    if (!isset($json->libraries) || empty($json->libraries)) {
+      $interface->setErrorMessage(
+        $interface->t('No libraries was received from the Content Type Hub. Please try again later.')
+      );
+      return FALSE;
+    }
+
+    // Replace content type cache
+    $interface->replaceContentTypeCache($json);
+
+    // Inform of the changes and update timestamp
+    $interface->setInfoMessage($interface->t('Library cache was successfully updated!'));
+    $interface->setOption('content_type_cache_updated_at', time());
+    return TRUE;
   }
 }
 
