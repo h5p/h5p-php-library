@@ -2780,7 +2780,7 @@ class H5PCore {
     $php_version = explode('.', phpversion());
     if ($php_version[0] < 5 || ($php_version[0] === 5 && $php_version[1] < 2)) {
       $errors[] =
-        $this->h5pF->t('Your PHP version is too old. H5P needs at least version 5.2 to function properly');
+        $this->h5pF->t('Your PHP version is outdated. H5P requires version 5.2 to function properly. Version 5.6 or later is recommended.');
     }
 
     $max_upload_size = ini_get('upload_max_filesize');
@@ -2797,7 +2797,7 @@ class H5PCore {
     }
 
     // Check SSL
-    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+    if (!extension_loaded('openssl')) {
       $errors[] =
         $this->h5pF->t('Your server does not have SSL enabled. SSL should be enabled to ensure a secure connection with the H5P hub.');
     }
