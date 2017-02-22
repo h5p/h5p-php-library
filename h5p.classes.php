@@ -586,6 +586,13 @@ interface H5PFrameworkInterface {
    *  containing the new content type cache that should replace the old one.
    */
   public function replaceContentTypeCache($contentTypeCache);
+
+  /**
+   * Get timestamp of time at user
+   *
+   * @return int Timestamp of localized time
+   */
+  public function getCurrentUserTime();
 }
 
 /**
@@ -2808,7 +2815,7 @@ class H5PCore {
 
     // Inform of the changes and update timestamp
     $interface->setInfoMessage($interface->t('Library cache was successfully updated!'));
-    $interface->setOption('content_type_cache_updated_at', time());
+    $interface->setOption('content_type_cache_updated_at', $interface->getCurrentUserTime());
     return TRUE;
   }
 }
