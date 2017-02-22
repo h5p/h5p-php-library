@@ -2811,7 +2811,7 @@ class H5PCore {
   public function checkSetupForRequirements() {
     $errors = $this->checkSetupErrorMessage();
 
-    $this->h5pF->setOption('disable_hub', !empty($errors));
+    $this->h5pF->setOption('hub_is_disabled', !empty($errors));
     if (!empty($errors)) {
       foreach ($errors as $err) {
         $this->h5pF->setErrorMessage($err);
