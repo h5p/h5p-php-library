@@ -570,16 +570,6 @@ interface H5PFrameworkInterface {
   public function hasPermission($permission, $id = NULL);
 
   /**
-   * Get content type cache from an external url.
-   *
-   * @param string $endpoint Endpoint containing content type cache
-   *
-   * @return object Json object with an array called 'libraries' containing
-   *  all content types that should be cached
-   */
-  public function getExternalContentTypeCache($endpoint);
-
-  /**
    * Replaces existing content type cache with the one passed in
    *
    * @param object $contentTypeCache Json with an array called 'libraries'
@@ -2425,9 +2415,9 @@ class H5PCore {
   }
 
   /**
-   * Fetch a list of libraries' metadata from h5p.org.
-   * Save URL tutorial to database. Each platform implementation
-   * is responsible for invoking this, eg using cron
+   * Communicate with H5P.org and get content type cache. Each platform
+   * implementation is responsible for invoking this, eg using cron
+   *
    * @param bool $fetchingDisabled
    */
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
@@ -2456,37 +2446,16 @@ class H5PCore {
       )))
     );
 
-    // Send request
-    $protocol = (extension_loaded('openssl') ? 'https' : 'http');
-    $result = $this->h5pF->fetchExternalData("{$protocol}://h5p.org/libraries-metadata.json", $data);
-    if (empty($result)) {
-      return;
-    }
+    $result = $this->updateContentTypeCache($data);
 
-    // Process results
-    $json = json_decode($result);
-    if (empty($json)) {
+    // No data received
+    if (!$result || empty($result)) {
       return;
-    }
-
-    // Handle libraries metadata
-    if (isset($json->libraries)) {
-      foreach ($json->libraries as $machineName => $libInfo) {
-        if (isset($libInfo->tutorialUrl)) {
-          $this->h5pF->setLibraryTutorialUrl($machineName, $libInfo->tutorialUrl);
-        }
-      }
     }
 
     // Handle new uuid
-    if ($uuid === '' && isset($json->uuid)) {
-      $this->h5pF->setOption('site_uuid', $json->uuid);
-    }
-
-    // Handle latest version of H5P
-    if (!empty($json->latest)) {
-      $this->h5pF->setOption('update_available', $json->latest->releasedAt);
-      $this->h5pF->setOption('update_available_path', $json->latest->path);
+    if ($uuid === '' && isset($result->uuid)) {
+      $this->h5pF->setOption('site_uuid', $result->uuid);
     }
   }
 
@@ -2783,14 +2752,21 @@ class H5PCore {
   /**
    * Update content type cache
    *
-   * @return bool True if successfully updated
+   * @return bool|object Returns endpoint data if found, otherwise FALSE
    */
-  function updateContentTypeCache() {
-    // Get content type cache
-    $endpoint = 'http://hubendpoints';
+  function updateContentTypeCache($postData) {
+    $endpoint = 'http://hubendpoints/contenttypes';
 
     $interface = $this->h5pF;
-    $data      = $interface->getExternalContentTypeCache($endpoint);
+
+    // Set uuid
+    if (!$postData) {
+      $postData = (object) array(
+        'uuid' => $this->h5pF->getOption('site_uuid', '')
+      );
+    }
+
+    $data = $interface->fetchExternalData($endpoint, $postData);
 
     // No data received
     if (!$data) {
@@ -2816,7 +2792,7 @@ class H5PCore {
     // Inform of the changes and update timestamp
     $interface->setInfoMessage($interface->t('Library cache was successfully updated!'));
     $interface->setOption('content_type_cache_updated_at', $interface->getCurrentUserTime());
-    return TRUE;
+    return $data;
   }
 }
 
