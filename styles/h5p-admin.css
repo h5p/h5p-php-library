@@ -232,7 +232,8 @@ button.h5p-admin.disabled:hover {
 .h5p-admin-header {
   margin-top: 1.5em;
 }
-#h5p-library-upload-form.h5p-admin-upload-libraries-form {
+#h5p-library-upload-form.h5p-admin-upload-libraries-form,
+#h5p-content-type-cache-update-form.h5p-admin-upload-libraries-form {
   position: relative;
   margin: 0;
 
