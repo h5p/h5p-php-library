@@ -51,17 +51,17 @@
     }).appendTo($(H5PDisableHubData.overlaySelector).get(0));
 
     confirmationDialog.on('confirmed', function () {
-      disableButton.get(0).checked = false;
+      enableButton.get(0).checked = true;
     });
 
     confirmationDialog.on('canceled', function () {
-      disableButton.get(0).checked = true;
+      enableButton.get(0).checked = false;
     });
 
-    var disableButton = $(H5PDisableHubData.selector);
-    disableButton.change(function () {
+    var enableButton = $(H5PDisableHubData.selector);
+    enableButton.change(function () {
       if ($(this).is(':checked')) {
-        confirmationDialog.show(disableButton.offset().top);
+        confirmationDialog.show(enableButton.offset().top);
       }
     });
   });
