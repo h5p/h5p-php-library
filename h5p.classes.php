@@ -2749,12 +2749,14 @@ class H5PCore {
            $token === substr(hash('md5', $action . ($time_factor - 1) . $_SESSION['h5p_token']), -16, 13); // Between 12-24 hours
   }
 
-  /**
-   * Update content type cache
-   *
-   * @return bool|object Returns endpoint data if found, otherwise FALSE
-   */
-  function updateContentTypeCache($postData) {
+    /**
+     * Update content type cache
+     *
+     * @param object $postData Data sent to the hub
+     *
+     * @return bool|object Returns endpoint data if found, otherwise FALSE
+     */
+  function updateContentTypeCache($postData = NULL) {
     $endpoint = 'http://hubendpoints/contenttypes';
 
     $interface = $this->h5pF;
