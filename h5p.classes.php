@@ -2763,7 +2763,7 @@ class H5PCore {
 
     // Set uuid
     if (!$postData) {
-      $postData = (object) array(
+      $postData = array(
         'uuid' => $this->h5pF->getOption('site_uuid', '')
       );
     }
