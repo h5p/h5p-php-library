@@ -2783,17 +2783,28 @@ class H5PCore {
         $this->h5pF->t('Your PHP version is outdated. H5P requires version 5.2 to function properly. Version 5.6 or later is recommended.');
     }
 
-    $max_upload_size = ini_get('upload_max_filesize');
-    $max_post_size   = ini_get('post_max_size');
+    // Check write access
+    if (!$this->fs->hasWriteAccess()) {
+      $errors[] =
+        $this->h5pF->t('A problem with the server write access was detected. Please make sure that your server can write to your data folder.');
+    }
+
+    $max_upload_size = self::returnBytes(ini_get('upload_max_filesize'));
+    $max_post_size   = self::returnBytes(ini_get('post_max_size'));
     $byte_threshold  = 5000000; // 5MB
-    if (self::returnBytes($max_upload_size) < $byte_threshold) {
+    if ($max_upload_size < $byte_threshold) {
       $errors[] =
         $this->h5pF->t('Your PHP max upload size option is too small. You should consider to increase it to more than 5MB.');
     }
 
-    if (self::returnBytes($max_post_size) < $byte_threshold) {
+    if ($max_post_size < $byte_threshold) {
       $errors[] =
         $this->h5pF->t('Your PHP max post size option is too small. You should consider to increase it to more than 5MB.');
+    }
+
+    if ($max_upload_size > $max_post_size) {
+      $errors[] =
+        $this->h5pF->t('Your PHP max upload size is bigger than your max post size. This is known to cause issues in some installations.');
     }
 
     // Check SSL

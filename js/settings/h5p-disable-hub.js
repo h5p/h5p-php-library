@@ -60,7 +60,7 @@
 
     var disableButton = $(H5PDisableHubData.selector);
     disableButton.change(function () {
-      if (!$(this).is(':checked')) {
+      if ($(this).is(':checked')) {
         confirmationDialog.show(disableButton.offset().top);
       }
     });
