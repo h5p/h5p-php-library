@@ -390,25 +390,10 @@ class H5PDefaultStorage implements \H5PFileStorage {
    * Check if server setup has write permission to
    * the required folders
    *
-   * @return bool True if server has the proper write access
+   * @return bool True if site can write to the H5P files folder
    */
   public function hasWriteAccess() {
-    $dirs = array(
-      '/content',
-      '/libraries',
-      '/cachedassets',
-      '/temp',
-      '/editor',
-      '/exports'
-    );
-
-    // Check that directories are writable
-    $has_write_access = TRUE;
-    foreach ($dirs as $dir) {
-      $has_write_access = $has_write_access && self::dirReady($this->path . $dir);
-    }
-
-    return $has_write_access;
+    return self::dirReady($this->path);
   }
 
   /**
