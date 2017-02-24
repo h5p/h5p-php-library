@@ -387,6 +387,16 @@ class H5PDefaultStorage implements \H5PFileStorage {
   }
 
   /**
+   * Check if server setup has write permission to
+   * the required folders
+   *
+   * @return bool True if site can write to the H5P files folder
+   */
+  public function hasWriteAccess() {
+    return self::dirReady($this->path);
+  }
+
+  /**
    * Recursive function for copying directories.
    *
    * @param string $source
