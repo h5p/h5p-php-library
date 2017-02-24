@@ -2764,7 +2764,7 @@ class H5PCore {
      *
      * @return bool|object Returns endpoint data if found, otherwise FALSE
      */
-  function updateContentTypeCache($postData = NULL) {
+  public function updateContentTypeCache($postData = NULL) {
     $endpoint = 'http://hubendpoints/contenttypes';
 
     $interface = $this->h5pF;
