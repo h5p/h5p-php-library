@@ -2690,13 +2690,18 @@ class H5PCore {
    * @param string $message
    * @since 1.6.0
    */
-  public static function ajaxError($message = NULL) {
+  public static function ajaxError($message = NULL, $error_code = NULL) {
     $response = array(
       'success' => FALSE
     );
     if ($message !== NULL) {
       $response['message'] = $message;
     }
+
+    if ($error_code !== NULL) {
+      $response['error_code'] = $error_code;
+    }
+
     self::printJson($response);
   }
 
