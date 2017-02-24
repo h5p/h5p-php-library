@@ -2771,6 +2771,8 @@ class H5PCore {
       );
     }
 
+    $postData['current_cache'] = $this->h5pF->getOption('content_type_cache_updated_at', 0);
+
     $data = $interface->fetchExternalData($endpoint, $postData);
 
     // No data received
