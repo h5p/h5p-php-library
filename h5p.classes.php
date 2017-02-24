@@ -576,13 +576,6 @@ interface H5PFrameworkInterface {
    *  containing the new content type cache that should replace the old one.
    */
   public function replaceContentTypeCache($contentTypeCache);
-
-  /**
-   * Get timestamp of time at user
-   *
-   * @return int Timestamp of localized time
-   */
-  public function getCurrentUserTime();
 }
 
 /**
@@ -2453,9 +2446,19 @@ class H5PCore {
       return;
     }
 
-    // Handle new uuid
-    if ($uuid === '' && isset($result->uuid)) {
-      $this->h5pF->setOption('site_uuid', $result->uuid);
+    // Handle libraries metadata
+    if (isset($result->libraries)) {
+      foreach ($result->libraries as $library) {
+        if (isset($library->tutorialUrl) && isset($library->machineName)) {
+          $this->h5pF->setLibraryTutorialUrl($library->machineNamee, $library->tutorialUrl);
+        }
+      }
+    }
+
+    // Handle latest version of H5P
+    if (!empty($result->packageReleased)) {
+      $this->h5pF->setOption('update_available', $result->packageReleased->releasedAt);
+      $this->h5pF->setOption('update_available_path', $result->packageReleased->path);
     }
   }
 
@@ -2793,7 +2796,7 @@ class H5PCore {
 
     // Inform of the changes and update timestamp
     $interface->setInfoMessage($interface->t('Library cache was successfully updated!'));
-    $interface->setOption('content_type_cache_updated_at', $interface->getCurrentUserTime());
+    $interface->setOption('content_type_cache_updated_at', time());
     return $data;
   }
 }
