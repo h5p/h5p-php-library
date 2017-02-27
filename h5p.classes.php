@@ -2757,13 +2757,13 @@ class H5PCore {
            $token === substr(hash('md5', $action . ($time_factor - 1) . $_SESSION['h5p_token']), -16, 13); // Between 12-24 hours
   }
 
-    /**
-     * Update content type cache
-     *
-     * @param object $postData Data sent to the hub
-     *
-     * @return bool|object Returns endpoint data if found, otherwise FALSE
-     */
+  /**
+   * Update content type cache
+   *
+   * @param object $postData Data sent to the hub
+   *
+   * @return bool|object Returns endpoint data if found, otherwise FALSE
+   */
   public function updateContentTypeCache($postData = NULL) {
     $endpoint = 'http://hubendpoints/contenttypes';
 
@@ -2805,6 +2805,107 @@ class H5PCore {
     $interface->setInfoMessage($interface->t('Library cache was successfully updated!'));
     $interface->setOption('content_type_cache_updated_at', time());
     return $data;
+  }
+
+  /**
+   * Check if the current server setup is valid and set error messages
+   *
+   * @return array Errors found
+   */
+  public function checkSetupErrorMessage() {
+    $errors = array();
+
+    if (!class_exists('ZipArchive')) {
+      $errors[] = $this->h5pF->t('Your PHP version does not support ZipArchive.');
+    }
+
+    if (!extension_loaded('mbstring')) {
+      $errors[] =
+        $this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly');
+    }
+
+    // Check php version >= 5.2
+    $php_version = explode('.', phpversion());
+    if ($php_version[0] < 5 || ($php_version[0] === 5 && $php_version[1] < 2)) {
+      $errors[] =
+        $this->h5pF->t('Your PHP version is outdated. H5P requires version 5.2 to function properly. Version 5.6 or later is recommended.');
+    }
+
+    // Check write access
+    if (!$this->fs->hasWriteAccess()) {
+      $errors[] =
+        $this->h5pF->t('A problem with the server write access was detected. Please make sure that your server can write to your data folder.');
+    }
+
+    $max_upload_size = self::returnBytes(ini_get('upload_max_filesize'));
+    $max_post_size   = self::returnBytes(ini_get('post_max_size'));
+    $byte_threshold  = 5000000; // 5MB
+    if ($max_upload_size < $byte_threshold) {
+      $errors[] =
+        $this->h5pF->t('Your PHP max upload size option is too small. You should consider to increase it to more than 5MB.');
+    }
+
+    if ($max_post_size < $byte_threshold) {
+      $errors[] =
+        $this->h5pF->t('Your PHP max post size option is too small. You should consider to increase it to more than 5MB.');
+    }
+
+    if ($max_upload_size > $max_post_size) {
+      $errors[] =
+        $this->h5pF->t('Your PHP max upload size is bigger than your max post size. This is known to cause issues in some installations.');
+    }
+
+    // Check SSL
+    if (!extension_loaded('openssl')) {
+      $errors[] =
+        $this->h5pF->t('Your server does not have SSL enabled. SSL should be enabled to ensure a secure connection with the H5P hub.');
+    }
+
+    return $errors;
+  }
+
+  /**
+   * Check that all H5P requirements for the server setup is met.
+   */
+  public function checkSetupForRequirements() {
+    $errors = $this->checkSetupErrorMessage();
+
+    $this->h5pF->setOption('hub_is_enabled', empty($errors));
+    if (!empty($errors)) {
+      foreach ($errors as $err) {
+        $this->h5pF->setErrorMessage($err);
+      }
+
+      // Inform how to re-enable hub
+      $this->h5pF->setErrorMessage(
+        $this->h5pF->t('H5P hub communication has been disabled because one or more H5P requirements failed.')
+      );
+      $this->h5pF->setErrorMessage(
+        $this->h5pF->t('When you have revised your server setup you may re-enable H5P hub communication in H5P Settings.')
+      );
+    }
+  }
+
+  /**
+   * Return bytes from php_ini string value
+   *
+   * @param string $val
+   *
+   * @return int|string
+   */
+  public static function returnBytes($val) {
+    $val  = trim($val);
+    $last = strtolower($val[strlen($val) - 1]);
+    switch ($last) {
+      case 'g':
+        $val *= 1024;
+      case 'm':
+        $val *= 1024;
+      case 'k':
+        $val *= 1024;
+    }
+
+    return $val;
   }
 }
 

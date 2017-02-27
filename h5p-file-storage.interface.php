@@ -171,4 +171,12 @@ interface H5PFileStorage {
    * @param int $contentId
    */
   public function removeContentFile($file, $contentId);
+
+  /**
+   * Check if server setup has write permission to
+   * the required folders
+   *
+   * @return bool True if server has the proper write access
+   */
+  public function hasWriteAccess();
 }
