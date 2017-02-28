@@ -2765,7 +2765,7 @@ class H5PCore {
    * @return bool|object Returns endpoint data if found, otherwise FALSE
    */
   public function updateContentTypeCache($postData = NULL) {
-    $endpoint = 'http://hubendpoints/contenttypes';
+    $endpoint = 'http://api.h5p.org/v1/content-types';
 
     $interface = $this->h5pF;
 
@@ -2791,7 +2791,7 @@ class H5PCore {
     $json = json_decode($data);
 
     // No libraries received
-    if (!isset($json->libraries) || empty($json->libraries)) {
+    if (!isset($json->contentTypes) || empty($json->contentTypes)) {
       $interface->setErrorMessage(
         $interface->t('No libraries was received from the Content Type Hub. Please try again later.')
       );
