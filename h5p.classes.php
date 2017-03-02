@@ -2704,7 +2704,7 @@ class H5PCore {
     }
 
     if ($error_code !== NULL) {
-      $response['error_code'] = $error_code;
+      $response['errorCode'] = $error_code;
     }
 
     self::printJson($response);
