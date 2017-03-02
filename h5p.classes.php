@@ -783,7 +783,7 @@ class H5PValidator {
       }
 
       // The rest should be library folders
-      elseif ($this->h5pF->mayUpdateLibraries()) {
+      elseif ($this->h5pC->mayUpdateLibraries()) {
          if (!is_dir($filePath)) {
           // Ignore this. Probably a file that shouldn't have been included.
           continue;
@@ -866,7 +866,7 @@ class H5PValidator {
         foreach ($missingLibraries as $libString => $library) {
           $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $libString)));
         }
-        if (!$this->h5pF->mayUpdateLibraries()) {
+        if (!$this->h5pC->mayUpdateLibraries()) {
           $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
         }
       }
@@ -1303,7 +1303,7 @@ class H5PStorage {
    * FALSE otherwise
    */
   public function savePackage($content = NULL, $contentMainId = NULL, $skipContent = FALSE, $options = array()) {
-    if ($this->h5pF->mayUpdateLibraries()) {
+    if ($this->h5pC->mayUpdateLibraries()) {
       // Save the libraries we processed during validation
       $this->saveLibraries();
     }
@@ -2765,7 +2765,7 @@ class H5PCore {
    * @return bool|object Returns endpoint data if found, otherwise FALSE
    */
   public function updateContentTypeCache($postData = NULL) {
-    $endpoint = 'http://hubendpoints/contenttypes';
+    $endpoint = 'http://api.h5p.org/v1/content-types';
 
     $interface = $this->h5pF;
 
@@ -2791,7 +2791,7 @@ class H5PCore {
     $json = json_decode($data);
 
     // No libraries received
-    if (!isset($json->libraries) || empty($json->libraries)) {
+    if (!isset($json->contentTypes) || empty($json->contentTypes)) {
       $interface->setErrorMessage(
         $interface->t('No libraries was received from the Content Type Hub. Please try again later.')
       );
@@ -2906,6 +2906,29 @@ class H5PCore {
     }
 
     return $val;
+  }
+
+  /**
+   * Check if the current user has permission to update and install new
+   * libraries.
+   *
+   * @param bool [$set] Optional, sets the permission
+   * @return bool
+   */
+  public function mayUpdateLibraries($set = null) {
+    static $can;
+
+    if ($set !== null) {
+      // Use value set
+      $can = $set;
+    }
+
+    if ($can === null) {
+      // Ask our framework
+      $can = $this->h5pF->mayUpdateLibraries();
+    }
+
+    return $can;
   }
 }
 
