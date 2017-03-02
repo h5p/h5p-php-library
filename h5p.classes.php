@@ -721,7 +721,7 @@ class H5PValidator {
     $mainH5pData = null;
     $libraryJsonData = null;
     $contentJsonData = null;
-    $mainH5pExists = $imageExists = $contentExists = FALSE;
+    $mainH5pExists = $contentExists = FALSE;
     foreach ($files as $file) {
       if (in_array(substr($file, 0, 1), array('.', '_'))) {
         continue;
@@ -748,10 +748,6 @@ class H5PValidator {
             $this->h5pF->setErrorMessage($this->h5pF->t('The main h5p.json file is not valid'));
           }
         }
-      }
-      // Check for h5p.jpg?
-      elseif (strtolower($file) == 'h5p.jpg') {
-        $imageExists = TRUE;
       }
       // Content directory holds content.
       elseif ($file == 'content') {
@@ -936,6 +932,9 @@ class H5PValidator {
         $h5pData['language'][$parts[0]] = $languageJson;
       }
     }
+
+    // Check for icon:
+    $h5pData['hasIcon'] = file_exists($filePath . DIRECTORY_SEPARATOR . 'icon.svg');
 
     $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
 

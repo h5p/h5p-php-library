@@ -285,7 +285,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    * @return string
    */
   public function getContent($file_path) {
-    return file_get_contents($this->path . $file_path);
+    return file_get_contents($file_path);
   }
 
   /**
