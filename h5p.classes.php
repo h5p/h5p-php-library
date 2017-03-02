@@ -2770,8 +2770,6 @@ class H5PCore {
    * @return bool|object Returns endpoint data if found, otherwise FALSE
    */
   public function updateContentTypeCache($postData = NULL) {
-    $endpoint = 'http://api.h5p.org/v1/content-types';
-
     $interface = $this->h5pF;
 
     // Set uuid
@@ -2783,7 +2781,9 @@ class H5PCore {
 
     $postData['current_cache'] = $this->h5pF->getOption('content_type_cache_updated_at', 0);
 
-    $data = $interface->fetchExternalData($endpoint, $postData);
+    $protocol = (extension_loaded('openssl') ? 'https' : 'http');
+    $endpoint = H5PCore::$hubEndpoints[H5PCore::CONTENT_TYPES];
+    $data = $interface->fetchExternalData($protocol . $endpoint, $postData);
 
     // No data received
     if (!$data) {
