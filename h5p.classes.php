@@ -1725,6 +1725,12 @@ class H5PCore {
     'js/h5p-utils.js',
   );
 
+  const CONTENT_TYPES = 0;
+
+  public static $hubEndpoints = array(
+    self::CONTENT_TYPES => 'api.h5p.org/v1/content-types/'
+  );
+
   public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
