@@ -2852,8 +2852,8 @@ class H5PCore {
    * Also sets whether a given cached library is installed and up to date with
    * the locally installed libraries
    *
-   * @param object $local_libraries Locally installed libraries
-   * @param object $cached_libraries Cached libraries from the H5P hub
+   * @param array $local_libraries Locally installed libraries
+   * @param array $cached_libraries Cached libraries from the H5P hub
    */
   public function mergeLocalLibsIntoCachedLibs($local_libraries, &$cached_libraries) {
 
