@@ -2808,6 +2808,100 @@ class H5PCore {
   }
 
   /**
+   * Extract library properties from cached library so they are ready to be
+   * returned as JSON
+   *
+   * @param object $cached_library A single library from the content type cache
+   *
+   * @return array A list containing the necessary properties for a cached
+   * library to send to the front-end
+   */
+  public function getCachedLibAsList($cached_library) {
+    return array(
+      'id'              => $cached_library->id,
+      'machineName'     => $cached_library->machine_name,
+      'majorVersion'    => $cached_library->major_version,
+      'minorVersion'    => $cached_library->minor_version,
+      'patchVersion'    => $cached_library->patch_version,
+      'h5pMajorVersion' => $cached_library->h5p_major_version,
+      'h5pMinorVersion' => $cached_library->h5p_minor_version,
+      'title'           => $cached_library->title,
+      'summary'         => $cached_library->summary,
+      'description'     => $cached_library->description,
+      'icon'            => $cached_library->icon,
+      'createdAt'       => $cached_library->created_at,
+      'updatedAt'       => $cached_library->updated_at,
+      'isRecommended'   => $cached_library->is_recommended,
+      'popularity'      => $cached_library->popularity,
+      'screenshots'     => json_decode($cached_library->screenshots),
+      'license'         => $cached_library->license,
+      'example'         => $cached_library->example,
+      'tutorial'        => $cached_library->tutorial,
+      'keywords'        => json_decode($cached_library->keywords),
+      'categories'      => json_decode($cached_library->categories),
+      'owner'           => $cached_library->owner,
+      'installed'       => FALSE,
+      'isUpToDate'      => FALSE,
+      'restricted'      => isset($cached_library->restricted) ? $cached_library->restricted : FALSE
+    );
+  }
+
+  /**
+   * Merge local libraries into cached libraries so that local libraries will
+   * get supplemented with the additional info from externally cached libraries.
+   *
+   * Also sets whether a given cached library is installed and up to date with
+   * the locally installed libraries
+   *
+   * @param object $local_libraries Locally installed libraries
+   * @param object $cached_libraries Cached libraries from the H5P hub
+   */
+  public function mergeLocalLibsIntoCachedLibs($local_libraries, &$cached_libraries) {
+
+    // Add local libraries to supplement content type cache
+    foreach ($local_libraries as $local_lib) {
+      $is_local_only = TRUE;
+      foreach ($cached_libraries as &$cached_lib) {
+
+        // Determine if library is local
+        $is_matching_library = $cached_lib['machineName'] === $local_lib->machine_name;
+        if ($is_matching_library) {
+          $is_local_only = FALSE;
+
+          // Set local properties
+          $cached_lib['installed']  = TRUE;
+          $cached_lib['restricted'] = $local_lib->restricted;
+          // TODO: set icon if it exists locally HFP-807
+
+          // Determine if library is the same as ct cache
+          $is_updated_library =
+            $cached_lib['majorVersion'] === $local_lib->major_version &&
+            $cached_lib['minorVersion'] === $local_lib->minor_version &&
+            $cached_lib['patchVersion'] === $local_lib->patch_version;
+
+          if ($is_updated_library) {
+            $cached_lib['isUpToDate'] = TRUE;
+          }
+        }
+      }
+
+      // Add minimal data to display local only libraries
+      if ($is_local_only) {
+        $cached_libraries[] = array(
+          'id'           => $local_lib->library_id,
+          'machineName'  => $local_lib->machine_name,
+          'majorVersion' => $local_lib->major_version,
+          'minorVersion' => $local_lib->minor_version,
+          'patchVersion' => $local_lib->patch_version,
+          'installed'    => TRUE,
+          'isUpToDate'   => TRUE,
+          'restricted'   => $local_lib->restricted
+        );
+      }
+    }
+  }
+
+  /**
    * Check if the current server setup is valid and set error messages
    *
    * @return array Errors found
