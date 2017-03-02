@@ -2783,7 +2783,7 @@ class H5PCore {
 
     $protocol = (extension_loaded('openssl') ? 'https' : 'http');
     $endpoint = H5PCore::$hubEndpoints[H5PCore::CONTENT_TYPES];
-    $data = $interface->fetchExternalData($protocol . $endpoint, $postData);
+    $data = $interface->fetchExternalData("{$protocol}://{$endpoint}", $postData);
 
     // No data received
     if (!$data) {
