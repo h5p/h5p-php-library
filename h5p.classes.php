@@ -2921,72 +2921,81 @@ class H5PCore {
   /**
    * Check if the current server setup is valid and set error messages
    *
-   * @return array Errors found
+   * @return object Setup object with errors and disable hub properties
    */
   public function checkSetupErrorMessage() {
-    $errors = array();
+    $setup = (object) array(
+      'errors' => array(),
+      'disable_hub' => FALSE
+    );
 
     if (!class_exists('ZipArchive')) {
-      $errors[] = $this->h5pF->t('Your PHP version does not support ZipArchive.');
+      $setup->errors[] = $this->h5pF->t('Your PHP version does not support ZipArchive.');
+      $setup->disable_hub = TRUE;
     }
 
     if (!extension_loaded('mbstring')) {
-      $errors[] =
-        $this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly');
+      $setup->errors[] = $this->h5pF->t(
+        'The mbstring PHP extension is not loaded. H5P need this to function properly'
+      );
+      $setup->disable_hub = TRUE;
     }
 
     // Check php version >= 5.2
     $php_version = explode('.', phpversion());
     if ($php_version[0] < 5 || ($php_version[0] === 5 && $php_version[1] < 2)) {
-      $errors[] =
-        $this->h5pF->t('Your PHP version is outdated. H5P requires version 5.2 to function properly. Version 5.6 or later is recommended.');
+      $setup->errors[] = $this->h5pF->t('Your PHP version is outdated. H5P requires version 5.2 to function properly. Version 5.6 or later is recommended.');
+      $setup->disable_hub = TRUE;
     }
 
     // Check write access
     if (!$this->fs->hasWriteAccess()) {
-      $errors[] =
-        $this->h5pF->t('A problem with the server write access was detected. Please make sure that your server can write to your data folder.');
+      $setup->errors[] = $this->h5pF->t('A problem with the server write access was detected. Please make sure that your server can write to your data folder.');
+      $setup->disable_hub = TRUE;
     }
 
     $max_upload_size = self::returnBytes(ini_get('upload_max_filesize'));
     $max_post_size   = self::returnBytes(ini_get('post_max_size'));
     $byte_threshold  = 5000000; // 5MB
     if ($max_upload_size < $byte_threshold) {
-      $errors[] =
+      $setup->errors[] =
         $this->h5pF->t('Your PHP max upload size option is too small. You should consider to increase it to more than 5MB.');
     }
 
     if ($max_post_size < $byte_threshold) {
-      $errors[] =
+      $setup->errors[] =
         $this->h5pF->t('Your PHP max post size option is too small. You should consider to increase it to more than 5MB.');
     }
 
     if ($max_upload_size > $max_post_size) {
-      $errors[] =
+      $setup->errors[] =
         $this->h5pF->t('Your PHP max upload size is bigger than your max post size. This is known to cause issues in some installations.');
     }
 
     // Check SSL
     if (!extension_loaded('openssl')) {
-      $errors[] =
+      $setup->errors[] =
         $this->h5pF->t('Your server does not have SSL enabled. SSL should be enabled to ensure a secure connection with the H5P hub.');
+      $setup->disable_hub = TRUE;
     }
 
-    return $errors;
+    return $setup;
   }
 
   /**
    * Check that all H5P requirements for the server setup is met.
    */
   public function checkSetupForRequirements() {
-    $errors = $this->checkSetupErrorMessage();
+    $setup = $this->checkSetupErrorMessage();
 
-    $this->h5pF->setOption('hub_is_enabled', empty($errors));
-    if (!empty($errors)) {
-      foreach ($errors as $err) {
+    $this->h5pF->setOption('hub_is_enabled', !$setup->disable_hub);
+    if (!empty($setup->errors)) {
+      foreach ($setup->errors as $err) {
         $this->h5pF->setErrorMessage($err);
       }
+    }
 
+    if ($setup->disable_hub) {
       // Inform how to re-enable hub
       $this->h5pF->setErrorMessage(
         $this->h5pF->t('H5P hub communication has been disabled because one or more H5P requirements failed.')
