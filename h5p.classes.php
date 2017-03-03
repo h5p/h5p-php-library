@@ -2896,7 +2896,7 @@ class H5PCore {
       // Add minimal data to display local only libraries
       if ($is_local_only) {
         $cached_libraries[] = array(
-          'id'           => $local_lib->library_id,
+          'id'           => $local_lib->id,
           'machineName'  => $local_lib->machine_name,
           'majorVersion' => $local_lib->major_version,
           'minorVersion' => $local_lib->minor_version,
