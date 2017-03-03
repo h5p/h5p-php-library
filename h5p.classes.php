@@ -1685,6 +1685,7 @@ Class H5PExport {
 abstract class H5PPermission {
   const DOWNLOAD_H5P = 0;
   const EMBED_H5P = 1;
+  const CREATE_RESTRICTED = 2;
 }
 
 abstract class H5PDisplayOptionBehaviour {
@@ -2818,10 +2819,10 @@ class H5PCore {
    *
    * @param object $cached_library A single library from the content type cache
    *
-   * @return array A list containing the necessary properties for a cached
+   * @return array A map containing the necessary properties for a cached
    * library to send to the front-end
    */
-  public function getCachedLibAsList($cached_library) {
+  public function getCachedLibsMap($cached_library) {
     return array(
       'id'              => $cached_library->id,
       'machineName'     => $cached_library->machine_name,
@@ -2862,6 +2863,7 @@ class H5PCore {
    * @param array $cached_libraries Cached libraries from the H5P hub
    */
   public function mergeLocalLibsIntoCachedLibs($local_libraries, &$cached_libraries) {
+    $can_create_restricted = $this->h5pF->hasPermission(H5PPermission::CREATE_RESTRICTED);
 
     // Add local libraries to supplement content type cache
     foreach ($local_libraries as $local_lib) {
@@ -2875,7 +2877,8 @@ class H5PCore {
 
           // Set local properties
           $cached_lib['installed']  = TRUE;
-          $cached_lib['restricted'] = $local_lib->restricted;
+          $cached_lib['restricted'] = $can_create_restricted ? FALSE
+            : $local_lib->restricted;
           // TODO: set icon if it exists locally HFP-807
 
           // Determine if library is the same as ct cache
@@ -2900,7 +2903,7 @@ class H5PCore {
           'patchVersion' => $local_lib->patch_version,
           'installed'    => TRUE,
           'isUpToDate'   => TRUE,
-          'restricted'   => $local_lib->restricted
+          'restricted'   => $can_create_restricted ? FALSE : $local_lib->restricted
         );
       }
     }
