@@ -2959,12 +2959,12 @@ class H5PCore {
     $byte_threshold  = 5000000; // 5MB
     if ($max_upload_size < $byte_threshold) {
       $setup->errors[] =
-        $this->h5pF->t('Your PHP max upload size option is too small. You should consider to increase it to more than 5MB.');
+        $this->h5pF->t('Your PHP max upload size is quite small. With your current setup, you may not upload files larger than %number MB. This might be a problem when trying to upload H5Ps, images and videos. Please consider to increase it to more than 5MB.', array('%number' => number_format($max_upload_size / 1024 / 1024, 2, '.', ' ')));
     }
 
     if ($max_post_size < $byte_threshold) {
       $setup->errors[] =
-        $this->h5pF->t('Your PHP max post size option is too small. You should consider to increase it to more than 5MB.');
+        $this->h5pF->t('Your PHP max post size is quite small. With your current setup, you may not upload files larger than %number MB. This might be a problem when trying to upload H5Ps, images and videos. Please consider to increase it to more than 5MB', array('%number' => number_format($max_upload_size / 1024 / 1024, 2, '.', ' ')));
     }
 
     if ($max_upload_size > $max_post_size) {
