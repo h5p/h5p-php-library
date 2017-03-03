@@ -2907,6 +2907,15 @@ class H5PCore {
         );
       }
     }
+
+    // Restrict LRS dependent content
+    if (!$this->h5pF->getOption('enable_lrs_content_types')) {
+      foreach ($cached_libraries as &$lib) {
+        if ($lib['machineName'] === 'H5P.Questionnaire') {
+          $lib['restricted'] = TRUE;
+        }
+      }
+    }
   }
 
   /**
