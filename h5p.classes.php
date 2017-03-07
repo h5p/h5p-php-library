@@ -67,7 +67,13 @@ interface H5PFrameworkInterface {
    */
   public function t($message, $replacements = array());
 
-  public function getLibraryFilePath($library_folder, $file);
+  /**
+   * Get URL to file in the specific library
+   * @param string $libraryFolderName
+   * @param string $fileName
+   * @return string URL to file
+   */
+  public function getLibraryFileUrl($libraryFolderName, $fileName);
 
   /**
    * Get the Path to the last uploaded h5p
