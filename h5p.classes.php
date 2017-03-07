@@ -2831,33 +2831,46 @@ class H5PCore {
    * library to send to the front-end
    */
   public function getCachedLibsMap($cached_library) {
-    return array(
-      'id'              => $cached_library->id,
+    // Add mandatory fields
+    $lib = array(
+      'id'              => intval($cached_library->id),
       'machineName'     => $cached_library->machine_name,
-      'majorVersion'    => $cached_library->major_version,
-      'minorVersion'    => $cached_library->minor_version,
-      'patchVersion'    => $cached_library->patch_version,
-      'h5pMajorVersion' => $cached_library->h5p_major_version,
-      'h5pMinorVersion' => $cached_library->h5p_minor_version,
+      'majorVersion'    => intval( $cached_library->major_version),
+      'minorVersion'    => intval($cached_library->minor_version),
+      'patchVersion'    => intval($cached_library->patch_version),
+      'h5pMajorVersion' => intval($cached_library->h5p_major_version),
+      'h5pMinorVersion' => intval($cached_library->h5p_minor_version),
       'title'           => $cached_library->title,
       'summary'         => $cached_library->summary,
       'description'     => $cached_library->description,
       'icon'            => $cached_library->icon,
-      'createdAt'       => $cached_library->created_at,
-      'updatedAt'       => $cached_library->updated_at,
-      'isRecommended'   => $cached_library->is_recommended,
-      'popularity'      => $cached_library->popularity,
+      'createdAt'       => intval($cached_library->created_at),
+      'updatedAt'       => intval($cached_library->updated_at),
+      'isRecommended'   => $cached_library->is_recommended != 0,
+      'popularity'      => intval($cached_library->popularity),
       'screenshots'     => json_decode($cached_library->screenshots),
       'license'         => $cached_library->license,
-      'example'         => $cached_library->example,
-      'tutorial'        => $cached_library->tutorial,
-      'keywords'        => json_decode($cached_library->keywords),
-      'categories'      => json_decode($cached_library->categories),
       'owner'           => $cached_library->owner,
       'installed'       => FALSE,
       'isUpToDate'      => FALSE,
       'restricted'      => isset($cached_library->restricted) ? $cached_library->restricted : FALSE
     );
+
+    // Add optional fields
+    if (!empty($cached_library->categories)) {
+      $lib['categories'] = json_decode($cached_library->categories);
+    }
+    if (!empty($cached_library->keywords)) {
+      $lib['keywords'] = json_decode($cached_library->keywords);
+    }
+    if (!empty($cached_library->tutorial)) {
+      $lib['tutorial'] = $cached_library->tutorial;
+    }
+    if (!empty($cached_library->example)) {
+      $lib['example'] = $cached_library->example;
+    }
+
+    return $lib;
   }
 
   /**
