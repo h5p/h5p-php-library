@@ -67,6 +67,8 @@ interface H5PFrameworkInterface {
    */
   public function t($message, $replacements = array());
 
+  public function getLibraryFilePath($library_folder, $file);
+
   /**
    * Get the Path to the last uploaded h5p
    *
@@ -2868,18 +2870,33 @@ class H5PCore {
     // Add local libraries to supplement content type cache
     foreach ($local_libraries as $local_lib) {
       $is_local_only = TRUE;
-      foreach ($cached_libraries as &$cached_lib) {
 
+      // Check if icon is available locally:
+      if($local_lib->has_icon) {
+        // Create path to icon:
+        $library_folder = H5PCore::libraryToString(array(
+          'machineName' => $local_lib->machine_name,
+          'majorVersion' => $local_lib->major_version,
+          'minorVersion' => $local_lib->minor_version
+        ), TRUE);
+        $icon_path = $this->h5pF->getLibraryFilePath($library_folder, 'icon.svg');
+      }
+
+      foreach ($cached_libraries as &$cached_lib) {
         // Determine if library is local
         $is_matching_library = $cached_lib['machineName'] === $local_lib->machine_name;
         if ($is_matching_library) {
           $is_local_only = FALSE;
 
+          // Set icon if it exists locally
+          if(isset($icon_path)) {
+            $cached_lib['icon'] = $icon_path;
+          }
+
           // Set local properties
           $cached_lib['installed']  = TRUE;
           $cached_lib['restricted'] = $can_create_restricted ? FALSE
             : $local_lib->restricted;
-          // TODO: set icon if it exists locally HFP-807
 
           // Determine if library is the same as ct cache
           $is_updated_library =
@@ -2895,7 +2912,7 @@ class H5PCore {
 
       // Add minimal data to display local only libraries
       if ($is_local_only) {
-        $cached_libraries[] = array(
+         $local_only_lib = array(
           'id'           => $local_lib->id,
           'machineName'  => $local_lib->machine_name,
           'majorVersion' => $local_lib->major_version,
@@ -2905,6 +2922,12 @@ class H5PCore {
           'isUpToDate'   => TRUE,
           'restricted'   => $can_create_restricted ? FALSE : $local_lib->restricted
         );
+
+        if (isset($icon_path)) {
+          $local_only_lib['icon'] = $icon_path;
+        }
+
+        $cached_libraries[] = $local_only_lib;
       }
     }
 
