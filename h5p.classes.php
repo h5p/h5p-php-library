@@ -2885,7 +2885,7 @@ class H5PCore {
           'majorVersion' => $local_lib->major_version,
           'minorVersion' => $local_lib->minor_version
         ), TRUE);
-        $icon_path = $this->h5pF->getLibraryFilePath($library_folder, 'icon.svg');
+        $icon_path = $this->h5pF->getLibraryFileUrl($library_folder, 'icon.svg');
       }
 
       foreach ($cached_libraries as &$cached_lib) {
