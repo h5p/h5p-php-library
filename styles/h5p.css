@@ -147,9 +147,11 @@ div.h5p-fullscreen {
   z-index: 20;
 }
 .h5p-iframe-wrapper iframe.h5p-iframe {
+  /* Hack for IOS landscape / portrait */
   width: 10px;
   min-width: 100%;
   *width: 100%;
+  /* End of hack */
   height: 100%;
   z-index: 10;
   overflow: hidden;
