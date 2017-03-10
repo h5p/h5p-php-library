@@ -3,11 +3,11 @@
 /* Custom H5P font to use for icons. */
 @font-face {
   font-family: 'h5p';
-  src:    url('../fonts/h5p-core-17.eot?ddjqkb');
-  src:    url('../fonts/h5p-core-17.eot?ddjqkb#iefix') format('embedded-opentype'),
-  url('../fonts/h5p-core-17.ttf?ddjqkb') format('truetype'),
-  url('../fonts/h5p-core-17.woff?ddjqkb') format('woff'),
-  url('../fonts/h5p-core-17.svg?ddjqkb#h5p') format('svg');
+  src:    url('../fonts/h5p-core-18.eot?cb8kvi');
+  src:    url('../fonts/h5p-core-18.eot?cb8kvi#iefix') format('embedded-opentype'),
+  url('../fonts/h5p-core-18.ttf?cb8kvi') format('truetype'),
+  url('../fonts/h5p-core-18.woff?cb8kvi') format('woff'),
+  url('../fonts/h5p-core-18.svg?cb8kvi#h5p') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -147,7 +147,11 @@ div.h5p-fullscreen {
   z-index: 20;
 }
 .h5p-iframe-wrapper iframe.h5p-iframe {
-  width: 100%;
+  /* Hack for IOS landscape / portrait */
+  width: 10px;
+  min-width: 100%;
+  *width: 100%;
+  /* End of hack */
   height: 100%;
   z-index: 10;
   overflow: hidden;

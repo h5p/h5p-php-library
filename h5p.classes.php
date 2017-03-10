@@ -68,6 +68,14 @@ interface H5PFrameworkInterface {
   public function t($message, $replacements = array());
 
   /**
+   * Get URL to file in the specific library
+   * @param string $libraryFolderName
+   * @param string $fileName
+   * @return string URL to file
+   */
+  public function getLibraryFileUrl($libraryFolderName, $fileName);
+
+  /**
    * Get the Path to the last uploaded h5p
    *
    * @return string
@@ -1685,6 +1693,7 @@ Class H5PExport {
 abstract class H5PPermission {
   const DOWNLOAD_H5P = 0;
   const EMBED_H5P = 1;
+  const CREATE_RESTRICTED = 2;
 }
 
 abstract class H5PDisplayOptionBehaviour {
@@ -1723,6 +1732,12 @@ class H5PCore {
   public static $adminScripts = array(
     'js/jquery.js',
     'js/h5p-utils.js',
+  );
+
+  const CONTENT_TYPES = 0;
+
+  public static $hubEndpoints = array(
+    self::CONTENT_TYPES => 'api.h5p.org/v1/content-types/'
   );
 
   public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
@@ -2698,7 +2713,7 @@ class H5PCore {
     }
 
     if ($error_code !== NULL) {
-      $response['error_code'] = $error_code;
+      $response['errorCode'] = $error_code;
     }
 
     self::printJson($response);
@@ -2764,8 +2779,6 @@ class H5PCore {
    * @return bool|object Returns endpoint data if found, otherwise FALSE
    */
   public function updateContentTypeCache($postData = NULL) {
-    $endpoint = 'http://api.h5p.org/v1/content-types';
-
     $interface = $this->h5pF;
 
     // Set uuid
@@ -2777,7 +2790,9 @@ class H5PCore {
 
     $postData['current_cache'] = $this->h5pF->getOption('content_type_cache_updated_at', 0);
 
-    $data = $interface->fetchExternalData($endpoint, $postData);
+    $protocol = (extension_loaded('openssl') ? 'https' : 'http');
+    $endpoint = H5PCore::$hubEndpoints[H5PCore::CONTENT_TYPES];
+    $data = $interface->fetchExternalData("{$protocol}://{$endpoint}", $postData);
 
     // No data received
     if (!$data) {
@@ -2812,37 +2827,50 @@ class H5PCore {
    *
    * @param object $cached_library A single library from the content type cache
    *
-   * @return array A list containing the necessary properties for a cached
+   * @return array A map containing the necessary properties for a cached
    * library to send to the front-end
    */
-  public function getCachedLibAsList($cached_library) {
-    return array(
-      'id'              => $cached_library->id,
+  public function getCachedLibsMap($cached_library) {
+    // Add mandatory fields
+    $lib = array(
+      'id'              => intval($cached_library->id),
       'machineName'     => $cached_library->machine_name,
-      'majorVersion'    => $cached_library->major_version,
-      'minorVersion'    => $cached_library->minor_version,
-      'patchVersion'    => $cached_library->patch_version,
-      'h5pMajorVersion' => $cached_library->h5p_major_version,
-      'h5pMinorVersion' => $cached_library->h5p_minor_version,
+      'majorVersion'    => intval( $cached_library->major_version),
+      'minorVersion'    => intval($cached_library->minor_version),
+      'patchVersion'    => intval($cached_library->patch_version),
+      'h5pMajorVersion' => intval($cached_library->h5p_major_version),
+      'h5pMinorVersion' => intval($cached_library->h5p_minor_version),
       'title'           => $cached_library->title,
       'summary'         => $cached_library->summary,
       'description'     => $cached_library->description,
       'icon'            => $cached_library->icon,
-      'createdAt'       => $cached_library->created_at,
-      'updatedAt'       => $cached_library->updated_at,
-      'isRecommended'   => $cached_library->is_recommended,
-      'popularity'      => $cached_library->popularity,
+      'createdAt'       => intval($cached_library->created_at),
+      'updatedAt'       => intval($cached_library->updated_at),
+      'isRecommended'   => $cached_library->is_recommended != 0,
+      'popularity'      => intval($cached_library->popularity),
       'screenshots'     => json_decode($cached_library->screenshots),
       'license'         => $cached_library->license,
-      'example'         => $cached_library->example,
-      'tutorial'        => $cached_library->tutorial,
-      'keywords'        => json_decode($cached_library->keywords),
-      'categories'      => json_decode($cached_library->categories),
       'owner'           => $cached_library->owner,
       'installed'       => FALSE,
       'isUpToDate'      => FALSE,
       'restricted'      => isset($cached_library->restricted) ? $cached_library->restricted : FALSE
     );
+
+    // Add optional fields
+    if (!empty($cached_library->categories)) {
+      $lib['categories'] = json_decode($cached_library->categories);
+    }
+    if (!empty($cached_library->keywords)) {
+      $lib['keywords'] = json_decode($cached_library->keywords);
+    }
+    if (!empty($cached_library->tutorial)) {
+      $lib['tutorial'] = $cached_library->tutorial;
+    }
+    if (!empty($cached_library->example)) {
+      $lib['example'] = $cached_library->example;
+    }
+
+    return $lib;
   }
 
   /**
@@ -2856,21 +2884,38 @@ class H5PCore {
    * @param array $cached_libraries Cached libraries from the H5P hub
    */
   public function mergeLocalLibsIntoCachedLibs($local_libraries, &$cached_libraries) {
+    $can_create_restricted = $this->h5pF->hasPermission(H5PPermission::CREATE_RESTRICTED);
 
     // Add local libraries to supplement content type cache
     foreach ($local_libraries as $local_lib) {
       $is_local_only = TRUE;
-      foreach ($cached_libraries as &$cached_lib) {
 
+      // Check if icon is available locally:
+      if($local_lib->has_icon) {
+        // Create path to icon:
+        $library_folder = H5PCore::libraryToString(array(
+          'machineName' => $local_lib->machine_name,
+          'majorVersion' => $local_lib->major_version,
+          'minorVersion' => $local_lib->minor_version
+        ), TRUE);
+        $icon_path = $this->h5pF->getLibraryFileUrl($library_folder, 'icon.svg');
+      }
+
+      foreach ($cached_libraries as &$cached_lib) {
         // Determine if library is local
         $is_matching_library = $cached_lib['machineName'] === $local_lib->machine_name;
         if ($is_matching_library) {
           $is_local_only = FALSE;
 
+          // Set icon if it exists locally
+          if(isset($icon_path)) {
+            $cached_lib['icon'] = $icon_path;
+          }
+
           // Set local properties
           $cached_lib['installed']  = TRUE;
-          $cached_lib['restricted'] = $local_lib->restricted;
-          // TODO: set icon if it exists locally HFP-807
+          $cached_lib['restricted'] = $can_create_restricted ? FALSE
+            : $local_lib->restricted;
 
           // Determine if library is the same as ct cache
           $is_updated_library =
@@ -2886,16 +2931,31 @@ class H5PCore {
 
       // Add minimal data to display local only libraries
       if ($is_local_only) {
-        $cached_libraries[] = array(
-          'id'           => $local_lib->library_id,
+         $local_only_lib = array(
+          'id'           => $local_lib->id,
           'machineName'  => $local_lib->machine_name,
           'majorVersion' => $local_lib->major_version,
           'minorVersion' => $local_lib->minor_version,
           'patchVersion' => $local_lib->patch_version,
           'installed'    => TRUE,
           'isUpToDate'   => TRUE,
-          'restricted'   => $local_lib->restricted
+          'restricted'   => $can_create_restricted ? FALSE : $local_lib->restricted
         );
+
+        if (isset($icon_path)) {
+          $local_only_lib['icon'] = $icon_path;
+        }
+
+        $cached_libraries[] = $local_only_lib;
+      }
+    }
+
+    // Restrict LRS dependent content
+    if (!$this->h5pF->getOption('enable_lrs_content_types')) {
+      foreach ($cached_libraries as &$lib) {
+        if ($lib['machineName'] === 'H5P.Questionnaire') {
+          $lib['restricted'] = TRUE;
+        }
       }
     }
   }
@@ -2903,72 +2963,81 @@ class H5PCore {
   /**
    * Check if the current server setup is valid and set error messages
    *
-   * @return array Errors found
+   * @return object Setup object with errors and disable hub properties
    */
   public function checkSetupErrorMessage() {
-    $errors = array();
+    $setup = (object) array(
+      'errors' => array(),
+      'disable_hub' => FALSE
+    );
 
     if (!class_exists('ZipArchive')) {
-      $errors[] = $this->h5pF->t('Your PHP version does not support ZipArchive.');
+      $setup->errors[] = $this->h5pF->t('Your PHP version does not support ZipArchive.');
+      $setup->disable_hub = TRUE;
     }
 
     if (!extension_loaded('mbstring')) {
-      $errors[] =
-        $this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly');
+      $setup->errors[] = $this->h5pF->t(
+        'The mbstring PHP extension is not loaded. H5P need this to function properly'
+      );
+      $setup->disable_hub = TRUE;
     }
 
     // Check php version >= 5.2
     $php_version = explode('.', phpversion());
     if ($php_version[0] < 5 || ($php_version[0] === 5 && $php_version[1] < 2)) {
-      $errors[] =
-        $this->h5pF->t('Your PHP version is outdated. H5P requires version 5.2 to function properly. Version 5.6 or later is recommended.');
+      $setup->errors[] = $this->h5pF->t('Your PHP version is outdated. H5P requires version 5.2 to function properly. Version 5.6 or later is recommended.');
+      $setup->disable_hub = TRUE;
     }
 
     // Check write access
     if (!$this->fs->hasWriteAccess()) {
-      $errors[] =
-        $this->h5pF->t('A problem with the server write access was detected. Please make sure that your server can write to your data folder.');
+      $setup->errors[] = $this->h5pF->t('A problem with the server write access was detected. Please make sure that your server can write to your data folder.');
+      $setup->disable_hub = TRUE;
     }
 
     $max_upload_size = self::returnBytes(ini_get('upload_max_filesize'));
     $max_post_size   = self::returnBytes(ini_get('post_max_size'));
     $byte_threshold  = 5000000; // 5MB
     if ($max_upload_size < $byte_threshold) {
-      $errors[] =
-        $this->h5pF->t('Your PHP max upload size option is too small. You should consider to increase it to more than 5MB.');
+      $setup->errors[] =
+        $this->h5pF->t('Your PHP max upload size is quite small. With your current setup, you may not upload files larger than %number MB. This might be a problem when trying to upload H5Ps, images and videos. Please consider to increase it to more than 5MB.', array('%number' => number_format($max_upload_size / 1024 / 1024, 2, '.', ' ')));
     }
 
     if ($max_post_size < $byte_threshold) {
-      $errors[] =
-        $this->h5pF->t('Your PHP max post size option is too small. You should consider to increase it to more than 5MB.');
+      $setup->errors[] =
+        $this->h5pF->t('Your PHP max post size is quite small. With your current setup, you may not upload files larger than %number MB. This might be a problem when trying to upload H5Ps, images and videos. Please consider to increase it to more than 5MB', array('%number' => number_format($max_upload_size / 1024 / 1024, 2, '.', ' ')));
     }
 
     if ($max_upload_size > $max_post_size) {
-      $errors[] =
+      $setup->errors[] =
         $this->h5pF->t('Your PHP max upload size is bigger than your max post size. This is known to cause issues in some installations.');
     }
 
     // Check SSL
     if (!extension_loaded('openssl')) {
-      $errors[] =
+      $setup->errors[] =
         $this->h5pF->t('Your server does not have SSL enabled. SSL should be enabled to ensure a secure connection with the H5P hub.');
+      $setup->disable_hub = TRUE;
     }
 
-    return $errors;
+    return $setup;
   }
 
   /**
    * Check that all H5P requirements for the server setup is met.
    */
   public function checkSetupForRequirements() {
-    $errors = $this->checkSetupErrorMessage();
+    $setup = $this->checkSetupErrorMessage();
 
-    $this->h5pF->setOption('hub_is_enabled', empty($errors));
-    if (!empty($errors)) {
-      foreach ($errors as $err) {
+    $this->h5pF->setOption('hub_is_enabled', !$setup->disable_hub);
+    if (!empty($setup->errors)) {
+      foreach ($setup->errors as $err) {
         $this->h5pF->setErrorMessage($err);
       }
+    }
 
+    if ($setup->disable_hub) {
       // Inform how to re-enable hub
       $this->h5pF->setErrorMessage(
         $this->h5pF->t('H5P hub communication has been disabled because one or more H5P requirements failed.')

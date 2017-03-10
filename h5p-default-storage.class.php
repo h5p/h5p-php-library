@@ -408,7 +408,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *
    * @throws Exception Unable to copy the file
    */
-  private static function copyFileTree($source, $destination) {
+  public static function copyFileTree($source, $destination) {
     if (!self::dirReady($destination)) {
       throw new \Exception('unabletocopy');
     }
@@ -481,5 +481,14 @@ class H5PDefaultStorage implements \H5PFileStorage {
     }
 
     return TRUE;
+  }
+
+  /**
+   * Easy helper function for retrieving the editor path
+   *
+   * @return null|string Path to editor files
+   */
+  public function getEditorPath() {
+    return $this->alteditorpath;
   }
 }
