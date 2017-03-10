@@ -23,7 +23,7 @@ interface H5PFrameworkInterface {
    * @param $data
    * @return string The content (response body). NULL if something went wrong
    */
-  public function fetchExternalData($url, $data);
+  public function fetchExternalData($url, $data = NULL);
 
   /**
    * Set the tutorial URL for a library. All versions of the library is set
