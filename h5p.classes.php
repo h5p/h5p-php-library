@@ -2889,6 +2889,7 @@ class H5PCore {
     // Add local libraries to supplement content type cache
     foreach ($local_libraries as $local_lib) {
       $is_local_only = TRUE;
+      $icon_path = NULL;
 
       // Check if icon is available locally:
       if($local_lib->has_icon) {
