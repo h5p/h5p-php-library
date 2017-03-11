@@ -299,7 +299,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
     // Prepare directory
     if (empty($contentId)) {
       // Should be in editor tmp folder
-      $path = ($this->alteditorpath !== NULL ? $this->alteditorpath : $this->path . '/editor');
+      $path = $this->getEditorPath();
     }
     else {
       // Should be in content folder
@@ -333,7 +333,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
   public function cloneContentFile($file, $fromId, $toId) {
     // Determine source path
     if ($fromId === 'editor') {
-      $sourcepath = ($this->alteditorpath !== NULL ? $this->alteditorpath : "{$this->path}/editor");
+      $sourcepath = $this->getEditorPath();
     }
     else {
       $sourcepath = "{$this->path}/content/{$fromId}";
@@ -356,6 +356,39 @@ class H5PDefaultStorage implements \H5PFileStorage {
     }
 
     copy($sourcepath, $targetpath);
+  }
+
+  /**
+   * Copy a content from one directory to another. Defaults to cloning
+   * content from the current temporary upload folder to the editor path.
+   *
+   * @param string $source path to source directory
+   * @param string $target path of target directory. Defaults to editor path
+   */
+  public function moveContentDirectory($source, $target = NULL) {
+    if ($source === NULL) {
+      return NULL;
+    }
+
+    if ($target === NULL) {
+      $target = $this->getEditorPath();
+    }
+
+    $content_files = array_diff(scandir($content_path), array('.','..', 'content.json'));
+    foreach ($content_files as $file) {
+      if (is_dir($source)) {
+        self::copyFileTree($source, $taget);
+      }
+      else {
+        copy($tmp_file_path, $editor_file_path);
+      }
+    }
+
+    // Successfully loaded content json of file into editor
+    $h5pJson = $this->getContent($path . DIRECTORY_SEPARATOR . 'h5p.json');
+    $contentJson = $core->fs->getContent($path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json');
+
+    return array();
   }
 
   /**
@@ -408,7 +441,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *
    * @throws Exception Unable to copy the file
    */
-  public static function copyFileTree($source, $destination) {
+  private static function copyFileTree($source, $destination) {
     if (!self::dirReady($destination)) {
       throw new \Exception('unabletocopy');
     }
@@ -486,9 +519,9 @@ class H5PDefaultStorage implements \H5PFileStorage {
   /**
    * Easy helper function for retrieving the editor path
    *
-   * @return null|string Path to editor files
+   * @return string Path to editor files
    */
-  public function getEditorPath() {
-    return $this->alteditorpath;
+  private function getEditorPath() {
+    return ($this->alteditorpath !== NULL ? $this->alteditorpath : "{$this->path}/editor");
   }
 }

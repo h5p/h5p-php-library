@@ -23,7 +23,7 @@ interface H5PFrameworkInterface {
    * @param $data
    * @return string The content (response body). NULL if something went wrong
    */
-  public function fetchExternalData($url, $data = NULL);
+  public function fetchExternalData($url, $data);
 
   /**
    * Set the tutorial URL for a library. All versions of the library is set
@@ -584,6 +584,12 @@ interface H5PFrameworkInterface {
    *  containing the new content type cache that should replace the old one.
    */
   public function replaceContentTypeCache($contentTypeCache);
+
+  public function getLatestLibraryVersions();
+
+  public function getContentTypeCache();
+
+  public function getAuthorsRecentlyUsedLibraries();
 }
 
 /**
@@ -1694,6 +1700,8 @@ abstract class H5PPermission {
   const DOWNLOAD_H5P = 0;
   const EMBED_H5P = 1;
   const CREATE_RESTRICTED = 2;
+  const UPDATE_LIBRARIES = 3;
+  const INSTALL_RECOMMENDED = 4;
 }
 
 abstract class H5PDisplayOptionBehaviour {
@@ -2687,12 +2695,17 @@ class H5PCore {
    * @param mixed $data
    * @since 1.6.0
    */
-  public static function ajaxSuccess($data = NULL) {
+  public static function ajaxSuccess($data = NULL, $only_data = FALSE) {
     $response = array(
       'success' => TRUE
     );
     if ($data !== NULL) {
       $response['data'] = $data;
+
+      // Pass data flatly to support old methods
+      if ($only_data) {
+        $response = $data;
+      }
     }
     self::printJson($response);
   }
@@ -2701,10 +2714,13 @@ class H5PCore {
    * Makes it easier to print response when AJAX request fails.
    * Will exit after printing error.
    *
-   * @param string $message
+   * @param string $message A human readable error message
+   * @param string $error_code An machine readable error code that a client
+   * should be able to interpret
+   * @param null|int $status_code Http response code
    * @since 1.6.0
    */
-  public static function ajaxError($message = NULL, $error_code = NULL) {
+  public static function ajaxError($message = NULL, $error_code = NULL, $status_code = NULL) {
     $response = array(
       'success' => FALSE
     );
@@ -2716,7 +2732,7 @@ class H5PCore {
       $response['errorCode'] = $error_code;
     }
 
-    self::printJson($response);
+    self::printJson($response, $status_code);
   }
 
   /**
@@ -2724,8 +2740,13 @@ class H5PCore {
    * Makes it easier to respond using JSON.
    *
    * @param mixed $data
+   * @param null|int $status_code Http response code
    */
-  private static function printJson($data) {
+  private static function printJson($data, $status_code = NULL) {
+    if ($status_code !== NULL) {
+      http_response_code($status_code);
+    }
+
     header('Cache-Control: no-cache');
     header('Content-type: application/json; charset=utf-8');
     print json_encode($data);
@@ -2889,7 +2910,6 @@ class H5PCore {
     // Add local libraries to supplement content type cache
     foreach ($local_libraries as $local_lib) {
       $is_local_only = TRUE;
-      $icon_path = NULL;
 
       // Check if icon is available locally:
       if($local_lib->has_icon) {
@@ -3092,6 +3112,46 @@ class H5PCore {
     }
 
     return $can;
+  }
+
+  /**
+   * Gets content type cache, applies user specific properties and formats
+   * as camelCase.
+   *
+   * @return array $libraries Cached libraries from the H5P Hub with user specific
+   * permission properties
+   */
+  public function getUserSpecificContentTypeCache() {
+    $cached_libraries = $this->h5pF->getContentTypeCache();
+
+    // Determine access
+    $can_install_all         = $this->h5pF->hasPermission(H5PPermission::UPDATE_LIBRARIES);
+    $can_install_recommended = $this->h5pF->hasPermission(H5PPermission::INSTALL_RECOMMENDED);
+
+
+    // Check if user has access to install libraries and format to json
+    $libraries = array();
+    foreach ($cached_libraries as &$result) {
+      $can_install_lib    = $can_install_all || $result->is_recommended && $can_install_recommended;
+      $result->restricted = !$can_install_lib;
+      $libraries[]        = $this->getCachedLibsMap($result);
+    }
+
+    return $libraries;
+  }
+
+  /**
+   * Gets local and external libraries data with metadata to display
+   * all libraries that are currently available for the user.
+   *
+   * @return array $libraries Latest local and external libraries data with
+   * user specific permissions
+   */
+  public function getLatestGlobalLibrariesData() {
+    $latest_local_libraries = $this->h5pF->getLatestLibraryVersions();
+    $cached_libraries       = $this->getUserSpecificContentTypeCache();
+    $this->mergeLocalLibsIntoCachedLibs($latest_local_libraries, $cached_libraries);
+    return $cached_libraries;
   }
 }
 
