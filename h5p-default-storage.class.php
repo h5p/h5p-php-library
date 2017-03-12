@@ -374,21 +374,25 @@ class H5PDefaultStorage implements \H5PFileStorage {
       $target = $this->getEditorPath();
     }
 
-    $content_files = array_diff(scandir($content_path), array('.','..', 'content.json'));
-    foreach ($content_files as $file) {
-      if (is_dir($source)) {
-        self::copyFileTree($source, $taget);
+    $contentSource = $source . DIRECTORY_SEPARATOR . 'content';
+    $contentFiles = array_diff(scandir($contentSource), array('.','..', 'content.json'));
+    foreach ($contentFiles as $file) {
+      if (is_dir($contentSource)) {
+        self::copyFileTree($contentSource, $target);
       }
       else {
-        copy($tmp_file_path, $editor_file_path);
+        copy($contentSource . DIRECTORY_SEPARATOR . $file, $target . DIRECTORY_SEPARATOR . $file);
       }
     }
 
     // Successfully loaded content json of file into editor
-    $h5pJson = $this->getContent($path . DIRECTORY_SEPARATOR . 'h5p.json');
-    $contentJson = $core->fs->getContent($path . DIRECTORY_SEPARATOR . 'content' . DIRECTORY_SEPARATOR . 'content.json');
+    $h5pJson = $this->getContent($source . DIRECTORY_SEPARATOR . 'h5p.json');
+    $contentJson = $this->getContent($contentSource . DIRECTORY_SEPARATOR . 'content.json');
 
-    return array();
+    return (object) array(
+      'h5pJson' => $h5pJson,
+      'contentJson' => $contentJson
+    );
   }
 
   /**
