@@ -319,7 +319,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
       copy($_FILES['file']['tmp_name'], $path);
     }
 
-    return $path;
+    return $file;
   }
 
   /**
@@ -379,11 +379,11 @@ class H5PDefaultStorage implements \H5PFileStorage {
     $contentSource = $source . DIRECTORY_SEPARATOR . 'content';
     $contentFiles = array_diff(scandir($contentSource), array('.','..', 'content.json'));
     foreach ($contentFiles as $file) {
-      if (is_dir($contentSource)) {
-        self::copyFileTree($contentSource, $target);
+      if (is_dir("{$contentSource}/{$file}")) {
+        self::copyFileTree("{$contentSource}/{$file}", "{$target}/{$file}");
       }
       else {
-        copy($contentSource . DIRECTORY_SEPARATOR . $file, $target . DIRECTORY_SEPARATOR . $file);
+        copy("{$contentSource}/{$file}", "{$target}/{$file}");
       }
     }
 
