@@ -364,6 +364,8 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *
    * @param string $source path to source directory
    * @param string $target path of target directory. Defaults to editor path
+   *
+   * @return object Object containing h5p json and content json data
    */
   public function moveContentDirectory($source, $target = NULL) {
     if ($source === NULL) {
