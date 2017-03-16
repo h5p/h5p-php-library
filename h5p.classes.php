@@ -2426,6 +2426,8 @@ class H5PCore {
    * implementation is responsible for invoking this, eg using cron
    *
    * @param bool $fetchingDisabled
+   *
+   * @return bool|object Returns endpoint data if found, otherwise FALSE
    */
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
     // Gather data
@@ -2452,6 +2454,26 @@ class H5PCore {
         'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
       )))
     );
+
+    // Register site if it is not registered
+    if (empty($uuid)) {
+      $protocol = (extension_loaded('openssl') ? 'https' : 'http');
+      $endpoint = 'api.h5p.org/v1/sites';
+      $registration = $this->h5pF->fetchExternalData("{$protocol}://{$endpoint}", $data);
+
+      // Failed retrieving uuid
+      if (!$registration) {
+        return H5PCore::ajaxError(
+          t('Site could not be registered with the hub. Please contact your site administrator.'),
+          'SITE_REGISTRATION_FAILED'
+        );
+      }
+
+      // Successfully retrieved new uuid
+      $json = json_decode($registration);
+      $data['uuid'] = $json->uuid;
+      $this->h5pF->setOption('site_uuid', $json->uuid);
+    }
 
     $result = $this->updateContentTypeCache($data);
 
@@ -2783,8 +2805,16 @@ class H5PCore {
 
     // Set uuid
     if (!$postData) {
+      $site_uuid = $this->h5pF->getOption('site_uuid', '');
+
+      // Register site with site uuid if we don't already have it
+      // and try to update content type cache again when this is done
+      if (empty($site_uuid)) {
+        return $this->fetchLibrariesMetadata();
+      }
+
       $postData = array(
-        'uuid' => $this->h5pF->getOption('site_uuid', '')
+        'uuid' => $site_uuid
       );
     }
 
