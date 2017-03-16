@@ -2463,9 +2463,14 @@ class H5PCore {
 
       // Failed retrieving uuid
       if (!$registration) {
+        $errorMessage = $this->h5pF->t('Site could not be registered with the hub. Please contact your site administrator.');
         return H5PCore::ajaxError(
-          t('Site could not be registered with the hub. Please contact your site administrator.'),
+          $errorMessage,
           'SITE_REGISTRATION_FAILED'
+        );
+        $this->h5pF->setErrorMessage($errorMessage);
+        $this->h5pF->setErrorMessage(
+          $this->h5pF->t('The H5P Hub has been disabled until this problem can be resolved. You may still upload libraries through the "H5P Libraries" page.')
         );
       }
 
@@ -2473,6 +2478,12 @@ class H5PCore {
       $json = json_decode($registration);
       $data['uuid'] = $json->uuid;
       $this->h5pF->setOption('site_uuid', $json->uuid);
+      $this->h5pF->setInfoMessage(
+        $this->h5pF->t('Your site was successfully registered with the H5P Hub.')
+      );
+      $this->h5pF->setInfoMessage(
+        $this->h5pF->t('You have been provided a unique key that identifies you with the Hub when receiving new updates. The key is available for viewing in the "H5P Settings" page.')
+      );
     }
 
     $result = $this->updateContentTypeCache($data);
