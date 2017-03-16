@@ -2425,6 +2425,8 @@ class H5PCore {
    * implementation is responsible for invoking this, eg using cron
    *
    * @param bool $fetchingDisabled
+   *
+   * @return bool|object Returns endpoint data if found, otherwise FALSE
    */
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
     // Gather data
@@ -2451,6 +2453,38 @@ class H5PCore {
         'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
       )))
     );
+
+    // Register site if it is not registered
+    if (empty($uuid)) {
+      $protocol = (extension_loaded('openssl') ? 'https' : 'http');
+      $endpoint = 'api.h5p.org/v1/sites';
+      $registration = $this->h5pF->fetchExternalData("{$protocol}://{$endpoint}", $data);
+
+      // Failed retrieving uuid
+      if (!$registration) {
+        $errorMessage = $this->h5pF->t('Site could not be registered with the hub. Please contact your site administrator.');
+        H5PCore::ajaxError(
+          $errorMessage,
+          'SITE_REGISTRATION_FAILED'
+        );
+        $this->h5pF->setErrorMessage($errorMessage);
+        $this->h5pF->setErrorMessage(
+          $this->h5pF->t('The H5P Hub has been disabled until this problem can be resolved. You may still upload libraries through the "H5P Libraries" page.')
+        );
+        return FALSE;
+      }
+
+      // Successfully retrieved new uuid
+      $json = json_decode($registration);
+      $data['uuid'] = $json->uuid;
+      $this->h5pF->setOption('site_uuid', $json->uuid);
+      $this->h5pF->setInfoMessage(
+        $this->h5pF->t('Your site was successfully registered with the H5P Hub.')
+      );
+      $this->h5pF->setInfoMessage(
+        $this->h5pF->t('You have been provided a unique key that identifies you with the Hub when receiving new updates. The key is available for viewing in the "H5P Settings" page.')
+      );
+    }
 
     $result = $this->updateContentTypeCache($data);
 
@@ -2795,9 +2829,16 @@ class H5PCore {
 
     // Set uuid
     if (!$postData) {
-      $siteKey = $this->h5pF->getOption('site_key', '');
+      $site_uuid = $this->h5pF->getOption('site_uuid', '');
+
+      // Register site with site uuid if we don't already have it
+      // and try to update content type cache again when this is done
+      if (empty($site_uuid)) {
+        return $this->fetchLibrariesMetadata();
+      }
+
       $postData = array(
-        'uuid' => $siteKey ? $siteKey : $this->h5pF->getOption('site_uuid', '')
+        'uuid' => $site_uuid
       );
     }
 
