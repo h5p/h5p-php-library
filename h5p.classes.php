@@ -2432,33 +2432,21 @@ class H5PCore {
     // Gather data
     $uuid = $this->h5pF->getOption('site_uuid', '');
     $platform = $this->h5pF->getPlatformInfo();
-    $data = array(
-      'api_version' => 2,
+    $registrationData = array(
       'uuid' => $uuid,
       'platform_name' => $platform['name'],
       'platform_version' => $platform['version'],
       'h5p_version' => $platform['h5pVersion'],
       'disabled' => $fetchingDisabled ? 1 : 0,
       'local_id' => hash('crc32', $this->fullPluginPath),
-      'type' => $this->h5pF->getOption('site_type', 'local'),
-      'num_authors' => $this->h5pF->getNumAuthors(),
-      'libraries' => json_encode($this->combineArrayValues(array(
-        'patch' => $this->getLibrariesInstalled(),
-        'content' => $this->h5pF->getLibraryContentCount(),
-        'loaded' => $this->h5pF->getLibraryStats('library'),
-        'created' => $this->h5pF->getLibraryStats('content create'),
-        'createdUpload' => $this->h5pF->getLibraryStats('content create upload'),
-        'deleted' => $this->h5pF->getLibraryStats('content delete'),
-        'resultViews' => $this->h5pF->getLibraryStats('results content'),
-        'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
-      )))
+      'type' => $this->h5pF->getOption('site_type', 'local')
     );
 
     // Register site if it is not registered
     if (empty($uuid)) {
       $protocol = (extension_loaded('openssl') ? 'https' : 'http');
       $endpoint = 'api.h5p.org/v1/sites';
-      $registration = $this->h5pF->fetchExternalData("{$protocol}://{$endpoint}", $data);
+      $registration = $this->h5pF->fetchExternalData("{$protocol}://{$endpoint}", $registrationData);
 
       // Failed retrieving uuid
       if (!$registration) {
@@ -2476,7 +2464,7 @@ class H5PCore {
 
       // Successfully retrieved new uuid
       $json = json_decode($registration);
-      $data['uuid'] = $json->uuid;
+      $registrationData['uuid'] = $json->uuid;
       $this->h5pF->setOption('site_uuid', $json->uuid);
       $this->h5pF->setInfoMessage(
         $this->h5pF->t('Your site was successfully registered with the H5P Hub.')
@@ -2486,7 +2474,25 @@ class H5PCore {
       );
     }
 
-    $result = $this->updateContentTypeCache($data);
+    $siteData = array_merge(
+      $registrationData,
+      array(
+        'api_version' => 2,
+        'num_authors' => $this->h5pF->getNumAuthors(),
+        'libraries'   => json_encode($this->combineArrayValues(array(
+          'patch'            => $this->getLibrariesInstalled(),
+          'content'          => $this->h5pF->getLibraryContentCount(),
+          'loaded'           => $this->h5pF->getLibraryStats('library'),
+          'created'          => $this->h5pF->getLibraryStats('content create'),
+          'createdUpload'    => $this->h5pF->getLibraryStats('content create upload'),
+          'deleted'          => $this->h5pF->getLibraryStats('content delete'),
+          'resultViews'      => $this->h5pF->getLibraryStats('results content'),
+          'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
+        )))
+      )
+    );
+
+    $result = $this->updateContentTypeCache($siteData);
 
     // No data received
     if (!$result || empty($result)) {
@@ -2507,6 +2513,8 @@ class H5PCore {
       $this->h5pF->setOption('update_available', $result->packageReleased->releasedAt);
       $this->h5pF->setOption('update_available_path', $result->packageReleased->path);
     }
+
+    return $result;
   }
 
   /**
@@ -2828,7 +2836,7 @@ class H5PCore {
     $interface = $this->h5pF;
 
     // Set uuid
-    if (!$postData) {
+    if (!$postData || !isset($postData['uuid'])) {
       $site_uuid = $this->h5pF->getOption('site_uuid', '');
 
       // Register site with site uuid if we don't already have it
