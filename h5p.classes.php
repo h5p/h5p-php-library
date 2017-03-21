@@ -2477,7 +2477,6 @@ class H5PCore {
     $siteData = array_merge(
       $registrationData,
       array(
-        'api_version' => 2,
         'num_authors' => $this->h5pF->getNumAuthors(),
         'libraries'   => json_encode($this->combineArrayValues(array(
           'patch'            => $this->getLibrariesInstalled(),
