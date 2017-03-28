@@ -2900,7 +2900,7 @@ class H5PCore {
 
     if (!extension_loaded('mbstring')) {
       $setup->errors[] = $this->h5pF->t(
-        'The mbstring PHP extension is not loaded. H5P need this to function properly'
+        'The mbstring PHP extension is not loaded. H5P needs this to function properly'
       );
       $setup->disable_hub = TRUE;
     }
