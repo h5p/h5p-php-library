@@ -557,7 +557,7 @@ interface H5PFrameworkInterface {
   /**
    * Will trigger after the export file is created.
    */
-  public function afterExportCreated();
+  public function afterExportCreated($content, $filename);
 
   /**
    * Check if user has permissions to an action
@@ -1600,9 +1600,10 @@ Class H5PExport {
     $zip->close();
     H5PCore::deleteFileTree($tmpPath);
 
+    $filename = $content['slug'] . '-' . $content['id'] . '.h5p';
     try {
       // Save export
-      $this->h5pC->fs->saveExport($tmpFile, $content['slug'] . '-' . $content['id'] . '.h5p');
+      $this->h5pC->fs->saveExport($tmpFile, $filename);
     }
     catch (Exception $e) {
       $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
@@ -1610,7 +1611,7 @@ Class H5PExport {
     }
 
     unlink($tmpFile);
-    $this->h5pF->afterExportCreated();
+    $this->h5pF->afterExportCreated($content, $filename);
 
     return true;
   }
