@@ -2507,12 +2507,6 @@ class H5PCore {
       }
     }
 
-    // Handle latest version of H5P
-    if (!empty($result->packageReleased)) {
-      $this->h5pF->setOption('update_available', $result->packageReleased->releasedAt);
-      $this->h5pF->setOption('update_available_path', $result->packageReleased->path);
-    }
-
     return $result;
   }
 
