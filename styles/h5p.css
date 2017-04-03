@@ -30,6 +30,14 @@ html.h5p-iframe, html.h5p-iframe > body {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
+.h5p-noselect
+{
+  -khtml-user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 html.h5p-iframe .h5p-content {
   font-size: 16px;
   line-height: 1.5em;
