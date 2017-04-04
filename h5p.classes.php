@@ -19,10 +19,10 @@ interface H5PFrameworkInterface {
   /**
    * Fetches a file from a remote server using HTTP GET
    *
-   * @param $url Where you want to get or send data.
-   * @param $data Data to post to the URL.
-   * @param $blocking Set to 'FALSE' to instantly time out (fire and forget).
-   * @param $stream Where to save the file directly on the filesystem.
+   * @param string $url Where you want to get or send data.
+   * @param array $data Data to post to the URL.
+   * @param bool $blocking Set to 'FALSE' to instantly time out (fire and forget).
+   * @param string $stream Path to where the file should be saved.
    * @return string The content (response body). NULL if something went wrong
    */
   public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL);
