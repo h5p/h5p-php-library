@@ -363,17 +363,21 @@ class H5PDefaultStorage implements \H5PFileStorage {
    * content from the current temporary upload folder to the editor path.
    *
    * @param string $source path to source directory
-   * @param string $target path of target directory. Defaults to editor path
+   * @param string $contentId Id of content
    *
    * @return object Object containing h5p json and content json data
    */
-  public function moveContentDirectory($source, $target = NULL) {
+  public function moveContentDirectory($source, $contentId = NULL) {
     if ($source === NULL) {
       return NULL;
     }
 
-    if ($target === NULL) {
+    if ($contentId === NULL || $contentId === 0) {
       $target = $this->getEditorPath();
+    }
+    else {
+      // Use content folder
+      $target = "{$this->path}/content/{$contentId}";
     }
 
     $contentSource = $source . DIRECTORY_SEPARATOR . 'content';
