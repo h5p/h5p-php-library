@@ -372,7 +372,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
       return NULL;
     }
 
-    if ($contentId === NULL || $contentId === 0) {
+    if ($contentId === NULL || $contentId == 0) {
       $target = $this->getEditorPath();
     }
     else {
