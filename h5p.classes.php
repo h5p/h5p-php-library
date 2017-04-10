@@ -2476,22 +2476,27 @@ class H5PCore {
       );
     }
 
-    $siteData = array_merge(
-      $registrationData,
-      array(
-        'num_authors' => $this->h5pF->getNumAuthors(),
-        'libraries'   => json_encode($this->combineArrayValues(array(
-          'patch'            => $this->getLibrariesInstalled(),
-          'content'          => $this->h5pF->getLibraryContentCount(),
-          'loaded'           => $this->h5pF->getLibraryStats('library'),
-          'created'          => $this->h5pF->getLibraryStats('content create'),
-          'createdUpload'    => $this->h5pF->getLibraryStats('content create upload'),
-          'deleted'          => $this->h5pF->getLibraryStats('content delete'),
-          'resultViews'      => $this->h5pF->getLibraryStats('results content'),
-          'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
-        )))
-      )
-    );
+    if ($this->h5pF->getOption('h5p_send_usage_statistics', TRUE)) {
+      $siteData = array_merge(
+        $registrationData,
+        array(
+          'num_authors' => $this->h5pF->getNumAuthors(),
+          'libraries'   => json_encode($this->combineArrayValues(array(
+            'patch'            => $this->getLibrariesInstalled(),
+            'content'          => $this->h5pF->getLibraryContentCount(),
+            'loaded'           => $this->h5pF->getLibraryStats('library'),
+            'created'          => $this->h5pF->getLibraryStats('content create'),
+            'createdUpload'    => $this->h5pF->getLibraryStats('content create upload'),
+            'deleted'          => $this->h5pF->getLibraryStats('content delete'),
+            'resultViews'      => $this->h5pF->getLibraryStats('results content'),
+            'shortcodeInserts' => $this->h5pF->getLibraryStats('content shortcode insert')
+          )))
+        )
+      );
+    }
+    else {
+      $siteData = $registrationData;
+    }
 
     $result = $this->updateContentTypeCache($siteData);
 
@@ -2851,10 +2856,14 @@ class H5PCore {
     $endpoint = H5PHubEndpoints::CONTENT_TYPES;
     $data = $interface->fetchExternalData("{$protocol}://{$endpoint}", $postData);
 
+    if (! $this->h5pF->getOption('h5p_hub_is_enabled', TRUE)) {
+      return TRUE;
+    }
+
     // No data received
     if (!$data) {
       $interface->setErrorMessage(
-        $interface->t('Could not connect to the H5P Content Type Hub. Please try again later.')
+        $interface->t("Couldn't communicate with the H5P Hub. Please try again later.")
       );
       return FALSE;
     }
@@ -2864,7 +2873,7 @@ class H5PCore {
     // No libraries received
     if (!isset($json->contentTypes) || empty($json->contentTypes)) {
       $interface->setErrorMessage(
-        $interface->t('No libraries was received from the Content Type Hub. Please try again later.')
+        $interface->t('No content types were received from the H5P Hub. Please try again later.')
       );
       return FALSE;
     }
