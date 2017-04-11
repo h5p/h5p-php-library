@@ -2836,19 +2836,9 @@ class H5PCore {
   public function updateContentTypeCache($postData = NULL) {
     $interface = $this->h5pF;
 
-    // Set uuid
-    if (!$postData || !isset($postData['uuid'])) {
-      $site_uuid = $this->h5pF->getOption('site_uuid', '');
-
-      // Register site with site uuid if we don't already have it
-      // and try to update content type cache again when this is done
-      if (empty($site_uuid)) {
-        return $this->fetchLibrariesMetadata();
-      }
-
-      $postData = array(
-        'uuid' => $site_uuid
-      );
+    // Make sure data is sent!
+    if (!isset($postData) || !isset($postData['uuid'])) {
+      return $this->fetchLibrariesMetadata();
     }
 
     $postData['current_cache'] = $this->h5pF->getOption('content_type_cache_updated_at', 0);
