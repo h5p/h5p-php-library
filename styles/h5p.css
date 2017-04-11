@@ -215,11 +215,10 @@ div.h5p-fullscreen {
 }
 .h5p-actions > .h5p-button:before {
   font-family: 'H5P';
-  font-size: 1em;
+  font-size: 20px;
+  line-height: 20px;
+  vertical-align: top;
   padding-right: 0;
-  font-size: 1.7em;
-  line-height: 1.125em;
-  vertical-align: middle;
 }
 .h5p-actions > .h5p-button.h5p-export:before {
   content: "\e893";
