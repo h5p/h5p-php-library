@@ -2476,7 +2476,7 @@ class H5PCore {
       );
     }
 
-    if ($this->h5pF->getOption('h5p_send_usage_statistics', TRUE)) {
+    if ($this->h5pF->getOption('send_usage_statistics', TRUE)) {
       $siteData = array_merge(
         $registrationData,
         array(
@@ -2856,7 +2856,7 @@ class H5PCore {
     $endpoint = H5PHubEndpoints::CONTENT_TYPES;
     $data = $interface->fetchExternalData("{$protocol}://{$endpoint}", $postData);
 
-    if (! $this->h5pF->getOption('h5p_hub_is_enabled', TRUE)) {
+    if (! $this->h5pF->getOption('hub_is_enabled', TRUE)) {
       return TRUE;
     }
 
