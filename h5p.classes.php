@@ -2471,9 +2471,10 @@ class H5PCore {
       $this->h5pF->setInfoMessage(
         $this->h5pF->t('Your site was successfully registered with the H5P Hub.')
       );
-      $this->h5pF->setInfoMessage(
-        $this->h5pF->t('You have been provided a unique key that identifies you with the Hub when receiving new updates. The key is available for viewing in the "H5P Settings" page.')
-      );
+      // TODO: Uncomment when key is once again available in H5P Settings
+//      $this->h5pF->setInfoMessage(
+//        $this->h5pF->t('You have been provided a unique key that identifies you with the Hub when receiving new updates. The key is available for viewing in the "H5P Settings" page.')
+//      );
     }
 
     if ($this->h5pF->getOption('send_usage_statistics', TRUE)) {
