@@ -139,7 +139,7 @@ interface H5PFileStorage {
    * The files must be marked as temporary until the content form is saved.
    *
    * @param \H5peditorFile $file
-   * @param int $contentid
+   * @param int $contentId
    */
   public function saveFile($file, $contentId);
 
@@ -148,10 +148,21 @@ interface H5PFileStorage {
    * Used when copy pasting content in H5P.
    *
    * @param string $file path + name
-   * @param string|int $fromid Content ID or 'editor' string
-   * @param int $toid Target Content ID
+   * @param string|int $fromId Content ID or 'editor' string
+   * @param int $toId Target Content ID
    */
   public function cloneContentFile($file, $fromId, $toId);
+
+  /**
+   * Copy a content from one directory to another. Defaults to cloning
+   * content from the current temporary upload folder to the editor path.
+   *
+   * @param string $source path to source directory
+   * @param string $contentId Id of content
+   *
+   * @return object Object containing h5p json and content json data
+   */
+  public function moveContentDirectory($source, $contentId = NULL);
 
   /**
    * Checks to see if content has the given file.
@@ -171,4 +182,12 @@ interface H5PFileStorage {
    * @param int $contentId
    */
   public function removeContentFile($file, $contentId);
+
+  /**
+   * Check if server setup has write permission to
+   * the required folders
+   *
+   * @return bool True if server has the proper write access
+   */
+  public function hasWriteAccess();
 }
