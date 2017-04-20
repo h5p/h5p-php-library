@@ -567,7 +567,7 @@ interface H5PFrameworkInterface {
   /**
    * Will trigger after the export file is created.
    */
-  public function afterExportCreated();
+  public function afterExportCreated($content, $filename);
 
   /**
    * Check if user has permissions to an action
@@ -1619,9 +1619,10 @@ Class H5PExport {
     $zip->close();
     H5PCore::deleteFileTree($tmpPath);
 
+    $filename = $content['slug'] . '-' . $content['id'] . '.h5p';
     try {
       // Save export
-      $this->h5pC->fs->saveExport($tmpFile, $content['slug'] . '-' . $content['id'] . '.h5p');
+      $this->h5pC->fs->saveExport($tmpFile, $filename);
     }
     catch (Exception $e) {
       $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
@@ -1629,7 +1630,7 @@ Class H5PExport {
     }
 
     unlink($tmpFile);
-    $this->h5pF->afterExportCreated();
+    $this->h5pF->afterExportCreated($content, $filename);
 
     return true;
   }
@@ -2779,10 +2780,6 @@ class H5PCore {
    * @param null|int $status_code Http response code
    */
   private static function printJson($data, $status_code = NULL) {
-    if ($status_code !== NULL) {
-      http_response_code($status_code);
-    }
-
     header('Cache-Control: no-cache');
     header('Content-type: application/json; charset=utf-8');
     print json_encode($data);
