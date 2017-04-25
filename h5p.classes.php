@@ -567,7 +567,7 @@ interface H5PFrameworkInterface {
   /**
    * Will trigger after the export file is created.
    */
-  public function afterExportCreated($content, $filename);
+  public function afterExportCreated();
 
   /**
    * Check if user has permissions to an action
@@ -1610,19 +1610,16 @@ Class H5PExport {
     foreach ($files as $file) {
       // Please note that the zip format has no concept of folders, we must
       // use forward slashes to separate our directories.
-      if (file_exists(realpath($file->absolutePath))) {
-        $zip->addFile(realpath($file->absolutePath), $file->relativePath);
-      }
+      $zip->addFile(realpath($file->absolutePath), $file->relativePath);
     }
 
     // Close zip and remove tmp dir
     $zip->close();
     H5PCore::deleteFileTree($tmpPath);
 
-    $filename = $content['slug'] . '-' . $content['id'] . '.h5p';
     try {
       // Save export
-      $this->h5pC->fs->saveExport($tmpFile, $filename);
+      $this->h5pC->fs->saveExport($tmpFile, $content['slug'] . '-' . $content['id'] . '.h5p');
     }
     catch (Exception $e) {
       $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
@@ -1630,7 +1627,7 @@ Class H5PExport {
     }
 
     unlink($tmpFile);
-    $this->h5pF->afterExportCreated($content, $filename);
+    $this->h5pF->afterExportCreated();
 
     return true;
   }
@@ -2474,13 +2471,12 @@ class H5PCore {
       $this->h5pF->setInfoMessage(
         $this->h5pF->t('Your site was successfully registered with the H5P Hub.')
       );
-      // TODO: Uncomment when key is once again available in H5P Settings
-//      $this->h5pF->setInfoMessage(
-//        $this->h5pF->t('You have been provided a unique key that identifies you with the Hub when receiving new updates. The key is available for viewing in the "H5P Settings" page.')
-//      );
+      $this->h5pF->setInfoMessage(
+        $this->h5pF->t('You have been provided a unique key that identifies you with the Hub when receiving new updates. The key is available for viewing in the "H5P Settings" page.')
+      );
     }
 
-    if ($this->h5pF->getOption('send_usage_statistics', TRUE)) {
+    if ($this->h5pF->getOption('h5p_send_usage_statistics', TRUE)) {
       $siteData = array_merge(
         $registrationData,
         array(
@@ -2780,6 +2776,10 @@ class H5PCore {
    * @param null|int $status_code Http response code
    */
   private static function printJson($data, $status_code = NULL) {
+    if ($status_code !== NULL) {
+      http_response_code($status_code);
+    }
+
     header('Cache-Control: no-cache');
     header('Content-type: application/json; charset=utf-8');
     print json_encode($data);
@@ -2835,9 +2835,19 @@ class H5PCore {
   public function updateContentTypeCache($postData = NULL) {
     $interface = $this->h5pF;
 
-    // Make sure data is sent!
-    if (!isset($postData) || !isset($postData['uuid'])) {
-      return $this->fetchLibrariesMetadata();
+    // Set uuid
+    if (!$postData || !isset($postData['uuid'])) {
+      $site_uuid = $this->h5pF->getOption('site_uuid', '');
+
+      // Register site with site uuid if we don't already have it
+      // and try to update content type cache again when this is done
+      if (empty($site_uuid)) {
+        return $this->fetchLibrariesMetadata();
+      }
+
+      $postData = array(
+        'uuid' => $site_uuid
+      );
     }
 
     $postData['current_cache'] = $this->h5pF->getOption('content_type_cache_updated_at', 0);
@@ -2846,7 +2856,7 @@ class H5PCore {
     $endpoint = H5PHubEndpoints::CONTENT_TYPES;
     $data = $interface->fetchExternalData("{$protocol}://{$endpoint}", $postData);
 
-    if (! $this->h5pF->getOption('hub_is_enabled', TRUE)) {
+    if (! $this->h5pF->getOption('h5p_hub_is_enabled', TRUE)) {
       return TRUE;
     }
 
@@ -3019,7 +3029,7 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
-  private static $allowed_styleable_tags = array('span', 'p', 'div','h1','h2','h3', 'td');
+  private static $allowed_styleable_tags = array('span', 'p', 'div');
 
   /**
    * Constructor for the H5PContentValidator
