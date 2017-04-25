@@ -3029,7 +3029,7 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
-  private static $allowed_styleable_tags = array('span', 'p', 'div');
+  private static $allowed_styleable_tags = array('span', 'p', 'div', 'h1', 'h2', 'tr');
 
   /**
    * Constructor for the H5PContentValidator
