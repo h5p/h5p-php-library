@@ -1000,24 +1000,13 @@ H5P.findCopyrights = function (info, parameters, contentId) {
       continue; // Do not check
     }
 
-    /*
-     * TODO: Make parameters clean again
-     * Some content types adds jQuery or other objects to parameters
-     * in order to determine override settings for sub-content-types.
-     * For instance Question Set tells Multiple Choice that it should
-     * attach Multi Choice's confirmation dialog to a Question Set
-     * jQuery element, so that the confirmation dialog will not be restricted
-     * to the space confined by Multi Choice.
-     * Ideally this should not be added to parameters, we must make a better
-     * solution. We should likely be adding these to sub-content through
-     * functions/setters instead of passing them down as params.
-     *
-     * This solution is implemented as a hack that will ignore all parameters
-     * inside a "overrideSettings" field, this should suffice for now since
-     * all overridden objects are added to this field, however this is not very
-     * robust solution and will very likely lead to problems in the future.
+    /**
+     * @deprecated This hack should be removed after 2017-11-01
+     * The code that was using this was removed by HFP-574
      */
     if (field === 'overrideSettings') {
+      console.warn("The semantics field 'overrideSettings' is DEPRECATED and should not be used.");
+      console.warn(parameters);
       continue;
     }
 
