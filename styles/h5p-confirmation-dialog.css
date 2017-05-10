@@ -1,5 +1,5 @@
 .h5p-confirmation-dialog-background {
-  position: fixed;
+  position: absolute;
   height: 100%;
   width: 100%;
   left: 0;
@@ -30,7 +30,7 @@
 }
 
 .h5p-confirmation-dialog-popup {
-  position: fixed;
+  position: absolute;
   display: flex;
   flex-direction: column;
   justify-content: center;
