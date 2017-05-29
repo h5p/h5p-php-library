@@ -2969,18 +2969,20 @@ class H5PCore {
    * @return int|string
    */
   public static function returnBytes($val) {
-    $val  = (int) trim($val);
+    $val  = trim($val);
     $last = strtolower($val[strlen($val) - 1]);
+    $bytes = (int) $val;
+
     switch ($last) {
       case 'g':
-        $val *= 1024;
+        $bytes *= 1024;
       case 'm':
-        $val *= 1024;
+        $bytes *= 1024;
       case 'k':
-        $val *= 1024;
+        $bytes *= 1024;
     }
 
-    return $val;
+    return $bytes;
   }
 
   /**
