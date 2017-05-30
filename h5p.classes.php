@@ -3063,7 +3063,7 @@ class H5PCore {
       'licenseV2' => $this->h5pF->t('Version 2'),
       'licenseV1' => $this->h5pF->t('Version 1'),
       'licensePD' => $this->h5pF->t('Public Domain'),
-      'licenseCC010' => $this->h5pF->t('CC0 1.0 Universal'),
+      'licenseCC010' => $this->h5pF->t('CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'),
       'licensePDM' => $this->h5pF->t('Public Domain Mark'),
       'licenseC' => $this->h5pF->t('Copyright')
     );
