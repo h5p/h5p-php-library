@@ -1245,16 +1245,68 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
   };
 
   /**
-   * Get humanized value for field.
+   * Get humanized value for the license field.
    *
    * @private
-   * @param {string} fieldName
-   * @param {string} value
+   * @param {string} license
+   * @param {string} [version]
    * @returns {string}
    */
-  var humanizeValue = function (fieldName, value) {
-    if (fieldName === 'license') {
-      return H5P.copyrightLicenses[value];
+  var humanizeLicense = function (license, version) {
+    var copyrightLicense = H5P.copyrightLicenses[license];
+    if (copyrightLicense.label === undefined) {
+      return copyrightLicense;
+    }
+
+    // Build license string
+    var value = '';
+    if (!(license === 'PD' && version)) {
+      // Add license label
+      value += (copyrightLicense.label ? copyrightLicense.label : copyrightLicense);
+    }
+
+    // Check for version info
+    var versionInfo;
+    if (version && copyrightLicense.versions[version]) {
+      versionInfo = copyrightLicense.versions[version];
+    }
+
+    if (versionInfo) {
+      // Add license version
+      if (value) {
+        value += ' ';
+      }
+      value += (versionInfo.label ? versionInfo.label : versionInfo);
+    }
+
+    // Add link if specified
+    var link;
+    if (copyrightLicense.link) {
+      link = copyrightLicense.link.replace(':version', copyrightLicense.linkVersions ? copyrightLicense.linkVersions[version] : version);
+    }
+    else if (versionInfo && versionInfo.link) {
+      link = versionInfo.link
+    }
+    if (link) {
+      value = '<a href="' + link + '" target="_blank">' + value + '</a>';
+    }
+
+    // Generate parenthesis
+    var parenthesis = '';
+    if (license !== 'PD' && license !== 'C') {
+      parenthesis += license;
+    }
+    if (version && version !== 'CC0 1.0') {
+      if (parenthesis && license !== 'GNU GPL') {
+        parenthesis += ' ';
+      }
+      parenthesis += version;
+    }
+    if (parenthesis) {
+      value += ' (' + parenthesis + ')';
+    }
+    if (license === 'C') {
+      value += ' &copy;';
     }
 
     return value;
@@ -1276,7 +1328,11 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
     for (var i = 0; i < order.length; i++) {
       var fieldName = order[i];
       if (copyright[fieldName] !== undefined) {
-        list.add(new H5P.Field(getLabel(fieldName), humanizeValue(fieldName, copyright[fieldName])));
+        var humanValue = copyright[fieldName];
+        if (fieldName === 'license') {
+          humanValue = humanizeLicense(copyright.license, copyright.version);
+        }
+        list.add(new H5P.Field(getLabel(fieldName), humanValue));
       }
     }
   }
@@ -1299,7 +1355,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
   this.undisclosed = function () {
     if (list.size() === 1) {
       var field = list.get(0);
-      if (field.getLabel() === getLabel('license') && field.getValue() === humanizeValue('license', 'U')) {
+      if (field.getLabel() === getLabel('license') && field.getValue() === humanizeLicense('U')) {
         return true;
       }
     }
@@ -1331,25 +1387,85 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
   };
 };
 
-/**
- * Maps copyright license codes to their human readable counterpart.
- *
- * @type {Object}
- */
-H5P.copyrightLicenses = {
-  'U': 'Undisclosed',
-  'CC BY': '<a href="http://creativecommons.org/licenses/by/4.0/legalcode" target="_blank">Attribution 4.0</a>',
-  'CC BY-SA': '<a href="https://creativecommons.org/licenses/by-sa/4.0/legalcode" target="_blank">Attribution-ShareAlike 4.0</a>',
-  'CC BY-ND': '<a href="https://creativecommons.org/licenses/by-nd/4.0/legalcode" target="_blank">Attribution-NoDerivs 4.0</a>',
-  'CC BY-NC': '<a href="https://creativecommons.org/licenses/by-nc/4.0/legalcode" target="_blank">Attribution-NonCommercial 4.0</a>',
-  'CC BY-NC-SA': '<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode" target="_blank">Attribution-NonCommercial-ShareAlike 4.0</a>',
-  'CC BY-NC-ND': '<a href="https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode" target="_blank">Attribution-NonCommercial-NoDerivs 4.0</a>',
-  'GNU GPL': '<a href="http://www.gnu.org/licenses/gpl-3.0-standalone.html" target="_blank">General Public License v3</a>',
-  'PD': 'Public Domain',
-  'ODC PDDL': '<a href="http://opendatacommons.org/licenses/pddl/1.0/" target="_blank">Public Domain Dedication and Licence</a>',
-  'CC PDM': 'Public Domain Mark',
-  'C': 'Copyright'
-};
+(function () {
+  var ccVersions = {
+    '4.0': '4.0 International',
+    '3.0': '3.0 Unported',
+    '2.5': '2.5 Generic',
+    '2.0': '2.0 Generic',
+    '1.0': '1.0 Generic'
+  };
+
+  /**
+   * Maps copyright license codes to their human readable counterpart.
+   *
+   * @type {Object}
+   */
+  H5P.copyrightLicenses = {
+    'U': 'Undisclosed',
+    'CC BY': {
+      label: 'Attribution',
+      link: 'http://creativecommons.org/licenses/by/:version/legalcode',
+      versions: ccVersions
+    },
+    'CC BY-SA': {
+      label: 'Attribution-ShareAlike',
+      link: 'http://creativecommons.org/licenses/by-sa/:version/legalcode',
+      versions: ccVersions
+    },
+    'CC BY-ND': {
+      label: 'Attribution-NoDerivs',
+      link: 'http://creativecommons.org/licenses/by-nd/:version/legalcode',
+      versions: ccVersions
+    },
+    'CC BY-NC': {
+      label: 'Attribution-NonCommercial',
+      link: 'http://creativecommons.org/licenses/by-nc/:version/legalcode',
+      versions: ccVersions
+    },
+    'CC BY-NC-SA': {
+      label: 'Attribution-NonCommercial-ShareAlike',
+      link: 'http://creativecommons.org/licenses/by-nc-sa/:version/legalcode',
+      versions: ccVersions
+    },
+    'CC BY-NC-ND': {
+      label: 'Attribution-NonCommercial-NoDerivs',
+      link: 'http://creativecommons.org/licenses/by-nc-nd/:version/legalcode',
+      versions: ccVersions
+    },
+    'GNU GPL': {
+      label: 'General Public License',
+      link: 'http://www.gnu.org/licenses/gpl-:version-standalone.html',
+      linkVersions: {
+        'v3': '3.0',
+        'v2': '2.0',
+        'v1': '1.0'
+      },
+      versions: {
+        'v3': 'Version 3',
+        'v2': 'Version 2',
+        'v1': 'Version 1'
+      }
+    },
+    'PD': {
+      label: 'Public Domain',
+      versions: {
+        'CC0 1.0': {
+          label: 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
+          link: 'https://creativecommons.org/publicdomain/zero/1.0/'
+        },
+        'CC PDM': {
+          label: 'Public Domain Mark',
+          link: 'https://creativecommons.org/publicdomain/mark/1.0/'
+        }
+      }
+    },
+    'ODC PDDL': '<a href="http://opendatacommons.org/licenses/pddl/1.0/" target="_blank">Public Domain Dedication and Licence</a>',
+    'CC PDM': 'Public Domain Mark',
+    'C': 'Copyright'
+  };
+
+})();
 
 /**
  * A simple and elegant class for creating thumbnails of images.
