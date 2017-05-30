@@ -1389,11 +1389,11 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
 
 (function () {
   var ccVersions = {
-    '4.0': '4.0 International',
-    '3.0': '3.0 Unported',
-    '2.5': '2.5 Generic',
-    '2.0': '2.0 Generic',
-    '1.0': '1.0 Generic'
+    '4.0': H5P.t('licenseCC40'),
+    '3.0': H5P.t('licenseCC30'),
+    '2.5': H5P.t('licenseCC25'),
+    '2.0': H5P.t('licenseCC20'),
+    '1.0': H5P.t('licenseCC10'),
   };
 
   /**
@@ -1402,39 +1402,39 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
    * @type {Object}
    */
   H5P.copyrightLicenses = {
-    'U': 'Undisclosed',
+    'U': H5P.t('licenseU'),
     'CC BY': {
-      label: 'Attribution',
+      label: H5P.t('licenseCCBY'),
       link: 'http://creativecommons.org/licenses/by/:version/legalcode',
       versions: ccVersions
     },
     'CC BY-SA': {
-      label: 'Attribution-ShareAlike',
+      label: H5P.t('licenseCCBYSA'),
       link: 'http://creativecommons.org/licenses/by-sa/:version/legalcode',
       versions: ccVersions
     },
     'CC BY-ND': {
-      label: 'Attribution-NoDerivs',
+      label: H5P.t('licenseCCBYND'),
       link: 'http://creativecommons.org/licenses/by-nd/:version/legalcode',
       versions: ccVersions
     },
     'CC BY-NC': {
-      label: 'Attribution-NonCommercial',
+      label: H5P.t('licenseCCBYNC'),
       link: 'http://creativecommons.org/licenses/by-nc/:version/legalcode',
       versions: ccVersions
     },
     'CC BY-NC-SA': {
-      label: 'Attribution-NonCommercial-ShareAlike',
+      label: H5P.t('licenseCCBYNCSA'),
       link: 'http://creativecommons.org/licenses/by-nc-sa/:version/legalcode',
       versions: ccVersions
     },
     'CC BY-NC-ND': {
-      label: 'Attribution-NonCommercial-NoDerivs',
+      label: H5P.t('licenseCCBYNCND'),
       link: 'http://creativecommons.org/licenses/by-nc-nd/:version/legalcode',
       versions: ccVersions
     },
     'GNU GPL': {
-      label: 'General Public License',
+      label: H5P.t('licenseGPL'),
       link: 'http://www.gnu.org/licenses/gpl-:version-standalone.html',
       linkVersions: {
         'v3': '3.0',
@@ -1442,27 +1442,27 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
         'v1': '1.0'
       },
       versions: {
-        'v3': 'Version 3',
-        'v2': 'Version 2',
-        'v1': 'Version 1'
+        'v3': H5P.t('licenseV3'),
+        'v2': H5P.t('licenseV2'),
+        'v1': H5P.t('licenseV1')
       }
     },
     'PD': {
-      label: 'Public Domain',
+      label: H5P.t('licensePD'),
       versions: {
         'CC0 1.0': {
-          label: 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication',
+          label: H5P.t('licenseCC010'),
           link: 'https://creativecommons.org/publicdomain/zero/1.0/'
         },
         'CC PDM': {
-          label: 'Public Domain Mark',
+          label: H5P.t('licensePDM'),
           link: 'https://creativecommons.org/publicdomain/mark/1.0/'
         }
       }
     },
     'ODC PDDL': '<a href="http://opendatacommons.org/licenses/pddl/1.0/" target="_blank">Public Domain Dedication and Licence</a>',
-    'CC PDM': 'Public Domain Mark',
-    'C': 'Copyright'
+    'CC PDM': H5P.t('licensePDM'),
+    'C': H5P.t('licenseC'),
   };
 
 })();
