@@ -310,12 +310,14 @@ interface H5PFrameworkInterface {
    *
    * @param int $libraryId
    *   Library identifier
+   * @param boolean $skipContent
+   *   Flag to indicate if content usage should be skipped
    * @return array
    *   Associative array containing:
    *   - content: Number of content using the library
    *   - libraries: Number of libraries depending on the library
    */
-  public function getLibraryUsage($libraryId);
+  public function getLibraryUsage($libraryId, $skipContent = FALSE);
 
   /**
    * Loads a library
