@@ -1254,15 +1254,12 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
    */
   var humanizeLicense = function (license, version) {
     var copyrightLicense = H5P.copyrightLicenses[license];
-    if (copyrightLicense.label === undefined) {
-      return copyrightLicense;
-    }
 
     // Build license string
     var value = '';
     if (!(license === 'PD' && version)) {
       // Add license label
-      value += (copyrightLicense.label ? copyrightLicense.label : copyrightLicense);
+      value += (copyrightLicense.hasOwnProperty('label') ? copyrightLicense.label : copyrightLicense);
     }
 
     // Check for version info
@@ -1276,15 +1273,15 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
       if (value) {
         value += ' ';
       }
-      value += (versionInfo.label ? versionInfo.label : versionInfo);
+      value += (versionInfo.hasOwnProperty('label') ? versionInfo.label : versionInfo);
     }
 
     // Add link if specified
     var link;
-    if (copyrightLicense.link) {
+    if (copyrightLicense.hasOwnProperty('link')) {
       link = copyrightLicense.link.replace(':version', copyrightLicense.linkVersions ? copyrightLicense.linkVersions[version] : version);
     }
-    else if (versionInfo && versionInfo.link) {
+    else if (versionInfo && copyrightLicense.hasOwnProperty('link')) {
       link = versionInfo.link
     }
     if (link) {
