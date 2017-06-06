@@ -1265,7 +1265,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
     // Check for version info
     var versionInfo;
     if (copyrightLicense.versions) {
-      if (copyrightLicense.versions.default && (!version || copyrightLicense.versions[version])) {
+      if (copyrightLicense.versions.default && (!version || !copyrightLicense.versions[version])) {
         version = copyrightLicense.versions.default;
       }
       if (version && copyrightLicense.versions[version]) {
