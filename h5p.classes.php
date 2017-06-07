@@ -310,12 +310,14 @@ interface H5PFrameworkInterface {
    *
    * @param int $libraryId
    *   Library identifier
+   * @param boolean $skipContent
+   *   Flag to indicate if content usage should be skipped
    * @return array
    *   Associative array containing:
    *   - content: Number of content using the library
    *   - libraries: Number of libraries depending on the library
    */
-  public function getLibraryUsage($libraryId);
+  public function getLibraryUsage($libraryId, $skipContent = FALSE);
 
   /**
    * Loads a library
@@ -2456,10 +2458,6 @@ class H5PCore {
       // Failed retrieving uuid
       if (!$registration) {
         $errorMessage = $this->h5pF->t('Site could not be registered with the hub. Please contact your site administrator.');
-        H5PCore::ajaxError(
-          $errorMessage,
-          'SITE_REGISTRATION_FAILED'
-        );
         $this->h5pF->setErrorMessage($errorMessage);
         $this->h5pF->setErrorMessage(
           $this->h5pF->t('The H5P Hub has been disabled until this problem can be resolved. You may still upload libraries through the "H5P Libraries" page.')
@@ -2506,7 +2504,7 @@ class H5PCore {
 
     // No data received
     if (!$result || empty($result)) {
-      return;
+      return FALSE;
     }
 
     // Handle libraries metadata
@@ -2975,16 +2973,18 @@ class H5PCore {
   public static function returnBytes($val) {
     $val  = trim($val);
     $last = strtolower($val[strlen($val) - 1]);
+    $bytes = (int) $val;
+
     switch ($last) {
       case 'g':
-        $val *= 1024;
+        $bytes *= 1024;
       case 'm':
-        $val *= 1024;
+        $bytes *= 1024;
       case 'k':
-        $val *= 1024;
+        $bytes *= 1024;
     }
 
-    return $val;
+    return $bytes;
   }
 
   /**
@@ -3008,6 +3008,67 @@ class H5PCore {
     }
 
     return $can;
+  }
+
+  /**
+   * Provide localization for the Core JS
+   * @return array
+   */
+  public function getLocalization() {
+    return array(
+      'fullscreen' => $this->h5pF->t('Fullscreen'),
+      'disableFullscreen' => $this->h5pF->t('Disable fullscreen'),
+      'download' => $this->h5pF->t('Download'),
+      'copyrights' => $this->h5pF->t('Rights of use'),
+      'embed' => $this->h5pF->t('Embed'),
+      'size' => $this->h5pF->t('Size'),
+      'showAdvanced' => $this->h5pF->t('Show advanced'),
+      'hideAdvanced' => $this->h5pF->t('Hide advanced'),
+      'advancedHelp' => $this->h5pF->t('Include this script on your website if you want dynamic sizing of the embedded content:'),
+      'copyrightInformation' => $this->h5pF->t('Rights of use'),
+      'close' => $this->h5pF->t('Close'),
+      'title' => $this->h5pF->t('Title'),
+      'author' => $this->h5pF->t('Author'),
+      'year' => $this->h5pF->t('Year'),
+      'source' => $this->h5pF->t('Source'),
+      'license' => $this->h5pF->t('License'),
+      'thumbnail' => $this->h5pF->t('Thumbnail'),
+      'noCopyrights' => $this->h5pF->t('No copyright information available for this content.'),
+      'downloadDescription' => $this->h5pF->t('Download this content as a H5P file.'),
+      'copyrightsDescription' => $this->h5pF->t('View copyright information for this content.'),
+      'embedDescription' => $this->h5pF->t('View the embed code for this content.'),
+      'h5pDescription' => $this->h5pF->t('Visit H5P.org to check out more cool content.'),
+      'contentChanged' => $this->h5pF->t('This content has changed since you last used it.'),
+      'startingOver' => $this->h5pF->t("You'll be starting over."),
+      'by' => $this->h5pF->t('by'),
+      'showMore' => $this->h5pF->t('Show more'),
+      'showLess' => $this->h5pF->t('Show less'),
+      'subLevel' => $this->h5pF->t('Sublevel'),
+      'confirmDialogHeader' => $this->h5pF->t('Confirm action'),
+      'confirmDialogBody' => $this->h5pF->t('Please confirm that you wish to proceed. This action is not reversible.'),
+      'cancelLabel' => $this->h5pF->t('Cancel'),
+      'confirmLabel' => $this->h5pF->t('Confirm'),
+      'licenseU' => $this->h5pF->t('Undisclosed'),
+      'licenseCCBY' => $this->h5pF->t('Attribution'),
+      'licenseCCBYSA' => $this->h5pF->t('Attribution-ShareAlike'),
+      'licenseCCBYND' => $this->h5pF->t('Attribution-NoDerivs'),
+      'licenseCCBYNC' => $this->h5pF->t('Attribution-NonCommercial'),
+      'licenseCCBYNCSA' => $this->h5pF->t('Attribution-NonCommercial-ShareAlike'),
+      'licenseCCBYNCND' => $this->h5pF->t('Attribution-NonCommercial-NoDerivs'),
+      'licenseCC40' => $this->h5pF->t('4.0 International'),
+      'licenseCC30' => $this->h5pF->t('3.0 Unported'),
+      'licenseCC25' => $this->h5pF->t('2.5 Generic'),
+      'licenseCC20' => $this->h5pF->t('2.0 Generic'),
+      'licenseCC10' => $this->h5pF->t('1.0 Generic'),
+      'licenseGPL' => $this->h5pF->t('General Public License'),
+      'licenseV3' => $this->h5pF->t('Version 3'),
+      'licenseV2' => $this->h5pF->t('Version 2'),
+      'licenseV1' => $this->h5pF->t('Version 1'),
+      'licensePD' => $this->h5pF->t('Public Domain'),
+      'licenseCC010' => $this->h5pF->t('CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'),
+      'licensePDM' => $this->h5pF->t('Public Domain Mark'),
+      'licenseC' => $this->h5pF->t('Copyright')
+    );
   }
 }
 
@@ -3930,6 +3991,29 @@ class H5PContentValidator {
     static $semantics;
 
     if ($semantics === NULL) {
+      $cc_versions = array(
+        (object) array(
+          'value' => '4.0',
+          'label' => $this->h5pF->t('4.0 International')
+        ),
+        (object) array(
+          'value' => '3.0',
+          'label' => $this->h5pF->t('3.0 Unported')
+        ),
+        (object) array(
+          'value' => '2.5',
+          'label' => $this->h5pF->t('2.5 Generic')
+        ),
+        (object) array(
+          'value' => '2.0',
+          'label' => $this->h5pF->t('2.0 Generic')
+        ),
+        (object) array(
+          'value' => '1.0',
+          'label' => $this->h5pF->t('1.0 Generic')
+        )
+      );
+
       $semantics = (object) array(
         'name' => 'copyright',
         'type' => 'group',
@@ -3979,49 +4063,81 @@ class H5PContentValidator {
               ),
               (object) array(
                 'value' => 'CC BY',
-                'label' => $this->h5pF->t('Attribution 4.0')
+                'label' => $this->h5pF->t('Attribution'),
+                'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-SA',
-                'label' => $this->h5pF->t('Attribution-ShareAlike 4.0')
+                'label' => $this->h5pF->t('Attribution-ShareAlike'),
+                'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-ND',
-                'label' => $this->h5pF->t('Attribution-NoDerivs 4.0')
+                'label' => $this->h5pF->t('Attribution-NoDerivs'),
+                'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-NC',
-                'label' => $this->h5pF->t('Attribution-NonCommercial 4.0')
+                'label' => $this->h5pF->t('Attribution-NonCommercial'),
+                'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-NC-SA',
-                'label' => $this->h5pF->t('Attribution-NonCommercial-ShareAlike 4.0')
+                'label' => $this->h5pF->t('Attribution-NonCommercial-ShareAlike'),
+                'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-NC-ND',
-                'label' => $this->h5pF->t('Attribution-NonCommercial-NoDerivs 4.0')
+                'label' => $this->h5pF->t('Attribution-NonCommercial-NoDerivs'),
+                'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'GNU GPL',
-                'label' => $this->h5pF->t('General Public License v3')
+                'label' => $this->h5pF->t('General Public License'),
+                'versions' => array(
+                  (object) array(
+                    'value' => 'v3',
+                    'label' => $this->h5pF->t('Version 3')
+                  ),
+                  (object) array(
+                    'value' => 'v2',
+                    'label' => $this->h5pF->t('Version 2')
+                  ),
+                  (object) array(
+                    'value' => 'v1',
+                    'label' => $this->h5pF->t('Version 1')
+                  )
+                )
               ),
               (object) array(
                 'value' => 'PD',
-                'label' => $this->h5pF->t('Public Domain')
-              ),
-              (object) array(
-                'value' => 'ODC PDDL',
-                'label' => $this->h5pF->t('Public Domain Dedication and Licence')
-              ),
-              (object) array(
-                'value' => 'CC PDM',
-                'label' => $this->h5pF->t('Public Domain Mark')
+                'label' => $this->h5pF->t('Public Domain'),
+                'versions' => array(
+                  (object) array(
+                    'value' => '-',
+                    'label' => '-'
+                  ),
+                  (object) array(
+                    'value' => 'CC0 1.0',
+                    'label' => $this->h5pF->t('CC0 1.0 Universal')
+                  ),
+                  (object) array(
+                    'value' => 'CC PDM',
+                    'label' => $this->h5pF->t('Public Domain Mark')
+                  )
+                )
               ),
               (object) array(
                 'value' => 'C',
                 'label' => $this->h5pF->t('Copyright')
               )
             )
+          ),
+          (object) array(
+            'name' => 'version',
+            'type' => 'select',
+            'label' => $this->h5pF->t('License Version'),
+            'options' => array()
           )
         )
       );
