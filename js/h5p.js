@@ -133,9 +133,26 @@ H5P.init = function (target) {
 
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1 && H5P.fullscreenSupported) {
-      H5P.jQuery('<div class="h5p-content-controls"><div role="button" tabindex="0" class="h5p-enable-fullscreen" title="' + H5P.t('fullscreen') + '"></div></div>').prependTo($container).children().click(function () {
-        H5P.fullScreen($container, instance);
-      });
+      H5P.jQuery(
+        '<div class="h5p-content-controls">' +
+          '<div role="button" ' +
+                'tabindex="0" ' +
+                'class="h5p-enable-fullscreen" ' +
+                'title="' + H5P.t('fullscreen') + '">' +
+          '</div>' +
+        '</div>')
+        .prependTo($container)
+          .children()
+          .click(function () {
+            H5P.fullScreen($container, instance);
+          })
+        .keydown(function (e) {
+          if (e.which === 32 || e.which === 13) {
+            H5P.fullScreen($container, instance);
+            return false;
+          }
+        })
+      ;
     }
 
     /**
