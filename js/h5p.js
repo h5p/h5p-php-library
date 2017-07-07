@@ -678,7 +678,8 @@ H5P.getPath = function (path, contentId) {
   }
 
   var prefix;
-  if (contentId !== undefined) {
+  var isTmpFile = (path.substr(-4,4) === '#tmp');
+  if (contentId !== undefined && !isTmpFile) {
     // Check for custom override URL
     if (H5PIntegration.contents !== undefined &&
         H5PIntegration.contents['cid-' + contentId]) {

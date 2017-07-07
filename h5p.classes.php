@@ -3400,6 +3400,11 @@ class H5PContentValidator {
       $file->path = $matches[5];
     }
 
+    // Remove temporary files suffix
+    if (substr($file->path, -4, 4) === '#tmp') {
+      $file->path = substr($file->path, 0, strlen($file->path) - 4);
+    }
+
     // Make sure path and mime does not have any special chars
     $file->path = htmlspecialchars($file->path, ENT_QUOTES, 'UTF-8', FALSE);
     if (isset($file->mime)) {
