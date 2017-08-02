@@ -1724,7 +1724,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 13
+    'minorVersion' => 14
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -1746,7 +1746,7 @@ class H5PCore {
     'js/h5p-utils.js',
   );
 
-  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 wav txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile';
+  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 wav txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile vtt webvtt';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
   public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $h5pD, $disableFileCheck;
@@ -2790,16 +2790,8 @@ class H5PCore {
    * @return string token
    */
   public static function createToken($action) {
-    if (!isset($_SESSION['h5p_token'])) {
-      // Create an unique key which is used to create action tokens for this session.
-      $_SESSION['h5p_token'] = uniqid();
-    }
-
-    // Timefactor
-    $time_factor = self::getTimeFactor();
-
     // Create and return token
-    return substr(hash('md5', $action . $time_factor . $_SESSION['h5p_token']), -16, 13);
+    return self::hashToken($action, self::getTimeFactor());
   }
 
   /**
@@ -2811,6 +2803,31 @@ class H5PCore {
   }
 
   /**
+   * Generate a unique hash string based on action, time and token
+   *
+   * @param string $action
+   * @param int $time_factor
+   * @return string
+   */
+  private static function hashToken($action, $time_factor) {
+    if (!isset($_SESSION['h5p_token'])) {
+      // Create an unique key which is used to create action tokens for this session.
+      if (function_exists('random_bytes')) {
+        $_SESSION['h5p_token'] = base64_encode(random_bytes(15));
+      }
+      else if (function_exists('openssl_random_pseudo_bytes')) {
+        $_SESSION['h5p_token'] = base64_encode(openssl_random_pseudo_bytes(15));
+      }
+      else {
+        $_SESSION['h5p_token'] = uniqid('', TRUE);
+      }
+    }
+
+    // Create hash and return
+    return substr(hash('md5', $action . $time_factor . $_SESSION['h5p_token']), -16, 13);
+  }
+
+  /**
    * Verify if the given token is valid for the given action.
    *
    * @param string $action
@@ -2818,9 +2835,12 @@ class H5PCore {
    * @return boolean valid token
    */
   public static function validToken($action, $token) {
+    // Get the timefactor
     $time_factor = self::getTimeFactor();
-    return $token === substr(hash('md5', $action . $time_factor . $_SESSION['h5p_token']), -16, 13) || // Under 12 hours
-           $token === substr(hash('md5', $action . ($time_factor - 1) . $_SESSION['h5p_token']), -16, 13); // Between 12-24 hours
+
+    // Check token to see if it's valid
+    return $token === self::hashToken($action, $time_factor) || // Under 12 hours
+           $token === self::hashToken($action, $time_factor - 1); // Between 12-24 hours
   }
 
   /**
@@ -3163,7 +3183,7 @@ class H5PContentValidator {
           $stylePatterns[] = '/^font-size: *[0-9.]+(em|px|%) *;?$/i';
         }
         if (isset($semantics->font->family) && $semantics->font->family) {
-          $stylePatterns[] = '/^font-family: *[a-z0-9," ]+;?$/i';
+          $stylePatterns[] = '/^font-family: *[-a-z0-9," ]+;?$/i';
         }
         if (isset($semantics->font->color) && $semantics->font->color) {
           $stylePatterns[] = '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
@@ -3398,6 +3418,11 @@ class H5PContentValidator {
     $matches = array();
     if (preg_match($this->h5pC->relativePathRegExp, $file->path, $matches)) {
       $file->path = $matches[5];
+    }
+
+    // Remove temporary files suffix
+    if (substr($file->path, -4, 4) === '#tmp') {
+      $file->path = substr($file->path, 0, strlen($file->path) - 4);
     }
 
     // Make sure path and mime does not have any special chars
