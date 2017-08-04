@@ -188,6 +188,10 @@ var H5PLibraryDetails= H5PLibraryDetails || {};
    * Update the pager text, and enables/disables the next and previous buttons as needed
    */
   H5PLibraryDetails.updatePager = function () {
+    if (!H5PLibraryDetails.$pagerInfo) {
+      return; // No pager available
+    }
+
     H5PLibraryDetails.$pagerInfo.css({display: 'inline-block'});
 
     if(H5PLibraryDetails.getNumPages() > 0) {
