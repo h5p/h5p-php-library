@@ -501,7 +501,8 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     // We're called from an iframe.
     $body = H5P.jQuery(body);
     $classes = $body.add($element.get());
-    var iframeSelector = '#h5p-iframe-' + $element.parent().data('content-id');
+    var contentId = $element.closest('[data-content-id]').data('content-id');
+    var iframeSelector = '#h5p-iframe-' + contentId;
     $iframe = H5P.jQuery(iframeSelector);
     $element = $iframe.parent(); // Put iframe wrapper in fullscreen, not container.
   }
