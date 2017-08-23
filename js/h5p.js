@@ -247,7 +247,7 @@ H5P.init = function (target) {
       if (H5P.externalEmbed === false) {
         // Internal embed
         // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
-        var iframe = window.parent.document.getElementById('h5p-iframe-' + contentId);
+        var iframe = window.frameElement;
         var resizeIframe = function () {
           if (window.parent.H5P.isFullscreen) {
             return; // Skip if full screen.
