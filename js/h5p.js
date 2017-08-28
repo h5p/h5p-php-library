@@ -247,7 +247,7 @@ H5P.init = function (target) {
       if (H5P.externalEmbed === false) {
         // Internal embed
         // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
-        var iframe = window.parent.document.getElementById('h5p-iframe-' + contentId);
+        var iframe = window.frameElement;
         var resizeIframe = function () {
           if (window.parent.H5P.isFullscreen) {
             return; // Skip if full screen.
@@ -501,8 +501,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     // We're called from an iframe.
     $body = H5P.jQuery(body);
     $classes = $body.add($element.get());
-    var contentId = $element.closest('[data-content-id]').data('content-id');
-    var iframeSelector = '#h5p-iframe-' + contentId;
+    var iframeSelector = '#h5p-iframe-' + $element.parent().data('content-id');
     $iframe = H5P.jQuery(iframeSelector);
     $element = $iframe.parent(); // Put iframe wrapper in fullscreen, not container.
   }
@@ -1272,8 +1271,13 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
 
     // Check for version info
     var versionInfo;
-    if (version && copyrightLicense.versions[version]) {
-      versionInfo = copyrightLicense.versions[version];
+    if (copyrightLicense.versions) {
+      if (copyrightLicense.versions.default && (!version || !copyrightLicense.versions[version])) {
+        version = copyrightLicense.versions.default;
+      }
+      if (version && copyrightLicense.versions[version]) {
+        versionInfo = copyrightLicense.versions[version];
+      }
     }
 
     if (versionInfo) {
@@ -2031,6 +2035,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
   $(document).ready(function () {
 
     var ccVersions = {
+      'default': '4.0',
       '4.0': H5P.t('licenseCC40'),
       '3.0': H5P.t('licenseCC30'),
       '2.5': H5P.t('licenseCC25'),
@@ -2084,6 +2089,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
           'v1': '1.0'
         },
         versions: {
+          'default': 'v3',
           'v3': H5P.t('licenseV3'),
           'v2': H5P.t('licenseV2'),
           'v1': H5P.t('licenseV1')

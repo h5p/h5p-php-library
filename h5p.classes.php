@@ -1715,6 +1715,12 @@ abstract class H5PDisplayOptionBehaviour {
 
 abstract class H5PHubEndpoints {
   const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
+  const SITES = 'api.h5p.org/v1/sites';
+
+  public static function createURL($endpoint) {
+    $protocol = (extension_loaded('openssl') ? 'https' : 'http');
+    return "{$protocol}://{$endpoint}";
+  }
 }
 
 /**
@@ -2465,9 +2471,7 @@ class H5PCore {
 
     // Register site if it is not registered
     if (empty($uuid)) {
-      $protocol = (extension_loaded('openssl') ? 'https' : 'http');
-      $endpoint = 'api.h5p.org/v1/sites';
-      $registration = $this->h5pF->fetchExternalData("{$protocol}://{$endpoint}", $registrationData);
+      $registration = $this->h5pF->fetchExternalData(H5PHubEndpoints::createURL(H5PHubEndpoints::SITES), $registrationData);
 
       // Failed retrieving uuid
       if (!$registration) {
@@ -2874,9 +2878,7 @@ class H5PCore {
 
     $postData['current_cache'] = $this->h5pF->getOption('content_type_cache_updated_at', 0);
 
-    $protocol = (extension_loaded('openssl') ? 'https' : 'http');
-    $endpoint = H5PHubEndpoints::CONTENT_TYPES;
-    $data = $interface->fetchExternalData("{$protocol}://{$endpoint}", $postData);
+    $data = $interface->fetchExternalData(H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT_TYPES), $postData);
 
     if (! $this->h5pF->getOption('hub_is_enabled', TRUE)) {
       return TRUE;
