@@ -2246,9 +2246,23 @@ class H5PCore {
     if (!is_dir($dir)) {
       return false;
     }
+    if (is_link($dir)) {
+      // Do not traverse and delete linked content, simply unlink.
+      unlink($dir);
+      return;
+    }
     $files = array_diff(scandir($dir), array('.','..'));
     foreach ($files as $file) {
-      (is_dir("$dir/$file")) ? self::deleteFileTree("$dir/$file") : unlink("$dir/$file");
+      $filepath = "$dir/$file";
+      // Note that links may resolve as directories
+      if (!is_dir($filepath) || is_link($filepath)) {
+        // Unlink files and links
+        unlink($filepath);
+      }
+      else {
+        // Traverse subdir and delete files
+        self::deleteFileTree($filepath);
+      }
     }
     return rmdir($dir);
   }
