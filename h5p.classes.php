@@ -52,6 +52,14 @@ interface H5PFrameworkInterface {
   public function setInfoMessage($message);
 
   /**
+   * Return messages
+   *
+   * @param string $type 'info' or 'error'
+   * @return string[]
+   */
+  public function getMessages($type);
+
+  /**
    * Translation function
    *
    * @param string $message
@@ -2771,9 +2779,10 @@ class H5PCore {
    * @param string $error_code An machine readable error code that a client
    * should be able to interpret
    * @param null|int $status_code Http response code
+   * @param array [$details=null] Better description of the error and possible which action to take
    * @since 1.6.0
    */
-  public static function ajaxError($message = NULL, $error_code = NULL, $status_code = NULL) {
+  public static function ajaxError($message = NULL, $error_code = NULL, $status_code = NULL, $details = NULL) {
     $response = array(
       'success' => FALSE
     );
@@ -2783,6 +2792,10 @@ class H5PCore {
 
     if ($error_code !== NULL) {
       $response['errorCode'] = $error_code;
+    }
+
+    if ($details !== NULL) {
+      $response['details'] = $details;
     }
 
     self::printJson($response, $status_code);
