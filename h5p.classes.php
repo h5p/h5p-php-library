@@ -1455,13 +1455,47 @@ class H5PStorage {
 
     // Tell the user what we've done.
     if ($newOnes && $oldOnes) {
-      $message = $this->h5pF->t('Added %new new H5P libraries and updated %old old.', array('%new' => $newOnes, '%old' => $oldOnes));
+      if ($newOnes === 1)  {
+        if ($oldOnes === 1)  {
+          // Singular Singular
+          $message = $this->h5pF->t('Added %new new H5P library and updated %old old one.', array('%new' => $newOnes, '%old' => $oldOnes));
+        }
+        else {
+          // Singular Plural
+          $message = $this->h5pF->t('Added %new new H5P library and updated %old old ones.', array('%new' => $newOnes, '%old' => $oldOnes));
+        }
+      }
+      else {
+        // Plural
+        if ($oldOnes === 1)  {
+          // Plural Singular
+          $message = $this->h5pF->t('Added %new new H5P libraries and updated %old old one.', array('%new' => $newOnes, '%old' => $oldOnes));
+        }
+        else {
+          // Plural Plural
+          $message = $this->h5pF->t('Added %new new H5P libraries and updated %old old ones.', array('%new' => $newOnes, '%old' => $oldOnes));
+        }
+      }
     }
     elseif ($newOnes) {
-      $message = $this->h5pF->t('Added %new new H5P libraries.', array('%new' => $newOnes));
+      if ($newOnes === 1)  {
+        // Singular
+        $message = $this->h5pF->t('Added %new new H5P library.', array('%new' => $newOnes));
+      }
+      else {
+        // Plural
+        $message = $this->h5pF->t('Added %new new H5P libraries.', array('%new' => $newOnes));
+      }
     }
     elseif ($oldOnes) {
-      $message = $this->h5pF->t('Updated %old H5P libraries.', array('%old' => $oldOnes));
+      if ($oldOnes === 1)  {
+        // Singular
+        $message = $this->h5pF->t('Updated %old H5P library.', array('%old' => $oldOnes));
+      }
+      else {
+        // Plural
+        $message = $this->h5pF->t('Updated %old H5P libraries.', array('%old' => $oldOnes));
+      }
     }
 
     if (isset($message)) {
