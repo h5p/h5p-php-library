@@ -38,10 +38,10 @@ interface H5PFrameworkInterface {
   /**
    * Show the user an error message
    *
-   * @param string $message
-   *   The error message
+   * @param string $message The error message
+   * @param string $code An optional code
    */
-  public function setErrorMessage($message);
+  public function setErrorMessage($message, $code = NULL);
 
   /**
    * Show the user an information message
@@ -705,7 +705,7 @@ class H5PValidator {
   public function isValidPackage($skipContent = FALSE, $upgradeOnly = FALSE) {
     // Check dependencies, make sure Zip is present
     if (!class_exists('ZipArchive')) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Your PHP version does not support ZipArchive.'));
+      $this->h5pF->setErrorMessage($this->h5pF->t('Your PHP version does not support ZipArchive.'), 'zip-archive-unsupported');
       return FALSE;
     }
 
@@ -718,7 +718,7 @@ class H5PValidator {
 
     // Only allow files with the .h5p extension:
     if (strtolower(substr($tmpPath, -3)) !== 'h5p') {
-      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (It does not have the .h5p file extension)'));
+      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (It does not have the .h5p file extension)'), 'missing-h5p-extension');
       H5PCore::deleteFileTree($tmpDir);
       return FALSE;
     }
@@ -728,7 +728,7 @@ class H5PValidator {
       $zip->close();
     }
     else {
-      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (We are unable to unzip it)'));
+      $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (We are unable to unzip it)'), 'unable-to-unzip');
       H5PCore::deleteFileTree($tmpDir);
       return FALSE;
     }
@@ -756,7 +756,7 @@ class H5PValidator {
         $mainH5pData = $this->getJsonData($filePath);
         if ($mainH5pData === FALSE) {
           $valid = FALSE;
-          $this->h5pF->setErrorMessage($this->h5pF->t('Could not parse the main h5p.json file'));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Could not parse the main h5p.json file'), 'invalid-h5p-json-file');
         }
         else {
           $validH5p = $this->isValidH5pData($mainH5pData, $file, $this->h5pRequired, $this->h5pOptional);
@@ -765,7 +765,7 @@ class H5PValidator {
           }
           else {
             $valid = FALSE;
-            $this->h5pF->setErrorMessage($this->h5pF->t('The main h5p.json file is not valid'));
+            $this->h5pF->setErrorMessage($this->h5pF->t('The main h5p.json file is not valid'), 'invalid-h5p-json-file');
           }
         }
       }
@@ -776,13 +776,13 @@ class H5PValidator {
           continue;
         }
         if (!is_dir($filePath)) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid content folder'));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid content folder'), 'invalid-content-folder');
           $valid = FALSE;
           continue;
         }
         $contentJsonData = $this->getJsonData($filePath . DIRECTORY_SEPARATOR . 'content.json');
         if ($contentJsonData === FALSE) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the content.json file'));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the content.json file'), 'invalid-content-json-file');
           $valid = FALSE;
           continue;
         }
@@ -818,7 +818,7 @@ class H5PValidator {
                 '%directoryName' => $file,
                 '%machineName' => $libraryH5PData['machineName'],
                 '%majorVersion' => $libraryH5PData['majorVersion'],
-                '%minorVersion' => $libraryH5PData['minorVersion'])));
+                '%minorVersion' => $libraryH5PData['minorVersion'])), 'library-directory-name-mismatch');
             $valid = FALSE;
             continue;
           }
@@ -832,11 +832,11 @@ class H5PValidator {
     }
     if ($skipContent === FALSE) {
       if (!$contentExists) {
-        $this->h5pF->setErrorMessage($this->h5pF->t('A valid content folder is missing'));
+        $this->h5pF->setErrorMessage($this->h5pF->t('A valid content folder is missing'), 'invalid-content-folder');
         $valid = FALSE;
       }
       if (!$mainH5pExists) {
-        $this->h5pF->setErrorMessage($this->h5pF->t('A valid main h5p.json file is missing'));
+        $this->h5pF->setErrorMessage($this->h5pF->t('A valid main h5p.json file is missing'), 'invalid-h5p-json-file');
         $valid = FALSE;
       }
     }
@@ -880,7 +880,7 @@ class H5PValidator {
 
       if (!empty($missingLibraries)) {
         foreach ($missingLibraries as $libString => $library) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $libString)));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $libString)), 'missing-required-library');
         }
         if (!$this->h5pC->mayUpdateLibraries()) {
           $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
@@ -909,12 +909,12 @@ class H5PValidator {
    */
   public function getLibraryData($file, $filePath, $tmpDir) {
     if (preg_match('/^[\w0-9\-\.]{1,255}$/i', $file) === 0) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library name: %name', array('%name' => $file)));
+      $this->h5pF->setErrorMessage($this->h5pF->t('Invalid library name: %name', array('%name' => $file)), 'invalid-library-name');
       return FALSE;
     }
     $h5pData = $this->getJsonData($filePath . DIRECTORY_SEPARATOR . 'library.json');
     if ($h5pData === FALSE) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Could not find library.json file with valid json format for library %name', array('%name' => $file)));
+      $this->h5pF->setErrorMessage($this->h5pF->t('Could not find library.json file with valid json format for library %name', array('%name' => $file)), 'invalid-library-json-file');
       return FALSE;
     }
 
@@ -923,7 +923,7 @@ class H5PValidator {
     if (file_exists($semanticsPath)) {
       $semantics = $this->getJsonData($semanticsPath, TRUE);
       if ($semantics === FALSE) {
-        $this->h5pF->setErrorMessage($this->h5pF->t('Invalid semantics.json file has been included in the library %name', array('%name' => $file)));
+        $this->h5pF->setErrorMessage($this->h5pF->t('Invalid semantics.json file has been included in the library %name', array('%name' => $file)), 'invalid-semantics-json-file');
         return FALSE;
       }
       else {
@@ -940,12 +940,12 @@ class H5PValidator {
           continue;
         }
         if (preg_match('/^(-?[a-z]+){1,7}\.json$/i', $languageFile) === 0) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid language file %file in library %library', array('%file' => $languageFile, '%library' => $file)));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid language file %file in library %library', array('%file' => $languageFile, '%library' => $file)), 'invalid-language-file');
           return FALSE;
         }
         $languageJson = $this->getJsonData($languagePath . DIRECTORY_SEPARATOR . $languageFile, TRUE);
         if ($languageJson === FALSE) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid language file %languageFile has been included in the library %name', array('%languageFile' => $languageFile, '%name' => $file)));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid language file %languageFile has been included in the library %name', array('%languageFile' => $languageFile, '%name' => $file)), 'invalid-language-file');
           return FALSE;
         }
         $parts = explode('.', $languageFile); // $parts[0] is the language code
@@ -1040,7 +1040,7 @@ class H5PValidator {
     foreach ($files as $file) {
       $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $file['path']);
       if (!file_exists($tmpDir . DIRECTORY_SEPARATOR . $library . DIRECTORY_SEPARATOR . $path)) {
-        $this->h5pF->setErrorMessage($this->h5pF->t('The file "%file" is missing from library: "%name"', array('%file' => $path, '%name' => $library)));
+        $this->h5pF->setErrorMessage($this->h5pF->t('The file "%file" is missing from library: "%name"', array('%file' => $path, '%name' => $library)), 'library-missing-file');
         return FALSE;
       }
     }
@@ -1081,7 +1081,8 @@ class H5PValidator {
                   '%current' => H5PCore::$coreApi['majorVersion'] . '.' . H5PCore::$coreApi['minorVersion'],
                   '%required' => $h5pData['coreApi']['majorVersion'] . '.' . $h5pData['coreApi']['minorVersion']
                 )
-            )
+            ),
+            'api-version-unsupported'
         );
 
         $valid = false;
@@ -1206,7 +1207,7 @@ class H5PValidator {
         $valid = $this->isValidRequirement($h5pData[$required], $requirement, $library_name, $required) && $valid;
       }
       else {
-        $this->h5pF->setErrorMessage($this->h5pF->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name)));
+        $this->h5pF->setErrorMessage($this->h5pF->t('The required property %property is missing from %library', array('%property' => $required, '%library' => $library_name)), 'missing-required-property');
         $valid = FALSE;
       }
     }
@@ -1229,7 +1230,7 @@ class H5PValidator {
     $valid = TRUE;
     foreach ($selected as $value) {
       if (!in_array($value, $allowed)) {
-        $this->h5pF->setErrorMessage($this->h5pF->t('Illegal option %option in %library', array('%option' => $value, '%library' => $library_name)));
+        $this->h5pF->setErrorMessage($this->h5pF->t('Illegal option %option in %library', array('%option' => $value, '%library' => $library_name)), 'illegal-option-in-library');
         $valid = FALSE;
       }
     }
@@ -1361,7 +1362,7 @@ class H5PStorage {
         $this->h5pC->fs->saveContent($current_path, $content);
       }
       catch (Exception $e) {
-        $this->h5pF->setErrorMessage($e->getMessage());
+        $this->h5pF->setErrorMessage($e->getMessage(), 'save-content-failed');
       }
 
       // Remove temp content folder
@@ -1572,7 +1573,7 @@ Class H5PExport {
       $this->h5pC->fs->exportContent($content['id'], "{$tmpPath}/content");
     }
     catch (Exception $e) {
-      $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+      $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()), 'failed-creating-export-file');
       H5PCore::deleteFileTree($tmpPath);
       return FALSE;
     }
@@ -1617,7 +1618,7 @@ Class H5PExport {
         $this->h5pC->fs->exportLibrary($library, $tmpPath, $exportFolder);
       }
       catch (Exception $e) {
-        $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+        $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()), 'failed-creating-export-file');
         H5PCore::deleteFileTree($tmpPath);
         return FALSE;
       }
@@ -1669,7 +1670,7 @@ Class H5PExport {
       $this->h5pC->fs->saveExport($tmpFile, $filename);
     }
     catch (Exception $e) {
-      $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()));
+      $this->h5pF->setErrorMessage($this->h5pF->t($e->getMessage()), 'failed-creating-export-file');
       return false;
     }
 
@@ -2249,7 +2250,7 @@ class H5PCore {
         }
         else {
           // This site is missing a dependency!
-          $this->h5pF->setErrorMessage($this->h5pF->t('Missing dependency @dep required by @lib.', array('@dep' => H5PCore::libraryToString($dependency), '@lib' => H5PCore::libraryToString($library))));
+          $this->h5pF->setErrorMessage($this->h5pF->t('Missing dependency @dep required by @lib.', array('@dep' => H5PCore::libraryToString($dependency), '@lib' => H5PCore::libraryToString($library))), 'missing-library-dependency');
         }
       }
     }
@@ -2520,7 +2521,8 @@ class H5PCore {
         $errorMessage = $this->h5pF->t('Site could not be registered with the hub. Please contact your site administrator.');
         $this->h5pF->setErrorMessage($errorMessage);
         $this->h5pF->setErrorMessage(
-          $this->h5pF->t('The H5P Hub has been disabled until this problem can be resolved. You may still upload libraries through the "H5P Libraries" page.')
+          $this->h5pF->t('The H5P Hub has been disabled until this problem can be resolved. You may still upload libraries through the "H5P Libraries" page.'),
+          'registration-failed-hub-disabled'
         );
         return FALSE;
       }
@@ -2934,7 +2936,8 @@ class H5PCore {
     // No data received
     if (!$data) {
       $interface->setErrorMessage(
-        $interface->t("Couldn't communicate with the H5P Hub. Please try again later.")
+        $interface->t("Couldn't communicate with the H5P Hub. Please try again later."),
+        'failed-communicationg-with-hub'
       );
       return FALSE;
     }
@@ -2944,7 +2947,8 @@ class H5PCore {
     // No libraries received
     if (!isset($json->contentTypes) || empty($json->contentTypes)) {
       $interface->setErrorMessage(
-        $interface->t('No content types were received from the H5P Hub. Please try again later.')
+        $interface->t('No content types were received from the H5P Hub. Please try again later.'),
+        'no-content-types-from-hub'
       );
       return FALSE;
     }
@@ -3276,7 +3280,7 @@ class H5PContentValidator {
     // Check if string is within allowed length
     if (isset($semantics->maxLength)) {
       if (!extension_loaded('mbstring')) {
-        $this->h5pF->setErrorMessage($this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly'), 'error');
+        $this->h5pF->setErrorMessage($this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly'), 'mbstring-unsupported');
       }
       else {
         $text = mb_substr($text, 0, $semantics->maxLength);
@@ -3291,7 +3295,7 @@ class H5PContentValidator {
       if (preg_match($pattern, $text) === 0) {
         // Note: explicitly ignore return value FALSE, to avoid removing text
         // if regexp is invalid...
-        $this->h5pF->setErrorMessage($this->h5pF->t('Provided string is not valid according to regexp in semantics. (value: "%value", regexp: "%regexp")', array('%value' => $text, '%regexp' => $pattern)));
+        $this->h5pF->setErrorMessage($this->h5pF->t('Provided string is not valid according to regexp in semantics. (value: "%value", regexp: "%regexp")', array('%value' => $text, '%regexp' => $pattern)), 'semantics-invalid-according-regexp');
         $text = '';
       }
     }
@@ -3331,11 +3335,11 @@ class H5PContentValidator {
         // never be more than 1 element long anyway, 3. recreating the regex
         // for every file.
         if (!extension_loaded('mbstring')) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly'), 'error');
+          $this->h5pF->setErrorMessage($this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly'), 'mbstring-unsupported');
           $valid = FALSE;
         }
         else if (!preg_match($wl_regex, mb_strtolower($file))) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('File "%filename" not allowed. Only files with the following extensions are allowed: %files-allowed.', array('%filename' => $file, '%files-allowed' => $whitelist)), 'error');
+          $this->h5pF->setErrorMessage($this->h5pF->t('File "%filename" not allowed. Only files with the following extensions are allowed: %files-allowed.', array('%filename' => $file, '%files-allowed' => $whitelist)), 'not-in-whitelist');
           $valid = FALSE;
         }
       }
@@ -3620,7 +3624,7 @@ class H5PContentValidator {
           else {
             // We have a field type in semantics for which we don't have a
             // known validator.
-            $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: unknown content type "@type" in semantics. Removing content!', array('@type' => $field->type)));
+            $this->h5pF->setErrorMessage($this->h5pF->t('H5P internal error: unknown content type "@type" in semantics. Removing content!', array('@type' => $field->type)), 'semantics-unknown-type');
             unset($group->$key);
           }
         }
@@ -3663,6 +3667,7 @@ class H5PContentValidator {
     }
     if (!in_array($value->library, $semantics->options)) {
       $message = NULL;
+      $code = NULL;
       // Create an understandable error message:
       $machineNameArray = explode(' ', $value->library);
       $machineName = $machineNameArray[0];
@@ -3676,9 +3681,11 @@ class H5PContentValidator {
             '%contentLibrary' => $value->library,
             '%semanticsLibrary' => $semanticsLibrary
           ));
+          $code = '';
           break;
         }
       }
+
       // Using a library in content that is not present at all in semantics
       if ($message === NULL) {
         $message = $this->h5pF->t('The H5P library %library used in the content is not valid', array(
