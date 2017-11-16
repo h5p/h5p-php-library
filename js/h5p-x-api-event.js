@@ -309,6 +309,12 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
   'suspended',
   'terminated',
   'voided',
+  
+  // Custom verbs for video events
+  'played',
+  'paused',
+  'seeked',
+  'initialized',
 
   // Custom verbs used for action toolbar below content
   'downloaded',
