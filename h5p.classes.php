@@ -3667,7 +3667,6 @@ class H5PContentValidator {
     }
     if (!in_array($value->library, $semantics->options)) {
       $message = NULL;
-      $code = NULL;
       // Create an understandable error message:
       $machineNameArray = explode(' ', $value->library);
       $machineName = $machineNameArray[0];
@@ -3681,7 +3680,6 @@ class H5PContentValidator {
             '%contentLibrary' => $value->library,
             '%semanticsLibrary' => $semanticsLibrary
           ));
-          $code = '';
           break;
         }
       }
