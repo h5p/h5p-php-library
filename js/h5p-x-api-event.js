@@ -309,7 +309,7 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
   'suspended',
   'terminated',
   'voided',
-  
+
   // Custom verbs for video events
   'played',
   'paused',
