@@ -314,6 +314,7 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
   'played',
   'paused',
   'seeked',
+  'finished',
 
   // Custom verbs used for action toolbar below content
   'downloaded',
