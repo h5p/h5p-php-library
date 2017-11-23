@@ -2509,7 +2509,11 @@ class H5PCore {
       'h5p_version' => $platform['h5pVersion'],
       'disabled' => $fetchingDisabled ? 1 : 0,
       'local_id' => hash('crc32', $this->fullPluginPath),
-      'type' => $this->h5pF->getOption('site_type', 'local')
+      'type' => $this->h5pF->getOption('site_type', 'local'),
+      'core_api_version' => json_encode(array(
+        'major' => H5PCore::$coreApi['majorVersion'],
+        'minor' => H5PCore::$coreApi['minorVersion']
+      ))
     );
 
     // Register site if it is not registered
