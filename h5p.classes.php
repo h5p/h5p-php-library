@@ -3060,7 +3060,7 @@ class H5PCore {
    * @return int|string
    */
   public static function returnBytes($val) {
-    $val  = trim($val);
+    $val  = (int)trim($val);
     $last = strtolower($val[strlen($val) - 1]);
     $bytes = (int) $val;
 
