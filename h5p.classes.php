@@ -2119,7 +2119,7 @@ class H5PCore {
       $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts'], $prefix);
       $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles'], $prefix);
       if( $this->fs->hasPresave($libraryName) ){
-          $this->addPresaveFile($files, $dependency, $prefix);
+        $this->addPresaveFile($files, $dependency, $prefix);
       }
     }
 
@@ -2134,13 +2134,13 @@ class H5PCore {
     return $files;
   }
 
-    public function addPresaveFile(&$assets, $library, $prefix = ''){
-        $this->getDependencyAssets([
-            'path' => 'libraries' . DIRECTORY_SEPARATOR . self::libraryToString($library, true),
-            'version' => array_key_exists('version', $library) ? $library['version'] : "?ver={$library['majorVersion']}.{$library['minorVersion']}.{$library['patchVersion']}",
-            'presaveJs' => ['presave.js']
-        ], 'presaveJs', $assets['scripts'], $prefix);
-    }
+  public function addPresaveFile(&$assets, $library, $prefix = ''){
+    $this->getDependencyAssets([
+      'path' => 'libraries' . DIRECTORY_SEPARATOR . self::libraryToString($library, true),
+      'version' => array_key_exists('version', $library) ? $library['version'] : "?ver={$library['majorVersion']}.{$library['minorVersion']}.{$library['patchVersion']}",
+      'presaveJs' => ['presave.js']
+    ], 'presaveJs', $assets['scripts'], $prefix);
+  }
 
   private static function getDependenciesHash(&$dependencies) {
     // Build hash of dependencies
