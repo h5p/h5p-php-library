@@ -451,6 +451,17 @@ class H5PDefaultStorage implements \H5PFileStorage {
     return self::dirReady($this->path);
   }
 
+  public function hasPresave($name) {
+      $filePath = implode(DIRECTORY_SEPARATOR, [
+          $this->path,
+          'libraries',
+          $name,
+          'presave.js',
+      ]);
+
+      return file_exists($filePath);
+  }
+
   /**
    * Recursive function for copying directories.
    *
