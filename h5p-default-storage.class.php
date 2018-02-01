@@ -457,13 +457,9 @@ class H5PDefaultStorage implements \H5PFileStorage {
      * @param string $name
      * @return bool
      */
-  public function hasPresave($name) {
-    $filePath = implode(DIRECTORY_SEPARATOR, [
-      $this->path,
-      'libraries',
-      $name,
-      'presave.js',
-    ]);
+  public function hasPresave($libraryFolder, $developmentPath = null) {
+      $path = is_null($developmentPath) ? 'libraries' . DIRECTORY_SEPARATOR . $libraryFolder : $developmentPath;
+      $filePath = realpath($this->path . DIRECTORY_SEPARATOR . $path . DIRECTORY_SEPARATOR . 'presave.js');
     return file_exists($filePath);
   }
 

@@ -194,7 +194,7 @@ interface H5PFileStorage {
   /**
    * Check if the library has a presave.js in the root folder
    *
-   * @return string|null Path to script or null if missing
+   * @return string|null Path if presave.js found
    */
-  public function hasPresave($name);
+  public function hasPresave($libraryName, $developmentPath = null);
 }
