@@ -77,6 +77,14 @@ H5P.XAPIEvent.prototype.setVerb = function (verb) {
       }
     };
   }
+  else if (H5P.jQuery.inArray(verb, H5P.XAPIEvent.allowedXAPIVideoVerbs) !== -1) {
+    this.data.statement.verb = {
+      'id': 'https://w3id.org/xapi/video/verbs/' + verb,
+      'display': {
+        'en-US': verb
+      }
+    };
+  }
   else if (verb.id !== undefined) {
     this.data.statement.verb = verb;
   }
@@ -310,14 +318,20 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
   'terminated',
   'voided',
 
-  // Custom verbs for video events
-  'played',
-  'paused',
-  'seeked',
-  'finished',
-
   // Custom verbs used for action toolbar below content
   'downloaded',
   'accessed-embed',
   'accessed-copyright'
+];
+
+/**
+ * List of video verbs defined at {@link https://w3id.org/xapi/video/|xAPI Video Profile}
+ *
+ * @type Array
+ */
+H5P.XAPIEvent.allowedXAPIVideoVerbs = [
+  'played',
+  'paused',
+  'seeked',
+  'finished',
 ];
