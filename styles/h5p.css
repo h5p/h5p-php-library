@@ -106,8 +106,8 @@ body.h5p-semi-fullscreen {
   line-height: 0.975em;
   font-size: 2em;
   width: 1.125em;
-  height: 0.925em;
-  text-indent: -0.0875em;
+  height: 1em;
+  text-indent: 0.04em;
 }
 .h5p-disable-fullscreen {
   line-height: 0.925em;
