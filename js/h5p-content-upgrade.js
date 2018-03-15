@@ -66,9 +66,10 @@
    * Start a new content upgrade.
    *
    * @param {Number} libraryId
+   * @param {Object} events
    * @returns {_L1.ContentUpgrade}
    */
-  function ContentUpgrade(libraryId) {
+  function ContentUpgrade(libraryId, events) {
     var self = this;
 
     // Get selected version
@@ -84,7 +85,11 @@
     // Track number of working
     self.working = 0;
 
+    self.events = events || {};
+
     var start = function () {
+      self.trigger('start');
+
       // Get the next batch
       self.nextBatch({
         libraryId: libraryId,
@@ -194,6 +199,9 @@
    * @param {String} msg
    */
   ContentUpgrade.prototype.setStatus = function (msg) {
+    this.trigger('status', {
+      message: msg
+    });
     $container.html(msg);
   };
 
@@ -247,6 +255,10 @@
     self.current++;
     self.working++;
 
+    self.trigger('assign', {
+      id: id
+    });
+
     if (worker) {
       worker.postMessage({
         action: 'newJob',
@@ -296,6 +308,12 @@
     // Update progress message
     self.throbber.setProgress(Math.round((info.total - self.left + self.current) / (info.total / 100)) + ' %');
 
+    self.trigger('upgraded', {
+      id: id,
+      params: result,
+      percentComplete: percentComplete,
+    });
+
     // Assign next job
     if (self.assignWork(worker) === false && self.working === 0) {
       // All workers have finsihed.
@@ -319,6 +337,8 @@
         self.workers[i].terminate();
       }
     }
+
+    self.trigger('terminate');
   };
 
   var librariesLoadedCallbacks = {};
@@ -417,7 +437,25 @@
       error = info.errorScript.replace('%lib', error.library);
     }
 
+    self.trigger('error', {
+      message: error,
+      infoError: info.error,
+    });
+
     self.setStatus('<p>' + info.error + '<br/>' + error + '</p>');
   };
+
+  /**
+   * Trigger
+   * @param action
+   * @param data
+   */
+  ContentUpgrade.prototype.trigger = function (action, data) {
+    if( typeof this.events[action] !== "undefined"){
+      this.events[action].call(this, data);
+    }
+  };
+
+  H5P.ContentUpgrade = ContentUpgrade;
 
 })(H5P.jQuery, H5P.Version);
