@@ -306,7 +306,8 @@
     self.upgraded[id] = result;
 
     // Update progress message
-    self.throbber.setProgress(Math.round((info.total - self.left + self.current) / (info.total / 100)) + ' %');
+    var percentComplete = Math.round((info.total - self.left + self.current) / (info.total / 100));
+    self.throbber.setProgress(percentComplete + ' %');
 
     self.trigger('upgraded', {
       id: id,
