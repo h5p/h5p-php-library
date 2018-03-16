@@ -99,7 +99,8 @@ H5P.init = function (target) {
     }
     var library = {
       library: contentData.library,
-      params: JSON.parse(contentData.jsonContent)
+      params: JSON.parse(contentData.jsonContent),
+      metadata: contentData.metadata
     };
 
     H5P.getUserData(contentId, 'state', function (err, previousState) {
@@ -793,6 +794,10 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
 
   if (library.userDatas && library.userDatas.state && H5PIntegration.saveFreq) {
     extras.previousState = library.userDatas.state;
+  }
+
+  if (library.metadata) {
+    extras.metadata = library.metadata;
   }
 
   // Makes all H5P libraries extend H5P.ContentType:
