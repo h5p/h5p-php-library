@@ -620,8 +620,17 @@ class H5PValidator {
 
   private $h5pOptional = array(
     'contentType' => '/^.{1,255}$/',
+    // deprecated
     'author' => '/^.{1,255}$/',
-    'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
+    'authors' => array(
+      'name' => '/^.{1,255}$/',
+      'role' => '/^(Illustrator|Designer|Photographer)$/',
+    ),
+    'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|GNU GPL|PD|ODC PDDL|CC PDM|U|C|cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
+    'licenseVersion' => '/^(1.0|2.0|2.5|3.0|4.0)$/',
+    'source' => '/^(http[s]?://.+)$',
+    'yearsFrom' => '/^([0-9]{1,4})$/',
+    'yearsTo' => '/^([0-9]{1,4})$/',
     'dynamicDependencies' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
@@ -629,7 +638,9 @@ class H5PValidator {
     ),
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
+    // deprecated
     'metaKeywords' => '/^.{1,}$/',
+    // deprecated
     'metaDescription' => '/^.{1,}$/',
   );
 
@@ -1584,13 +1595,29 @@ Class H5PExport {
     // Make embedType into an array
     $embedTypes = explode(', ', $content['embedType']);
 
-    // Build h5p.json
+    // Build h5p.json, the en-/de-coding will ensure proper escaping
     $h5pJson = array (
       'title' => $content['title'],
       'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes,
+      'authors' => json_decode(json_encode($content['metadata']['authors'], TRUE)),
+      'source' => $content['metadata']['source'],
+      'yearFrom' => $content['metadata']['yearFrom'],
+      'yearTo' => $content['metadata']['yearTo'],
+      'license' => $content['metadata']['license'],
+      'licenseVersion' => $content['metadata']['licenseVersion'],
+      'licenseExtras' => $content['metadata']['licenseExtras'],
+      'changes' => json_decode(json_encode($content['metadata']['changes'], TRUE)),
+      'authorComments' => $content['metadata']['authorComments']
     );
+
+    // Remove all values that are not set
+    foreach ($h5pJson as $key => $value) {
+      if (!isset($value)) {
+        unset($h5pJson[$key]);
+      }
+    }
 
     // Add dependencies to h5p
     foreach ($content['dependencies'] as $dependency) {
