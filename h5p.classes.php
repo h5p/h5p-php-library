@@ -1600,17 +1600,14 @@ Class H5PExport {
       'title' => $content['title'],
       'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
-      'embedTypes' => $embedTypes,
-      'authors' => json_decode(json_encode($content['metadata']['authors'], TRUE)),
-      'source' => $content['metadata']['source'],
-      'yearFrom' => $content['metadata']['yearFrom'],
-      'yearTo' => $content['metadata']['yearTo'],
-      'license' => $content['metadata']['license'],
-      'licenseVersion' => $content['metadata']['licenseVersion'],
-      'licenseExtras' => $content['metadata']['licenseExtras'],
-      'changes' => json_decode(json_encode($content['metadata']['changes'], TRUE)),
-      'authorComments' => $content['metadata']['authorComments']
+      'embedTypes' => $embedTypes
     );
+
+    foreach(array('authors', 'source', 'license', 'licenseVersion', 'licenseExtras' ,'yearFrom', 'yearTo', 'changes', 'authorComments') as $field) {
+      if (isset($content['metadata'][$field])) {
+        $h5pJson[$field] = json_decode(json_encode($content['metadata'][$field], TRUE));
+      }
+    }
 
     // Remove all values that are not set
     foreach ($h5pJson as $key => $value) {
