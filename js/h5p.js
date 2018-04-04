@@ -164,7 +164,7 @@ H5P.init = function (target) {
     if (displayOptions.frame) {
       // Special handling of copyrights
       if (displayOptions.copyright) {
-        var copyrights = H5P.getCopyrights(instance, library.params, contentId);
+        var copyrights = H5P.getCopyrights(instance, library.params, library.metadata, contentId);
         if (!copyrights) {
           displayOptions.copyright = false;
         }
@@ -976,11 +976,13 @@ H5P.Dialog = function (name, title, content, $element) {
  *   H5P instance to get copyright information for.
  * @param {Object} parameters
  *   Parameters of the content instance.
+ * @param {Object} metadata
+ *   Metadata of the content instance.
  * @param {number} contentId
  *   Identifies the H5P content
  * @returns {string} Copyright information.
  */
-H5P.getCopyrights = function (instance, parameters, contentId) {
+H5P.getCopyrights = function (instance, parameters, metadata, contentId) {
   var copyrights;
 
   if (instance.getCopyrights !== undefined) {
@@ -997,6 +999,11 @@ H5P.getCopyrights = function (instance, parameters, contentId) {
     // Create a generic flat copyright list
     copyrights = new H5P.ContentCopyrights();
     H5P.findCopyrights(copyrights, parameters, contentId);
+  }
+
+  var metadataCopyrights = H5P.buildMetadataCopyrights(metadata, instance.libraryInfo.machineName);
+  if (metadataCopyrights !== undefined) {
+    copyrights.addMediaInFront(metadataCopyrights);
   }
 
   if (copyrights !== undefined) {
@@ -1017,6 +1024,7 @@ H5P.getCopyrights = function (instance, parameters, contentId) {
  *   Used to insert thumbnails for images.
  */
 H5P.findCopyrights = function (info, parameters, contentId) {
+  var lastContentTypeName = undefined;
   // Cycle through parameters
   for (var field in parameters) {
     if (!parameters.hasOwnProperty(field)) {
@@ -1026,6 +1034,8 @@ H5P.findCopyrights = function (info, parameters, contentId) {
     /**
      * @deprecated This hack should be removed after 2017-11-01
      * The code that was using this was removed by HFP-574
+     * This note was seen on 2018-04-04, and consultation with
+     * higher authorities lead to keeping the code for now ;-)
      */
     if (field === 'overrideSettings') {
       console.warn("The semantics field 'overrideSettings' is DEPRECATED and should not be used.");
@@ -1035,11 +1045,21 @@ H5P.findCopyrights = function (info, parameters, contentId) {
 
     var value = parameters[field];
 
+    // TODO: Get the real name of the content type
+    lastContentTypeName = (value.library) ? value.library.split(' ')[0] : lastContentTypeName;
+
     if (value instanceof Array) {
       // Cycle through array
       H5P.findCopyrights(info, value, contentId);
     }
     else if (value instanceof Object) {
+      if (value.metadata) {
+        var metadataCopyrights = H5P.buildMetadataCopyrights(value.metadata, lastContentTypeName);
+        if (metadataCopyrights !== undefined) {
+          info.addMedia(metadataCopyrights);
+        }
+      }
+
       // Check if object is a file with copyrights
       if (value.copyright === undefined ||
           value.copyright.license === undefined ||
@@ -1058,6 +1078,34 @@ H5P.findCopyrights = function (info, parameters, contentId) {
         info.addMedia(copyrights);
       }
     }
+  }
+};
+
+H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
+  if (metadata && metadata.license !== undefined && metadata.license !== 'U') {
+    var dataset = {
+      title: metadata.title,
+      author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function(author) {return author.name + ' (' + author.role + ')';}).join(', ') : undefined,
+      source: metadata.source,
+      year: (metadata.yearFrom) ? (metadata.yearFrom + ((metadata.yearTo) ? '-' + metadata.yearTo: '')) : undefined,
+      license: metadata.license,
+      version: metadata.licenseVersion,
+      licenseExtras: metadata.licenseExtras,
+      changes: (metadata.changes && metadata.changes.length > 0) ? metadata.changes.map(function(change) {
+        return change.log + (change.author ? ', ' + change.author : '') + (change.date ? ', ' + change.date : '');
+      }).join(' / ') : undefined
+    };
+
+    if (contentTypeName && contentTypeName.indexOf('H5P.') === 0) {
+      contentTypeName = contentTypeName.substr(4);
+    }
+
+    return new H5P.MediaCopyright(
+      dataset,
+      {type: 'Content type', licenseExtras: 'License extras', changes: 'Changelog'},
+      ['type', 'title', 'license', 'author', 'year', 'source', 'licenseExtras', 'changes'],
+      {type: contentTypeName}
+    );
   }
 };
 
@@ -1177,6 +1225,17 @@ H5P.ContentCopyrights = function () {
   this.addMedia = function (newMedia) {
     if (newMedia !== undefined) {
       media.push(newMedia);
+    }
+  };
+
+  /**
+   * Add sub content in front.
+   *
+   * @param {H5P.MediaCopyright} newMedia
+   */
+  this.addMediaInFront = function (newMedia) {
+    if (newMedia !== undefined) {
+      media.unshift(newMedia);
     }
   };
 
