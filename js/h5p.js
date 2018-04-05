@@ -164,7 +164,7 @@ H5P.init = function (target) {
     if (displayOptions.frame) {
       // Special handling of copyrights
       if (displayOptions.copyright) {
-        var copyrights = H5P.getCopyrights(instance, library.params, library.metadata, contentId);
+        var copyrights = H5P.getCopyrights(instance, library.params, contentId, library.metadata);
         if (!copyrights) {
           displayOptions.copyright = false;
         }
@@ -982,12 +982,13 @@ H5P.Dialog = function (name, title, content, $element) {
  *   Identifies the H5P content
  * @returns {string} Copyright information.
  */
-H5P.getCopyrights = function (instance, parameters, metadata, contentId) {
+H5P.getCopyrights = function (instance, parameters, contentId, metadata) {
   var copyrights;
 
   if (instance.getCopyrights !== undefined) {
     try {
       // Use the instance's own copyright generator
+      console.log('getCopyrights() of', instance.libraryInfo.machineName);
       copyrights = instance.getCopyrights();
     }
     catch (err) {
@@ -1056,11 +1057,17 @@ H5P.findCopyrights = function (info, parameters, contentId) {
       if (value.metadata) {
         var metadataCopyrights = H5P.buildMetadataCopyrights(value.metadata, lastContentTypeName);
         if (metadataCopyrights !== undefined) {
+          if (value.params && value.params.contentName === 'Image' && value.params.file) {
+            var path = value.params.file.path;
+            var width = value.params.file.width;
+            var height = value.params.file.height;
+            metadataCopyrights.setThumbnail(new H5P.Thumbnail(H5P.getPath(path, contentId), width, height));
+          }
           info.addMedia(metadataCopyrights);
         }
       }
 
-      // Check if object is a file with copyrights
+      // Check if object is a file with copyrights (old core)
       if (value.copyright === undefined ||
           value.copyright.license === undefined ||
           value.path === undefined ||
