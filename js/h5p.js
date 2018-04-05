@@ -988,7 +988,6 @@ H5P.getCopyrights = function (instance, parameters, contentId, metadata) {
   if (instance.getCopyrights !== undefined) {
     try {
       // Use the instance's own copyright generator
-      console.log('getCopyrights() of', instance.libraryInfo.machineName);
       copyrights = instance.getCopyrights();
     }
     catch (err) {
