@@ -130,7 +130,15 @@ H5P.ContentUpgradeProcess = (function (Version) {
             try {
               unnecessaryWrapper(params, function (err, upgradedParams, upgradedExtras) {
                 params = upgradedParams;
-                extras = upgradedExtras;
+                /**
+                 * "params" (and "extras", e.g. metadata) flow through each update function and are changed
+                 * if necessary. Since "extras" was added later and old update functions don't return
+                 * it, we need to ignore undefined values here -- or change every single update function
+                 * in all content types.
+                 */
+                if (upgradedExtras) {
+                  extras = upgradedExtras;
+                }
                 nextMinor(err);
               }, extras);
             }
