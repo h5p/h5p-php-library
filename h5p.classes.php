@@ -1770,10 +1770,10 @@ abstract class H5PHubEndpoints {
  * Functions and storage shared by the other H5P classes
  */
 class H5PCore {
-
+  
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 14
+    'minorVersion' => 15
   );
   public static $styles = array(
     'styles/h5p.css',
