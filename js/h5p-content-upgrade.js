@@ -1,6 +1,6 @@
 /*jshint -W083 */
 
-(function ($, Version) {
+(function ($, Version, EventDispatcher) {
   var info, $container, librariesCache = {}, scriptsCache = {};
 
   // Initialize
@@ -70,6 +70,15 @@
    * @returns {_L1.ContentUpgrade}
    */
   function ContentUpgrade(libraryId, events) {
+    if( typeof EventDispatcher !== 'undefined'){
+      EventDispatcher.call(this);
+      if( typeof events !== 'undefined'){
+          for (var i in events){
+              this.on(i, events[i]);
+          }
+      }
+    }
+
     var self = this;
 
     // Get selected version
@@ -84,8 +93,6 @@
 
     // Track number of working
     self.working = 0;
-
-    self.events = events || {};
 
     var start = function () {
       self.trigger('start');
@@ -448,15 +455,10 @@
 
   /**
    * Trigger
-   * @param action
-   * @param data
+   * Fallback function in case EventDispatcher is undefined
    */
-  ContentUpgrade.prototype.trigger = function (action, data) {
-    if( typeof this.events[action] !== "undefined"){
-      this.events[action].call(this, data);
-    }
-  };
+  ContentUpgrade.prototype.trigger = function () {};
 
   H5P.ContentUpgrade = ContentUpgrade;
 
-})(H5P.jQuery, H5P.Version);
+})(H5P.jQuery, H5P.Version, H5P.EventDispatcher);
