@@ -1364,7 +1364,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
       link = copyrightLicense.link.replace(':version', copyrightLicense.linkVersions ? copyrightLicense.linkVersions[version] : version);
     }
     else if (versionInfo && copyrightLicense.hasOwnProperty('link')) {
-      link = versionInfo.link
+      link = versionInfo.link;
     }
     if (link) {
       value = '<a href="' + link + '" target="_blank">' + value + '</a>';
@@ -2150,6 +2150,10 @@ H5P.createTitle = function (rawTitle, maxLength) {
         link: 'http://creativecommons.org/licenses/by-nc-nd/:version/legalcode',
         versions: ccVersions
       },
+      'CC0 1.0': {
+        label: H5P.t('licenseCC010'),
+        link: 'https://creativecommons.org/publicdomain/zero/1.0/'
+      },
       'GNU GPL': {
         label: H5P.t('licenseGPL'),
         link: 'http://www.gnu.org/licenses/gpl-:version-standalone.html',
@@ -2179,7 +2183,10 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
       },
       'ODC PDDL': '<a href="http://opendatacommons.org/licenses/pddl/1.0/" target="_blank">Public Domain Dedication and Licence</a>',
-      'CC PDM': H5P.t('licensePDM'),
+      'CC PDM': {
+        label: H5P.t('licensePDM'),
+        link: 'https://creativecommons.org/publicdomain/mark/1.0/'
+      },
       'C': H5P.t('licenseC'),
     };
 
