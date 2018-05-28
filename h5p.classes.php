@@ -4259,8 +4259,12 @@ class H5PContentValidator {
             'name' => 'authorRole',
             'type' => 'select',
             'label' => $this->h5pF->t("Author's role"),
-            'default' => 'Originator',
+            'default' => 'Author',
             'options' => array(
+              (object) array(
+                'value' => 'Editor',
+                'label' => $this->h5pF->t('Author')
+              ),
               (object) array(
                 'value' => 'Editor',
                 'label' => $this->h5pF->t('Editor')
@@ -4312,7 +4316,7 @@ class H5PContentValidator {
                 'name' => 'log',
                 'type' => 'textarea',
                 'label' => $this->h5pF->t('Description of change'),
-                'placeholder' => $this->h5pF->t('Add a description of your change'),
+                'placeholder' => $this->h5pF->t('Photo cropped, text changed, etc.'),
                 'optional' => TRUE
               )
             )
