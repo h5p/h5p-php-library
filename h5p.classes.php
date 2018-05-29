@@ -4220,16 +4220,20 @@ class H5PContentValidator {
           ),
           (object) array(
             'name' => 'yearFrom',
-            'type' => 'text',
+            'type' => 'number',
             'label' => $this->h5pF->t('Years (from-to)'),
             'placeholder' => '1991',
+            'min' => '-9999',
+            'max' => '9999',
             'optional' => TRUE
           ),
           (object) array(
             'name' => 'yearTo',
-            'type' => 'text',
+            'type' => 'number',
             'label' => 'hiddenLabel',
             'placeholder' => '1992',
+            'min' => '-9999',
+            'max' => '9999',
             'optional' => TRUE
           ),
           (object) array(
