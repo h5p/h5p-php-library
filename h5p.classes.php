@@ -4262,7 +4262,7 @@ class H5PContentValidator {
             'default' => 'Author',
             'options' => array(
               (object) array(
-                'value' => 'Editor',
+                'value' => 'Author',
                 'label' => $this->h5pF->t('Author')
               ),
               (object) array(
