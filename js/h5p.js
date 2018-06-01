@@ -1024,7 +1024,7 @@ H5P.getCopyrights = function (instance, parameters, contentId, metadata) {
  *   Used to insert thumbnails for images.
  */
 H5P.findCopyrights = function (info, parameters, contentId) {
-  var lastContentTypeName = undefined;
+  var lastContentTypeName;
   // Cycle through parameters
   for (var field in parameters) {
     if (!parameters.hasOwnProperty(field)) {
@@ -1045,8 +1045,12 @@ H5P.findCopyrights = function (info, parameters, contentId) {
 
     var value = parameters[field];
 
-    // TODO: Get the real name of the content type
-    lastContentTypeName = (value.library) ? value.library.split(' ')[0] : lastContentTypeName;
+    if (value.library && typeof value.library === 'string') {
+      lastContentTypeName = value.library.split(' ')[0];
+    }
+    else if (value.library && typeof value.library === 'object') {
+      lastContentTypeName = (value.library.library && typeof value.library.library === 'string') ? value.library.library.split(' ')[0] : lastContentTypeName;
+    }
 
     if (value instanceof Array) {
       // Cycle through array
