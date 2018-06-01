@@ -1045,10 +1045,10 @@ H5P.findCopyrights = function (info, parameters, contentId) {
 
     var value = parameters[field];
 
-    if (value.library && typeof value.library === 'string') {
+    if (value && value.library && typeof value.library === 'string') {
       lastContentTypeName = value.library.split(' ')[0];
     }
-    else if (value.library && typeof value.library === 'object') {
+    else if (value && value.library && typeof value.library === 'object') {
       lastContentTypeName = (value.library.library && typeof value.library.library === 'string') ? value.library.library.split(' ')[0] : lastContentTypeName;
     }
 
