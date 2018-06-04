@@ -135,8 +135,10 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  Where the library folder will be saved
    * @param string $developmentPath
    *  Folder that library resides in
+   * @param string $lastLibrary
+   *  Triggers copying of all the folders
    */
-  public function exportLibrary($library, $target, $developmentPath=NULL) {
+  public function exportLibrary($library, $target, $developmentPath = NULL, $lastLibrary = FALSE) {
     $srcFolder = \H5PCore::libraryToFolderName($library);
     $srcPath = ($developmentPath === NULL ? "/libraries/{$srcFolder}" : $developmentPath);
 

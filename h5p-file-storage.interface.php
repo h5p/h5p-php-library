@@ -77,8 +77,12 @@ interface H5PFileStorage {
    *  Library properties
    * @param string $target
    *  Where the library folder will be saved
+   * @param string $developmentPath
+   *  Folder that library resides in
+   * @param string $lastLibrary
+   *  Triggers copying of all the folders
    */
-  public function exportLibrary($library, $target);
+  public function exportLibrary($library, $target, $developmentPath = NULL, $lastLibrary = FALSE);
 
   /**
    * Save export in file system
