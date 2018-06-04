@@ -624,7 +624,7 @@ class H5PValidator {
     'author' => '/^.{1,255}$/',
     'authors' => array(
       'name' => '/^.{1,255}$/',
-      'role' => '/^(Illustrator|Designer|Photographer)$/',
+      'role' => '/^(Author|Illustrator|Designer|Photographer)$/',
     ),
     'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|GNU GPL|PD|ODC PDDL|CC PDM|U|C|cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
     'licenseVersion' => '/^(1.0|2.0|2.5|3.0|4.0)$/',
@@ -4255,12 +4255,12 @@ class H5PContentValidator {
         'fields'=> array(
           (object) array(
             'label' => "Author's name",
-            'name' => "authorName",
+            'name' => "name",
             'optional' => TRUE,
             'type' => "text"
           ),
           (object) array(
-            'name' => 'authorRole',
+            'name' => 'role',
             'type' => 'select',
             'label' => $this->h5pF->t("Author's role"),
             'default' => 'Author',
