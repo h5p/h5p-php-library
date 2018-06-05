@@ -2,7 +2,7 @@
 // TODO: Should we split up the generic parts needed by the editor(and others), and the parts needed to "run" H5Ps?
 
 /** @namespace */
-var H5P = H5P || {};
+var H5P = window.H5P = window.H5P || {};
 
 /**
  * Tells us if we're inside of an iframe.
@@ -2010,6 +2010,16 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
       });
     }
+  };
+
+  /**
+   * Get crossorigin option that is set for site. Usefull for setting crossorigin policy for elements.
+   *
+   * @returns {string|null} Returns the string that should be set as crossorigin policy for elements or null if
+   * no policy is set.
+   */
+  H5P.getCrossOrigin = function () {
+    return H5PIntegration.crossorigin ? H5PIntegration.crossorigin : null;
   };
 
   /**
