@@ -624,7 +624,7 @@ class H5PValidator {
     'author' => '/^.{1,255}$/',
     'authors' => array(
       'name' => '/^.{1,255}$/',
-      'role' => '/^(Author|Illustrator|Designer|Photographer)$/',
+      'role' => '/^\w+$/',
     ),
     'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|GNU GPL|PD|ODC PDDL|CC PDM|U|C|cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
     'licenseVersion' => '/^(1.0|2.0|2.5|3.0|4.0)$/',
