@@ -454,7 +454,8 @@ class H5PDefaultStorage implements \H5PFileStorage {
     /**
      * Check if the file presave.js exists in the root of the library
      *
-     * @param string $name
+     * @param string $libraryFolder
+     * @param string $developmentPath
      * @return bool
      */
   public function hasPresave($libraryFolder, $developmentPath = null) {
