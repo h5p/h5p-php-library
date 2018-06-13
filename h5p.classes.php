@@ -1770,7 +1770,7 @@ abstract class H5PHubEndpoints {
  * Functions and storage shared by the other H5P classes
  */
 class H5PCore {
-  
+
   public static $coreApi = array(
     'majorVersion' => 1,
     'minorVersion' => 16
@@ -1938,6 +1938,14 @@ class H5PCore {
     }
     $validator->validateLibrary($params, (object) array('options' => array($params->library)));
 
+    // Add MathDisplay.
+    // TODO: Get library name for MathDisplay dynamically
+    // TODO: Get regexp from MathDisplay config
+    // TODO: Find out how to pass settings to MathDisplay
+    if ($this->containsMath($params->params)) {
+      $validator->addMathDisplay('H5P.MathDisplay 0.1');
+    }
+
     $params = json_encode($params->params);
 
     // Update content dependencies.
@@ -1968,6 +1976,39 @@ class H5PCore {
       ));
     }
     return $params;
+  }
+
+  /**
+   * Determine if params contain math.
+   *
+   * @param {object} params - Parameters.
+   * @param {string} [mathPattern] - Regular expression to identify math.
+   * @param {boolean} [found] - Used for recursion.
+   * @return {boolean} True, if params contain math.
+   */
+  private function containsMath ($params, $mathPattern = '/\$\$.+\$\$|\\\[.+\\\]|\\\(.+\\\)/', $found = false) {
+    foreach($params as $property => $value) {
+      if (gettype($value) === 'string') {
+        if (preg_match($mathPattern, $value) === 1) {
+          $found = true;
+          break;
+        }
+      }
+      if ($found === false) {
+        if (gettype($value) === 'array') {
+          for ($i = 0; $i < sizeof($value); $i++) {
+            $found = $this->containsMath($value[$i], $mathPattern, $found);
+            if ($found === true) {
+              break;
+            }
+          }
+        }
+        if (gettype($value) === 'object') {
+          $found = $this->containsMath($value, $mathPattern, $found);
+        }
+      }
+    }
+    return $found;
   }
 
   /**
@@ -3202,6 +3243,23 @@ class H5PContentValidator {
 
     // Keep track of all dependencies for the given content.
     $this->dependencies = array();
+  }
+
+  /**
+   * Add MathDisplay.
+   */
+  public function addMathDisplay($libraryName) {
+    $libSpec = H5PCore::libraryFromString($libraryName);
+    $library = $this->h5pC->loadLibrary($libSpec['machineName'], $libSpec['majorVersion'], $libSpec['minorVersion']);
+    $library['semantics'] = $this->h5pC->loadLibrarySemantics($libSpec['machineName'], $libSpec['majorVersion'], $libSpec['minorVersion']);
+
+    $depKey = 'preloaded-' . $library['machineName'];
+    $this->dependencies[$depKey] = array(
+      'library' => $library,
+      'type' => 'preloaded'
+    );
+    $this->nextWeight = $this->h5pC->findLibraryDependencies($this->dependencies, $library, $this->nextWeight);
+    $this->dependencies[$depKey]['weight'] = $this->nextWeight++;
   }
 
   /**
