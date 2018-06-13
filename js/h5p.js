@@ -1096,7 +1096,7 @@ H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
     var dataset = {
       title: metadata.title,
       author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function(author) {return author.name + ' (' + author.role + ')';}).join(', ') : undefined,
-      source: metadata.source,
+      source: '<a href="' + metadata.source + '" target="_blank">' + metadata.source + '</a>',
       year: (metadata.yearFrom) ? (metadata.yearFrom + ((metadata.yearTo) ? '-' + metadata.yearTo: '')) : undefined,
       license: metadata.license,
       version: metadata.licenseVersion,
@@ -2136,32 +2136,32 @@ H5P.createTitle = function (rawTitle, maxLength) {
       'U': H5P.t('licenseU'),
       'CC BY': {
         label: H5P.t('licenseCCBY'),
-        link: 'http://creativecommons.org/licenses/by/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by/:version',
         versions: ccVersions
       },
       'CC BY-SA': {
         label: H5P.t('licenseCCBYSA'),
-        link: 'http://creativecommons.org/licenses/by-sa/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-sa/:version',
         versions: ccVersions
       },
       'CC BY-ND': {
         label: H5P.t('licenseCCBYND'),
-        link: 'http://creativecommons.org/licenses/by-nd/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-nd/:version',
         versions: ccVersions
       },
       'CC BY-NC': {
         label: H5P.t('licenseCCBYNC'),
-        link: 'http://creativecommons.org/licenses/by-nc/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-nc/:version',
         versions: ccVersions
       },
       'CC BY-NC-SA': {
         label: H5P.t('licenseCCBYNCSA'),
-        link: 'http://creativecommons.org/licenses/by-nc-sa/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-nc-sa/:version',
         versions: ccVersions
       },
       'CC BY-NC-ND': {
         label: H5P.t('licenseCCBYNCND'),
-        link: 'http://creativecommons.org/licenses/by-nc-nd/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-nc-nd/:version',
         versions: ccVersions
       },
       'CC0 1.0': {
