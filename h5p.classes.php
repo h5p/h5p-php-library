@@ -2109,9 +2109,8 @@ class H5PCore {
 
     // Using content dependencies
     foreach ($dependencies as $dependency) {
-      $libraryName = H5PCore::libraryToString($dependency, TRUE);
       if (isset($dependency['path']) === FALSE) {
-        $dependency['path'] = 'libraries/' . $libraryName;
+        $dependency['path'] = 'libraries/' . H5PCore::libraryToString($dependency, TRUE);
         $dependency['preloadedJs'] = explode(',', $dependency['preloadedJs']);
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
