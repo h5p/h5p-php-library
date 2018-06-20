@@ -1096,7 +1096,7 @@ H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
     var dataset = {
       title: metadata.title,
       author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function(author) {return author.name + ' (' + author.role + ')';}).join(', ') : undefined,
-      source: '<a href="' + metadata.source + '" target="_blank">' + metadata.source + '</a>',
+      source: (metadata.source) ? '<a href="' + metadata.source + '" target="_blank">' + metadata.source + '</a>' : undefined,
       year: (metadata.yearFrom) ? (metadata.yearFrom + ((metadata.yearTo) ? '-' + metadata.yearTo: '')) : undefined,
       license: metadata.license,
       version: metadata.licenseVersion,
