@@ -622,6 +622,16 @@ interface H5PFrameworkInterface {
   public function replaceContentTypeCache($contentTypeCache);
 
   /**
+   * Framework may implement additional validations for library
+   *
+   * @param object $mainH5pData H5P Data from library.json
+   *
+   * @return object An object with a 'valid' that returns true if validation passes,
+   * and an optional 'message' and 'code' property to be displayed if validation fails.
+   */
+  public function validateLibrary($mainH5pData);
+
+  /**
    * Checks if the given library has a higher version.
    *
    * @param array $library
@@ -1015,6 +1025,25 @@ class H5PValidator {
 
         $libraryH5PData['uploadDirectory'] = $filePath;
         $libraries[H5PCore::libraryToString($libraryH5PData)] = $libraryH5PData;
+      }
+    }
+
+    if ($skipContent === FALSE) {
+      $frameworkValidation = $this->h5pF->validateLibrary($mainH5pData);
+      if (!$frameworkValidation->valid) {
+        $message = $this->h5pF->t('Validation of the main library failed.');
+        $code = null;
+
+        if (isset($frameworkValidation->message)) {
+          $message = $frameworkValidation->message;
+        }
+
+        if (isset($frameworkValidation->code)) {
+          $code = $frameworkValidation->code;
+        }
+
+        $this->h5pF->setErrorMessage($message, $code);
+        $valid = FALSE;
       }
     }
 
