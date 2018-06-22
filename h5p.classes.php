@@ -3692,12 +3692,24 @@ class H5PContentValidator {
       $value = NULL;
       return;
     }
-    if (!in_array($value->library, $semantics->options)) {
+
+    // Check for array of objects or array of strings
+    if (is_object($semantics->options[0])) {
+      $getLibraryNames = function ($item) {
+        return $item->name;
+      };
+      $libraryNames = array_map($getLibraryNames, $semantics->options);
+    }
+    else {
+      $libraryNames = $semantics->options;
+    }
+
+    if (!in_array($value->library, $libraryNames)) {
       $message = NULL;
       // Create an understandable error message:
       $machineNameArray = explode(' ', $value->library);
       $machineName = $machineNameArray[0];
-      foreach ($semantics->options as $semanticsLibrary) {
+      foreach ($libraryNames as $semanticsLibrary) {
         $semanticsMachineNameArray = explode(' ', $semanticsLibrary);
         $semanticsMachineName = $semanticsMachineNameArray[0];
         if ($machineName === $semanticsMachineName) {
@@ -3741,6 +3753,7 @@ class H5PContentValidator {
     if (isset($semantics->extraAttributes)) {
       $validKeys = array_merge($validKeys, $semantics->extraAttributes);
     }
+
     $this->filterParams($value, $validKeys);
     if (isset($value->subContentId) && ! preg_match('/^\{?[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\}?$/', $value->subContentId)) {
       unset($value->subContentId);
