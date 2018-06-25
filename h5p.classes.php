@@ -4166,61 +4166,61 @@ class H5PContentValidator {
             'options' => array(
               (object) array(
                 'value' => 'U',
-                'label' => 'Undisclosed'
+                'label' => $this->h5pF->t('Undisclosed')
               ),
               (object) array(
                 'value' => 'CC BY',
-                'label' => 'Attribution',
+                'label' => $this->h5pF->t('CC Attribution'),
                 'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-SA',
-                'label' => 'Attribution-ShareAlike',
+                'label' => $this->h5pF->t('CC Attribution-ShareAlike'),
                 'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-ND',
-                'label' => 'Attribution-NoDerivs',
+                'label' => $this->h5pF->t('CC Attribution-NoDerivs'),
                 'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-NC',
-                'label' => 'Attribution-NonCommercial',
+                'label' => $this->h5pF->t('CC Attribution-NonCommercial'),
                 'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-NC-SA',
-                'label' => 'Attribution-NonCommercial-ShareAlike',
+                'label' => $this->h5pF->t('CC Attribution-NonCommercial-ShareAlike'),
                 'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC BY-NC-ND',
-                'label' => 'Attribution-NonCommercial-NoDerivs',
+                'label' => $this->h5pF->t('CC Attribution-NonCommercial-NoDerivs'),
                 'versions' => $cc_versions
               ),
               (object) array(
                 'value' => 'CC0 1.0',
-                'label' => 'Public Domain Dedication'
+                'label' => $this->h5pF->t('CC Public Domain Dedication')
               ),
               (object) array(
                 'value' => 'CC PDM',
-                'label' => 'Public Domain Mark'
+                'label' => $this->h5pF->t('Public Domain Mark')
               ),
               (object) array(
                 'value' => 'GNU GPL',
-                'label' => 'General Public License v3'
+                'label' => $this->h5pF->t('General Public License v3')
               ),
               (object) array(
                 'value' => 'PD',
-                'label' => 'Public Domain'
+                'label' => $this->h5pF->t('Public Domain')
               ),
               (object) array(
                 'value' => 'ODC PDDL',
-                'label' => 'Public Domain Dedication and Licence'
+                'label' => $this->h5pF->t('Public Domain Dedication and Licence')
               ),
               (object) array(
                 'value' => 'C',
-                'label' => 'Copyright'
+                'label' => $this->h5pF->t('Copyright')
               )
             )
           ),
@@ -4252,7 +4252,7 @@ class H5PContentValidator {
           (object) array(
             'name' => 'source',
             'type' => 'text',
-            'label' => 'Source',
+            'label' => $this->h5pF->t('Source'),
             'placeholder' => 'https://',
             'optional' => TRUE,
             'regexp' => array(
@@ -4267,7 +4267,7 @@ class H5PContentValidator {
         'type' => 'group',
         'fields'=> array(
           (object) array(
-            'label' => "Author's name",
+            'label' => $this->h5pF->t("Author's name"),
             'name' => "name",
             'optional' => TRUE,
             'type' => "text"
