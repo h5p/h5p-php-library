@@ -2041,8 +2041,128 @@ H5P.createTitle = function (rawTitle, maxLength) {
     contentUserDataAjax(contentId, dataId, subContentId, undefined, null);
   };
 
+  /**
+   * Prepares the content parameters for storing in the clipboard.
+   *
+   * @class
+   * @param {Object} parameters The parameters for the content to store
+   * @param {string} [genericProperty] If only part of the parameters are generic, which part
+   * @param {string} [specificKey] If the parameters are specific, what content type does it fit
+   * @returns {Object} Ready for the clipboard
+   */
+  H5P.ClipboardItem = function (parameters, genericProperty, specificKey) {
+    this.specific = parameters;
+
+    if (genericProperty && specificKey) {
+      this.from = specificKey;
+      if (parameters[genericProperty]) {
+        this.generic = genericProperty;
+      }
+    }
+
+    if (window.H5PEditor && H5PEditor.contentId) {
+      this.contentId = H5PEditor.contentId;
+    }
+  };
+
+  /**
+   * Store item in the H5P Clipboard.
+   *
+   * @param {H5P.ClipboardItem|*} clipboardItem
+   */
+  H5P.clipboardify = function (clipboardItem) {
+    if (!(clipboardItem instanceof H5P.ClipboardItem)) {
+      clipboardItem = new H5P.ClipboardItem(clipboardItem);
+    }
+
+    localStorage.setItem('h5pClipboard', JSON.stringify(clipboardItem));
+
+    // Trigger an event so all 'Paste' buttons may be enabled.
+    H5P.externalDispatcher.trigger('datainclipboard', {reset: false});
+  };
+
+  /**
+   * Get item from the H5P Clipboard.
+   *
+   * @return {Object}
+   */
+  H5P.getClipboard = function () {
+    var clipboardData = localStorage.getItem('h5pClipboard');
+    if (!clipboardData) {
+      return;
+    }
+
+    // Try to parse clipboard dat
+    try {
+      clipboardData = JSON.parse(clipboardData);
+    }
+    catch (err) {
+      console.error('Unable to parse JSON from clipboard.', err);
+      return;
+    }
+
+    // Update file URLs
+    H5P.updateFileUrls(clipboardData.specific, function (path) {
+      var isTmpFile = (path.substr(-4, 4) === '#tmp');
+      if (!isTmpFile && clipboardData.contentId) {
+        // Comes from existing content
+
+        if (H5PEditor.contentId) {
+          // .. to existing content
+          return '../' + clipboardData.contentId + '/' + path;
+        }
+        else {
+          // .. to new content
+          return (H5PEditor.contentRelUrl ? H5PEditor.contentRelUrl : '../content/') + clipboardData.contentId + '/' + path;
+        }
+      }
+      return path; // Will automatically be looked for in tmp folder
+    });
+
+    if (clipboardData.from === undefined) {
+      clipboardData.generic = clipboardData.specific;
+    }
+    else if (clipboardData.generic) {
+      clipboardData.generic = clipboardData.specific[clipboardData.generic];
+    }
+
+    if (clipboardData.generic) {
+      // Avoid multiple content with same ID
+      delete clipboardData.generic.subContentId;
+    }
+
+    return clipboardData;
+  };
+
+  /**
+   * Update file URLs. Useful when copying content.
+   *
+   * @param {object} params Reference
+   * @param {function} handler Modifies the path to work when pasted
+   */
+  H5P.updateFileUrls = function (params, handler) {
+    for (var prop in params) {
+      if (params.hasOwnProperty(prop) && params[prop] instanceof Object) {
+        var obj = params[prop];
+        if (obj.path !== undefined && obj.mime !== undefined) {
+          obj.path = handler(obj.path);
+        }
+        else {
+          H5P.updateFileUrls(obj, handler);
+        }
+      }
+    }
+  };
+
   // Init H5P when page is fully loadded
   $(document).ready(function () {
+
+    window.addEventListener('storage', function (event) {
+      // Pick up clipboard changes from other tabs
+      if (event.key === 'h5pClipboard') {
+        H5P.externalDispatcher.trigger('datainclipboard', {reset: event.newValue === null});
+      }
+    });
 
     var ccVersions = {
       'default': '4.0',
