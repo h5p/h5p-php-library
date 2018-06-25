@@ -1095,8 +1095,10 @@ H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
   if (metadata && metadata.license !== undefined && metadata.license !== 'U') {
     var dataset = {
       title: metadata.title,
-      author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function(author) {return author.name + ' (' + author.role + ')';}).join(', ') : undefined,
-      source: (metadata.source) ? '<a href="' + metadata.source + '" target="_blank">' + metadata.source + '</a>' : undefined,
+      author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function(author) {
+        return (author.role) ? author.name + ' (' + author.role + ')' : author.name;
+      }).join(', ') : undefined,
+      source: metadata.source,
       year: (metadata.yearFrom) ? (metadata.yearFrom + ((metadata.yearTo) ? '-' + metadata.yearTo: '')) : undefined,
       license: metadata.license,
       version: metadata.licenseVersion,
@@ -1414,6 +1416,9 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
         var humanValue = copyright[fieldName];
         if (fieldName === 'license') {
           humanValue = humanizeLicense(copyright.license, copyright.version);
+        }
+        if (fieldName === 'source') {
+          humanValue = (humanValue) ? '<a href="' + humanValue + '" target="_blank">' + humanValue + '</a>' : undefined;
         }
         list.add(new H5P.Field(getLabel(fieldName), humanValue));
       }
