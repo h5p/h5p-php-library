@@ -4169,42 +4169,48 @@ class H5PContentValidator {
                 'label' => $this->h5pF->t('Undisclosed')
               ),
               (object) array(
-                'value' => 'CC BY',
-                'label' => $this->h5pF->t('CC Attribution'),
-                'versions' => $cc_versions
-              ),
-              (object) array(
-                'value' => 'CC BY-SA',
-                'label' => $this->h5pF->t('CC Attribution-ShareAlike'),
-                'versions' => $cc_versions
-              ),
-              (object) array(
-                'value' => 'CC BY-ND',
-                'label' => $this->h5pF->t('CC Attribution-NoDerivs'),
-                'versions' => $cc_versions
-              ),
-              (object) array(
-                'value' => 'CC BY-NC',
-                'label' => $this->h5pF->t('CC Attribution-NonCommercial'),
-                'versions' => $cc_versions
-              ),
-              (object) array(
-                'value' => 'CC BY-NC-SA',
-                'label' => $this->h5pF->t('CC Attribution-NonCommercial-ShareAlike'),
-                'versions' => $cc_versions
-              ),
-              (object) array(
-                'value' => 'CC BY-NC-ND',
-                'label' => $this->h5pF->t('CC Attribution-NonCommercial-NoDerivs'),
-                'versions' => $cc_versions
-              ),
-              (object) array(
-                'value' => 'CC0 1.0',
-                'label' => $this->h5pF->t('CC Public Domain Dedication')
-              ),
-              (object) array(
-                'value' => 'CC PDM',
-                'label' => $this->h5pF->t('Public Domain Mark')
+                'type' => 'optgroup',
+                'label' => $this->h5pF->t('Creative Commons'),
+                'options' => [
+                  (object) array(
+                    'value' => 'CC BY',
+                    'label' => $this->h5pF->t('CC Attribution'),
+                    'versions' => $cc_versions
+                  ),
+                  (object) array(
+                    'value' => 'CC BY-SA',
+                    'label' => $this->h5pF->t('CC Attribution-ShareAlike'),
+                    'versions' => $cc_versions
+                  ),
+                  (object) array(
+                    'value' => 'CC BY-ND',
+                    'label' => $this->h5pF->t('CC Attribution-NoDerivs'),
+                    'versions' => $cc_versions
+                  ),
+                  (object) array(
+                    'value' => 'CC BY-NC',
+                    'label' => $this->h5pF->t('CC Attribution-NonCommercial'),
+                    'versions' => $cc_versions
+                  ),
+                  (object) array(
+                    'value' => 'CC BY-NC-SA',
+                    'label' => $this->h5pF->t('CC Attribution-NonCommercial-ShareAlike'),
+                    'versions' => $cc_versions
+                  ),
+                  (object) array(
+                    'value' => 'CC BY-NC-ND',
+                    'label' => $this->h5pF->t('CC Attribution-NonCommercial-NoDerivs'),
+                    'versions' => $cc_versions
+                  ),
+                  (object) array(
+                    'value' => 'CC0 1.0',
+                    'label' => $this->h5pF->t('CC Public Domain Dedication')
+                  ),
+                  (object) array(
+                    'value' => 'CC PDM',
+                    'label' => $this->h5pF->t('Public Domain Mark')
+                  ),
+                ]
               ),
               (object) array(
                 'value' => 'GNU GPL',
