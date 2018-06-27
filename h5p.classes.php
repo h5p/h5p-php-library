@@ -4254,11 +4254,7 @@ class H5PContentValidator {
             'type' => 'text',
             'label' => $this->h5pF->t('Source'),
             'placeholder' => 'https://',
-            'optional' => TRUE,
-            'regexp' => array(
-              'pattern' => '^http[s]?://.+',
-              'modifiers' => 'i'
-            )
+            'optional' => TRUE
           )
         )
       ),
