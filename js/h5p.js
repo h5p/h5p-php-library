@@ -1126,7 +1126,7 @@ H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
       contentTypeName = contentTypeName
         .split(' ')[0]
         .replace(/^H5P\./, '')
-        .replace(/([a-z])([A-Z])/, '$1' + ' ' + '$2');
+        .replace(/([a-z])([A-Z])/g, '$1' + ' ' + '$2');
     }
 
     return new H5P.MediaCopyright(
