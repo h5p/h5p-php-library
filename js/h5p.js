@@ -99,7 +99,8 @@ H5P.init = function (target) {
     }
     var library = {
       library: contentData.library,
-      params: JSON.parse(contentData.jsonContent)
+      params: JSON.parse(contentData.jsonContent),
+      metadata: contentData.metadata
     };
 
     H5P.getUserData(contentId, 'state', function (err, previousState) {
@@ -163,7 +164,7 @@ H5P.init = function (target) {
     if (displayOptions.frame) {
       // Special handling of copyrights
       if (displayOptions.copyright) {
-        var copyrights = H5P.getCopyrights(instance, library.params, contentId);
+        var copyrights = H5P.getCopyrights(instance, library.params, contentId, library.metadata);
         if (!copyrights) {
           displayOptions.copyright = false;
         }
@@ -795,6 +796,10 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
     extras.previousState = library.userDatas.state;
   }
 
+  if (library.metadata) {
+    extras.metadata = library.metadata;
+  }
+
   // Makes all H5P libraries extend H5P.ContentType:
   var standalone = extras.standalone || false;
   // This order makes it possible for an H5P library to override H5P.ContentType functions!
@@ -973,9 +978,11 @@ H5P.Dialog = function (name, title, content, $element) {
  *   Parameters of the content instance.
  * @param {number} contentId
  *   Identifies the H5P content
+ * @param {Object} metadata
+ *   Metadata of the content instance.
  * @returns {string} Copyright information.
  */
-H5P.getCopyrights = function (instance, parameters, contentId) {
+H5P.getCopyrights = function (instance, parameters, contentId, metadata) {
   var copyrights;
 
   if (instance.getCopyrights !== undefined) {
@@ -994,6 +1001,11 @@ H5P.getCopyrights = function (instance, parameters, contentId) {
     H5P.findCopyrights(copyrights, parameters, contentId);
   }
 
+  var metadataCopyrights = H5P.buildMetadataCopyrights(metadata, instance.libraryInfo.machineName);
+  if (metadataCopyrights !== undefined) {
+    copyrights.addMediaInFront(metadataCopyrights);
+  }
+
   if (copyrights !== undefined) {
     // Convert to string
     copyrights = copyrights.toString();
@@ -1010,8 +1022,19 @@ H5P.getCopyrights = function (instance, parameters, contentId) {
  *   To search for file objects in.
  * @param {number} contentId
  *   Used to insert thumbnails for images.
+ * @param {Object} extras - Extras.
+ * @param {object} extras.metadata - Metadata
+ * @param {object} extras.machineName - Library name of some kind.
+ *   Metadata of the content instance.
  */
-H5P.findCopyrights = function (info, parameters, contentId) {
+H5P.findCopyrights = function (info, parameters, contentId, extras) {
+  // If extras are
+  if (extras) {
+    extras.params = parameters;
+    buildFromMetadata(extras, extras.machineName, contentId);
+  }
+
+  var lastContentTypeName;
   // Cycle through parameters
   for (var field in parameters) {
     if (!parameters.hasOwnProperty(field)) {
@@ -1021,6 +1044,8 @@ H5P.findCopyrights = function (info, parameters, contentId) {
     /**
      * @deprecated This hack should be removed after 2017-11-01
      * The code that was using this was removed by HFP-574
+     * This note was seen on 2018-04-04, and consultation with
+     * higher authorities lead to keeping the code for now ;-)
      */
     if (field === 'overrideSettings') {
       console.warn("The semantics field 'overrideSettings' is DEPRECATED and should not be used.");
@@ -1030,12 +1055,21 @@ H5P.findCopyrights = function (info, parameters, contentId) {
 
     var value = parameters[field];
 
+    if (value && value.library && typeof value.library === 'string') {
+      lastContentTypeName = value.library.split(' ')[0];
+    }
+    else if (value && value.library && typeof value.library === 'object') {
+      lastContentTypeName = (value.library.library && typeof value.library.library === 'string') ? value.library.library.split(' ')[0] : lastContentTypeName;
+    }
+
     if (value instanceof Array) {
       // Cycle through array
       H5P.findCopyrights(info, value, contentId);
     }
     else if (value instanceof Object) {
-      // Check if object is a file with copyrights
+      buildFromMetadata(value, lastContentTypeName, contentId);
+
+      // Check if object is a file with copyrights (old core)
       if (value.copyright === undefined ||
           value.copyright.license === undefined ||
           value.path === undefined ||
@@ -1053,6 +1087,54 @@ H5P.findCopyrights = function (info, parameters, contentId) {
         info.addMedia(copyrights);
       }
     }
+  }
+
+  function buildFromMetadata (data, name, contentId) {
+    if (data.metadata) {
+      const metadataCopyrights = H5P.buildMetadataCopyrights(data.metadata, name);
+      if (metadataCopyrights !== undefined) {
+        if (data.params && data.params.contentName === 'Image' && data.params.file) {
+          const path = data.params.file.path;
+          const width = data.params.file.width;
+          const height = data.params.file.height;
+          metadataCopyrights.setThumbnail(new H5P.Thumbnail(H5P.getPath(path, contentId), width, height));
+        }
+        info.addMedia(metadataCopyrights);
+      }
+    }
+  }
+};
+
+H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
+  if (metadata && metadata.license !== undefined && metadata.license !== 'U') {
+    var dataset = {
+      title: metadata.title,
+      author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function(author) {
+        return (author.role) ? author.name + ' (' + author.role + ')' : author.name;
+      }).join(', ') : undefined,
+      source: metadata.source,
+      year: (metadata.yearFrom) ? (metadata.yearFrom + ((metadata.yearTo) ? '-' + metadata.yearTo: '')) : undefined,
+      license: metadata.license,
+      version: metadata.licenseVersion,
+      licenseExtras: metadata.licenseExtras,
+      changes: (metadata.changes && metadata.changes.length > 0) ? metadata.changes.map(function(change) {
+        return change.log + (change.author ? ', ' + change.author : '') + (change.date ? ', ' + change.date : '');
+      }).join(' / ') : undefined
+    };
+
+    if (contentTypeName) {
+      contentTypeName = contentTypeName
+        .split(' ')[0]
+        .replace(/^H5P\./, '')
+        .replace(/([a-z])([A-Z])/g, '$1' + ' ' + '$2');
+    }
+
+    return new H5P.MediaCopyright(
+      dataset,
+      {type: 'Content type', licenseExtras: 'License extras', changes: 'Changelog'},
+      ['type', 'title', 'license', 'author', 'year', 'source', 'licenseExtras', 'changes'],
+      {type: contentTypeName}
+    );
   }
 };
 
@@ -1176,6 +1258,17 @@ H5P.ContentCopyrights = function () {
   };
 
   /**
+   * Add sub content in front.
+   *
+   * @param {H5P.MediaCopyright} newMedia
+   */
+  this.addMediaInFront = function (newMedia) {
+    if (newMedia !== undefined) {
+      media.unshift(newMedia);
+    }
+  };
+
+  /**
    * Add sub content.
    *
    * @param {H5P.ContentCopyrights} newContent
@@ -1294,7 +1387,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
       link = copyrightLicense.link.replace(':version', copyrightLicense.linkVersions ? copyrightLicense.linkVersions[version] : version);
     }
     else if (versionInfo && copyrightLicense.hasOwnProperty('link')) {
-      link = versionInfo.link
+      link = versionInfo.link;
     }
     if (link) {
       value = '<a href="' + link + '" target="_blank">' + value + '</a>';
@@ -1340,6 +1433,9 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
         var humanValue = copyright[fieldName];
         if (fieldName === 'license') {
           humanValue = humanizeLicense(copyright.license, copyright.version);
+        }
+        if (fieldName === 'source') {
+          humanValue = (humanValue) ? '<a href="' + humanValue + '" target="_blank">' + humanValue + '</a>' : undefined;
         }
         list.add(new H5P.Field(getLabel(fieldName), humanValue));
       }
@@ -2041,8 +2137,186 @@ H5P.createTitle = function (rawTitle, maxLength) {
     contentUserDataAjax(contentId, dataId, subContentId, undefined, null);
   };
 
+  /**
+   * Prepares the content parameters for storing in the clipboard.
+   *
+   * @class
+   * @param {Object} parameters The parameters for the content to store
+   * @param {string} [genericProperty] If only part of the parameters are generic, which part
+   * @param {string} [specificKey] If the parameters are specific, what content type does it fit
+   * @returns {Object} Ready for the clipboard
+   */
+  H5P.ClipboardItem = function (parameters, genericProperty, specificKey) {
+    var self = this;
+
+    /**
+     * Set relative dimensions when params contains a file with a width and a height.
+     * Very useful to be compatible with wysiwyg editors.
+     *
+     * @private
+     */
+    var setDimensionsFromFile = function () {
+      if (!self.generic) {
+        return;
+      }
+      var params = self.specific[self.generic];
+      if (!params.params.file || !params.params.file.width || !params.params.file.height) {
+        return;
+      }
+
+      self.width = 20; // %
+      self.height = (params.params.file.height / params.params.file.width) * self.width;
+    }
+
+    if (!genericProperty) {
+      genericProperty = 'action';
+      parameters = {
+        action: parameters
+      };
+    }
+
+    self.specific = parameters;
+
+    if (genericProperty && parameters[genericProperty]) {
+      self.generic = genericProperty;
+    }
+    if (specificKey) {
+      self.from = specificKey;
+    }
+
+    if (window.H5PEditor && H5PEditor.contentId) {
+      self.contentId = H5PEditor.contentId;
+    }
+
+    if (!self.specific.width && !self.specific.height) {
+      setDimensionsFromFile();
+    }
+  };
+
+  /**
+   * Store item in the H5P Clipboard.
+   *
+   * @param {H5P.ClipboardItem|*} clipboardItem
+   */
+  H5P.clipboardify = function (clipboardItem) {
+    if (!(clipboardItem instanceof H5P.ClipboardItem)) {
+      clipboardItem = new H5P.ClipboardItem(clipboardItem);
+    }
+
+    localStorage.setItem('h5pClipboard', JSON.stringify(clipboardItem));
+
+    // Clear cache
+    parsedClipboard = null;
+
+    // Trigger an event so all 'Paste' buttons may be enabled.
+    H5P.externalDispatcher.trigger('datainclipboard', {reset: false});
+  };
+
+  /**
+   * This is a cache for pasted data to prevent parsing multiple times.
+   * @type {Object}
+   */
+  var parsedClipboard = null;
+
+  /**
+   * Retrieve parsed clipboard data.
+   *
+   * @return {Object}
+   */
+  H5P.getClipboard = function () {
+    if (!parsedClipboard) {
+      parsedClipboard = parseClipboard();
+    }
+
+    return parsedClipboard;
+  }
+
+  /**
+   * Get item from the H5P Clipboard.
+   *
+   * @private
+   * @param {boolean} [skipUpdateFileUrls]
+   * @return {Object}
+   */
+  var parseClipboard = function () {
+    var clipboardData = localStorage.getItem('h5pClipboard');
+    if (!clipboardData) {
+      return;
+    }
+
+    // Try to parse clipboard dat
+    try {
+      clipboardData = JSON.parse(clipboardData);
+    }
+    catch (err) {
+      console.error('Unable to parse JSON from clipboard.', err);
+      return;
+    }
+
+    // Update file URLs
+    updateFileUrls(clipboardData.specific, function (path) {
+      var isTmpFile = (path.substr(-4, 4) === '#tmp');
+      if (!isTmpFile && clipboardData.contentId) {
+        // Comes from existing content
+
+        if (H5PEditor.contentId) {
+          // .. to existing content
+          return '../' + clipboardData.contentId + '/' + path;
+        }
+        else {
+          // .. to new content
+          return (H5PEditor.contentRelUrl ? H5PEditor.contentRelUrl : '../content/') + clipboardData.contentId + '/' + path;
+        }
+      }
+      return path; // Will automatically be looked for in tmp folder
+    });
+
+
+    if (clipboardData.generic) {
+      // Use reference instead of key
+      clipboardData.generic = clipboardData.specific[clipboardData.generic];
+
+      // Avoid multiple content with same ID
+      delete clipboardData.generic.subContentId;
+    }
+
+    return clipboardData;
+  };
+
+  /**
+   * Update file URLs. Useful when copying content.
+   *
+   * @private
+   * @param {object} params Reference
+   * @param {function} handler Modifies the path to work when pasted
+   */
+  var updateFileUrls = function (params, handler) {
+    for (var prop in params) {
+      if (params.hasOwnProperty(prop) && params[prop] instanceof Object) {
+        var obj = params[prop];
+        if (obj.path !== undefined && obj.mime !== undefined) {
+          obj.path = handler(obj.path);
+        }
+        else {
+          updateFileUrls(obj, handler);
+        }
+      }
+    }
+  };
+
   // Init H5P when page is fully loadded
   $(document).ready(function () {
+
+    window.addEventListener('storage', function (event) {
+      // Pick up clipboard changes from other tabs
+      if (event.key === 'h5pClipboard') {
+        // Clear cache
+        parsedClipboard = null;
+
+        // Trigger an event so all 'Paste' buttons may be enabled.
+        H5P.externalDispatcher.trigger('datainclipboard', {reset: event.newValue === null});
+      }
+    });
 
     var ccVersions = {
       'default': '4.0',
@@ -2062,33 +2336,37 @@ H5P.createTitle = function (rawTitle, maxLength) {
       'U': H5P.t('licenseU'),
       'CC BY': {
         label: H5P.t('licenseCCBY'),
-        link: 'http://creativecommons.org/licenses/by/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by/:version',
         versions: ccVersions
       },
       'CC BY-SA': {
         label: H5P.t('licenseCCBYSA'),
-        link: 'http://creativecommons.org/licenses/by-sa/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-sa/:version',
         versions: ccVersions
       },
       'CC BY-ND': {
         label: H5P.t('licenseCCBYND'),
-        link: 'http://creativecommons.org/licenses/by-nd/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-nd/:version',
         versions: ccVersions
       },
       'CC BY-NC': {
         label: H5P.t('licenseCCBYNC'),
-        link: 'http://creativecommons.org/licenses/by-nc/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-nc/:version',
         versions: ccVersions
       },
       'CC BY-NC-SA': {
         label: H5P.t('licenseCCBYNCSA'),
-        link: 'http://creativecommons.org/licenses/by-nc-sa/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-nc-sa/:version',
         versions: ccVersions
       },
       'CC BY-NC-ND': {
         label: H5P.t('licenseCCBYNCND'),
-        link: 'http://creativecommons.org/licenses/by-nc-nd/:version/legalcode',
+        link: 'http://creativecommons.org/licenses/by-nc-nd/:version',
         versions: ccVersions
+      },
+      'CC0 1.0': {
+        label: H5P.t('licenseCC010'),
+        link: 'https://creativecommons.org/publicdomain/zero/1.0/'
       },
       'GNU GPL': {
         label: H5P.t('licenseGPL'),
@@ -2119,7 +2397,10 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
       },
       'ODC PDDL': '<a href="http://opendatacommons.org/licenses/pddl/1.0/" target="_blank">Public Domain Dedication and Licence</a>',
-      'CC PDM': H5P.t('licensePDM'),
+      'CC PDM': {
+        label: H5P.t('licensePDM'),
+        link: 'https://creativecommons.org/publicdomain/mark/1.0/'
+      },
       'C': H5P.t('licenseC'),
     };
 
