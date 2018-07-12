@@ -4352,7 +4352,7 @@ class H5PContentValidator {
             'name' => 'authorComments',
             'type' => 'textarea',
             'label' => $this->h5pF->t('Author comments'),
-            'description' => $this->h5pF->t('Comments for the editor of the content (This text will not be published as a part of copyright info'),
+            'description' => $this->h5pF->t('Comments for the editor of the content (This text will not be published as a part of copyright info)'),
             'optional' => TRUE
           )
         )
