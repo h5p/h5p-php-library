@@ -2166,7 +2166,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
       self.width = 20; // %
       self.height = (params.params.file.height / params.params.file.width) * self.width;
-    }
+    };
 
     if (!genericProperty) {
       genericProperty = 'action';
@@ -2202,14 +2202,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
     if (!(clipboardItem instanceof H5P.ClipboardItem)) {
       clipboardItem = new H5P.ClipboardItem(clipboardItem);
     }
-
-    localStorage.setItem('h5pClipboard', JSON.stringify(clipboardItem));
-
-    // Clear cache
-    parsedClipboard = null;
-
-    // Trigger an event so all 'Paste' buttons may be enabled.
-    H5P.externalDispatcher.trigger('datainclipboard', {reset: false});
+    H5P.setClipboard(clipboardItem);
   };
 
   /**
@@ -2229,7 +2222,22 @@ H5P.createTitle = function (rawTitle, maxLength) {
     }
 
     return parsedClipboard;
-  }
+  };
+
+  /**
+   * Set item in the H5P Clipboard.
+   *
+   * @param {H5P.ClipboardItem|object} clipboardItem - Data to be set.
+   */
+  H5P.setClipboard = function (clipboardItem) {
+    localStorage.setItem('h5pClipboard', JSON.stringify(clipboardItem));
+
+    // Clear cache
+    parsedClipboard = null;
+
+    // Trigger an event so all 'Paste' buttons may be enabled.
+    H5P.externalDispatcher.trigger('datainclipboard', {reset: false});
+  };
 
   /**
    * Get item from the H5P Clipboard.
