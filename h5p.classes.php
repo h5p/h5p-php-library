@@ -4204,7 +4204,7 @@ class H5PContentValidator {
                   ),
                   (object) array(
                     'value' => 'CC0 1.0',
-                    'label' => $this->h5pF->t('Public Domain Dedication (CC 0)')
+                    'label' => $this->h5pF->t('Public Domain Dedication (CC0)')
                   ),
                   (object) array(
                     'value' => 'CC PDM',
