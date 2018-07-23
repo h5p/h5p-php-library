@@ -4174,41 +4174,41 @@ class H5PContentValidator {
                 'options' => [
                   (object) array(
                     'value' => 'CC BY',
-                    'label' => $this->h5pF->t('Attribution'),
+                    'label' => $this->h5pF->t('Attribution (CC BY)'),
                     'versions' => $cc_versions
                   ),
                   (object) array(
                     'value' => 'CC BY-SA',
-                    'label' => $this->h5pF->t('Attribution-ShareAlike'),
+                    'label' => $this->h5pF->t('Attribution-ShareAlike (CC BY-SA)'),
                     'versions' => $cc_versions
                   ),
                   (object) array(
                     'value' => 'CC BY-ND',
-                    'label' => $this->h5pF->t('Attribution-NoDerivs'),
+                    'label' => $this->h5pF->t('Attribution-NoDerivs (CC BY-ND)'),
                     'versions' => $cc_versions
                   ),
                   (object) array(
                     'value' => 'CC BY-NC',
-                    'label' => $this->h5pF->t('Attribution-NonCommercial'),
+                    'label' => $this->h5pF->t('Attribution-NonCommercial (CC BY-NC)'),
                     'versions' => $cc_versions
                   ),
                   (object) array(
                     'value' => 'CC BY-NC-SA',
-                    'label' => $this->h5pF->t('Attribution-NonCommercial-ShareAlike'),
+                    'label' => $this->h5pF->t('Attribution-NonCommercial-ShareAlike (CC BY-NC-SA)'),
                     'versions' => $cc_versions
                   ),
                   (object) array(
                     'value' => 'CC BY-NC-ND',
-                    'label' => $this->h5pF->t('Attribution-NonCommercial-NoDerivs'),
+                    'label' => $this->h5pF->t('Attribution-NonCommercial-NoDerivs (CC BY-NC-ND)'),
                     'versions' => $cc_versions
                   ),
                   (object) array(
                     'value' => 'CC0 1.0',
-                    'label' => $this->h5pF->t('Public Domain Dedication')
+                    'label' => $this->h5pF->t('Public Domain Dedication (CC 0)')
                   ),
                   (object) array(
                     'value' => 'CC PDM',
-                    'label' => $this->h5pF->t('Public Domain Mark')
+                    'label' => $this->h5pF->t('Public Domain Mark (PDM)')
                   ),
                 ]
               ),
