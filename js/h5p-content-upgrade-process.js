@@ -182,7 +182,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
         // Look for available upgrades
         var usedLib = params.library.split(' ', 2);
         for (var i = 0; i < field.options.length; i++) {
-          var availableLib = (typeof field.options === 'string') ? field.options[i].split(' ', 2) : field.options[i].name.split(' ', 2);
+          var availableLib = (typeof field.options[i] === 'string') ? field.options[i].split(' ', 2) : field.options[i].name.split(' ', 2);
           if (availableLib[0] === usedLib[0]) {
             if (availableLib[1] === usedLib[1]) {
               return done(); // Same version
