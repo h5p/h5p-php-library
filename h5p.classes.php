@@ -1938,12 +1938,37 @@ class H5PCore {
     }
     $validator->validateLibrary($params, (object) array('options' => array($params->library)));
 
-    // Add MathDisplay.
-    // TODO: Get library name for MathDisplay dynamically
-    // TODO: Get regexp from MathDisplay config
+    // Add latest MathDisplay version if content contains math
     // TODO: Find out how to pass settings to MathDisplay
-    if ($this->containsMath($params->params)) {
-      $validator->addMathDisplay('H5P.MathDisplay 0.1');
+    $libs = $this->h5pF->loadLibraries();
+
+    // Get latest version of MathDisplay library
+    $mathLibs = $libs['H5P.MathDisplay'];
+    foreach($mathLibs as $libVersion) {
+      if ($libVersion->major_version === $majorMax && $libVersion->minor_version > $minorMax) {
+        $mathLib = $libVersion;
+      }
+      else if ($libVersion->major_version > $majorMax) {
+        $mathLib = $libVersion;
+      }
+    }
+
+    if (isset($mathLib)) {
+      // Retrieve regular expression from library.json
+      // Careful: \ will have to be escaped itself inside json
+      $libParams = $this->loadLibrary($mathLib->name, $mathLib->major_version, $mathLib->minor_version);
+      // Is there a general function to pass a "path" to that finds a parameter?
+      $libParamsTypes = $libParams['addTo']['content']['types'];
+      foreach($libParamsTypes as $type => $property) {
+        $regex = $property['text']['regex'];
+        if (isset($regex)) {
+          break;
+        }
+      }
+
+      if ($this->containsMath($params->params, $regex)) {
+        $validator->addMathDisplay($mathLib->name . ' ' . $mathLib->major_version . '.' . $mathLib->minor_version);
+      }
     }
 
     $params = json_encode($params->params);
@@ -1986,7 +2011,10 @@ class H5PCore {
    * @param {boolean} [found] - Used for recursion.
    * @return {boolean} True, if params contain math.
    */
-  private function containsMath ($params, $mathPattern = '/\$\$.+\$\$|\\\[.+\\\]|\\\(.+\\\)/', $found = false) {
+  private function containsMath ($params, $mathPattern, $found = false) {
+    if (!isset($mathPattern) == NULL) {
+      $mathPattern = '/\$\$.+\$\$|\\\[.+\\\]|\\\(.+\\\)/';
+    }
     foreach($params as $property => $value) {
       if (gettype($value) === 'string') {
         if (preg_match($mathPattern, $value) === 1) {
