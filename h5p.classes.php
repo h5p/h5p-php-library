@@ -1939,7 +1939,6 @@ class H5PCore {
     $validator->validateLibrary($params, (object) array('options' => array($params->library)));
 
     // Add latest MathDisplay version if content contains math
-    // TODO: Find out how to pass settings to MathDisplay
     $libs = $this->h5pF->loadLibraries();
 
     // Get latest version of MathDisplay library
@@ -1957,14 +1956,7 @@ class H5PCore {
       // Retrieve regular expression from library.json
       // Careful: \ will have to be escaped itself inside json
       $libParams = $this->loadLibrary($mathLib->name, $mathLib->major_version, $mathLib->minor_version);
-      // Is there a general function to pass a "path" to that finds a parameter?
-      $libParamsTypes = $libParams['addTo']['content']['types'];
-      foreach($libParamsTypes as $type => $property) {
-        $regex = $property['text']['regex'];
-        if (isset($regex)) {
-          break;
-        }
-      }
+      $regex = $this->retrieveValue($libParams, 'addTo.content.types.text.regex');
 
       if ($this->containsMath($params->params, $regex)) {
         $validator->addMathDisplay($mathLib->name . ' ' . $mathLib->major_version . '.' . $mathLib->minor_version);
@@ -2001,6 +1993,49 @@ class H5PCore {
       ));
     }
     return $params;
+  }
+
+  /**
+   * Retrieve a value from a nested mixed array structure.
+   *
+   * @param Array $params Array to be looked in.
+   * @param String $path Supposed path to the value.
+   * @param String [$delimiter='.'] Property delimiter within the path.
+   * @return Object|NULL The object found or NULL.
+   */
+  private function retrieveValue ($params, $path, $delimiter='.') {
+    $path = explode($delimiter, $path);
+
+    // Property not found
+    if (!isset($params[$path[0]])) {
+      return NULL;
+    }
+
+    $first = $params[$path[0]];
+
+    // End of path, done
+    if (sizeof($path) === 1) {
+      return $first;
+    }
+
+    // We cannot go deeper
+    if (!is_array($first)) {
+      return NULL;
+    }
+
+    // Regular Array
+    if (isset($first[0])) {
+      foreach($first as $number => $object) {
+        $found = $this->retrieveValue($object, implode($delimiter, array_slice($path, 1)));
+        if (isset($found)) {
+          return $found;
+        }
+      }
+      return NULL;
+    }
+
+    // Associative Array
+    return $this->retrieveValue($first, implode('.', array_slice($path, 1)));
   }
 
   /**
