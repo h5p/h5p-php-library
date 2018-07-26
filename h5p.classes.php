@@ -1938,10 +1938,8 @@ class H5PCore {
     }
     $validator->validateLibrary($params, (object) array('options' => array($params->library)));
 
-    // Add latest MathDisplay version if content contains math
-    $libs = $this->h5pF->loadLibraries();
-
     // Get latest version of MathDisplay library
+    $libs = $this->h5pF->loadLibraries();
     $mathLibs = $libs['H5P.MathDisplay'];
     foreach($mathLibs as $libVersion) {
       if ($libVersion->major_version === $majorMax && $libVersion->minor_version > $minorMax) {
@@ -1952,6 +1950,7 @@ class H5PCore {
       }
     }
 
+    // Add latest MathDisplay version if content contains math
     if (isset($mathLib)) {
       // Retrieve regular expression from library.json
       // Careful: \ will have to be escaped itself inside json
