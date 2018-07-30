@@ -2046,7 +2046,7 @@ class H5PCore {
    * @return {boolean} True, if params contain math.
    */
   private function containsMath ($params, $mathPattern, $found = false) {
-    if (!isset($mathPattern) == NULL) {
+    if (!isset($mathPattern)) {
       $mathPattern = '/\$\$.+\$\$|\\\[.+\\\]|\\\(.+\\\)/';
     }
     foreach($params as $property => $value) {
