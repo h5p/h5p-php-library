@@ -2040,8 +2040,11 @@ H5P.createTitle = function (rawTitle, maxLength) {
    * @returns {string|null} Returns the string that should be set as crossorigin policy for elements or null if
    * no policy is set.
    */
-  H5P.getCrossOrigin = function () {
-    return H5PIntegration.crossorigin ? H5PIntegration.crossorigin : null;
+  H5P.getCrossOrigin = function (url) {
+    var crossorigin = H5PIntegration.crossorigin;
+    var urlRegex = H5PIntegration.crossoriginRegex;
+
+    return crossorigin && urlRegex && url.match(urlRegex) ? crossorigin : null;
   };
 
   /**
