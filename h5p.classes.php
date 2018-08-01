@@ -620,22 +620,29 @@ class H5PValidator {
 
   private $h5pOptional = array(
     'contentType' => '/^.{1,255}$/',
+    'dynamicDependencies' => array(
+      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
+      'majorVersion' => '/^[0-9]{1,5}$/',
+      'minorVersion' => '/^[0-9]{1,5}$/',
+    ),
     // deprecated
     'author' => '/^.{1,255}$/',
     'authors' => array(
       'name' => '/^.{1,255}$/',
       'role' => '/^\w+$/',
     ),
-    'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|GNU GPL|PD|ODC PDDL|CC PDM|U|C|cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
-    'licenseVersion' => '/^(1.0|2.0|2.5|3.0|4.0)$/',
-    'source' => '/^(http[s]?://.+)$',
+    'source' => '/^(http[s]?:\/\/.+)$/',
+    'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|CC0 1\.0|GNU GPL|PD|ODC PDDL|CC PDM|U|C|cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
+    'licenseVersion' => '/^(1\.0|2\.0|2\.5|3\.0|4\.0)$/',
+    'licenseExtras' => '/^.{1,5000}$/',
     'yearsFrom' => '/^([0-9]{1,4})$/',
     'yearsTo' => '/^([0-9]{1,4})$/',
-    'dynamicDependencies' => array(
-      'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
-      'majorVersion' => '/^[0-9]{1,5}$/',
-      'minorVersion' => '/^[0-9]{1,5}$/',
+    'changes' => array(
+      'date' => '/^[0-9]{2}-[0-9]{2}-[0-9]{2} [0-9]{1,2}:[0-9]{2}:[0-9]{2}$/',
+      'author' => '/^.{1,255}$/',
+      'log' => '/^.{1,5000}$/'
     ),
+    'authorComments' => '/^.{1,5000}$/',
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     // deprecated
@@ -1605,7 +1612,9 @@ Class H5PExport {
 
     foreach(array('authors', 'source', 'license', 'licenseVersion', 'licenseExtras' ,'yearFrom', 'yearTo', 'changes', 'authorComments') as $field) {
       if (isset($content['metadata'][$field])) {
-        $h5pJson[$field] = json_decode(json_encode($content['metadata'][$field], TRUE));
+        if (($field !== 'authors' && $field !== 'changes') || (count($content['metadata'][$field]) > 0)) {
+          $h5pJson[$field] = json_decode(json_encode($content['metadata'][$field], TRUE));
+        }
       }
     }
 
