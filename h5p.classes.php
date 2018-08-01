@@ -1941,12 +1941,18 @@ class H5PCore {
     // Get latest version of MathDisplay library
     $libs = $this->h5pF->loadLibraries();
     $mathLibs = $libs['H5P.MathDisplay'];
+
+    $majorMax = '0';
+    $minorMax = '0';
     foreach($mathLibs as $libVersion) {
-      if ($libVersion->major_version === $majorMax && $libVersion->minor_version > $minorMax) {
+      if ($libVersion->major_version === $majorMax && $libVersion->minor_version >= $minorMax) {
         $mathLib = $libVersion;
+        $minorMax = $libVersion->minor_version;
       }
       else if ($libVersion->major_version > $majorMax) {
         $mathLib = $libVersion;
+        $majorMax = $libVersion->major_version;
+        $minorMax = $libVersion->minor_version;
       }
     }
 
