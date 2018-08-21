@@ -190,4 +190,13 @@ interface H5PFileStorage {
    * @return bool True if server has the proper write access
    */
   public function hasWriteAccess();
+
+  /**
+   * Check if the library has a presave.js in the root folder
+   *
+   * @param string $libraryName
+   * @param string $developmentPath
+   * @return bool
+   */
+  public function hasPresave($libraryName, $developmentPath = null);
 }

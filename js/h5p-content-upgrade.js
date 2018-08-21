@@ -128,7 +128,7 @@
     // Register message handlers
     var messageHandlers = {
       done: function (result) {
-        self.workDone(result.id, result.params, this);
+        self.workDone(result.id, result.params, result.extras, this);
       },
       error: function (error) {
         self.printError(error.err);
@@ -196,7 +196,7 @@
       self.token = inData.token;
 
       // Start processing
-      self.processBatch(inData.params);
+      self.processBatch(inData.params, {metadata: inData.metadata});
     });
   };
 
@@ -217,7 +217,7 @@
    *
    * @param {Object} parameters
    */
-  ContentUpgrade.prototype.processBatch = function (parameters) {
+  ContentUpgrade.prototype.processBatch = function (parameters, extras) {
     var self = this;
 
     // Track upgraded params
@@ -225,6 +225,7 @@
 
     // Track current batch
     self.parameters = parameters;
+    self.extras = extras;
 
     // Create id mapping
     self.ids = [];
@@ -266,6 +267,11 @@
       id: id
     });
 
+    // Rewrap metadata
+    if (self.extras.metadata) {
+      self.extras.metadata = self.extras.metadata[id];
+    }
+
     if (worker) {
       worker.postMessage({
         action: 'newJob',
@@ -273,11 +279,12 @@
         name: info.library.name,
         oldVersion: info.library.version,
         newVersion: self.version.toString(),
-        params: self.parameters[id]
+        params: self.parameters[id],
+        extras: self.extras
       });
     }
     else {
-      new H5P.ContentUpgradeProcess(info.library.name, new Version(info.library.version), self.version, self.parameters[id], id, function loadLibrary(name, version, next) {
+      new H5P.ContentUpgradeProcess(info.library.name, new Version(info.library.version), self.version, self.parameters[id], self.extras, id, function loadLibrary(name, version, next) {
         self.loadLibrary(name, version, function (err, library) {
           if (library.upgradesScript) {
             self.loadScript(library.upgradesScript, function (err) {
@@ -292,13 +299,13 @@
           }
         });
 
-      }, function done(err, result) {
+      }, function done(err, result, extras) {
         if (err) {
           self.printError(err);
           return ;
         }
 
-        self.workDone(id, result);
+        self.workDone(id, result, extras);
       });
     }
   };
@@ -306,7 +313,7 @@
   /**
    *
    */
-  ContentUpgrade.prototype.workDone = function (id, result, worker) {
+  ContentUpgrade.prototype.workDone = function (id, result, extras, worker) {
     var self = this;
 
     self.working--;
@@ -328,7 +335,8 @@
       self.nextBatch({
         libraryId: self.version.libraryId,
         token: self.token,
-        params: JSON.stringify(self.upgraded)
+        params: JSON.stringify(self.upgraded),
+        extras: extras
       });
     }
   };
