@@ -102,6 +102,13 @@ interface H5PFrameworkInterface {
   public function getUploadedH5pPath();
 
   /**
+   * Load addon libraries
+   *
+   * @return array
+   */
+  public function loadAddons();
+
+  /**
    * Get a list of the current installed libraries
    *
    * @return array
@@ -1609,7 +1616,7 @@ Class H5PExport {
               $library['minorVersion']
           );
 
-          if ($isDevLibrary !== NULL) {
+          if ($isDevLibrary !== NULL && isset($library['path'])) {
             $exportFolder = "/" . $library['path'];
           }
         }
@@ -1938,33 +1945,20 @@ class H5PCore {
     }
     $validator->validateLibrary($params, (object) array('options' => array($params->library)));
 
-    // Get latest version of MathDisplay library
-    $libs = $this->h5pF->loadLibraries();
-    $mathLibs = $libs['H5P.MathDisplay'];
+    // Handle addons:
+    $addons = $this->h5pF->loadAddons();
+    foreach ($addons as $addon) {
+      $add_to = json_decode($addon['addTo']);
 
-    $majorMax = '0';
-    $minorMax = '0';
-    foreach($mathLibs as $libVersion) {
-      if ($libVersion->major_version === $majorMax && $libVersion->minor_version >= $minorMax) {
-        $mathLib = $libVersion;
-        $minorMax = $libVersion->minor_version;
-      }
-      else if ($libVersion->major_version > $majorMax) {
-        $mathLib = $libVersion;
-        $majorMax = $libVersion->major_version;
-        $minorMax = $libVersion->minor_version;
-      }
-    }
+      if (isset($add_to->content->types)) {
+        foreach($add_to->content->types as $type) {
+          if ($this->textAddonMatches($params->params, $type->text->regex)) {
+            $validator->addon($addon);
 
-    // Add latest MathDisplay version if content contains math
-    if (isset($mathLib)) {
-      // Retrieve regular expression from library.json
-      // Careful: \ will have to be escaped itself inside json
-      $libParams = $this->loadLibrary($mathLib->name, $mathLib->major_version, $mathLib->minor_version);
-      $regex = $this->retrieveValue($libParams, 'addTo.content.types.text.regex');
-
-      if ($this->containsMath($params->params, $regex)) {
-        $validator->addMathDisplay($mathLib->name . ' ' . $mathLib->major_version . '.' . $mathLib->minor_version);
+            // Addon can only be added once
+            break;
+          }
+        }
       }
     }
 
@@ -2051,7 +2045,7 @@ class H5PCore {
    * @param {boolean} [found] - Used for recursion.
    * @return {boolean} True, if params contain math.
    */
-  private function containsMath ($params, $mathPattern, $found = false) {
+  private function textAddonMatches($params, $mathPattern, $found = false) {
     if (!isset($mathPattern)) {
       $mathPattern = '/\$\$.+\$\$|\\\[.+\\\]|\\\(.+\\\)/';
     }
@@ -2065,14 +2059,14 @@ class H5PCore {
       if ($found === false) {
         if (gettype($value) === 'array') {
           for ($i = 0; $i < sizeof($value); $i++) {
-            $found = $this->containsMath($value[$i], $mathPattern, $found);
+            $found = $this->textAddonMatches($value[$i], $mathPattern, $found);
             if ($found === true) {
               break;
             }
           }
         }
         if (gettype($value) === 'object') {
-          $found = $this->containsMath($value, $mathPattern, $found);
+          $found = $this->textAddonMatches($value, $mathPattern, $found);
         }
       }
     }
@@ -3314,12 +3308,13 @@ class H5PContentValidator {
   }
 
   /**
-   * Add MathDisplay.
+   * Add Addon library.
    */
-  public function addMathDisplay($libraryName) {
-    $libSpec = H5PCore::libraryFromString($libraryName);
-    $library = $this->h5pC->loadLibrary($libSpec['machineName'], $libSpec['majorVersion'], $libSpec['minorVersion']);
-    $library['semantics'] = $this->h5pC->loadLibrarySemantics($libSpec['machineName'], $libSpec['majorVersion'], $libSpec['minorVersion']);
+  public function addon($library) {
+    // We need to run loadLibrarySemantics even if we have loadeed semantics from db, in case of
+    // 1) development foler
+    // 2) Invocation of semantics alter hook
+    $library['semantics'] = $this->h5pC->loadLibrarySemantics($library['machineName'], $library['majorVersion'], $library['minorVersion']);
 
     $depKey = 'preloaded-' . $library['machineName'];
     $this->dependencies[$depKey] = array(
