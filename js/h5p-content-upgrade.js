@@ -248,10 +248,9 @@
     self.current++;
     self.working++;
 
-    // Rewrap metadata
-    if (self.extras.metadata) {
-      self.extras.metadata = self.extras.metadata[id];
-    }
+    var extras = {
+      metadata: (self.extras.metadata && self.extras.metadata[id]) ? self.extras.metadata[id] : undefined
+    };
 
     if (worker) {
       worker.postMessage({
@@ -261,11 +260,11 @@
         oldVersion: info.library.version,
         newVersion: self.version.toString(),
         params: self.parameters[id],
-        extras: self.extras
+        extras: extras
       });
     }
     else {
-      new H5P.ContentUpgradeProcess(info.library.name, new Version(info.library.version), self.version, self.parameters[id], self.extras, id, function loadLibrary(name, version, next) {
+      new H5P.ContentUpgradeProcess(info.library.name, new Version(info.library.version), self.version, self.parameters[id], extras, id, function loadLibrary(name, version, next) {
         self.loadLibrary(name, version, function (err, library) {
           if (library.upgradesScript) {
             self.loadScript(library.upgradesScript, function (err) {

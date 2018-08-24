@@ -26,7 +26,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
 
     // Make extras possible to work with
     for (var element in extras) {
-      if (extras.hasOwnProperty(element)) {
+      if (extras[element] !== undefined) {
         try {
           extras[element] = JSON.parse(extras[element]);
           if (!(extras[element] instanceof Object)) {
