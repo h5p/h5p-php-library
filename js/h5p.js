@@ -2243,6 +2243,17 @@ H5P.createTitle = function (rawTitle, maxLength) {
   };
 
   /**
+   * Get config for a library
+   *
+   * @param string machineName
+   * @return Object
+   */
+  H5P.getLibraryConfig = function (machineName) {
+    var hasConfig = H5PIntegration.libraryConfig && H5PIntegration.libraryConfig[machineName];
+    return hasConfig ? H5PIntegration.libraryConfig[machineName] : {};
+  };
+
+  /**
    * Get item from the H5P Clipboard.
    *
    * @private

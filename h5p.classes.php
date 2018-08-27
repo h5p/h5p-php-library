@@ -109,6 +109,14 @@ interface H5PFrameworkInterface {
   public function loadAddons();
 
   /**
+   * Load config for libraries
+   *
+   * @param array $libraries
+   * @return array
+   */
+  public function getLibraryConfig($libraries = NULL);
+
+  /**
    * Get a list of the current installed libraries
    *
    * @return array
