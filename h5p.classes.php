@@ -102,6 +102,13 @@ interface H5PFrameworkInterface {
   public function getUploadedH5pPath();
 
   /**
+   * Load addon libraries
+   *
+   * @return array
+   */
+  public function loadAddons();
+
+  /**
    * Get a list of the current installed libraries
    *
    * @return array
@@ -1642,7 +1649,7 @@ Class H5PExport {
               $library['minorVersion']
           );
 
-          if ($isDevLibrary !== NULL) {
+          if ($isDevLibrary !== NULL && isset($library['path'])) {
             $exportFolder = "/" . $library['path'];
           }
         }
@@ -1971,6 +1978,23 @@ class H5PCore {
     }
     $validator->validateLibrary($params, (object) array('options' => array($params->library)));
 
+    // Handle addons:
+    $addons = $this->h5pF->loadAddons();
+    foreach ($addons as $addon) {
+      $add_to = json_decode($addon['addTo']);
+
+      if (isset($add_to->content->types)) {
+        foreach($add_to->content->types as $type) {
+          if ($this->textAddonMatches($params->params, $type->text->regex)) {
+            $validator->addon($addon);
+
+            // Addon can only be added once
+            break;
+          }
+        }
+      }
+    }
+
     $params = json_encode($params->params);
 
     // Update content dependencies.
@@ -2001,6 +2025,85 @@ class H5PCore {
       ));
     }
     return $params;
+  }
+
+  /**
+   * Retrieve a value from a nested mixed array structure.
+   *
+   * @param Array $params Array to be looked in.
+   * @param String $path Supposed path to the value.
+   * @param String [$delimiter='.'] Property delimiter within the path.
+   * @return Object|NULL The object found or NULL.
+   */
+  private function retrieveValue ($params, $path, $delimiter='.') {
+    $path = explode($delimiter, $path);
+
+    // Property not found
+    if (!isset($params[$path[0]])) {
+      return NULL;
+    }
+
+    $first = $params[$path[0]];
+
+    // End of path, done
+    if (sizeof($path) === 1) {
+      return $first;
+    }
+
+    // We cannot go deeper
+    if (!is_array($first)) {
+      return NULL;
+    }
+
+    // Regular Array
+    if (isset($first[0])) {
+      foreach($first as $number => $object) {
+        $found = $this->retrieveValue($object, implode($delimiter, array_slice($path, 1)));
+        if (isset($found)) {
+          return $found;
+        }
+      }
+      return NULL;
+    }
+
+    // Associative Array
+    return $this->retrieveValue($first, implode('.', array_slice($path, 1)));
+  }
+
+  /**
+   * Determine if params contain math.
+   *
+   * @param {object} params - Parameters.
+   * @param {string} [mathPattern] - Regular expression to identify math.
+   * @param {boolean} [found] - Used for recursion.
+   * @return {boolean} True, if params contain math.
+   */
+  private function textAddonMatches($params, $mathPattern, $found = false) {
+    if (!isset($mathPattern)) {
+      $mathPattern = '/\$\$.+\$\$|\\\[.+\\\]|\\\(.+\\\)/';
+    }
+    foreach($params as $property => $value) {
+      if (gettype($value) === 'string') {
+        if (preg_match($mathPattern, $value) === 1) {
+          $found = true;
+          break;
+        }
+      }
+      if ($found === false) {
+        if (gettype($value) === 'array') {
+          for ($i = 0; $i < sizeof($value); $i++) {
+            $found = $this->textAddonMatches($value[$i], $mathPattern, $found);
+            if ($found === true) {
+              break;
+            }
+          }
+        }
+        if (gettype($value) === 'object') {
+          $found = $this->textAddonMatches($value, $mathPattern, $found);
+        }
+      }
+    }
+    return $found;
   }
 
   /**
@@ -3235,6 +3338,19 @@ class H5PContentValidator {
 
     // Keep track of all dependencies for the given content.
     $this->dependencies = array();
+  }
+
+  /**
+   * Add Addon library.
+   */
+  public function addon($library) {
+    $depKey = 'preloaded-' . $library['machineName'];
+    $this->dependencies[$depKey] = array(
+      'library' => $library,
+      'type' => 'preloaded'
+    );
+    $this->nextWeight = $this->h5pC->findLibraryDependencies($this->dependencies, $library, $this->nextWeight);
+    $this->dependencies[$depKey]['weight'] = $this->nextWeight++;
   }
 
   /**
