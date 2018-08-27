@@ -3311,11 +3311,6 @@ class H5PContentValidator {
    * Add Addon library.
    */
   public function addon($library) {
-    // We need to run loadLibrarySemantics even if we have loadeed semantics from db, in case of
-    // 1) development foler
-    // 2) Invocation of semantics alter hook
-    $library['semantics'] = $this->h5pC->loadLibrarySemantics($library['machineName'], $library['majorVersion'], $library['minorVersion']);
-
     $depKey = 'preloaded-' . $library['machineName'];
     $this->dependencies[$depKey] = array(
       'library' => $library,
