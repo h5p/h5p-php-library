@@ -1993,10 +1993,12 @@ class H5PCore {
 
       if (isset($add_to->content->types)) {
         foreach($add_to->content->types as $type) {
-          if ($this->textAddonMatches($params->params, $type->text->regex)) {
+
+          if (isset($type->text->regex) &&
+              $this->textAddonMatches($params->params, $type->text->regex)) {
             $validator->addon($addon);
 
-            // Addon can only be added once
+            // An addon shall only be added once
             break;
           }
         }
@@ -2079,39 +2081,29 @@ class H5PCore {
   }
 
   /**
-   * Determine if params contain math.
+   * Determine if params contain any match.
    *
    * @param {object} params - Parameters.
-   * @param {string} [mathPattern] - Regular expression to identify math.
+   * @param {string} [pattern] - Regular expression to identify pattern.
    * @param {boolean} [found] - Used for recursion.
-   * @return {boolean} True, if params contain math.
+   * @return {boolean} True, if params matches pattern.
    */
-  private function textAddonMatches($params, $mathPattern, $found = false) {
-    if (!isset($mathPattern)) {
-      $mathPattern = '/\$\$.+\$\$|\\\[.+\\\]|\\\(.+\\\)/';
-    }
-    foreach($params as $property => $value) {
-      if (gettype($value) === 'string') {
-        if (preg_match($mathPattern, $value) === 1) {
-          $found = true;
-          break;
-        }
+  private function textAddonMatches($params, $pattern, $found = false) {
+    $type = gettype($params);
+    if ($type === 'string') {
+      if (preg_match($pattern, $params) === 1) {
+        return true;
       }
-      if ($found === false) {
-        if (gettype($value) === 'array') {
-          for ($i = 0; $i < sizeof($value); $i++) {
-            $found = $this->textAddonMatches($value[$i], $mathPattern, $found);
-            if ($found === true) {
-              break;
-            }
-          }
-        }
-        if (gettype($value) === 'object') {
-          $found = $this->textAddonMatches($value, $mathPattern, $found);
+    }
+    elseif ($type === 'array' || $type === 'object') {
+      foreach ($params as $value) {
+        $found = $this->textAddonMatches($value, $pattern, $found);
+        if ($found === true) {
+          return true;
         }
       }
     }
-    return $found;
+    return false;
   }
 
   /**
