@@ -3682,7 +3682,6 @@ class H5PContentValidator {
 
     if (isset($file->copyright)) {
       $this->validateGroup($file->copyright, $this->getCopyrightSemantics());
-      // TODO: We'll need to do something here about getMetadataSemantics() if we change the widgets
     }
   }
 
