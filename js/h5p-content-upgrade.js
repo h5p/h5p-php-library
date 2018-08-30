@@ -116,7 +116,7 @@
     // Register message handlers
     var messageHandlers = {
       done: function (result) {
-        self.workDone(result.id, result.params, result.extras, this);
+        self.workDone(result.id, result.params, this);
       },
       error: function (error) {
         self.printError(error.err);
@@ -184,7 +184,7 @@
       self.token = inData.token;
 
       // Start processing
-      self.processBatch(inData.params, {metadata: inData.metadata});
+      self.processBatch(inData.params);
     });
   };
 
@@ -202,7 +202,7 @@
    *
    * @param {Object} parameters
    */
-  ContentUpgrade.prototype.processBatch = function (parameters, extras) {
+  ContentUpgrade.prototype.processBatch = function (parameters) {
     var self = this;
 
     // Track upgraded params
@@ -210,7 +210,6 @@
 
     // Track current batch
     self.parameters = parameters;
-    self.extras = extras;
 
     // Create id mapping
     self.ids = [];
@@ -248,10 +247,6 @@
     self.current++;
     self.working++;
 
-    var extras = {
-      metadata: (self.extras.metadata && self.extras.metadata[id]) ? self.extras.metadata[id] : undefined
-    };
-
     if (worker) {
       worker.postMessage({
         action: 'newJob',
@@ -259,12 +254,11 @@
         name: info.library.name,
         oldVersion: info.library.version,
         newVersion: self.version.toString(),
-        params: self.parameters[id],
-        extras: extras
+        params: self.parameters[id]
       });
     }
     else {
-      new H5P.ContentUpgradeProcess(info.library.name, new Version(info.library.version), self.version, self.parameters[id], extras, id, function loadLibrary(name, version, next) {
+      new H5P.ContentUpgradeProcess(info.library.name, new Version(info.library.version), self.version, self.parameters[id], id, function loadLibrary(name, version, next) {
         self.loadLibrary(name, version, function (err, library) {
           if (library.upgradesScript) {
             self.loadScript(library.upgradesScript, function (err) {
@@ -279,13 +273,13 @@
           }
         });
 
-      }, function done(err, result, extras) {
+      }, function done(err, result) {
         if (err) {
           self.printError(err);
           return ;
         }
 
-        self.workDone(id, result, extras);
+        self.workDone(id, result);
       });
     }
   };
@@ -293,7 +287,7 @@
   /**
    *
    */
-  ContentUpgrade.prototype.workDone = function (id, result, extras, worker) {
+  ContentUpgrade.prototype.workDone = function (id, result, worker) {
     var self = this;
 
     self.working--;
@@ -308,8 +302,7 @@
       self.nextBatch({
         libraryId: self.version.libraryId,
         token: self.token,
-        params: JSON.stringify(self.upgraded),
-        extras: extras
+        params: JSON.stringify(self.upgraded)
       });
     }
   };
