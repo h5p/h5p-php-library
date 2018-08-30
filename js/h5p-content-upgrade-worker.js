@@ -9,7 +9,7 @@ var libraryLoadedCallback;
 var messageHandlers = {
   newJob: function (job) {
     // Start new job
-    new H5P.ContentUpgradeProcess(job.name, new H5P.Version(job.oldVersion), new H5P.Version(job.newVersion), job.params, job.extras, job.id, function loadLibrary(name, version, next) {
+    new H5P.ContentUpgradeProcess(job.name, new H5P.Version(job.oldVersion), new H5P.Version(job.newVersion), job.params, job.id, function loadLibrary(name, version, next) {
       // TODO: Cache?
       postMessage({
         action: 'loadLibrary',
@@ -17,7 +17,7 @@ var messageHandlers = {
         version: version.toString()
       });
       libraryLoadedCallback = next;
-    }, function done(err, result, extras) {
+    }, function done(err, result) {
       if (err) {
         // Return error
         postMessage({
@@ -33,8 +33,7 @@ var messageHandlers = {
       postMessage({
         action: 'done',
         id: job.id,
-        params: result,
-        extras: extras
+        params: result
       });
     });
   },
