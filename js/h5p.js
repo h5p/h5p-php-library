@@ -2141,6 +2141,20 @@ H5P.createTitle = function (rawTitle, maxLength) {
   };
 
   /**
+   * Function for getting content for a certain ID
+   *
+   * @param {number} contentId
+   * @return {Object}
+   */
+  H5P.getContentForInstance = function (contentId) {
+    var key = 'cid-' + contentId;
+    var exists = H5PIntegration && H5PIntegration.contents &&
+                 H5PIntegration.contents[key];
+
+    return exists ? H5PIntegration.contents[key] : undefined;
+  };
+
+  /**
    * Prepares the content parameters for storing in the clipboard.
    *
    * @class
