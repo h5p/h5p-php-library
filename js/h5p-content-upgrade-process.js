@@ -25,12 +25,12 @@ H5P.ContentUpgradeProcess = (function (Version) {
     }
 
     self.loadLibrary = loadLibrary;
-    self.upgrade(name, oldVersion, newVersion, params, function (err, upgradedParams) {
+    self.upgrade(name, oldVersion, newVersion, params.params, params.metadata, function (err, upgradedParams, upgradedMetadata) {
       if (err) {
         return done(err);
       }
 
-      done(null, JSON.stringify(upgradedParams));
+      done(null, JSON.stringify({params: upgradedParams, metadata: upgradedMetadata}));
     });
   }
 
@@ -41,11 +41,11 @@ H5P.ContentUpgradeProcess = (function (Version) {
    * @param {string} name
    * @param {Version} oldVersion
    * @param {Version} newVersion
-   * @param {Object} params Only for subcontent
-   * @param {Function} done Only for subcontent
-   * @param {Object} [metadata] Only for subcontent
+   * @param {Object} params
+   * @param {Object} metadata
+   * @param {Function} done
    */
-  ContentUpgradeProcess.prototype.upgrade = function (name, oldVersion, newVersion, params, done, metadata) {
+  ContentUpgradeProcess.prototype.upgrade = function (name, oldVersion, newVersion, params, metadata, done) {
     var self = this;
 
     // Load library details and upgrade routines
@@ -180,7 +180,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
             }
 
             // A newer version is available, upgrade params
-            return self.upgrade(availableLib[0], usedVer, availableVer, params.params, function (err, upgradedParams, upgradedMetadata) {
+            return self.upgrade(availableLib[0], usedVer, availableVer, params.params, params.metadata, function (err, upgradedParams, upgradedMetadata) {
               if (!err) {
                 params.library = availableLib[0] + ' ' + availableVer.major + '.' + availableVer.minor;
                 params.params = upgradedParams;
@@ -189,7 +189,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
                 }
               }
               done(err, params);
-            }, params.metadata);
+            });
           }
         }
         done();
