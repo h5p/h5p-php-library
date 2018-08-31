@@ -7,7 +7,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
    * @class
    * @namespace H5P
    */
-  function ContentUpgradeProcess(name, oldVersion, newVersion, params, extras, id, loadLibrary, done) {
+  function ContentUpgradeProcess(name, oldVersion, newVersion, params, id, loadLibrary, done) {
     var self = this;
 
     // Make params possible to work with
@@ -24,38 +24,28 @@ H5P.ContentUpgradeProcess = (function (Version) {
       });
     }
 
-    // Make extras possible to work with
-    for (var element in extras) {
-      if (extras[element] !== undefined) {
-        try {
-          extras[element] = JSON.parse(extras[element]);
-          if (!(extras[element] instanceof Object)) {
-            throw true;
-          }
-        }
-        catch (event) {
-          return done({
-            type: 'errorExtrasBroken',
-            id: id
-          });
-        }
-      }
-    }
-
     self.loadLibrary = loadLibrary;
-    self.upgrade(name, oldVersion, newVersion, params, extras, function (err, result) {
+    self.upgrade(name, oldVersion, newVersion, params, function (err, upgradedParams) {
       if (err) {
         return done(err);
       }
 
-      done(null, JSON.stringify(params), JSON.stringify(extras));
+      done(null, JSON.stringify(upgradedParams));
     });
   }
 
   /**
+   * Run content upgrade.
    *
+   * @public
+   * @param {string} name
+   * @param {Version} oldVersion
+   * @param {Version} newVersion
+   * @param {Object} params Only for subcontent
+   * @param {Function} done Only for subcontent
+   * @param {Object} [metadata] Only for subcontent
    */
-  ContentUpgradeProcess.prototype.upgrade = function (name, oldVersion, newVersion, params, extras, done) {
+  ContentUpgradeProcess.prototype.upgrade = function (name, oldVersion, newVersion, params, done, metadata) {
     var self = this;
 
     // Load library details and upgrade routines
@@ -65,7 +55,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
       }
 
       // Run upgrade routines on params
-      self.processParams(library, oldVersion, newVersion, params, extras, function (err, params, extras) {
+      self.processParams(library, oldVersion, newVersion, params, metadata, function (err, params, metadata) {
         if (err) {
           return done(err);
         }
@@ -79,7 +69,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
             next(err);
           });
         }, function (err) {
-          done(err, params, extras);
+          done(err, params, metadata);
         });
       });
     });
@@ -95,7 +85,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
    * @param {Object} params
    * @param {Function} next
    */
-  ContentUpgradeProcess.prototype.processParams = function (library, oldVersion, newVersion, params, extras, next) {
+  ContentUpgradeProcess.prototype.processParams = function (library, oldVersion, newVersion, params, metadata, next) {
     if (H5PUpgrades[library.name] === undefined) {
       if (library.upgradesScript) {
         // Upgrades script should be loaded so the upgrades should be here.
@@ -130,17 +120,11 @@ H5P.ContentUpgradeProcess = (function (Version) {
             try {
               unnecessaryWrapper(params, function (err, upgradedParams, upgradedExtras) {
                 params = upgradedParams;
-                /**
-                 * "params" (and "extras", e.g. metadata) flow through each update function and are changed
-                 * if necessary. Since "extras" was added later and old update functions don't return
-                 * it, we need to ignore undefined values here -- or change every single update function
-                 * in all content types.
-                 */
-                if (upgradedExtras) {
-                  extras = upgradedExtras;
+                if (upgradedExtras && upgradedExtras.metadata) { // Optional
+                  metadata = upgradedExtras.metadata;
                 }
                 nextMinor(err);
-              }, extras);
+              }, {metadata: metadata});
             }
             catch (err) {
               if (console && console.log) {
@@ -154,7 +138,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
         }, nextMajor);
       }
     }, function (err) {
-      next(err, params, extras);
+      next(err, params, metadata);
     });
   };
 
@@ -195,24 +179,17 @@ H5P.ContentUpgradeProcess = (function (Version) {
               return done(); // Larger or same version that's available
             }
 
-            // Currently, we only use metadata as additional things that might need change
-            var extras = {
-              metadata: params.metadata
-            };
-
             // A newer version is available, upgrade params
-            return self.upgrade(availableLib[0], usedVer, availableVer, params.params, extras, function (err, upgraded, extras) {
+            return self.upgrade(availableLib[0], usedVer, availableVer, params.params, function (err, upgradedParams, upgradedMetadata) {
               if (!err) {
                 params.library = availableLib[0] + ' ' + availableVer.major + '.' + availableVer.minor;
-                params.params = upgraded;
-                if (extras) {
-                  if (extras.metadata) {
-                    params.metadata = extras.metadata;
-                  }
+                params.params = upgradedParams;
+                if (upgradedMetadata) {
+                  params.metadata = upgradedMetadata;
                 }
               }
               done(err, params);
-            });
+            }, params.metadata);
           }
         }
         done();
