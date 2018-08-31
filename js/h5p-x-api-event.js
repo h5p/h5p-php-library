@@ -133,9 +133,10 @@ H5P.XAPIEvent.prototype.setObject = function (instance) {
       }
     }
     else {
-      if (H5PIntegration && H5PIntegration.contents && H5PIntegration.contents['cid-' + instance.contentId].title) {
+      var content = H5P.getContentForInstance(instance.contentId);
+      if (content && content.metadata && content.metadata.title) {
         this.data.statement.object.definition.name = {
-          "en-US": H5P.createTitle(H5PIntegration.contents['cid-' + instance.contentId].title)
+          "en-US": H5P.createTitle(content.metadata.title)
         };
       }
     }
@@ -150,7 +151,6 @@ H5P.XAPIEvent.prototype.setObject = function (instance) {
  */
 H5P.XAPIEvent.prototype.setContext = function (instance) {
   if (instance.parent && (instance.parent.contentId || instance.parent.subContentId)) {
-    var parentId = instance.parent.subContentId === undefined ? instance.parent.contentId : instance.parent.subContentId;
     this.data.statement.context = {
       "contextActivities": {
         "parent": [
