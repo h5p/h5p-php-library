@@ -680,6 +680,7 @@ class H5PValidator {
     'author' => '/^.{1,255}$/',
     'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
     'description' => '/^.{1,}$/',
+    'metadata' => '/^(0|1)$/',
     'dynamicDependencies' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
