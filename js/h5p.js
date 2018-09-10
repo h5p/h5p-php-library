@@ -1657,8 +1657,8 @@ H5P.libraryFromString = function (library) {
   if (res !== null) {
     return {
       'machineName': res[1],
-      'majorVersion': res[2],
-      'minorVersion': res[3]
+      'majorVersion': parseInt(res[2]),
+      'minorVersion': parseInt(res[3])
     };
   }
   else {
