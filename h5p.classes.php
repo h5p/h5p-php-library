@@ -210,6 +210,7 @@ interface H5PFrameworkInterface {
    *   - minorVersion: The library's minorVersion
    *   - patchVersion: The library's patchVersion
    *   - runnable: 1 if the library is a content type, 0 otherwise
+   *   - metadata: 1 if the library should support setting metadata (copyright etc)
    *   - fullscreen(optional): 1 if the library supports fullscreen, 0 otherwise
    *   - embedTypes(optional): list of supported embed types
    *   - preloadedJs(optional): list of associative arrays containing:
@@ -1440,6 +1441,9 @@ class H5PStorage {
       $library['saveDependencies'] = TRUE;
 
       // Save library meta data
+      if (!isset($library['metadata'])) {
+        $library['metadata'] = 0;
+      }
       $this->h5pF->saveLibraryData($library, $new);
 
       // Save library folder
