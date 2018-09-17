@@ -1939,6 +1939,10 @@ class H5PCore {
     $content = $this->h5pF->loadContent($id);
 
     if ($content !== NULL) {
+      // Validate main content's metadata
+      $validator = new H5PContentValidator($this->h5pF, $this);
+      $validator->validateMetadata($content['metadata']);
+
       $content['library'] = array(
         'id' => $content['libraryId'],
         'name' => $content['libraryName'],
@@ -3368,6 +3372,21 @@ class H5PContentValidator {
   }
 
   /**
+   * Validate metadata
+   *
+   * @param array $metadata
+   */
+  public function validateMetadata(&$metadata) {
+    $semantics = $this->getMetadataSemantics();
+
+    $group = (object)$metadata;
+    $this->validateGroup($group, (object) array(
+      'type' => 'group',
+      'fields' => $semantics,
+    ), FALSE);
+  }
+
+  /**
    * Validate given text value against text semantics.
    * @param $text
    * @param $semantics
@@ -3883,10 +3902,17 @@ class H5PContentValidator {
       $library = $this->libraries[$value->library];
     }
 
+    // Validate parameters
     $this->validateGroup($value->params, (object) array(
       'type' => 'group',
       'fields' => $library['semantics'],
     ), FALSE);
+
+    // Validate subcontent's metadata
+    if (isset($value->metadata)) {
+      $this->validateMetadata($value->metadata);
+    }
+
     $validKeys = array('library', 'params', 'subContentId', 'metadata');
     if (isset($semantics->extraAttributes)) {
       $validKeys = array_merge($validKeys, $semantics->extraAttributes);
