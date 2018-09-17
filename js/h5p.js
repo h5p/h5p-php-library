@@ -1657,8 +1657,8 @@ H5P.libraryFromString = function (library) {
   if (res !== null) {
     return {
       'machineName': res[1],
-      'majorVersion': res[2],
-      'minorVersion': res[3]
+      'majorVersion': parseInt(res[2]),
+      'minorVersion': parseInt(res[3])
     };
   }
   else {
@@ -2141,6 +2141,20 @@ H5P.createTitle = function (rawTitle, maxLength) {
   };
 
   /**
+   * Function for getting content for a certain ID
+   *
+   * @param {number} contentId
+   * @return {Object}
+   */
+  H5P.getContentForInstance = function (contentId) {
+    var key = 'cid-' + contentId;
+    var exists = H5PIntegration && H5PIntegration.contents &&
+                 H5PIntegration.contents[key];
+
+    return exists ? H5PIntegration.contents[key] : undefined;
+  };
+
+  /**
    * Prepares the content parameters for storing in the clipboard.
    *
    * @class
@@ -2240,6 +2254,17 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
     // Trigger an event so all 'Paste' buttons may be enabled.
     H5P.externalDispatcher.trigger('datainclipboard', {reset: false});
+  };
+
+  /**
+   * Get config for a library
+   *
+   * @param string machineName
+   * @return Object
+   */
+  H5P.getLibraryConfig = function (machineName) {
+    var hasConfig = H5PIntegration.libraryConfig && H5PIntegration.libraryConfig[machineName];
+    return hasConfig ? H5PIntegration.libraryConfig[machineName] : {};
   };
 
   /**
