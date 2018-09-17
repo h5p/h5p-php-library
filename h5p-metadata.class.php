@@ -5,6 +5,10 @@
 abstract class H5PMetadata {
 
   const FIELDS = array(
+    'title' => array(
+      'type' => 'text',
+      'maxLength' => 255
+    ),
     'authors' => array(
       'type' => 'json'
     ),
@@ -42,9 +46,11 @@ abstract class H5PMetadata {
   /**
    * Make the metadata into an associative array keyed by the property names
    * @param mixed $metadata Array or object containing metadata
+   * @param bool $include_title
+   * @param array $types
    * @return array
    */
-  public static function toDBArray($metadata, &$types = array()) {
+  public static function toDBArray($metadata, $include_title = true, &$types = array()) {
     $fields = array();
 
     if (!is_array($metadata)) {
@@ -52,6 +58,11 @@ abstract class H5PMetadata {
     }
 
     foreach (self::FIELDS as $key => $config) {
+
+      if ($key === 'title' && !$include_title) {
+        continue;
+      }
+
       if (isset($metadata[$key])) {
         $value = $metadata[$key];
         $db_field_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
