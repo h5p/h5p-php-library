@@ -4284,155 +4284,152 @@ class H5PContentValidator {
       )
     );
 
-    $semantics = (object) array(
+    $semantics = array(
       (object) array(
-        'name' => 'copyright',
-        'type' => 'group',
-        'label' => $this->h5pF->t('Copyright information'),
-        'fields' => array(
+        'name' => 'title',
+        'type' => 'text',
+        'label' => $this->h5pF->t('Title'),
+        'placeholder' => 'La Gioconda'
+      ),
+      (object) array(
+        'name' => 'license',
+        'type' => 'select',
+        'label' => $this->h5pF->t('License'),
+        'default' => 'U',
+        'options' => array(
           (object) array(
-            'name' => 'title',
-            'type' => 'text',
-            'label' => $this->h5pF->t('Title'),
-            'placeholder' => 'La Gioconda'
+            'value' => 'U',
+            'label' => $this->h5pF->t('Undisclosed')
           ),
           (object) array(
-            'name' => 'license',
-            'type' => 'select',
-            'label' => $this->h5pF->t('License'),
-            'default' => 'U',
-            'options' => array(
+            'type' => 'optgroup',
+            'label' => $this->h5pF->t('Creative Commons'),
+            'options' => [
               (object) array(
-                'value' => 'U',
-                'label' => $this->h5pF->t('Undisclosed')
+                'value' => 'CC BY',
+                'label' => $this->h5pF->t('Attribution (CC BY)'),
+                'versions' => $cc_versions
               ),
               (object) array(
-                'type' => 'optgroup',
-                'label' => $this->h5pF->t('Creative Commons'),
-                'options' => [
-                  (object) array(
-                    'value' => 'CC BY',
-                    'label' => $this->h5pF->t('Attribution (CC BY)'),
-                    'versions' => $cc_versions
-                  ),
-                  (object) array(
-                    'value' => 'CC BY-SA',
-                    'label' => $this->h5pF->t('Attribution-ShareAlike (CC BY-SA)'),
-                    'versions' => $cc_versions
-                  ),
-                  (object) array(
-                    'value' => 'CC BY-ND',
-                    'label' => $this->h5pF->t('Attribution-NoDerivs (CC BY-ND)'),
-                    'versions' => $cc_versions
-                  ),
-                  (object) array(
-                    'value' => 'CC BY-NC',
-                    'label' => $this->h5pF->t('Attribution-NonCommercial (CC BY-NC)'),
-                    'versions' => $cc_versions
-                  ),
-                  (object) array(
-                    'value' => 'CC BY-NC-SA',
-                    'label' => $this->h5pF->t('Attribution-NonCommercial-ShareAlike (CC BY-NC-SA)'),
-                    'versions' => $cc_versions
-                  ),
-                  (object) array(
-                    'value' => 'CC BY-NC-ND',
-                    'label' => $this->h5pF->t('Attribution-NonCommercial-NoDerivs (CC BY-NC-ND)'),
-                    'versions' => $cc_versions
-                  ),
-                  (object) array(
-                    'value' => 'CC0 1.0',
-                    'label' => $this->h5pF->t('Public Domain Dedication (CC0)')
-                  ),
-                  (object) array(
-                    'value' => 'CC PDM',
-                    'label' => $this->h5pF->t('Public Domain Mark (PDM)')
-                  ),
-                ]
+                'value' => 'CC BY-SA',
+                'label' => $this->h5pF->t('Attribution-ShareAlike (CC BY-SA)'),
+                'versions' => $cc_versions
               ),
               (object) array(
-                'value' => 'GNU GPL',
-                'label' => $this->h5pF->t('General Public License v3')
+                'value' => 'CC BY-ND',
+                'label' => $this->h5pF->t('Attribution-NoDerivs (CC BY-ND)'),
+                'versions' => $cc_versions
               ),
               (object) array(
-                'value' => 'PD',
-                'label' => $this->h5pF->t('Public Domain')
+                'value' => 'CC BY-NC',
+                'label' => $this->h5pF->t('Attribution-NonCommercial (CC BY-NC)'),
+                'versions' => $cc_versions
               ),
               (object) array(
-                'value' => 'ODC PDDL',
-                'label' => $this->h5pF->t('Public Domain Dedication and Licence')
+                'value' => 'CC BY-NC-SA',
+                'label' => $this->h5pF->t('Attribution-NonCommercial-ShareAlike (CC BY-NC-SA)'),
+                'versions' => $cc_versions
               ),
               (object) array(
-                'value' => 'C',
-                'label' => $this->h5pF->t('Copyright')
-              )
-            )
+                'value' => 'CC BY-NC-ND',
+                'label' => $this->h5pF->t('Attribution-NonCommercial-NoDerivs (CC BY-NC-ND)'),
+                'versions' => $cc_versions
+              ),
+              (object) array(
+                'value' => 'CC0 1.0',
+                'label' => $this->h5pF->t('Public Domain Dedication (CC0)')
+              ),
+              (object) array(
+                'value' => 'CC PDM',
+                'label' => $this->h5pF->t('Public Domain Mark (PDM)')
+              ),
+            ]
           ),
           (object) array(
-            'name' => 'licenseVersion',
-            'type' => 'select',
-            'label' => $this->h5pF->t('License Version'),
-            'options' => array(),
-            'optional' => TRUE
+            'value' => 'GNU GPL',
+            'label' => $this->h5pF->t('General Public License v3')
           ),
           (object) array(
-            'name' => 'yearFrom',
-            'type' => 'number',
-            'label' => $this->h5pF->t('Years (from)'),
-            'placeholder' => '1991',
-            'min' => '-9999',
-            'max' => '9999',
-            'optional' => TRUE
+            'value' => 'PD',
+            'label' => $this->h5pF->t('Public Domain')
           ),
           (object) array(
-            'name' => 'yearTo',
-            'type' => 'number',
-            'label' => $this->h5pF->t('Years (to)'),
-            'placeholder' => '1992',
-            'min' => '-9999',
-            'max' => '9999',
-            'optional' => TRUE
+            'value' => 'ODC PDDL',
+            'label' => $this->h5pF->t('Public Domain Dedication and Licence')
           ),
           (object) array(
-            'name' => 'source',
-            'type' => 'text',
-            'label' => $this->h5pF->t('Source'),
-            'placeholder' => 'https://',
-            'optional' => TRUE
+            'value' => 'C',
+            'label' => $this->h5pF->t('Copyright')
           )
         )
       ),
       (object) array(
-        'name' => 'authorWidget',
-        'type' => 'group',
-        'fields'=> array(
-          (object) array(
-            'label' => $this->h5pF->t("Author's name"),
-            'name' => "name",
-            'optional' => TRUE,
-            'type' => "text"
-          ),
-          (object) array(
-            'name' => 'role',
-            'type' => 'select',
-            'label' => $this->h5pF->t("Author's role"),
-            'default' => 'Author',
-            'options' => array(
-              (object) array(
-                'value' => 'Author',
-                'label' => $this->h5pF->t('Author')
-              ),
-              (object) array(
-                'value' => 'Editor',
-                'label' => $this->h5pF->t('Editor')
-              ),
-              (object) array(
-                'value' => 'Licensee',
-                'label' => $this->h5pF->t('Licensee')
-              ),
-              (object) array(
-                'value' => 'Originator',
-                'label' => $this->h5pF->t('Originator')
+        'name' => 'licenseVersion',
+        'type' => 'select',
+        'label' => $this->h5pF->t('License Version'),
+        'options' => $cc_versions,
+        'optional' => TRUE
+      ),
+      (object) array(
+        'name' => 'yearFrom',
+        'type' => 'number',
+        'label' => $this->h5pF->t('Years (from)'),
+        'placeholder' => '1991',
+        'min' => '-9999',
+        'max' => '9999',
+        'optional' => TRUE
+      ),
+      (object) array(
+        'name' => 'yearTo',
+        'type' => 'number',
+        'label' => $this->h5pF->t('Years (to)'),
+        'placeholder' => '1992',
+        'min' => '-9999',
+        'max' => '9999',
+        'optional' => TRUE
+      ),
+      (object) array(
+        'name' => 'source',
+        'type' => 'text',
+        'label' => $this->h5pF->t('Source'),
+        'placeholder' => 'https://',
+        'optional' => TRUE
+      ),
+      (object) array(
+        'name' => 'authors',
+        'type' => 'list',
+        'field' => (object) array (
+          'name' => 'author',
+          'type' => 'group',
+          'fields'=> array(
+            (object) array(
+              'label' => $this->h5pF->t("Author's name"),
+              'name' => 'name',
+              'optional' => TRUE,
+              'type' => 'text'
+            ),
+            (object) array(
+              'name' => 'role',
+              'type' => 'select',
+              'label' => $this->h5pF->t("Author's role"),
+              'default' => 'Author',
+              'options' => array(
+                (object) array(
+                  'value' => 'Author',
+                  'label' => $this->h5pF->t('Author')
+                ),
+                (object) array(
+                  'value' => 'Editor',
+                  'label' => $this->h5pF->t('Editor')
+                ),
+                (object) array(
+                  'value' => 'Licensee',
+                  'label' => $this->h5pF->t('Licensee')
+                ),
+                (object) array(
+                  'value' => 'Originator',
+                  'label' => $this->h5pF->t('Originator')
+                )
               )
             )
           )
@@ -4440,60 +4437,50 @@ class H5PContentValidator {
       ),
       (object) array(
         'name' => 'licenseExtras',
-        'type' => 'textarea',
+        'type' => 'text',
+        'widget' => 'textarea',
         'label' => $this->h5pF->t('License Extras'),
         'optional' => TRUE,
         'description' => $this->h5pF->t('Any additional information about the license')
       ),
       (object) array(
-        'name' => 'changeLog',
-        'type' => 'group',
-        'expanded' => FALSE,
-        'label' => $this->h5pF->t('Change Log'),
-        'fields' => array(
-          (object) array (
-            'name' => 'changeLogForm',
-            'type' => 'group',
-            'label' => $this->h5pF->t('Question'),
-            'expanded' => TRUE,
-            'fields' => array(
-              (object) array(
-                'name' => 'date',
-                'type' => 'text',
-                'label' => $this->h5pF->t('Date'),
-                'optional' => TRUE
-              ),
-              (object) array(
-                'name' => 'author',
-                'type' => 'text',
-                'label' => $this->h5pF->t('Changed by'),
-                'optional' => TRUE
-              ),
-              (object) array(
-                'name' => 'log',
-                'type' => 'textarea',
-                'label' => $this->h5pF->t('Description of change'),
-                'placeholder' => $this->h5pF->t('Photo cropped, text changed, etc.'),
-                'optional' => TRUE
-              )
+        'name' => 'changes',
+        'type' => 'list',
+        'field' => (object) array(
+          'name' => 'change',
+          'type' => 'group',
+          'label' => $this->h5pF->t('Change Log'),
+          'fields' => array(
+            (object) array(
+              'name' => 'date',
+              'type' => 'text',
+              'label' => $this->h5pF->t('Date'),
+              'optional' => TRUE
+            ),
+            (object) array(
+              'name' => 'author',
+              'type' => 'text',
+              'label' => $this->h5pF->t('Changed by'),
+              'optional' => TRUE
+            ),
+            (object) array(
+              'name' => 'log',
+              'type' => 'text',
+              'widget' => 'textarea',
+              'label' => $this->h5pF->t('Description of change'),
+              'placeholder' => $this->h5pF->t('Photo cropped, text changed, etc.'),
+              'optional' => TRUE
             )
           )
         )
       ),
-      (object) array(
+      (object) array (
         'name' => 'authorComments',
-        'label' => $this->h5pF->t('Additional Information'),
-        'type' => 'group',
-        'expanded' => FALSE,
-        'fields' => array(
-          (object) array (
-            'name' => 'authorComments',
-            'type' => 'textarea',
-            'label' => $this->h5pF->t('Author comments'),
-            'description' => $this->h5pF->t('Comments for the editor of the content (This text will not be published as a part of copyright info)'),
-            'optional' => TRUE
-          )
-        )
+        'type' => 'text',
+        'widget' => 'textarea',
+        'label' => $this->h5pF->t('Author comments'),
+        'description' => $this->h5pF->t('Comments for the editor of the content (This text will not be published as a part of copyright info)'),
+        'optional' => TRUE
       )
     );
 
