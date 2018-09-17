@@ -44,6 +44,28 @@ abstract class H5PMetadata {
   );
 
   /**
+   * JSON encode metadata
+   *
+   * @param object $content
+   * @return string
+   */
+  public static function toJSON($content) {
+    // Note: deliberatly creating JSON string "manually" to improve performance
+    return
+      '{"title":' . (isset($content->title) ? json_encode($content->title) : 'null') .
+      ',"authors":' . (isset($content->authors) ? $content->authors : 'null') .
+      ',"source":' . (isset($content->source) ? '"' . $content->source . '"' : 'null') .
+      ',"license":' . (isset($content->license) ? '"' . $content->license . '"' : 'null') .
+      ',"licenseVersion":' . (isset($content->license_version) ? '"' . $content->license_version . '"' : 'null') .
+      ',"licenseExtras":' . (isset($content->license_extras) ? json_encode($content->license_extras) : 'null') .
+      ',"yearFrom":' . (isset($content->year_from) ? $content->year_from : 'null') .
+      ',"yearTo":' .  (isset($content->year_to) ? $content->year_to : 'null') .
+      ',"changes":' . (isset($content->changes) ? $content->changes : 'null') .
+      ',"authorComments":' . (isset($content->author_comments) ? json_encode($content->author_comments) : 'null') . '}';
+  }
+
+
+  /**
    * Make the metadata into an associative array keyed by the property names
    * @param mixed $metadata Array or object containing metadata
    * @param bool $include_title
