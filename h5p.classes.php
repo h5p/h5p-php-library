@@ -3555,8 +3555,17 @@ class H5PContentValidator {
       // We have a strict set of options to choose from.
       $strict = TRUE;
       $options = array();
+
       foreach ($semantics->options as $option) {
-        $options[$option->value] = TRUE;
+        // Support optgroup - just flatten options into one
+        if (isset($option->type) && $option->type === 'optgroup') {
+          foreach ($option->options as $suboption) {
+            $options[$suboption->value] = TRUE;
+          }
+        }
+        elseif (isset($option->value)) {
+          $options[$option->value] = TRUE;
+        }
       }
     }
 
