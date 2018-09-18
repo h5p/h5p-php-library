@@ -648,7 +648,7 @@ class H5PValidator {
       'role' => '/^\w+$/',
     ),
     'source' => '/^(http[s]?:\/\/.+)$/',
-    'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|CC0 1\.0|GNU GPL|PD|ODC PDDL|CC PDM|U|C|cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
+    'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|CC0 1\.0|GNU GPL|PD|ODC PDDL|CC PDM|U|C)$/',
     'licenseVersion' => '/^(1\.0|2\.0|2\.5|3\.0|4\.0)$/',
     'licenseExtras' => '/^.{1,5000}$/',
     'yearsFrom' => '/^([0-9]{1,4})$/',
