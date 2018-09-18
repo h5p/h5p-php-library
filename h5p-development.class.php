@@ -87,7 +87,7 @@ class H5PDevelopment {
       // Save/update library.
       $library['libraryId'] = $this->h5pF->getLibraryId($library['machineName'], $library['majorVersion'], $library['minorVersion']);
       if (!isset($library['metadata'])) {
-        $library['metadata'] = 0;
+        $library['metadata'] = 1;
       }
       $this->h5pF->saveLibraryData($library, $library['libraryId'] === FALSE);
 

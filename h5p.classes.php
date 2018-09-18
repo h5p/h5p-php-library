@@ -1442,7 +1442,7 @@ class H5PStorage {
 
       // Save library meta data
       if (!isset($library['metadata'])) {
-        $library['metadata'] = 0;
+        $library['metadata'] = 1;
       }
       $this->h5pF->saveLibraryData($library, $new);
 
