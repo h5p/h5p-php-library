@@ -99,7 +99,7 @@ abstract class H5PMetadata {
 
           case 'int':
             $value = ($value !== null) ? intval($value): null;
-            $types[] = '%i';
+            $types[] = '%d';
             break;
 
           case 'json':
