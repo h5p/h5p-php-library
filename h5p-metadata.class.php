@@ -4,7 +4,7 @@
  */
 abstract class H5PMetadata {
 
-  const FIELDS = array(
+  private static $fields = array(
     'title' => array(
       'type' => 'text',
       'maxLength' => 255
@@ -79,7 +79,7 @@ abstract class H5PMetadata {
       $metadata = (array) $metadata;
     }
 
-    foreach (self::FIELDS as $key => $config) {
+    foreach (self::$fields as $key => $config) {
 
       if ($key === 'title' && !$include_title) {
         continue;
