@@ -1131,7 +1131,7 @@ H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
 
     return new H5P.MediaCopyright(
       dataset,
-      {type: 'Content type', licenseExtras: 'License extras', changes: 'Changelog'},
+      {type: 'Content Type', licenseExtras: 'License Extras', changes: 'Changelog'},
       ['type', 'title', 'license', 'author', 'year', 'source', 'licenseExtras', 'changes'],
       {type: contentTypeName}
     );
