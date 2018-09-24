@@ -4507,7 +4507,12 @@ class H5PContentValidator {
         'label' => $this->h5pF->t('Author comments'),
         'description' => $this->h5pF->t('Comments for the editor of the content (This text will not be published as a part of copyright info)'),
         'optional' => TRUE
-      )
+      ),
+      (object) array(
+        'name' => 'contentType',
+        'type' => 'text',
+        'widget' => 'none'
+      ),
     );
 
     return $semantics;
