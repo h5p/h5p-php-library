@@ -3307,7 +3307,10 @@ class H5PCore {
       'licensePD' => $this->h5pF->t('Public Domain'),
       'licenseCC010' => $this->h5pF->t('CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'),
       'licensePDM' => $this->h5pF->t('Public Domain Mark'),
-      'licenseC' => $this->h5pF->t('Copyright')
+      'licenseC' => $this->h5pF->t('Copyright'),
+      'contentType' => $this->h5pF->t('Content Type'),
+      'licenseExtras' => $this->h5pF->t('License Extras'),
+      'changes' => $this->h5pF->t('Changelog'),
     );
   }
 }

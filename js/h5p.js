@@ -1108,6 +1108,7 @@ H5P.findCopyrights = function (info, parameters, contentId, extras) {
 H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
   if (metadata && metadata.license !== undefined && metadata.license !== 'U') {
     var dataset = {
+      contentType: metadata.contentType,
       title: metadata.title,
       author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function(author) {
         return (author.role) ? author.name + ' (' + author.role + ')' : author.name;
@@ -1122,19 +1123,7 @@ H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
       }).join(' / ') : undefined
     };
 
-    if (contentTypeName) {
-      contentTypeName = contentTypeName
-        .split(' ')[0]
-        .replace(/^H5P\./, '')
-        .replace(/([a-z])([A-Z])/g, '$1' + ' ' + '$2');
-    }
-
-    return new H5P.MediaCopyright(
-      dataset,
-      {type: 'Content Type', licenseExtras: 'License Extras', changes: 'Changelog'},
-      ['type', 'title', 'license', 'author', 'year', 'source', 'licenseExtras', 'changes'],
-      {type: contentTypeName}
-    );
+    return new H5P.MediaCopyright(dataset);
   }
 };
 
@@ -1424,7 +1413,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
 
     if (order === undefined) {
       // Set default order
-      order = ['title', 'author', 'year', 'source', 'license'];
+      order = ['contentType', 'title', 'license', 'author', 'year', 'source', 'licenseExtras', 'changes'];
     }
 
     for (var i = 0; i < order.length; i++) {
