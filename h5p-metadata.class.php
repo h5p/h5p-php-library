@@ -114,4 +114,24 @@ abstract class H5PMetadata {
 
     return $fields;
   }
+
+  /**
+   * The metadataSettings field in libraryJson uses 1 for true and 0 for false.
+   * Here we are converting these to booleans, and also doing JSON encoding.
+   * This is invoked before the library data is beeing inserted/updated to DB.
+   *
+   * @param array $metadataSettings
+   * @return string
+   */
+  public static function boolifyAndEncodeSettings($metadataSettings) {
+    // Convert metadataSettings values to boolean
+    if (isset($metadataSettings['disable'])) {
+      $metadataSettings['disable'] = $metadataSettings['disable'] === 1;
+    }
+    if (isset($metadataSettings['disable'])) {
+      $metadataSettings['disableExtraTitleField'] = $metadataSettings['disableExtraTitleField'] === 1;
+    }
+
+    return json_encode($metadataSettings);
+  }
 }
