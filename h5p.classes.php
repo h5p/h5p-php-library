@@ -1947,7 +1947,7 @@ class H5PCore {
     if ($content !== NULL) {
       // Validate main content's metadata
       $validator = new H5PContentValidator($this->h5pF, $this);
-      $validator->validateMetadata($content['metadata']);
+      $content['metadata'] = $validator->validateMetadata($content['metadata']);
 
       $content['library'] = array(
         'id' => $content['libraryId'],
@@ -3384,8 +3384,9 @@ class H5PContentValidator {
    * Validate metadata
    *
    * @param array $metadata
+   * @return array Validated & filtered
    */
-  public function validateMetadata(&$metadata) {
+  public function validateMetadata($metadata) {
     $semantics = $this->getMetadataSemantics();
 
     $group = (object)$metadata;
@@ -3393,6 +3394,8 @@ class H5PContentValidator {
       'type' => 'group',
       'fields' => $semantics,
     ), FALSE);
+
+    return (array)$group;
   }
 
   /**
@@ -3919,7 +3922,7 @@ class H5PContentValidator {
 
     // Validate subcontent's metadata
     if (isset($value->metadata)) {
-      $this->validateMetadata($value->metadata);
+      $value->metadata = $this->validateMetadata($value->metadata);
     }
 
     $validKeys = array('library', 'params', 'subContentId', 'metadata');
