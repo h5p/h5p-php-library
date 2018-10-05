@@ -1599,6 +1599,16 @@ Class H5PExport {
   }
 
   /**
+   * Reverts the replace pattern used by the text editor
+   *
+   * @param string $value
+   * @return string
+   */
+  private static function revertH5PEditorTextEscape($value) {
+    return str_replace('&lt;', '<', str_replace('&gt;', '>', str_replace('&#039;', "'", str_replace('&quot;', '"', $value))));
+  }
+
+  /**
    * Return path to h5p package.
    *
    * Creates package if not already created
@@ -1630,7 +1640,7 @@ Class H5PExport {
 
     // Build h5p.json, the en-/de-coding will ensure proper escaping
     $h5pJson = array (
-      'title' => $content['title'],
+      'title' => self::revertH5PEditorTextEscape($content['title']),
       'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes
