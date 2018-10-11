@@ -3333,7 +3333,7 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
-  private static $allowed_styleable_tags = array('span', 'p', 'div','h1','h2','h3', 'td');
+  private static $allowed_styleable_tags = array('span', 'p', 'div','h1','h2','h3', 'table', 'td');
 
   /**
    * Constructor for the H5PContentValidator
@@ -3439,6 +3439,9 @@ class H5PContentValidator {
         $tags[] = 's';
       }
 
+      // Sets of allowed stylePatterns for HTML tags
+      $stylePatternSets = array();
+
       // Determine allowed style tags
       $stylePatterns = array();
       // All styles must be start to end patterns (^...$)
@@ -3465,9 +3468,26 @@ class H5PContentValidator {
 
       // Alignment is allowed for all wysiwyg texts
       $stylePatterns[] = '/^text-align: *(center|left|right);?$/i';
+      $stylePatternSets['global'] = $stylePatterns;
+
+      // Fixed style patterns for tables
+      $stylePatternsTable = array();
+      $stylePatternsTable[] = '/^width: *[0-9.]+(em|px|%) *;?$/i';
+      $stylePatternsTable[] = '/^height: *[0-9.]+(em|px|%) *;?$/i';
+      $stylePatternSets['table'] = $stylePatternsTable;
+
+      // Fixed style patterns for table cells
+      $stylePatternsCell = array();
+      $stylePatternsCell[] = '/^width: *[0-9.]+(em|px|%) *;?$/i';
+      $stylePatternsCell[] = '/^height: *[0-9.]+(em|px|%) *;?$/i';
+      $stylePatternsCell[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+      $stylePatternsCell[] = '/^border-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+      $stylePatternsCell[] = '/^vertical-align: *(top|middle|bottom|baseline);?$/i'; // CKEditor options, not complete CSS
+      $stylePatternSets['th'] = $stylePatternsCell;
+      $stylePatternSets['td'] = $stylePatternsCell;
 
       // Strip invalid HTML tags.
-      $text = $this->filter_xss($text, $tags, $stylePatterns);
+      $text = $this->filter_xss($text, $tags, $stylePatternSets);
     }
     else {
       // Filter text to plain text.
@@ -4106,7 +4126,7 @@ class H5PContentValidator {
 
     // Clean up attributes.
 
-    $attr2 = implode(' ', $this->_filter_xss_attributes($attrList, (in_array($elem, self::$allowed_styleable_tags) ? $this->allowedStyles : FALSE)));
+    $attr2 = implode(' ', $this->_filter_xss_attributes($elem, $attrList, (in_array($elem, self::$allowed_styleable_tags) ? $this->allowedStyles : FALSE)));
     $attr2 = preg_replace('/[<>]/', '', $attr2);
     $attr2 = strlen($attr2) ? ' ' . $attr2 : '';
 
@@ -4116,12 +4136,18 @@ class H5PContentValidator {
   /**
    * Processes a string of HTML attributes.
    *
+   * @param string $elem
    * @param $attr
    * @param array|bool|object $allowedStyles
    * @return array Cleaned up version of the HTML attributes.
    * Cleaned up version of the HTML attributes.
    */
-  private function _filter_xss_attributes($attr, $allowedStyles = FALSE) {
+  private function _filter_xss_attributes($elem, $attr, $allowedStyles = FALSE) {
+    $currentAllowedStyles = ($allowedStyles != FALSE) ? $allowedStyles['global'] : [];
+    if (isset($allowedStyles[$elem])) {
+      $currentAllowedStyles = array_merge($currentAllowedStyles, $allowedStyles[$elem]);
+    }
+
     $attrArr = array();
     $mode = 0;
     $attrName = '';
@@ -4162,14 +4188,26 @@ class H5PContentValidator {
           // Attribute value, a URL after href= for instance.
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
             if ($allowedStyles && $attrName === 'style') {
-              // Allow certain styles
-              foreach ($allowedStyles as $pattern) {
-                if (preg_match($pattern, $match[1])) {
-                  // All patterns are start to end patterns, and CKEditor adds one span per style
-                  $attrArr[] = 'style="' . $match[1] . '"';
-                  break;
+
+              // Take care of multiple style properties passed by CKEditor
+              $properties = explode(';', $match[1]);
+              $properties = array_filter($properties, function ($property) use ($currentAllowedStyles) {
+                if (trim($property) == '') {
+                  return false;
                 }
-              }
+
+                // Check style property against allowed patterns
+                foreach ($currentAllowedStyles as $pattern) {
+                  if (preg_match($pattern, trim($property))) {
+                    return true;
+                  }
+                }
+
+                return false;
+              });
+              $properties = implode(';', $properties);
+              $attrArr[] = 'style="' . $properties . '"';
+
               break;
             }
 
