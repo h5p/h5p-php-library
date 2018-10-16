@@ -4497,7 +4497,7 @@ class H5PContentValidator {
         'field' => (object) array(
           'name' => 'change',
           'type' => 'group',
-          'label' => $this->h5pF->t('Change Log'),
+          'label' => $this->h5pF->t('Changelog'),
           'fields' => array(
             (object) array(
               'name' => 'date',
