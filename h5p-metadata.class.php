@@ -128,7 +128,7 @@ abstract class H5PMetadata {
     if (isset($metadataSettings['disable'])) {
       $metadataSettings['disable'] = $metadataSettings['disable'] === 1;
     }
-    if (isset($metadataSettings['disable'])) {
+    if (isset($metadataSettings['disableExtraTitleField'])) {
       $metadataSettings['disableExtraTitleField'] = $metadataSettings['disableExtraTitleField'] === 1;
     }
 
