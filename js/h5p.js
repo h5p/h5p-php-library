@@ -89,7 +89,7 @@ H5P.init = function (target) {
   }
 
   // H5Ps added in normal DIV.
-  var $containers = H5P.jQuery('.h5p-content:not(.h5p-initialized)', target).each(function () {
+  H5P.jQuery('.h5p-content:not(.h5p-initialized)', target).each(function () {
     var $element = H5P.jQuery(this).addClass('h5p-initialized');
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
@@ -301,7 +301,7 @@ H5P.init = function (target) {
         });
 
         // When resize has been prepared tell parent window to resize
-        H5P.communicator.on('resizePrepared', function (data) {
+        H5P.communicator.on('resizePrepared', function () {
           H5P.communicator.send('resize', {
             scrollHeight: document.body.scrollHeight
           });
@@ -494,7 +494,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
   }
 
   var $container = $element;
-  var $classes, $iframe;
+  var $classes, $iframe, $body;
   if (body === undefined)  {
     $body = H5P.$body;
   }
@@ -1089,7 +1089,7 @@ H5P.findCopyrights = function (info, parameters, contentId, extras) {
     }
   }
 
-  function buildFromMetadata (data, name, contentId) {
+  function buildFromMetadata(data, name, contentId) {
     if (data.metadata) {
       const metadataCopyrights = H5P.buildMetadataCopyrights(data.metadata, name);
       if (metadataCopyrights !== undefined) {
@@ -1105,12 +1105,12 @@ H5P.findCopyrights = function (info, parameters, contentId, extras) {
   }
 };
 
-H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
+H5P.buildMetadataCopyrights = function (metadata) {
   if (metadata && metadata.license !== undefined && metadata.license !== 'U') {
     var dataset = {
       contentType: metadata.contentType,
       title: metadata.title,
-      author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function(author) {
+      author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function (author) {
         return (author.role) ? author.name + ' (' + author.role + ')' : author.name;
       }).join(', ') : undefined,
       source: metadata.source,
@@ -1118,7 +1118,7 @@ H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
       license: metadata.license,
       version: metadata.licenseVersion,
       licenseExtras: metadata.licenseExtras,
-      changes: (metadata.changes && metadata.changes.length > 0) ? metadata.changes.map(function(change) {
+      changes: (metadata.changes && metadata.changes.length > 0) ? metadata.changes.map(function (change) {
         return change.log + (change.author ? ', ' + change.author : '') + (change.date ? ', ' + change.date : '');
       }).join(' / ') : undefined
     };
@@ -1181,10 +1181,10 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
     updateEmbed();
 
     // Select text and expand textareas
-    $dialog.find('.h5p-embed-code-container').each(function(index, value) {
-      H5P.jQuery(this).css('height', this.scrollHeight + 'px').focus(function() {
-          H5P.jQuery(this).select();
-        });
+    $dialog.find('.h5p-embed-code-container').each(function () {
+      H5P.jQuery(this).css('height', this.scrollHeight + 'px').focus(function () {
+        H5P.jQuery(this).select();
+      });
     });
     $dialog.find('.h5p-embed-code-container').eq(0).select();
     positionInner();
@@ -1201,7 +1201,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
         $expander.addClass('h5p-open').text(H5P.t('hideAdvanced'));
         $content.show();
       }
-      $dialog.find('.h5p-embed-code-container').each(function(index, value) {
+      $dialog.find('.h5p-embed-code-container').each(function () {
         H5P.jQuery(this).css('height', this.scrollHeight + 'px');
       });
       positionInner();
@@ -1614,7 +1614,8 @@ H5P.Coords = function (x, y, w, h) {
     this.y = x.y;
     this.w = x.w;
     this.h = x.h;
-  } else {
+  }
+  else {
     if (x !== undefined) {
       this.x = x;
     }
@@ -1870,7 +1871,7 @@ H5P.on = function (instance, eventType, handler) {
  * @returns {string} UUID
  */
 H5P.createUUID = function () {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(char) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (char) {
     var random = Math.random()*16|0, newChar = char === 'x' ? random : (random&0x3|0x8);
     return newChar.toString(16);
   });
@@ -2098,7 +2099,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
     }
 
     preloadedData[options.subContentId][dataId] = data;
-    contentUserDataAjax(contentId, dataId, options.subContentId, function (error, data) {
+    contentUserDataAjax(contentId, dataId, options.subContentId, function (error) {
       if (options.errorCallback && error) {
         options.errorCallback(error);
       }
