@@ -2000,6 +2000,10 @@ class H5PCore {
       return $content['filtered'];
     }
 
+    if (!(isset($content['library']) && isset($content['params']))) {
+      return NULL;
+    }
+
     // Validate and filter against main library semantics.
     $validator = new H5PContentValidator($this->h5pF, $this);
     $params = (object) array(
