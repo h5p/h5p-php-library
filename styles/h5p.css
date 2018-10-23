@@ -272,6 +272,7 @@ div.h5p-fullscreen {
   transition: opacity 0.2s;
   background:#000;
   background:rgba(0,0,0,0.75);
+  min-height: 300px;
 }
 .h5p-popup-dialog.h5p-open {
   opacity: 1;

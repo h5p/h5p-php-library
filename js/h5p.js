@@ -955,6 +955,7 @@ H5P.Dialog = function (name, title, content, $element) {
       $dialog.addClass('h5p-open'); // Fade in
       // Triggering an event, in case something has to be done after dialog has been opened.
       H5P.jQuery(self).trigger('dialog-opened', [$dialog]);
+      H5P.instances[0].trigger('resize');
     }, 1);
   };
 
@@ -965,6 +966,7 @@ H5P.Dialog = function (name, title, content, $element) {
     $dialog.removeClass('h5p-open'); // Fade out
     setTimeout(function () {
       $dialog.remove();
+      H5P.instances[0].trigger('resize');
     }, 200);
   };
 };
