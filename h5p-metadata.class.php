@@ -85,13 +85,13 @@ abstract class H5PMetadata {
         continue;
       }
 
-      if (isset($metadata[$key])) {
+      if ($metadata[$key] === null || isset($metadata[$key])) {
         $value = $metadata[$key];
         $db_field_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
 
         switch ($config['type']) {
           case 'text':
-            if (strlen($value) > $config['maxLength']) {
+            if ($value !== null && strlen($value) > $config['maxLength']) {
               $value = mb_substr($value, 0, $config['maxLength']);
             }
             $types[] = '%s';
@@ -103,7 +103,7 @@ abstract class H5PMetadata {
             break;
 
           case 'json':
-            $value = json_encode($value);
+            $value = ($value !== null) ? json_encode($value) : null;
             $types[] = '%s';
             break;
         }
