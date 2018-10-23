@@ -1418,7 +1418,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
 
     for (var i = 0; i < order.length; i++) {
       var fieldName = order[i];
-      if (copyright[fieldName] !== undefined) {
+      if (copyright[fieldName] !== undefined && copyright[fieldName] !== '') {
         var humanValue = copyright[fieldName];
         if (fieldName === 'license') {
           humanValue = humanizeLicense(copyright.license, copyright.version);
