@@ -85,7 +85,7 @@ abstract class H5PMetadata {
         continue;
       }
 
-      if ($metadata[$key] === null || isset($metadata[$key])) {
+      if (array_key_exists($key, $metadata)) {
         $value = $metadata[$key];
         $db_field_name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $key));
 
