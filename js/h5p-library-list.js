@@ -1,5 +1,5 @@
-/* global H5PAdminIntegration H5PUtils */
-var H5PLibraryList = H5PLibraryList || {};
+/*jshint multistr: true */
+var H5PLibraryList = window.H5PLibraryList = window.H5PLibraryList || {};
 
 (function ($) {
 

@@ -1,5 +1,4 @@
-/* global H5PAdminIntegration*/
-var H5PUtils = H5PUtils || {};
+var H5PUtils = window.H5PUtils = window.H5PUtils || {};
 
 (function ($) {
   /**
