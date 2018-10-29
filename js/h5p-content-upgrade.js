@@ -1,4 +1,4 @@
-/*jshint -W083 */
+/* global H5PAdminIntegration H5PUtils */
 
 (function ($, Version) {
   var info, $container, librariesCache = {}, scriptsCache = {};

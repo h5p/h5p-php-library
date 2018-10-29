@@ -21,7 +21,7 @@
     iframe.style.width = '100%';
 
     // Tell iframe that it needs to resize when our window resizes
-    var resize = function (event) {
+    var resize = function () {
       if (iframe.contentWindow) {
         // Limit resize calls to avoid flickering
         respond('resize');
@@ -64,7 +64,7 @@
    * @param {Object} data Payload
    * @param {Function} respond Send a response to the iframe
    */
-  actionHandlers.resize = function (iframe, data, respond) {
+  actionHandlers.resize = function (iframe, data) {
     // Resize iframe so all content is visible. Use scrollHeight to make sure we get everything
     iframe.style.height = data.scrollHeight + 'px';
   };
