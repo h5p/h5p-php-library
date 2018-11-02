@@ -3402,8 +3402,14 @@ class H5PContentValidator {
    */
   public function validateMetadata($metadata) {
     $semantics = $this->getMetadataSemantics();
-
     $group = (object)$metadata;
+
+    // Stop complaining about "invalid selected option in select" for
+    // old content without license chosen.
+    if (!isset($group->license)) {
+      $group->license = 'U';
+    }
+
     $this->validateGroup($group, (object) array(
       'type' => 'group',
       'fields' => $semantics,
