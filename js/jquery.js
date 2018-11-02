@@ -13,3 +13,8 @@ var H5P = window.H5P = window.H5P || {};
  * @member
  */
 H5P.jQuery = jQuery.noConflict(true);
+H5P.jQuery.ajaxPrefilter(function (s) {
+  if (s.crossDomain) {
+    s.contents.script = false;
+  }
+});
