@@ -1864,7 +1864,7 @@ class H5PCore {
     'js/h5p-utils.js',
   );
 
-  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 wav txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile vtt webvtt';
+  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 m4a wav txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile vtt webvtt';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
   public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $h5pD, $disableFileCheck;
@@ -3402,8 +3402,14 @@ class H5PContentValidator {
    */
   public function validateMetadata($metadata) {
     $semantics = $this->getMetadataSemantics();
-
     $group = (object)$metadata;
+
+    // Stop complaining about "invalid selected option in select" for
+    // old content without license chosen.
+    if (!isset($group->license)) {
+      $group->license = 'U';
+    }
+
     $this->validateGroup($group, (object) array(
       'type' => 'group',
       'fields' => $semantics,

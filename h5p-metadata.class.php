@@ -90,7 +90,7 @@ abstract class H5PMetadata {
       $exists = array_key_exists($key, $metadata);
 
       // Don't include missing fields
-      if (!$include_missing && !exists) {
+      if (!$include_missing && !$exists) {
         continue;
       }
 
