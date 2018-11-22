@@ -20,6 +20,10 @@
     // Make iframe responsive
     iframe.style.width = '100%';
 
+    // Bugfix for Chrome: Force update of iframe width. If this is not done the
+    // document size may not be updated before the content resizes.
+    iframe.getBoundingClientRect();
+
     // Tell iframe that it needs to resize when our window resizes
     var resize = function () {
       if (iframe.contentWindow) {
