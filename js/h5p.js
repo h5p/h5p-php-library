@@ -923,7 +923,7 @@ H5P.Dialog = function (name, title, content, $element) {
                               <div class="h5p-inner">\
                                 <h2>' + title + '</h2>\
                                 <div class="h5p-scroll-content">' + content + '</div>\
-                                <div class="h5p-close" role="button" tabindex="0" title="' + H5P.t('close') + '">\
+                                <div class="h5p-close" role="button" tabindex="0" aria-label="' + H5P.t('close') + '" title="' + H5P.t('close') + '">\
                               </div>\
                             </div>')
     .insertAfter($element)

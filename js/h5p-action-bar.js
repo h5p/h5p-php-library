@@ -51,7 +51,7 @@ H5P.ActionBar = (function ($, EventDispatcher) {
           }
         },
         appendTo: $actions
-      });
+      }).attr('aria-label', H5P.t(type + 'Description'));
 
       hasActions = true;
     };
