@@ -139,6 +139,7 @@ H5P.init = function (target) {
           '<div role="button" ' +
                 'tabindex="0" ' +
                 'class="h5p-enable-fullscreen" ' +
+                'aria-label="' + H5P.t('fullscreen') +
                 'title="' + H5P.t('fullscreen') + '">' +
           '</div>' +
         '</div>')
@@ -568,7 +569,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     }
 
     before('h5p-semi-fullscreen');
-    var $disable = H5P.jQuery('<div role="button" tabindex="0" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
+    var $disable = H5P.jQuery('<div role="button" tabindex="0" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '" aria-label="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
     var keyup, disableSemiFullscreen = H5P.exitFullScreen = function () {
       if (prevViewportContent) {
         // Use content from the previous viewport tag
