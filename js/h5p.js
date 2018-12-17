@@ -139,14 +139,14 @@ H5P.init = function (target) {
           '<div role="button" ' +
                 'tabindex="0" ' +
                 'class="h5p-enable-fullscreen" ' +
+                'aria-label="' + H5P.t('fullscreen') +
                 'title="' + H5P.t('fullscreen') + '">' +
           '</div>' +
         '</div>')
         .prependTo($container)
-          .children()
-          .click(function () {
-            H5P.fullScreen($container, instance);
-          })
+        .children().click(function () {
+          H5P.fullScreen($container, instance);
+        })
         .keydown(function (e) {
           if (e.which === 32 || e.which === 13) {
             H5P.fullScreen($container, instance);
@@ -214,7 +214,7 @@ H5P.init = function (target) {
 
     // Auto save current state if supported
     if (H5PIntegration.saveFreq !== false && (
-        instance.getCurrentState instanceof Function ||
+      instance.getCurrentState instanceof Function ||
         typeof instance.getCurrentState === 'function')) {
 
       var saveTimer, save = function () {
@@ -569,7 +569,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     }
 
     before('h5p-semi-fullscreen');
-    var $disable = H5P.jQuery('<div role="button" tabindex="0" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
+    var $disable = H5P.jQuery('<div role="button" tabindex="0" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '" aria-label="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
     var keyup, disableSemiFullscreen = H5P.exitFullScreen = function () {
       if (prevViewportContent) {
         // Use content from the previous viewport tag
@@ -924,27 +924,22 @@ H5P.Dialog = function (name, title, content, $element) {
                               <div class="h5p-inner">\
                                 <h2>' + title + '</h2>\
                                 <div class="h5p-scroll-content">' + content + '</div>\
-                                <div class="h5p-close" role="button" tabindex="0" title="' + H5P.t('close') + '">\
+                                <div class="h5p-close" role="button" tabindex="0" aria-label="' + H5P.t('close') + '" title="' + H5P.t('close') + '">\
                               </div>\
                             </div>')
     .insertAfter($element)
     .click(function () {
       self.close();
     })
-    .children('.h5p-inner')
-      .click(function () {
-        return false;
-      })
-      .find('.h5p-close')
-        .click(function () {
-          self.close();
-        })
-        .end()
-      .find('a')
-        .click(function (e) {
-          e.stopPropagation();
-        })
-      .end()
+    .children('.h5p-inner').click(function () {
+      return false;
+    })
+    .find('.h5p-close').click(function () {
+      self.close();
+    }).end()
+    .find('a').click(function (e) {
+      e.stopPropagation();
+    }).end()
     .end();
 
   /**
