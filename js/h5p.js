@@ -2208,22 +2208,12 @@ H5P.createTitle = function (rawTitle, maxLength) {
   };
 
   /**
-   * This is a cache for pasted data to prevent parsing multiple times.
-   * @type {Object}
-   */
-  var parsedClipboard = null;
-
-  /**
    * Retrieve parsed clipboard data.
    *
    * @return {Object}
    */
   H5P.getClipboard = function () {
-    if (!parsedClipboard) {
-      parsedClipboard = parseClipboard();
-    }
-
-    return parsedClipboard;
+    return parseClipboard();
   };
 
   /**
@@ -2233,9 +2223,6 @@ H5P.createTitle = function (rawTitle, maxLength) {
    */
   H5P.setClipboard = function (clipboardItem) {
     localStorage.setItem('h5pClipboard', JSON.stringify(clipboardItem));
-
-    // Clear cache
-    parsedClipboard = null;
 
     // Trigger an event so all 'Paste' buttons may be enabled.
     H5P.externalDispatcher.trigger('datainclipboard', {reset: false});
@@ -2332,9 +2319,6 @@ H5P.createTitle = function (rawTitle, maxLength) {
     window.addEventListener('storage', function (event) {
       // Pick up clipboard changes from other tabs
       if (event.key === 'h5pClipboard') {
-        // Clear cache
-        parsedClipboard = null;
-
         // Trigger an event so all 'Paste' buttons may be enabled.
         H5P.externalDispatcher.trigger('datainclipboard', {reset: event.newValue === null});
       }
