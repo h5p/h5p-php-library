@@ -144,9 +144,10 @@ H5P.init = function (target) {
           '</div>' +
         '</div>')
         .prependTo($container)
-        .children().click(function () {
-          H5P.fullScreen($container, instance);
-        })
+          .children()
+          .click(function () {
+            H5P.fullScreen($container, instance);
+          })
         .keydown(function (e) {
           if (e.which === 32 || e.which === 13) {
             H5P.fullScreen($container, instance);
@@ -214,7 +215,7 @@ H5P.init = function (target) {
 
     // Auto save current state if supported
     if (H5PIntegration.saveFreq !== false && (
-      instance.getCurrentState instanceof Function ||
+        instance.getCurrentState instanceof Function ||
         typeof instance.getCurrentState === 'function')) {
 
       var saveTimer, save = function () {
@@ -931,15 +932,20 @@ H5P.Dialog = function (name, title, content, $element) {
     .click(function () {
       self.close();
     })
-    .children('.h5p-inner').click(function () {
-      return false;
-    })
-    .find('.h5p-close').click(function () {
-      self.close();
-    }).end()
-    .find('a').click(function (e) {
-      e.stopPropagation();
-    }).end()
+    .children('.h5p-inner')
+      .click(function () {
+        return false;
+      })
+      .find('.h5p-close')
+        .click(function () {
+          self.close();
+        })
+        .end()
+      .find('a')
+        .click(function (e) {
+          e.stopPropagation();
+        })
+      .end()
     .end();
 
   /**
