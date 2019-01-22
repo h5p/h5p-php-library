@@ -199,4 +199,14 @@ interface H5PFileStorage {
    * @return bool
    */
   public function hasPresave($libraryName, $developmentPath = null);
+
+  /**
+   * Check if upgrades script exist for library.
+   *
+   * @param string $machineName
+   * @param int $majorVersion
+   * @param int $minorVersion
+   * @return string Relative path
+   */
+  public function getUpgradeScript($machineName, $majorVersion, $minorVersion);
 }

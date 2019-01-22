@@ -614,6 +614,14 @@ interface H5PFrameworkInterface {
    *  containing the new content type cache that should replace the old one.
    */
   public function replaceContentTypeCache($contentTypeCache);
+
+  /**
+   * Checks if the given library has a higher version.
+   *
+   * @param array $library
+   * @return boolean
+   */
+  public function libraryHasUpgrade($library);
 }
 
 /**
@@ -919,11 +927,27 @@ class H5PValidator {
       }
 
       if (!empty($missingLibraries)) {
-        foreach ($missingLibraries as $libString => $library) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $libString)), 'missing-required-library');
+        // We still have missing libraries, check if our main library has an upgrade (BUT only if we has content)
+        $mainDependency = NULL;
+        if (!$skipContent) {
+          foreach ($mainH5PData['preloadedDependencies'] as $dep) {
+            if ($dep['machineName'] === $mainH5PData['mainLibrary']) {
+              $mainDependency = $dep;
+            }
+          }
         }
-        if (!$this->h5pC->mayUpdateLibraries()) {
-          $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
+
+        if ($skipContent || !$mainDependency || !$this->h5pF->libraryHasUpgrade(array(
+              'machineName' => $mainDependency['mainLibrary'],
+              'majorVersion' => $mainDependency['majorVersion'],
+              'minorVersion' => $mainDependency['minorVersion']
+            ))) {
+          foreach ($missingLibraries as $libString => $library) {
+            $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $libString)), 'missing-required-library');
+          }
+          if (!$this->h5pC->mayUpdateLibraries()) {
+            $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
+          }
         }
       }
       $valid = empty($missingLibraries) && $valid;
@@ -1394,15 +1418,23 @@ class H5PStorage {
       if (isset($options['disable'])) {
         $content['disable'] = $options['disable'];
       }
-      $content['id'] = $this->h5pC->saveContent($content, $contentMainId);
-      $this->contentId = $content['id'];
 
       try {
+        // Store content in database
+        $content['id'] = $this->h5pC->saveContent($content, $contentMainId);
+        $this->contentId = $content['id'];
+
         // Save content folder contents
         $this->h5pC->fs->saveContent($current_path, $content);
       }
       catch (Exception $e) {
-        $this->h5pF->setErrorMessage($e->getMessage(), 'save-content-failed');
+        if ($e instanceof H5PSaveContentOutdatedLibraryException) {
+          $message = $this->h5pF->t("You're trying to upload content of an older version of H5P. Please upgrade the content on the server it originated from and try to upload again or turn on the H5P Hub to have this server upgrade it for your automaticall.");
+        }
+        else {
+          $message = $e->getMessage();
+        }
+        $this->h5pF->setErrorMessage($message, 'save-content-failed');
       }
 
       // Remove temp content folder
@@ -1922,8 +1954,6 @@ class H5PCore {
     $this->relativePathRegExp = '/^((\.\.\/){1,2})(.*content\/)?(\d+|editor)\/(.+)$/';
   }
 
-
-
   /**
    * Save content and clear cache.
    *
@@ -1932,6 +1962,13 @@ class H5PCore {
    * @return int Content ID
    */
   public function saveContent($content, $contentMainId = NULL) {
+
+    // Check that this is the latest version of the content type we have
+    if ($this->h5pF->libraryHasUpgrade($content['library'])) {
+      // We do not allow storing old content due to security concerns
+       throw new \H5PSaveContentOutdatedLibraryException($this->h5pF->t('Something unexpected happened. We were unable to save this content.'));
+    }
+
     if (isset($content['id'])) {
       $this->h5pF->updateContent($content, $contentMainId);
     }
