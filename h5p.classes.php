@@ -537,9 +537,10 @@ interface H5PFrameworkInterface {
    * Get number of contents using library as main library.
    *
    * @param int $libraryId
+   * @param array $skip
    * @return int
    */
-  public function getNumContent($libraryId);
+  public function getNumContent($libraryId, $skip = NULL);
 
   /**
    * Determines if content slug is used.

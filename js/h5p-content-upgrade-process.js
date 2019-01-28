@@ -27,6 +27,7 @@ H5P.ContentUpgradeProcess = (function (Version) {
     self.loadLibrary = loadLibrary;
     self.upgrade(name, oldVersion, newVersion, params.params, params.metadata, function (err, upgradedParams, upgradedMetadata) {
       if (err) {
+        err.id = id;
         return done(err);
       }
 
@@ -176,7 +177,11 @@ H5P.ContentUpgradeProcess = (function (Version) {
             var usedVer = new Version(usedLib[1]);
             var availableVer = new Version(availableLib[1]);
             if (usedVer.major > availableVer.major || (usedVer.major === availableVer.major && usedVer.minor >= availableVer.minor)) {
-              return done(); // Larger or same version that's available
+              return done({
+                type: 'errorTooHighVersion',
+                used: usedLib[0] + ' ' + usedVer,
+                supported: availableLib[0] + ' ' + availableVer
+              }); // Larger or same version that's available
             }
 
             // A newer version is available, upgrade params
@@ -192,7 +197,12 @@ H5P.ContentUpgradeProcess = (function (Version) {
             });
           }
         }
-        done();
+
+        // Content type was not supporte by the higher version
+        done({
+          type: 'errorNotSupported',
+          used: usedLib[0] + ' ' + usedVer
+        });
         break;
 
       case 'group':
