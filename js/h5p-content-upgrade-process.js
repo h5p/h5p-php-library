@@ -54,6 +54,12 @@ H5P.ContentUpgradeProcess = (function (Version) {
       if (err) {
         return done(err);
       }
+      if (library.semantics === null) {
+        return done({
+          type: 'libraryMissing',
+          library: library.name + ' ' + library.version.major + '.' + library.version.minor
+        });
+      }
 
       // Run upgrade routines on params
       self.processParams(library, oldVersion, newVersion, params, metadata, function (err, params, metadata) {

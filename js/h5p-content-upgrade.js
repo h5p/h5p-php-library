@@ -422,6 +422,10 @@
         error = info.errorContent.replace('%id', error.id) + ' ' + info.errorParamsBroken;
         break;
 
+      case 'libraryMissing':
+        error = info.errorLibrary.replace('%lib', error.library);
+        break;
+
       case 'scriptMissing':
         error = info.errorScript.replace('%lib', error.library);
         break;
