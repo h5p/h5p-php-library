@@ -1419,23 +1419,15 @@ class H5PStorage {
       if (isset($options['disable'])) {
         $content['disable'] = $options['disable'];
       }
+      $content['id'] = $this->h5pC->saveContent($content, $contentMainId);
+      $this->contentId = $content['id'];
 
       try {
-        // Store content in database
-        $content['id'] = $this->h5pC->saveContent($content, $contentMainId);
-        $this->contentId = $content['id'];
-
         // Save content folder contents
         $this->h5pC->fs->saveContent($current_path, $content);
       }
       catch (Exception $e) {
-        if ($e instanceof H5PSaveContentOutdatedLibraryException) {
-          $message = $this->h5pF->t("You're trying to upload content of an older version of H5P. Please upgrade the content on the server it originated from and try to upload again or turn on the H5P Hub to have this server upgrade it for your automaticall.");
-        }
-        else {
-          $message = $e->getMessage();
-        }
-        $this->h5pF->setErrorMessage($message, 'save-content-failed');
+        $this->h5pF->setErrorMessage($e->getMessage(), 'save-content-failed');
       }
 
       // Remove temp content folder
@@ -1963,13 +1955,6 @@ class H5PCore {
    * @return int Content ID
    */
   public function saveContent($content, $contentMainId = NULL) {
-
-    // Check that this is the latest version of the content type we have
-    if ($this->h5pF->libraryHasUpgrade($content['library'])) {
-      // We do not allow storing old content due to security concerns
-       throw new \H5PSaveContentOutdatedLibraryException($this->h5pF->t('Something unexpected happened. We were unable to save this content.'));
-    }
-
     if (isset($content['id'])) {
       $this->h5pF->updateContent($content, $contentMainId);
     }
