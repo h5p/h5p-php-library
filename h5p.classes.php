@@ -930,7 +930,7 @@ class H5PValidator {
       if (!empty($missingLibraries)) {
         // We still have missing libraries, check if our main library has an upgrade (BUT only if we has content)
         $mainDependency = NULL;
-        if (!$skipContent) {
+        if (!$skipContent && !empty($mainH5PData)) {
           foreach ($mainH5PData['preloadedDependencies'] as $dep) {
             if ($dep['machineName'] === $mainH5PData['mainLibrary']) {
               $mainDependency = $dep;
