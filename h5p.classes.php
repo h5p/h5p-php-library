@@ -210,7 +210,9 @@ interface H5PFrameworkInterface {
    *   - minorVersion: The library's minorVersion
    *   - patchVersion: The library's patchVersion
    *   - runnable: 1 if the library is a content type, 0 otherwise
-   *   - metadata: 1 if the library should support setting metadata (copyright etc)
+   *   - metadataSettings: Associative array containing:
+   *      - disable: 1 if the library should not support setting metadata (copyright etc)
+   *      - disableExtraTitleField: 1 if the library don't need the extra title field
    *   - fullscreen(optional): 1 if the library supports fullscreen, 0 otherwise
    *   - embedTypes(optional): list of supported embed types
    *   - preloadedJs(optional): list of associative arrays containing:
@@ -535,9 +537,10 @@ interface H5PFrameworkInterface {
    * Get number of contents using library as main library.
    *
    * @param int $libraryId
+   * @param array $skip
    * @return int
    */
-  public function getNumContent($libraryId);
+  public function getNumContent($libraryId, $skip = NULL);
 
   /**
    * Determines if content slug is used.
@@ -612,6 +615,14 @@ interface H5PFrameworkInterface {
    *  containing the new content type cache that should replace the old one.
    */
   public function replaceContentTypeCache($contentTypeCache);
+
+  /**
+   * Checks if the given library has a higher version.
+   *
+   * @param array $library
+   * @return boolean
+   */
+  public function libraryHasUpgrade($library);
 }
 
 /**
@@ -648,7 +659,7 @@ class H5PValidator {
       'role' => '/^\w+$/',
     ),
     'source' => '/^(http[s]?:\/\/.+)$/',
-    'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|CC0 1\.0|GNU GPL|PD|ODC PDDL|CC PDM|U|C|cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
+    'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|CC0 1\.0|GNU GPL|PD|ODC PDDL|CC PDM|U|C)$/',
     'licenseVersion' => '/^(1\.0|2\.0|2\.5|3\.0|4\.0)$/',
     'licenseExtras' => '/^.{1,5000}$/',
     'yearsFrom' => '/^([0-9]{1,4})$/',
@@ -681,7 +692,10 @@ class H5PValidator {
     'author' => '/^.{1,255}$/',
     'license' => '/^(cc-by|cc-by-sa|cc-by-nd|cc-by-nc|cc-by-nc-sa|cc-by-nc-nd|pd|cr|MIT|GPL1|GPL2|GPL3|MPL|MPL2)$/',
     'description' => '/^.{1,}$/',
-    'metadata' => '/^(0|1)$/',
+    'metadataSettings' => array(
+      'disable' => '/^(0|1)$/',
+      'disableExtraTitleField' => '/^(0|1)$/'
+    ),
     'dynamicDependencies' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
       'majorVersion' => '/^[0-9]{1,5}$/',
@@ -914,11 +928,27 @@ class H5PValidator {
       }
 
       if (!empty($missingLibraries)) {
-        foreach ($missingLibraries as $libString => $library) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $libString)), 'missing-required-library');
+        // We still have missing libraries, check if our main library has an upgrade (BUT only if we has content)
+        $mainDependency = NULL;
+        if (!$skipContent && !empty($mainH5PData)) {
+          foreach ($mainH5PData['preloadedDependencies'] as $dep) {
+            if ($dep['machineName'] === $mainH5PData['mainLibrary']) {
+              $mainDependency = $dep;
+            }
+          }
         }
-        if (!$this->h5pC->mayUpdateLibraries()) {
-          $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
+
+        if ($skipContent || !$mainDependency || !$this->h5pF->libraryHasUpgrade(array(
+              'machineName' => $mainDependency['mainLibrary'],
+              'majorVersion' => $mainDependency['majorVersion'],
+              'minorVersion' => $mainDependency['minorVersion']
+            ))) {
+          foreach ($missingLibraries as $libString => $library) {
+            $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $libString)), 'missing-required-library');
+          }
+          if (!$this->h5pC->mayUpdateLibraries()) {
+            $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
+          }
         }
       }
       $valid = empty($missingLibraries) && $valid;
@@ -1440,10 +1470,11 @@ class H5PStorage {
       // Indicate that the dependencies of this library should be saved.
       $library['saveDependencies'] = TRUE;
 
-      // Save library meta data
-      if (!isset($library['metadata'])) {
-        $library['metadata'] = 0;
-      }
+      // Convert metadataSettings values to boolean & json_encode it before saving
+      $library['metadataSettings'] = isset($library['metadataSettings']) ?
+        H5PMetadata::boolifyAndEncodeSettings($library['metadataSettings']) :
+        NULL;
+
       $this->h5pF->saveLibraryData($library, $new);
 
       // Save library folder
@@ -1593,6 +1624,16 @@ Class H5PExport {
   }
 
   /**
+   * Reverts the replace pattern used by the text editor
+   *
+   * @param string $value
+   * @return string
+   */
+  private static function revertH5PEditorTextEscape($value) {
+    return str_replace('&lt;', '<', str_replace('&gt;', '>', str_replace('&#039;', "'", str_replace('&quot;', '"', $value))));
+  }
+
+  /**
    * Return path to h5p package.
    *
    * Creates package if not already created
@@ -1624,14 +1665,14 @@ Class H5PExport {
 
     // Build h5p.json, the en-/de-coding will ensure proper escaping
     $h5pJson = array (
-      'title' => $content['title'],
+      'title' => self::revertH5PEditorTextEscape($content['title']),
       'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
       'mainLibrary' => $content['library']['name'],
       'embedTypes' => $embedTypes
     );
 
     foreach(array('authors', 'source', 'license', 'licenseVersion', 'licenseExtras' ,'yearFrom', 'yearTo', 'changes', 'authorComments') as $field) {
-      if (isset($content['metadata'][$field])) {
+      if (isset($content['metadata'][$field]) && $content['metadata'][$field] !== '') {
         if (($field !== 'authors' && $field !== 'changes') || (count($content['metadata'][$field]) > 0)) {
           $h5pJson[$field] = json_decode(json_encode($content['metadata'][$field], TRUE));
         }
@@ -1826,7 +1867,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 19
+    'minorVersion' => 20
   );
   public static $styles = array(
     'styles/h5p.css',
@@ -1848,7 +1889,7 @@ class H5PCore {
     'js/h5p-utils.js',
   );
 
-  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 wav txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile vtt webvtt';
+  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff svg eot ttf woff woff2 otf webm mp4 ogg mp3 m4a wav txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp xml csv diff patch swf md textile vtt webvtt';
   public static $defaultLibraryWhitelistExtras = 'js css';
 
   public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $h5pD, $disableFileCheck;
@@ -1906,8 +1947,6 @@ class H5PCore {
     $this->relativePathRegExp = '/^((\.\.\/){1,2})(.*content\/)?(\d+|editor)\/(.+)$/';
   }
 
-
-
   /**
    * Save content and clear cache.
    *
@@ -1941,7 +1980,7 @@ class H5PCore {
     if ($content !== NULL) {
       // Validate main content's metadata
       $validator = new H5PContentValidator($this->h5pF, $this);
-      $validator->validateMetadata($content['metadata']);
+      $content['metadata'] = $validator->validateMetadata($content['metadata']);
 
       $content['library'] = array(
         'id' => $content['libraryId'],
@@ -1982,6 +2021,10 @@ class H5PCore {
          ($content['slug'] &&
           $this->fs->hasExport($content['slug'] . '-' . $content['id'] . '.h5p')))) {
       return $content['filtered'];
+    }
+
+    if (!(isset($content['library']) && isset($content['params']))) {
+      return NULL;
     }
 
     // Validate and filter against main library semantics.
@@ -3301,7 +3344,10 @@ class H5PCore {
       'licensePD' => $this->h5pF->t('Public Domain'),
       'licenseCC010' => $this->h5pF->t('CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'),
       'licensePDM' => $this->h5pF->t('Public Domain Mark'),
-      'licenseC' => $this->h5pF->t('Copyright')
+      'licenseC' => $this->h5pF->t('Copyright'),
+      'contentType' => $this->h5pF->t('Content Type'),
+      'licenseExtras' => $this->h5pF->t('License Extras'),
+      'changes' => $this->h5pF->t('Changelog'),
     );
   }
 }
@@ -3375,15 +3421,24 @@ class H5PContentValidator {
    * Validate metadata
    *
    * @param array $metadata
+   * @return array Validated & filtered
    */
-  public function validateMetadata(&$metadata) {
+  public function validateMetadata($metadata) {
     $semantics = $this->getMetadataSemantics();
-
     $group = (object)$metadata;
+
+    // Stop complaining about "invalid selected option in select" for
+    // old content without license chosen.
+    if (!isset($group->license)) {
+      $group->license = 'U';
+    }
+
     $this->validateGroup($group, (object) array(
       'type' => 'group',
       'fields' => $semantics,
     ), FALSE);
+
+    return (array)$group;
   }
 
   /**
@@ -3910,7 +3965,7 @@ class H5PContentValidator {
 
     // Validate subcontent's metadata
     if (isset($value->metadata)) {
-      $this->validateMetadata($value->metadata);
+      $value->metadata = $this->validateMetadata($value->metadata);
     }
 
     $validKeys = array('library', 'params', 'subContentId', 'metadata');
@@ -4330,7 +4385,7 @@ class H5PContentValidator {
           (object) array(
             'type' => 'optgroup',
             'label' => $this->h5pF->t('Creative Commons'),
-            'options' => [
+            'options' => array(
               (object) array(
                 'value' => 'CC BY',
                 'label' => $this->h5pF->t('Attribution (CC BY)'),
@@ -4369,7 +4424,7 @@ class H5PContentValidator {
                 'value' => 'CC PDM',
                 'label' => $this->h5pF->t('Public Domain Mark (PDM)')
               ),
-            ]
+            )
           ),
           (object) array(
             'value' => 'GNU GPL',
@@ -4475,7 +4530,7 @@ class H5PContentValidator {
         'field' => (object) array(
           'name' => 'change',
           'type' => 'group',
-          'label' => $this->h5pF->t('Change Log'),
+          'label' => $this->h5pF->t('Changelog'),
           'fields' => array(
             (object) array(
               'name' => 'date',
@@ -4507,7 +4562,12 @@ class H5PContentValidator {
         'label' => $this->h5pF->t('Author comments'),
         'description' => $this->h5pF->t('Comments for the editor of the content (This text will not be published as a part of copyright info)'),
         'optional' => TRUE
-      )
+      ),
+      (object) array(
+        'name' => 'contentType',
+        'type' => 'text',
+        'widget' => 'none'
+      ),
     );
 
     return $semantics;

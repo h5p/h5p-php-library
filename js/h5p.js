@@ -75,8 +75,9 @@ H5P.init = function (target) {
      * @type {boolean}
      */
     H5P.fullscreenSupported = !(H5P.isFramed && H5P.externalEmbed !== false) || !!(document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled);
-    // We should consider document.msFullscreenEnabled when they get their
-    // element sizing corrected. Ref. https://connect.microsoft.com/IE/feedback/details/838286/ie-11-incorrectly-reports-dom-element-sizes-in-fullscreen-mode-when-fullscreened-element-is-within-an-iframe
+    // -We should consider document.msFullscreenEnabled when they get their
+    // -element sizing corrected. Ref. https://connect.microsoft.com/IE/feedback/details/838286/ie-11-incorrectly-reports-dom-element-sizes-in-fullscreen-mode-when-fullscreened-element-is-within-an-iframe
+    // Update: Seems to be no need as they've moved on to Webkit
   }
 
   // Deprecated variable, kept to maintain backwards compatability
@@ -89,7 +90,7 @@ H5P.init = function (target) {
   }
 
   // H5Ps added in normal DIV.
-  var $containers = H5P.jQuery('.h5p-content:not(.h5p-initialized)', target).each(function () {
+  H5P.jQuery('.h5p-content:not(.h5p-initialized)', target).each(function () {
     var $element = H5P.jQuery(this).addClass('h5p-initialized');
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
@@ -139,6 +140,7 @@ H5P.init = function (target) {
           '<div role="button" ' +
                 'tabindex="0" ' +
                 'class="h5p-enable-fullscreen" ' +
+                'aria-label="' + H5P.t('fullscreen') +
                 'title="' + H5P.t('fullscreen') + '">' +
           '</div>' +
         '</div>')
@@ -301,7 +303,7 @@ H5P.init = function (target) {
         });
 
         // When resize has been prepared tell parent window to resize
-        H5P.communicator.on('resizePrepared', function (data) {
+        H5P.communicator.on('resizePrepared', function () {
           H5P.communicator.send('resize', {
             scrollHeight: document.body.scrollHeight
           });
@@ -494,7 +496,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
   }
 
   var $container = $element;
-  var $classes, $iframe;
+  var $classes, $iframe, $body;
   if (body === undefined)  {
     $body = H5P.$body;
   }
@@ -569,7 +571,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     }
 
     before('h5p-semi-fullscreen');
-    var $disable = H5P.jQuery('<div role="button" tabindex="0" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
+    var $disable = H5P.jQuery('<div role="button" tabindex="0" class="h5p-disable-fullscreen" title="' + H5P.t('disableFullscreen') + '" aria-label="' + H5P.t('disableFullscreen') + '"></div>').appendTo($container.find('.h5p-content-controls'));
     var keyup, disableSemiFullscreen = H5P.exitFullScreen = function () {
       if (prevViewportContent) {
         // Use content from the previous viewport tag
@@ -924,7 +926,7 @@ H5P.Dialog = function (name, title, content, $element) {
                               <div class="h5p-inner">\
                                 <h2>' + title + '</h2>\
                                 <div class="h5p-scroll-content">' + content + '</div>\
-                                <div class="h5p-close" role="button" tabindex="0" title="' + H5P.t('close') + '">\
+                                <div class="h5p-close" role="button" tabindex="0" aria-label="' + H5P.t('close') + '" title="' + H5P.t('close') + '"></div>\
                               </div>\
                             </div>')
     .insertAfter($element)
@@ -1089,7 +1091,7 @@ H5P.findCopyrights = function (info, parameters, contentId, extras) {
     }
   }
 
-  function buildFromMetadata (data, name, contentId) {
+  function buildFromMetadata(data, name, contentId) {
     if (data.metadata) {
       const metadataCopyrights = H5P.buildMetadataCopyrights(data.metadata, name);
       if (metadataCopyrights !== undefined) {
@@ -1105,11 +1107,12 @@ H5P.findCopyrights = function (info, parameters, contentId, extras) {
   }
 };
 
-H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
+H5P.buildMetadataCopyrights = function (metadata) {
   if (metadata && metadata.license !== undefined && metadata.license !== 'U') {
     var dataset = {
+      contentType: metadata.contentType,
       title: metadata.title,
-      author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function(author) {
+      author: (metadata.authors && metadata.authors.length > 0) ? metadata.authors.map(function (author) {
         return (author.role) ? author.name + ' (' + author.role + ')' : author.name;
       }).join(', ') : undefined,
       source: metadata.source,
@@ -1117,24 +1120,12 @@ H5P.buildMetadataCopyrights = function (metadata, contentTypeName) {
       license: metadata.license,
       version: metadata.licenseVersion,
       licenseExtras: metadata.licenseExtras,
-      changes: (metadata.changes && metadata.changes.length > 0) ? metadata.changes.map(function(change) {
+      changes: (metadata.changes && metadata.changes.length > 0) ? metadata.changes.map(function (change) {
         return change.log + (change.author ? ', ' + change.author : '') + (change.date ? ', ' + change.date : '');
       }).join(' / ') : undefined
     };
 
-    if (contentTypeName) {
-      contentTypeName = contentTypeName
-        .split(' ')[0]
-        .replace(/^H5P\./, '')
-        .replace(/([a-z])([A-Z])/g, '$1' + ' ' + '$2');
-    }
-
-    return new H5P.MediaCopyright(
-      dataset,
-      {type: 'Content type', licenseExtras: 'License extras', changes: 'Changelog'},
-      ['type', 'title', 'license', 'author', 'year', 'source', 'licenseExtras', 'changes'],
-      {type: contentTypeName}
-    );
+    return new H5P.MediaCopyright(dataset);
   }
 };
 
@@ -1192,10 +1183,10 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
     updateEmbed();
 
     // Select text and expand textareas
-    $dialog.find('.h5p-embed-code-container').each(function(index, value) {
-      H5P.jQuery(this).css('height', this.scrollHeight + 'px').focus(function() {
-          H5P.jQuery(this).select();
-        });
+    $dialog.find('.h5p-embed-code-container').each(function () {
+      H5P.jQuery(this).css('height', this.scrollHeight + 'px').focus(function () {
+        H5P.jQuery(this).select();
+      });
     });
     $dialog.find('.h5p-embed-code-container').eq(0).select();
     positionInner();
@@ -1212,7 +1203,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
         $expander.addClass('h5p-open').text(H5P.t('hideAdvanced'));
         $content.show();
       }
-      $dialog.find('.h5p-embed-code-container').each(function(index, value) {
+      $dialog.find('.h5p-embed-code-container').each(function () {
         H5P.jQuery(this).css('height', this.scrollHeight + 'px');
       });
       positionInner();
@@ -1424,12 +1415,12 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
 
     if (order === undefined) {
       // Set default order
-      order = ['title', 'author', 'year', 'source', 'license'];
+      order = ['contentType', 'title', 'license', 'author', 'year', 'source', 'licenseExtras', 'changes'];
     }
 
     for (var i = 0; i < order.length; i++) {
       var fieldName = order[i];
-      if (copyright[fieldName] !== undefined) {
+      if (copyright[fieldName] !== undefined && copyright[fieldName] !== '') {
         var humanValue = copyright[fieldName];
         if (fieldName === 'license') {
           humanValue = humanizeLicense(copyright.license, copyright.version);
@@ -1625,7 +1616,8 @@ H5P.Coords = function (x, y, w, h) {
     this.y = x.y;
     this.w = x.w;
     this.h = x.h;
-  } else {
+  }
+  else {
     if (x !== undefined) {
       this.x = x;
     }
@@ -1881,7 +1873,7 @@ H5P.on = function (instance, eventType, handler) {
  * @returns {string} UUID
  */
 H5P.createUUID = function () {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(char) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (char) {
     var random = Math.random()*16|0, newChar = char === 'x' ? random : (random&0x3|0x8);
     return newChar.toString(16);
   });
@@ -2109,7 +2101,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
     }
 
     preloadedData[options.subContentId][dataId] = data;
-    contentUserDataAjax(contentId, dataId, options.subContentId, function (error, data) {
+    contentUserDataAjax(contentId, dataId, options.subContentId, function (error) {
       if (options.errorCallback && error) {
         options.errorCallback(error);
       }
@@ -2223,22 +2215,12 @@ H5P.createTitle = function (rawTitle, maxLength) {
   };
 
   /**
-   * This is a cache for pasted data to prevent parsing multiple times.
-   * @type {Object}
-   */
-  var parsedClipboard = null;
-
-  /**
    * Retrieve parsed clipboard data.
    *
    * @return {Object}
    */
   H5P.getClipboard = function () {
-    if (!parsedClipboard) {
-      parsedClipboard = parseClipboard();
-    }
-
-    return parsedClipboard;
+    return parseClipboard();
   };
 
   /**
@@ -2248,9 +2230,6 @@ H5P.createTitle = function (rawTitle, maxLength) {
    */
   H5P.setClipboard = function (clipboardItem) {
     localStorage.setItem('h5pClipboard', JSON.stringify(clipboardItem));
-
-    // Clear cache
-    parsedClipboard = null;
 
     // Trigger an event so all 'Paste' buttons may be enabled.
     H5P.externalDispatcher.trigger('datainclipboard', {reset: false});
@@ -2271,7 +2250,6 @@ H5P.createTitle = function (rawTitle, maxLength) {
    * Get item from the H5P Clipboard.
    *
    * @private
-   * @param {boolean} [skipUpdateFileUrls]
    * @return {Object}
    */
   var parseClipboard = function () {
@@ -2289,8 +2267,8 @@ H5P.createTitle = function (rawTitle, maxLength) {
       return;
     }
 
-    // Update file URLs
-    updateFileUrls(clipboardData.specific, function (path) {
+    // Update file URLs and reset content Ids
+    recursiveUpdate(clipboardData.specific, function (path) {
       var isTmpFile = (path.substr(-4, 4) === '#tmp');
       if (!isTmpFile && clipboardData.contentId) {
         // Comes from existing content
@@ -2311,22 +2289,20 @@ H5P.createTitle = function (rawTitle, maxLength) {
     if (clipboardData.generic) {
       // Use reference instead of key
       clipboardData.generic = clipboardData.specific[clipboardData.generic];
-
-      // Avoid multiple content with same ID
-      delete clipboardData.generic.subContentId;
     }
 
     return clipboardData;
   };
 
   /**
-   * Update file URLs. Useful when copying content.
+   * Update file URLs and reset content IDs.
+   * Useful when copying content.
    *
    * @private
    * @param {object} params Reference
    * @param {function} handler Modifies the path to work when pasted
    */
-  var updateFileUrls = function (params, handler) {
+  var recursiveUpdate = function (params, handler) {
     for (var prop in params) {
       if (params.hasOwnProperty(prop) && params[prop] instanceof Object) {
         var obj = params[prop];
@@ -2334,7 +2310,11 @@ H5P.createTitle = function (rawTitle, maxLength) {
           obj.path = handler(obj.path);
         }
         else {
-          updateFileUrls(obj, handler);
+          if (obj.library !== undefined && obj.subContentId !== undefined) {
+            // Avoid multiple content with same ID
+            delete obj.subContentId;
+          }
+          recursiveUpdate(obj, handler);
         }
       }
     }
@@ -2346,9 +2326,6 @@ H5P.createTitle = function (rawTitle, maxLength) {
     window.addEventListener('storage', function (event) {
       // Pick up clipboard changes from other tabs
       if (event.key === 'h5pClipboard') {
-        // Clear cache
-        parsedClipboard = null;
-
         // Trigger an event so all 'Paste' buttons may be enabled.
         H5P.externalDispatcher.trigger('datainclipboard', {reset: event.newValue === null});
       }
