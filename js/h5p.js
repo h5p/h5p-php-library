@@ -140,7 +140,7 @@ H5P.init = function (target) {
           '<div role="button" ' +
                 'tabindex="0" ' +
                 'class="h5p-enable-fullscreen" ' +
-                'aria-label="' + H5P.t('fullscreen') +
+                'aria-label="' + H5P.t('fullscreen') + '" ' +
                 'title="' + H5P.t('fullscreen') + '">' +
           '</div>' +
         '</div>')
