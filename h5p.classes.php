@@ -4568,6 +4568,11 @@ class H5PContentValidator {
         'type' => 'text',
         'widget' => 'none'
       ),
+      (object) array(
+        'name' => 'defaultLanguage',
+        'type' => 'text',
+        'widget' => 'none'
+      )
     );
 
     return $semantics;
