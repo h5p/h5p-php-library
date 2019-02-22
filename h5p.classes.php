@@ -1671,7 +1671,7 @@ Class H5PExport {
       'embedTypes' => $embedTypes
     );
 
-    foreach(array('authors', 'source', 'license', 'licenseVersion', 'licenseExtras' ,'yearFrom', 'yearTo', 'changes', 'authorComments') as $field) {
+    foreach(array('authors', 'source', 'license', 'licenseVersion', 'licenseExtras' ,'yearFrom', 'yearTo', 'changes', 'authorComments', 'defaultLanguage') as $field) {
       if (isset($content['metadata'][$field]) && $content['metadata'][$field] !== '') {
         if (($field !== 'authors' && $field !== 'changes') || (count($content['metadata'][$field]) > 0)) {
           $h5pJson[$field] = json_decode(json_encode($content['metadata'][$field], TRUE));
@@ -4568,6 +4568,11 @@ class H5PContentValidator {
         'type' => 'text',
         'widget' => 'none'
       ),
+      (object) array(
+        'name' => 'defaultLanguage',
+        'type' => 'text',
+        'widget' => 'none'
+      )
     );
 
     return $semantics;
