@@ -1840,6 +1840,7 @@ abstract class H5PPermission {
   const CREATE_RESTRICTED = 2;
   const UPDATE_LIBRARIES = 3;
   const INSTALL_RECOMMENDED = 4;
+  const COPY_H5P = 8;
 }
 
 abstract class H5PDisplayOptionBehaviour {
@@ -1910,6 +1911,7 @@ class H5PCore {
   const DISPLAY_OPTION_EMBED = 'embed';
   const DISPLAY_OPTION_COPYRIGHT = 'copyright';
   const DISPLAY_OPTION_ABOUT = 'icon';
+  const DISPLAY_OPTION_COPY = 'copy';
 
   // Map flags to string
   public static $disable = array(
@@ -2898,6 +2900,7 @@ class H5PCore {
         $display_options[self::DISPLAY_OPTION_COPYRIGHT] = false;
       }
     }
+    $display_options[self::DISPLAY_OPTION_COPY] = $this->h5pF->hasPermission(H5PPermission::COPY_H5P, $id);
 
     return $display_options;
   }
@@ -3311,6 +3314,9 @@ class H5PCore {
       'license' => $this->h5pF->t('License'),
       'thumbnail' => $this->h5pF->t('Thumbnail'),
       'noCopyrights' => $this->h5pF->t('No copyright information available for this content.'),
+      'reuse' => $this->h5pF->t('Reuse'),
+      'reuseContent' => $this->h5pF->t('Reuse Content'),
+      'reuseDescription' => $this->h5pF->t('Reuse this content.'),
       'downloadDescription' => $this->h5pF->t('Download this content as a H5P file.'),
       'copyrightsDescription' => $this->h5pF->t('View copyright information for this content.'),
       'embedDescription' => $this->h5pF->t('View the embed code for this content.'),

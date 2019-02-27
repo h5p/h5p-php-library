@@ -176,9 +176,9 @@ H5P.init = function (target) {
       var actionBar = new H5P.ActionBar(displayOptions);
       var $actions = actionBar.getDOMElement();
 
-      actionBar.on('download', function () {
-        window.location.href = contentData.exportUrl;
-        instance.triggerXAPI('downloaded');
+      actionBar.on('reuse', function () {
+        H5P.openReuseDialog($actions, contentData, library, instance, contentId);
+        instance.triggerXAPI('accessed-reuse');
       });
       actionBar.on('copyrights', function () {
         var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container);
@@ -1127,6 +1127,49 @@ H5P.buildMetadataCopyrights = function (metadata) {
 
     return new H5P.MediaCopyright(dataset);
   }
+};
+
+/**
+ * Display a dialog containing the download button and copy button.
+ *
+ * @param {H5P.jQuery} $element
+ * @param {Object} contentData
+ * @param {Object} library
+ * @param {Object} instance
+ * @param {number} contentId
+ */
+H5P.openReuseDialog = function ($element, contentData, library, instance, contentId) {
+  let html = '';
+  if (contentData.displayOptions.export) {
+    html += '<button type="button" class="h5p-big-button h5p-download-button"><div class="h5p-button-title">Download as an .h5p file</div><div class="h5p-button-description">.h5p files may be uploaded to any web-site where H5P content may be created.</div></button>';
+  }
+  if (contentData.displayOptions.export && contentData.displayOptions.copy) {
+    html += '<div class="h5p-horizontal-line-text"><span>or</span></div>';
+  }
+  if (contentData.displayOptions.copy) {
+    html += '<button type="button" class="h5p-big-button h5p-copy-button"><div class="h5p-button-title">Copy content</div><div class="h5p-button-description">Copied content may be pasted anywhere this content type is supported on this website.</div></button>';
+  }
+
+  const dialog = new H5P.Dialog('reuse', H5P.t('reuseContent'), html, $element);
+
+  // Selecting embed code when dialog is opened
+  H5P.jQuery(dialog).on('dialog-opened', function (e, $dialog) {
+    H5P.jQuery('<a href="https://h5p.org/more-info" target="_blank">More Info</a>').click(function (e) {
+      e.stopPropagation();
+    }).appendTo($dialog.find('h2'));
+    $dialog.find('.h5p-download-button').click(function () {
+      window.location.href = contentData.exportUrl;
+      instance.triggerXAPI('downloaded');
+    });
+    $dialog.find('.h5p-copy-button').click(function () {
+      const item = new H5P.ClipboardItem(library);
+      item.contentId = contentId;
+      H5P.setClipboard(item);
+      instance.triggerXAPI('copied');
+    });
+  });
+
+  dialog.open();
 };
 
 /**

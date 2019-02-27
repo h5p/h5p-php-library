@@ -228,7 +228,7 @@ div.h5p-fullscreen {
   padding-right: 0;
 }
 .h5p-actions > .h5p-button.h5p-export:before {
-  content: "\e893";
+  content: "\e90b";
 }
 .h5p-actions > .h5p-button.h5p-copyrights:before {
   content: "\e88f";
@@ -297,6 +297,11 @@ div.h5p-fullscreen {
   padding: 0.325em 0.5em 0.25em;
   line-height: 1.25em;
   border-bottom: 1px solid #ccc;
+  z-index: 2;
+}
+.h5p-popup-dialog .h5p-inner > h2 > a {
+  font-size: 12px;
+  margin-left: 1em;
 }
 .h5p-embed-dialog .h5p-inner {
   width: 300px;
@@ -344,6 +349,7 @@ div.h5p-fullscreen {
   overflow-x: hidden;
   overflow-y: auto;
   color: #555555;
+  z-index: 1;
 }
 .h5p-popup-dialog .h5p-scroll-content::-webkit-scrollbar {
   width: 8px;
@@ -357,7 +363,6 @@ div.h5p-fullscreen {
 }
 .h5p-popup-dialog .h5p-close {
   cursor: pointer;
-  outline:none
 }
 .h5p-popup-dialog .h5p-close:after {
   font-family: 'H5P';
@@ -372,6 +377,7 @@ div.h5p-fullscreen {
   color: #656565;
   cursor: pointer;
   text-indent: -0.065em;
+  z-index: 3
 }
 .h5p-popup-dialog .h5p-close:hover:after,
 .h5p-popup-dialog .h5p-close:focus:after {
@@ -454,6 +460,62 @@ div.h5p-fullscreen {
 }
 .h5p-dialog-ok-button:active {
   background: #eeffee;
+}
+.h5p-big-button {
+  line-height: 1.25;
+  display: block;
+  position: relative;
+  cursor: pointer;
+  width: 100%;
+  padding: 1em 1em 1em 3.75em;
+  text-align: left;
+  border: 1px solid #dedede;
+  background: linear-gradient(#ffffff, #f1f1f2);
+  border-radius: 0.25em;
+}
+.h5p-big-button:before {
+  font-family: 'h5p';
+  content: "\e893";
+  line-height: 1;
+  font-size: 3em;
+  color: #2747f7;
+  position: absolute;
+  left: 0.125em;
+  top: 0.125em;
+}
+.h5p-copy-button:before {
+  content: "\e905";
+}
+.h5p-big-button:hover {
+  border: 1px solid #2747f7;
+  background: #eff1fe;
+}
+.h5p-big-button:active {
+  border: 1px solid #dedede;
+  background: #dfe4fe;
+}
+.h5p-button-title {
+  color: #2747f7;
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+.h5p-button-description {
+  color: #757575;
+}
+.h5p-horizontal-line-text {
+  border-top: 1px solid #dadada;
+  line-height: 1;
+  color: #474747;
+  text-align: center;
+  position: relative;
+  margin: 1.25em 0;
+}
+.h5p-horizontal-line-text > span {
+  background: white;
+  padding: 0.5em;
+  position: absolute;
+  top: -1em;
 }
 
 /* This is loaded as part of Core and not Editor since this needs to be outside the editor iframe */
