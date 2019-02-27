@@ -124,6 +124,9 @@ H5P.init = function (target) {
           };
 
           $dialog.find('.h5p-dialog-ok-button').click(closeDialog).keypress(closeDialog);
+          H5P.trigger(instance, 'resize');
+        }).on('dialog-closed', function () {
+          H5P.trigger(instance, 'resize');
         });
         dialog.open();
       }
@@ -182,14 +185,14 @@ H5P.init = function (target) {
       });
       actionBar.on('copyrights', function () {
         var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container);
-        dialog.open();
+        dialog.open(true);
         instance.triggerXAPI('accessed-copyright');
       });
       actionBar.on('embed', function () {
         H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
           width: $element.width(),
           height: $element.height()
-        });
+        }, instance);
         instance.triggerXAPI('accessed-embed');
       });
 
@@ -952,7 +955,10 @@ H5P.Dialog = function (name, title, content, $element) {
   /**
    * Opens the dialog.
    */
-  self.open = function () {
+  self.open = function (scrollbar) {
+    if (scrollbar) {
+      $dialog.css('height', '100%');
+    }
     setTimeout(function () {
       $dialog.addClass('h5p-open'); // Fade in
       // Triggering an event, in case something has to be done after dialog has been opened.
@@ -967,6 +973,7 @@ H5P.Dialog = function (name, title, content, $element) {
     $dialog.removeClass('h5p-open'); // Fade out
     setTimeout(function () {
       $dialog.remove();
+      H5P.jQuery(self).trigger('dialog-closed', [$dialog]);
     }, 200);
   };
 };
@@ -1167,6 +1174,9 @@ H5P.openReuseDialog = function ($element, contentData, library, instance, conten
       H5P.setClipboard(item);
       instance.triggerXAPI('copied');
     });
+    H5P.trigger(instance, 'resize');
+  }).on('dialog-closed', function () {
+    H5P.trigger(instance, 'resize');
   });
 
   dialog.open();
@@ -1186,7 +1196,7 @@ H5P.openReuseDialog = function ($element, contentData, library, instance, conten
  * @param {number} size.width
  * @param {number} size.height
  */
-H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
+H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size, instance) {
   var fullEmbedCode = embedCode + resizeCode;
   var dialog = new H5P.Dialog('embed', H5P.t('embed'), '<textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>' + H5P.t('size') + ': <input type="text" value="' + Math.ceil(size.width) + '" class="h5p-embed-size"/> × <input type="text" value="' + Math.ceil(size.height) + '" class="h5p-embed-size"/> px<br/><div role="button" tabindex="0" class="h5p-expander">' + H5P.t('showAdvanced') + '</div><div class="h5p-expander-content"><p>' + H5P.t('advancedHelp') + '</p><textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false">' + resizeCode + '</textarea></div>', $element);
 
@@ -1196,15 +1206,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
     var $scroll = $inner.find('.h5p-scroll-content');
     var diff = $scroll.outerHeight() - $scroll.innerHeight();
     var positionInner = function () {
-      var height = $inner.height();
-      if ($scroll[0].scrollHeight + diff > height) {
-        $inner.css('height', ''); // 100%
-      }
-      else {
-        $inner.css('height', 'auto');
-        height = $inner.height();
-      }
-      $inner.css('marginTop', '-' + (height / 2) + 'px');
+      H5P.trigger(instance, 'resize');
     };
 
     // Handle changing of width/height
@@ -1256,6 +1258,8 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size) {
         expand.apply(this);
       }
     });
+  }).on('dialog-closed', function () {
+    H5P.trigger(instance, 'resize');
   });
 
   dialog.open();
