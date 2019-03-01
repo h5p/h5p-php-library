@@ -3354,6 +3354,7 @@ class H5PCore {
       'contentType' => $this->h5pF->t('Content Type'),
       'licenseExtras' => $this->h5pF->t('License Extras'),
       'changes' => $this->h5pF->t('Changelog'),
+      'contentCopied' => $this->h5pF->t('Content is copied to the clipboard'),
     );
   }
 }

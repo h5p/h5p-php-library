@@ -1161,18 +1161,31 @@ H5P.openReuseDialog = function ($element, contentData, library, instance, conten
 
   // Selecting embed code when dialog is opened
   H5P.jQuery(dialog).on('dialog-opened', function (e, $dialog) {
-    H5P.jQuery('<a href="https://h5p.org/more-info" target="_blank">More Info</a>').click(function (e) {
+    H5P.jQuery('<a href="https://h5p.org/node/442225" target="_blank">More Info</a>').click(function (e) {
       e.stopPropagation();
     }).appendTo($dialog.find('h2'));
     $dialog.find('.h5p-download-button').click(function () {
       window.location.href = contentData.exportUrl;
       instance.triggerXAPI('downloaded');
+      dialog.close();
     });
     $dialog.find('.h5p-copy-button').click(function () {
       const item = new H5P.ClipboardItem(library);
       item.contentId = contentId;
       H5P.setClipboard(item);
       instance.triggerXAPI('copied');
+      dialog.close();
+      H5P.attachToastTo(
+        H5P.jQuery('.h5p-content:first')[0],
+        H5P.t('contentCopied'),
+        {
+          position: {
+            horizontal: 'centered',
+            vertical: 'centered',
+            noOverflowX: true
+          }
+        }
+      );
     });
     H5P.trigger(instance, 'resize');
   }).on('dialog-closed', function () {
@@ -1263,6 +1276,211 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size, instance)
   });
 
   dialog.open();
+};
+
+/**
+ * Show a toast message.
+ *
+ * The reference element could be dom elements the toast should be attached to,
+ * or e.g. the document body for general toast messages.
+ *
+ * @param {DOM} element Reference element to show toast message for.
+ * @param {string} message Message to show.
+ * @param {object} [config] Configuration.
+ * @param {string} [config.style=h5p-toast] Style name for the tooltip.
+ * @param {number} [config.duration=3000] Toast message length in ms.
+ * @param {object} [config.position] Relative positioning of the toast.
+ * @param {string} [config.position.horizontal=centered] [before|left|centered|right|after].
+ * @param {string} [config.position.vertical=below] [above|top|centered|bottom|below].
+ * @param {number} [config.position.offsetHorizontal=0] Extra horizontal offset.
+ * @param {number} [config.position.offsetVertical=0] Extra vetical offset.
+ * @param {boolean} [config.position.noOverflowLeft=false] True to prevent overflow left.
+ * @param {boolean} [config.position.noOverflowRight=false] True to prevent overflow right.
+ * @param {boolean} [config.position.noOverflowTop=false] True to prevent overflow top.
+ * @param {boolean} [config.position.noOverflowBottom=false] True to prevent overflow bottom.
+ * @param {boolean} [config.position.noOverflowX=false] True to prevent overflow left and right.
+ * @param {boolean} [config.position.noOverflowY=false] True to prevent overflow top and bottom.
+ * @param {object} [config.position.overflowReference=document.body] DOM reference for overflow.
+ */
+H5P.attachToastTo = function (element, message, config) {
+  if (element === undefined || message === undefined) {
+    return;
+  }
+
+  const eventPath = function (evt) {
+    var path = (evt.composedPath && evt.composedPath()) || evt.path;
+    var target = evt.target;
+
+    if (path != null) {
+      // Safari doesn't include Window, but it should.
+      return (path.indexOf(window) < 0) ? path.concat(window) : path;
+    }
+
+    if (target === window) {
+      return [window];
+    }
+
+    function getParents(node, memo) {
+      memo = memo || [];
+      var parentNode = node.parentNode;
+
+      if (!parentNode) {
+        return memo;
+      }
+      else {
+        return getParents(parentNode, memo.concat(parentNode));
+      }
+    }
+
+    return [target].concat(getParents(target), window);
+  };
+
+  /**
+   * Handle click while toast is showing.
+   */
+  const clickHandler = function (event) {
+    /*
+     * A common use case will be to attach toasts to buttons that are clicked.
+     * The click would remove the toast message instantly without this check.
+     * Children of the clicked element are also ignored.
+     */
+    var path = eventPath(event);
+    if (path.indexOf(element) !== -1) {
+      return;
+    }
+    clearTimeout(timer);
+    removeToast();
+  };
+
+
+
+  /**
+   * Remove the toast message.
+   */
+  const removeToast = function () {
+    document.removeEventListener('click', clickHandler);
+    if (toast.parentNode) {
+      toast.parentNode.removeChild(toast);
+    }
+  };
+
+  /**
+   * Get absolute coordinates for the toast.
+   *
+   * @param {DOM} element Reference element to show toast message for.
+   * @param {DOM} toast Toast element.
+   * @param {object} [position={}] Relative positioning of the toast message.
+   * @param {string} [position.horizontal=centered] [before|left|centered|right|after].
+   * @param {string} [position.vertical=below] [above|top|centered|bottom|below].
+   * @param {number} [position.offsetHorizontal=0] Extra horizontal offset.
+   * @param {number} [position.offsetVertical=0] Extra vetical offset.
+   * @param {boolean} [position.noOverflowLeft=false] True to prevent overflow left.
+   * @param {boolean} [position.noOverflowRight=false] True to prevent overflow right.
+   * @param {boolean} [position.noOverflowTop=false] True to prevent overflow top.
+   * @param {boolean} [position.noOverflowBottom=false] True to prevent overflow bottom.
+   * @param {boolean} [position.noOverflowX=false] True to prevent overflow left and right.
+   * @param {boolean} [position.noOverflowY=false] True to prevent overflow top and bottom.
+   * @return {object}
+   */
+  const getToastCoordinates = function (element, toast, position) {
+    position = position || {};
+    position.offsetHorizontal = position.offsetHorizontal || 0;
+    position.offsetVertical = position.offsetVertical || 0;
+
+    const toastRect = toast.getBoundingClientRect();
+    const elementRect = element.getBoundingClientRect();
+
+    let left = 0;
+    let top = 0;
+
+    // Compute horizontal position
+    switch (position.horizontal) {
+      case 'before':
+        left = elementRect.left - toastRect.width - position.offsetHorizontal;
+        break;
+      case 'after':
+        left = elementRect.left + elementRect.width + position.offsetHorizontal;
+        break;
+      case 'left':
+        left = elementRect.left + position.offsetHorizontal;
+        break;
+      case 'right':
+        left = elementRect.left + elementRect.width - toastRect.width - position.offsetHorizontal;
+        break;
+      case 'centered':
+        left = elementRect.left + elementRect.width / 2 - toastRect.width / 2 + position.offsetHorizontal;
+        break;
+      default:
+        left = elementRect.left + elementRect.width / 2 - toastRect.width / 2 + position.offsetHorizontal;
+    }
+
+    // Compute vertical position
+    switch (position.vertical) {
+      case 'above':
+        top = elementRect.top - toastRect.height - position.offsetVertical;
+        break;
+      case 'below':
+        top = elementRect.top + elementRect.height + position.offsetVertical;
+        break;
+      case 'top':
+        top = elementRect.top + position.offsetVertical;
+        break;
+      case 'bottom':
+        top = elementRect.top + elementRect.height - toastRect.height - position.offsetVertical;
+        break;
+      case 'centered':
+        top = elementRect.top + elementRect.height / 2 - toastRect.height / 2 + position.offsetVertical;
+        break;
+      default:
+        top = elementRect.top + elementRect.height + position.offsetVertical;
+    }
+
+    // Prevent overflow
+    const overflowElement = document.body;
+    const bounds = overflowElement.getBoundingClientRect();
+    if ((position.noOverflowLeft || position.noOverflowX) && (left < bounds.x)) {
+      left = bounds.x;
+    }
+    if ((position.noOverflowRight || position.noOverflowX) && ((left + toastRect.width) > (bounds.x + bounds.width))) {
+      left = bounds.x + bounds.width - toastRect.width;
+    }
+    if ((position.noOverflowTop || position.noOverflowY) && (top < bounds.y)) {
+      top = bounds.y;
+    }
+    if ((position.noOverflowBottom || position.noOverflowY) && ((top + toastRect.height) > (bounds.y + bounds.height))) {
+      left = bounds.y + bounds.height - toastRect.height;
+    }
+
+    return {left: left, top: top};
+  };
+
+  // Sanitization
+  config = config || {};
+  config.style = config.style || 'h5p-toast';
+  config.duration = config.duration || 3000;
+
+  // Build toast
+  const toast = document.createElement('div');
+  toast.setAttribute('id', config.style);
+  toast.classList.add('h5p-toast-disabled');
+  toast.classList.add(config.style);
+
+  const msg = document.createElement('span');
+  msg.innerHTML = message;
+  toast.appendChild(msg);
+
+  document.body.appendChild(toast);
+
+  // The message has to be set before getting the coordinates
+  const coordinates = getToastCoordinates(element, toast, config.position);
+  toast.style.left = Math.round(coordinates.left) + 'px';
+  toast.style.top = Math.round(coordinates.top) + 'px';
+
+  toast.classList.remove('h5p-toast-disabled');
+  const timer = setTimeout(removeToast, config.duration);
+
+  // The toast can also be removed by clicking somewhere
+  document.addEventListener('click', clickHandler);
 };
 
 /**
