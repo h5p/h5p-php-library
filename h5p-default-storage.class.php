@@ -459,6 +459,24 @@ class H5PDefaultStorage implements \H5PFileStorage {
   }
 
   /**
+   * Check if upgrades script exist for library.
+   *
+   * @param string $machineName
+   * @param int $majorVersion
+   * @param int $minorVersion
+   * @return string Relative path
+   */
+  public function getUpgradeScript($machineName, $majorVersion, $minorVersion) {
+    $upgrades = "/libraries/{$machineName}-{$majorVersion}.{$minorVersion}/upgrades.js";
+    if (file_exists($this->path . $upgrades)) {
+      return $upgrades;
+    }
+    else {
+      return NULL;
+    }
+  }
+
+  /**
    * Recursive function for copying directories.
    *
    * @param string $source
