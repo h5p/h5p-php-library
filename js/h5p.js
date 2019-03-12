@@ -1937,7 +1937,13 @@ H5P.libraryFromString = function (library) {
  *   The full path to the library.
  */
 H5P.getLibraryPath = function (library) {
-  return H5PIntegration.url + '/libraries/' + library;
+  if (H5PIntegration.urlLibraries !== undefined) {
+    // This is an override for those implementations that has a different libraries URL, e.g. Moodle
+    return H5PIntegration.urlLibraries + '/' + library;
+  }
+  else {
+    return H5PIntegration.url + '/libraries/' + library;
+  }
 };
 
 /**
