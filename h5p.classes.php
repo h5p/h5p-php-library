@@ -762,9 +762,6 @@ class H5PValidator {
     $tmpDir = $this->h5pF->getUploadedH5pFolderPath();
     $tmpPath = $this->h5pF->getUploadedH5pPath();
 
-    // Extract and then remove the package file.
-    $zip = new ZipArchive;
-
     // Only allow files with the .h5p extension:
     if (strtolower(substr($tmpPath, -3)) !== 'h5p') {
       $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (It does not have the .h5p file extension)'), 'missing-h5p-extension');
@@ -772,7 +769,33 @@ class H5PValidator {
       return FALSE;
     }
 
+    // Extract and then remove the package file.
+    $zip = new ZipArchive;
+
     if ($zip->open($tmpPath) === true) {
+
+      if (!empty($this->h5pC->maxFileSize) || !empty($this->h5pC->maxTotalSize)) {
+        // We need to check the size of the files inside the zip before continuing
+
+        $total_size = 0;
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+          $file_size = $zip->statIndex($i)['size'];
+          if (!empty($this->h5pC->maxFileSize) && $file_size > $this->h5pC->maxFileSize) {
+            // Error file is too large
+            $this->h5pF->setErrorMessage($this->h5pF->t('One of the files inside the package exceeds the maximum file size allowed.'), 'file-size-too-large');
+            H5PCore::deleteFileTree($tmpDir);
+            return FALSE;
+          }
+          $total_size += $file_size;
+        }
+        if (!empty($this->h5pC->maxTotalSize) && $total_size > $this->h5pC->maxTotalSize) {
+          // Error total size of the zip is too large
+          $this->h5pF->setErrorMessage($this->h5pF->t('The total size of the unpacked file exceeds the maximum size allowed.'), 'total-size-too-large');
+          H5PCore::deleteFileTree($tmpDir);
+          return FALSE;
+        }
+      }
+
       $zip->extractTo($tmpDir);
       $zip->close();
     }
