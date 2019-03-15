@@ -755,6 +755,12 @@ class H5PValidator {
     // Check dependencies, make sure Zip is present
     if (!class_exists('ZipArchive')) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Your PHP version does not support ZipArchive.'), 'zip-archive-unsupported');
+      unlink($tmpPath);
+      return FALSE;
+    }
+    if (!extension_loaded('mbstring')) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('The mbstring PHP extension is not loaded. H5P need this to function properly'), 'mbstring-unsupported');
+      unlink($tmpPath);
       return FALSE;
     }
 
@@ -765,153 +771,220 @@ class H5PValidator {
     // Only allow files with the .h5p extension:
     if (strtolower(substr($tmpPath, -3)) !== 'h5p') {
       $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (It does not have the .h5p file extension)'), 'missing-h5p-extension');
-      H5PCore::deleteFileTree($tmpDir);
+      unlink($tmpPath);
       return FALSE;
     }
 
     // Extract and then remove the package file.
     $zip = new ZipArchive;
 
-    if ($zip->open($tmpPath) === true) {
-
-      if (!empty($this->h5pC->maxFileSize) || !empty($this->h5pC->maxTotalSize)) {
-        // We need to check the size of the files inside the zip before continuing
-
-        $total_size = 0;
-        for ($i = 0; $i < $zip->numFiles; $i++) {
-          $file_size = $zip->statIndex($i)['size'];
-          if (!empty($this->h5pC->maxFileSize) && $file_size > $this->h5pC->maxFileSize) {
-            // Error file is too large
-            $this->h5pF->setErrorMessage($this->h5pF->t('One of the files inside the package exceeds the maximum file size allowed.'), 'file-size-too-large');
-            H5PCore::deleteFileTree($tmpDir);
-            return FALSE;
-          }
-          $total_size += $file_size;
-        }
-        if (!empty($this->h5pC->maxTotalSize) && $total_size > $this->h5pC->maxTotalSize) {
-          // Error total size of the zip is too large
-          $this->h5pF->setErrorMessage($this->h5pF->t('The total size of the unpacked file exceeds the maximum size allowed.'), 'total-size-too-large');
-          H5PCore::deleteFileTree($tmpDir);
-          return FALSE;
-        }
-      }
-
-      $zip->extractTo($tmpDir);
-      $zip->close();
-    }
-    else {
+    // Open the package
+    if ($zip->open($tmpPath) !== TRUE) {
       $this->h5pF->setErrorMessage($this->h5pF->t('The file you uploaded is not a valid HTML5 Package (We are unable to unzip it)'), 'unable-to-unzip');
-      H5PCore::deleteFileTree($tmpDir);
+      unlink($tmpPath);
       return FALSE;
     }
-    unlink($tmpPath);
 
-    // Process content and libraries
+    if ($this->h5pC->disableFileCheck !== TRUE) {
+      list($contentWhitelist, $contentRegExp) = $this->getWhitelistRegExp(FALSE);
+      list($libraryWhitelist, $libraryRegExp) = $this->getWhitelistRegExp(TRUE);
+    }
+    $canInstall = $this->h5pC->mayUpdateLibraries();
+
     $valid = TRUE;
     $libraries = array();
-    $files = scandir($tmpDir);
-    $mainH5pData = null;
-    $libraryJsonData = null;
-    $contentJsonData = null;
-    $mainH5pExists = $contentExists = FALSE;
-    foreach ($files as $file) {
-      if (in_array(substr($file, 0, 1), array('.', '_'))) {
-        continue;
-      }
-      $filePath = $tmpDir . DIRECTORY_SEPARATOR . $file;
-      // Check for h5p.json file.
-      if (strtolower($file) == 'h5p.json') {
-        if ($skipContent === TRUE) {
-          continue;
-        }
 
-        $mainH5pData = $this->getJsonData($filePath);
-        if ($mainH5pData === FALSE) {
-          $valid = FALSE;
-          $this->h5pF->setErrorMessage($this->h5pF->t('Could not parse the main h5p.json file'), 'invalid-h5p-json-file');
-        }
-        else {
-          $validH5p = $this->isValidH5pData($mainH5pData, $file, $this->h5pRequired, $this->h5pOptional);
-          if ($validH5p) {
-            $mainH5pExists = TRUE;
-          }
-          else {
-            $valid = FALSE;
-            $this->h5pF->setErrorMessage($this->h5pF->t('The main h5p.json file is not valid'), 'invalid-h5p-json-file');
-          }
-        }
-      }
-      // Content directory holds content.
-      elseif ($file == 'content') {
-        // We do a separate skipContent check to avoid having the content folder being treated as a library
-        if ($skipContent) {
-          continue;
-        }
-        if (!is_dir($filePath)) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Invalid content folder'), 'invalid-content-folder');
-          $valid = FALSE;
-          continue;
-        }
-        $contentJsonData = $this->getJsonData($filePath . DIRECTORY_SEPARATOR . 'content.json');
-        if ($contentJsonData === FALSE) {
-          $this->h5pF->setErrorMessage($this->h5pF->t('Could not find or parse the content.json file'), 'invalid-content-json-file');
-          $valid = FALSE;
-          continue;
-        }
-        else {
-          $contentExists = TRUE;
-          // In the future we might let the libraries provide validation functions for content.json
-        }
+    $totalSize = 0;
+    $mainH5pExists = FALSE;
+    $contentExists = FALSE;
 
-        if (!$this->h5pCV->validateContentFiles($filePath)) {
-          // validateContentFiles adds potential errors to the queue
+    // Check for valid file types, JSON files + file sizes before continuing to unpack.
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+      $fileStat = $zip->statIndex($i);
+
+      if (!empty($this->h5pC->maxFileSize) && $fileStat['size'] > $this->h5pC->maxFileSize) {
+        // Error file is too large
+        $this->h5pF->setErrorMessage($this->h5pF->t('One of the files inside the package exceeds the maximum file size allowed. (%file %used > %max)', array('%file' => $fileStat['name'], '%used' => ($fileStat['size'] / 1048576) . ' MB', '%max' => ($this->h5pC->maxFileSize / 1048576) . ' MB')), 'file-size-too-large');
+        $valid = FALSE;
+      }
+      $totalSize += $fileStat['size'];
+
+      $fileName = mb_strtolower($fileStat['name']);
+      if (preg_match('/(^[\._]|\/[\._])/', $fileName) !== 0) {
+        continue; // Skip any file or folder starting with a . or _
+      }
+      elseif ($fileName === 'h5p.json') {
+        $mainH5pExists = TRUE;
+      }
+      elseif ($fileName === 'content/content.json') {
+        $contentExists = TRUE;
+      }
+      elseif (substr($fileName, 0, 8) === 'content/') {
+        // This is a content file, check that the file type is allowed
+        if ($skipContent === FALSE && $this->h5pC->disableFileCheck !== TRUE && !preg_match($contentRegExp, $fileName)) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('File "%filename" not allowed. Only files with the following extensions are allowed: %files-allowed.', array('%filename' => $fileStat['name'], '%files-allowed' => $contentWhitelist)), 'not-in-whitelist');
           $valid = FALSE;
-          continue;
         }
       }
-
-      // The rest should be library folders
-      elseif ($this->h5pC->mayUpdateLibraries()) {
-         if (!is_dir($filePath)) {
-          // Ignore this. Probably a file that shouldn't have been included.
-          continue;
-        }
-
-        $libraryH5PData = $this->getLibraryData($file, $filePath, $tmpDir);
-
-        if ($libraryH5PData !== FALSE) {
-          // Library's directory name must be:
-          // - <machineName>
-          //     - or -
-          // - <machineName>-<majorVersion>.<minorVersion>
-          // where machineName, majorVersion and minorVersion is read from library.json
-          if ($libraryH5PData['machineName'] !== $file && H5PCore::libraryToString($libraryH5PData, TRUE) !== $file) {
-            $this->h5pF->setErrorMessage($this->h5pF->t('Library directory name must match machineName or machineName-majorVersion.minorVersion (from library.json). (Directory: %directoryName , machineName: %machineName, majorVersion: %majorVersion, minorVersion: %minorVersion)', array(
-                '%directoryName' => $file,
-                '%machineName' => $libraryH5PData['machineName'],
-                '%majorVersion' => $libraryH5PData['majorVersion'],
-                '%minorVersion' => $libraryH5PData['minorVersion'])), 'library-directory-name-mismatch');
-            $valid = FALSE;
-            continue;
-          }
-          $libraryH5PData['uploadDirectory'] = $filePath;
-          $libraries[H5PCore::libraryToString($libraryH5PData)] = $libraryH5PData;
-        }
-        else {
+      elseif ($canInstall && strpos($fileName, '/') !== FALSE) {
+        // This is a library file, check that the file type is allowed
+        if ($this->h5pC->disableFileCheck !== TRUE && !preg_match($libraryRegExp, $fileName)) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('File "%filename" not allowed. Only files with the following extensions are allowed: %files-allowed.', array('%filename' => $fileStat['name'], '%files-allowed' => $libraryWhitelist)), 'not-in-whitelist');
           $valid = FALSE;
         }
+
+        // Further library validation happens after the files are extracted
       }
     }
+
+    if (!empty($this->h5pC->maxTotalSize) && $totalSize > $this->h5pC->maxTotalSize) {
+      // Error total size of the zip is too large
+      $this->h5pF->setErrorMessage($this->h5pF->t('The total size of the unpacked files exceeds the maximum size allowed. (%used > %max)', array('%used' => ($totalSize / 1048576) . ' MB', '%max' => ($this->h5pC->maxTotalSize / 1048576) . ' MB')), 'total-size-too-large');
+      $valid = FALSE;
+    }
+
     if ($skipContent === FALSE) {
+      // Not skipping content, require two valid JSON files from the package
       if (!$contentExists) {
         $this->h5pF->setErrorMessage($this->h5pF->t('A valid content folder is missing'), 'invalid-content-folder');
         $valid = FALSE;
       }
+      else {
+        $contentJsonData = $this->getJson($tmpPath, $zip, 'content/content.json'); // TODO: Is this case-senstivie?
+        if ($contentJsonData === NULL) {
+          return FALSE; // Breaking error when reading from the archive.
+        }
+        elseif ($contentJsonData === FALSE) {
+          $valid = FALSE; // Validation error when parsing JSON
+        }
+      }
+
       if (!$mainH5pExists) {
         $this->h5pF->setErrorMessage($this->h5pF->t('A valid main h5p.json file is missing'), 'invalid-h5p-json-file');
         $valid = FALSE;
       }
+      else {
+        $mainH5pData = $this->getJson($tmpPath, $zip, 'h5p.json');
+        if ($mainH5pData === NULL) {
+          return FALSE; // Breaking error when reading from the archive.
+        }
+        elseif ($mainH5pData === FALSE) {
+          $valid = FALSE; // Validation error when parsing JSON
+        }
+        elseif (!$this->isValidH5pData($mainH5pData, 'h5p.json', $this->h5pRequired, $this->h5pOptional)) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('The main h5p.json file is not valid'), 'invalid-h5p-json-file'); // Is this message a bit redundant?
+          $valid = FALSE;
+        }
+      }
     }
+
+    if (!$valid) {
+      // If something has failed during the initial checks of the package
+      // we will not unpack it or continue validation.
+      $zip->close();
+      unlink($tmpPath);
+      return FALSE;
+    }
+
+    // Extract the files from the package
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+      $fileName = $zip->statIndex($i)['name'];
+
+      if (preg_match('/(^[\._]|\/[\._])/', $fileName) !== 0) {
+        continue; // Skip any file or folder starting with a . or _
+      }
+
+      $isContentFile = (substr($fileName, 0, 8) === 'content/');
+      $isFolder = (strpos($fileName, '/') !== FALSE);
+
+      if ($skipContent !== FALSE && $isContentFile) {
+        continue; // Skipping any content files
+      }
+
+      if (!($isContentFile || ($canInstall && $isFolder))) {
+        continue; // Not something we want to unpack
+      }
+
+      // Get file stream
+      $fileStream = $zip->getStream($fileName);
+      if (!$fileStream) {
+        // This is a breaking error, there's no need to continue. (the rest of the files will fail as well)
+        $this->h5pF->setErrorMessage($this->h5pF->t('Unable to read file from the package: %fileName', array('%fileName' => $fileName)), 'unable-to-read-package-file');
+        $zip->close();
+        unlink($path);
+        H5PCore::deleteFileTree($tmpDir);
+        return FALSE;
+      }
+
+      // Use file interface to allow overrides
+      $this->h5pC->fs->saveFileFromZip($tmpDir, $fileName, $fileStream);
+
+      // Clean up
+      if (is_resource($fileStream)) {
+        fclose($fileStream);
+      }
+    }
+
+    // We're done with the zip file, clean up the stuff
+    $zip->close();
+    unlink($tmpPath);
+
+    if ($canInstall) {
+      // Process and validate libraries using the unpacked library folders
+      $files = scandir($tmpDir);
+      foreach ($files as $file) {
+        $filePath = $tmpDir . DIRECTORY_SEPARATOR . $file;
+
+        if ($file === '.' || $file === '..' || $file === 'content' || !is_dir($filePath)) {
+          continue; // Skip
+        }
+
+        $libraryH5PData = $this->getLibraryData($file, $filePath, $tmpDir);
+        if ($libraryH5PData === FALSE) {
+          $valid = FALSE;
+          continue; // Failed, but continue validating the rest of the libraries
+        }
+
+        // Library's directory name must be:
+        // - <machineName>
+        //     - or -
+        // - <machineName>-<majorVersion>.<minorVersion>
+        // where machineName, majorVersion and minorVersion is read from library.json
+        if ($libraryH5PData['machineName'] !== $file && H5PCore::libraryToString($libraryH5PData, TRUE) !== $file) {
+          $this->h5pF->setErrorMessage($this->h5pF->t('Library directory name must match machineName or machineName-majorVersion.minorVersion (from library.json). (Directory: %directoryName , machineName: %machineName, majorVersion: %majorVersion, minorVersion: %minorVersion)', array(
+              '%directoryName' => $file,
+              '%machineName' => $libraryH5PData['machineName'],
+              '%majorVersion' => $libraryH5PData['majorVersion'],
+              '%minorVersion' => $libraryH5PData['minorVersion'])), 'library-directory-name-mismatch');
+          $valid = FALSE;
+          continue; // Failed, but continue validating the rest of the libraries
+        }
+
+        $libraryH5PData['uploadDirectory'] = $filePath;
+        $libraries[H5PCore::libraryToString($libraryH5PData)] = $libraryH5PData;
+      }
+    }
+
+    // Validate the data from h5p.json
+    if ($skipContent === FALSE) {
+      $frameworkValidation = $this->h5pF->validateLibrary($mainH5pData);
+      if (!$frameworkValidation->valid) {
+        $message = $this->h5pF->t('Validation of the main library failed.');
+        $code = null;
+
+        if (isset($frameworkValidation->message)) {
+          $message = $frameworkValidation->message;
+        }
+
+        if (isset($frameworkValidation->code)) {
+          $code = $frameworkValidation->code;
+        }
+
+        $this->h5pF->setErrorMessage($message, $code);
+        $valid = FALSE;
+      }
+    }
+
     if ($valid) {
       if ($upgradeOnly) {
         // When upgrading, we only add the already installed libraries, and
@@ -983,6 +1056,54 @@ class H5PValidator {
   }
 
   /**
+   * Help read JSON from the archive
+   *
+   * @param string $path
+   * @param ZipArchive $zip
+   * @param string $file
+   * @return mixed JSON content if valid, FALSE for invalid, NULL for breaking error.
+   */
+  private function getJson($path, $zip, $file) {
+    // Get stream
+    $stream = $zip->getStream($file);
+    if (!$stream) {
+      // Breaking error, no need to continue validating.
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to read file from the package: %fileName', array('%fileName' => $file)), 'unable-to-read-package-file');
+      $zip->close();
+      unlink($path);
+      return NULL;
+    }
+
+    // Read data
+    $contents = '';
+    while (!feof($stream)) {
+      $contents .= fread($stream, 2);
+    }
+
+    // Decode the data
+    $json = json_decode($contents, TRUE);
+    if ($json === NULL) {
+      // JSON cannot be decoded or the recursion limit has been reached.
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to parse JSON from the package: %fileName', array('%fileName' => $file)), 'unable-to-parse-package');
+      return FALSE;
+    }
+
+    // All OK
+    return $json;
+  }
+
+  /**
+   * Help retrieve file type regexp whitelist from plugin.
+   *
+   * @param bool $isLibrary Separate list with more allowed file types
+   * @return string RegExp
+   */
+  private function getWhitelistRegExp($isLibrary) {
+    $whitelist = $this->h5pF->getWhitelist($isLibrary, H5PCore::$defaultContentWhitelist, H5PCore::$defaultLibraryWhitelistExtras);
+    return array($whitelist, '/\.(' . preg_replace('/ +/i', '|', preg_quote($whitelist)) . ')$/i');
+  }
+
+  /**
    * Validates a H5P library
    *
    * @param string $file
@@ -1046,7 +1167,7 @@ class H5PValidator {
 
     $validLibrary = $this->isValidH5pData($h5pData, $file, $this->libraryRequired, $this->libraryOptional);
 
-    $validLibrary = $this->h5pCV->validateContentFiles($filePath, TRUE) && $validLibrary;
+    //$validLibrary = $this->h5pCV->validateContentFiles($filePath, TRUE) && $validLibrary;
 
     if (isset($h5pData['preloadedJs'])) {
       $validLibrary = $this->isExistingFiles($h5pData['preloadedJs'], $tmpDir, $file) && $validLibrary;
