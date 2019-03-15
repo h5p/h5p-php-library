@@ -965,26 +965,6 @@ class H5PValidator {
       }
     }
 
-    // Validate the data from h5p.json
-    if ($skipContent === FALSE) {
-      $frameworkValidation = $this->h5pF->validateLibrary($mainH5pData);
-      if (!$frameworkValidation->valid) {
-        $message = $this->h5pF->t('Validation of the main library failed.');
-        $code = null;
-
-        if (isset($frameworkValidation->message)) {
-          $message = $frameworkValidation->message;
-        }
-
-        if (isset($frameworkValidation->code)) {
-          $code = $frameworkValidation->code;
-        }
-
-        $this->h5pF->setErrorMessage($message, $code);
-        $valid = FALSE;
-      }
-    }
-
     if ($valid) {
       if ($upgradeOnly) {
         // When upgrading, we only add the already installed libraries, and
