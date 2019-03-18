@@ -214,9 +214,6 @@ H5P.init = function (target) {
       }
     });
 
-    // Handle requests that failed while the user was offline
-    H5P.offlineRequestQueue.resumeQueue();
-
     // Listen for xAPI events.
     H5P.on(instance, 'xAPI', H5P.xAPICompletedListener);
 
@@ -2068,18 +2065,14 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     };
 
     // Post the results
-    const data = {
+    H5P.jQuery.post(H5PIntegration.ajax.setFinished, {
       contentId: contentId,
       score: score,
       maxScore: maxScore,
       opened: toUnix(H5P.opened[contentId]),
       finished: toUnix(new Date()),
       time: time
-    };
-    H5P.jQuery.post(H5PIntegration.ajax.setFinished, data)
-      .fail(function () {
-        H5P.offlineRequestQueue.add(H5PIntegration.ajax.setFinished, data);
-      });
+    });
   }
 };
 
