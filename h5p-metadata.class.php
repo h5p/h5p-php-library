@@ -65,7 +65,7 @@ abstract class H5PMetadata {
       ',"yearFrom":' . (isset($content->year_from) ? $content->year_from : 'null') .
       ',"yearTo":' .  (isset($content->year_to) ? $content->year_to : 'null') .
       ',"changes":' . (isset($content->changes) ? $content->changes : 'null') .
-      ',"defaultLanguage":' . (isset($content->default_language) ? $content->default_language : 'null') .
+      ',"defaultLanguage":' . (isset($content->default_language) ? '"' . $content->default_language . '"' : 'null') .
       ',"authorComments":' . (isset($content->author_comments) ? json_encode($content->author_comments) : 'null') . '}';
   }
 
