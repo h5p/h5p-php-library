@@ -1006,28 +1006,29 @@ class H5PValidator {
       if (!empty($missingLibraries)) {
         // We still have missing libraries, check if our main library has an upgrade (BUT only if we has content)
         $mainDependency = NULL;
-        if (!$skipContent && !empty($mainH5PData)) {
-          foreach ($mainH5PData['preloadedDependencies'] as $dep) {
-            if ($dep['machineName'] === $mainH5PData['mainLibrary']) {
+        if (!$skipContent && !empty($mainH5pData)) {
+          foreach ($mainH5pData['preloadedDependencies'] as $dep) {
+            if ($dep['machineName'] === $mainH5pData['mainLibrary']) {
               $mainDependency = $dep;
             }
           }
         }
 
         if ($skipContent || !$mainDependency || !$this->h5pF->libraryHasUpgrade(array(
-              'machineName' => $mainDependency['mainLibrary'],
+              'machineName' => $mainDependency['machineName'],
               'majorVersion' => $mainDependency['majorVersion'],
               'minorVersion' => $mainDependency['minorVersion']
             ))) {
           foreach ($missingLibraries as $libString => $library) {
             $this->h5pF->setErrorMessage($this->h5pF->t('Missing required library @library', array('@library' => $libString)), 'missing-required-library');
+            $valid = FALSE;
           }
           if (!$this->h5pC->mayUpdateLibraries()) {
             $this->h5pF->setInfoMessage($this->h5pF->t("Note that the libraries may exist in the file you uploaded, but you're not allowed to upload new libraries. Contact the site administrator about this."));
+            $valid = FALSE;
           }
         }
       }
-      $valid = empty($missingLibraries) && $valid;
     }
     if (!$valid) {
       H5PCore::deleteFileTree($tmpDir);
