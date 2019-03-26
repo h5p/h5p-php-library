@@ -1783,7 +1783,7 @@ Class H5PExport {
     }
 
     // Update content.json with content from database
-    file_put_contents("{$tmpPath}/content/content.json", $content['params']);
+    file_put_contents("{$tmpPath}/content/content.json", $content['filtered']);
 
     // Make embedType into an array
     $embedTypes = explode(', ', $content['embedType']);
@@ -2205,6 +2205,7 @@ class H5PCore {
       if ($this->exportEnabled) {
         // Recreate export file
         $exporter = new H5PExport($this->h5pF, $this);
+        $content['filtered'] = $params;
         $exporter->createExportFile($content);
       }
 
