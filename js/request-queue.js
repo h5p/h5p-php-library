@@ -14,7 +14,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
     EventDispatcher.call(this);
     this.processingQueue = false;
 
-    this.showToast = options.showToast;
+    this.showToast = options ? options.showToast : false;
 
     // Initialize listener for when requests are added to queue
     window.addEventListener('offline', this.updateOnlineStatus.bind(this));
