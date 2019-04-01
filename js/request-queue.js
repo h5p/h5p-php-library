@@ -190,6 +190,9 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @param {string} msg Message to display
    */
   RequestQueue.prototype.displayToastMessage = function (msg) {
+    if (!this.showToast) {
+      return;
+    }
     H5P.attachToastTo(
       H5P.jQuery('.h5p-content:first')[0],
       msg,
@@ -221,9 +224,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
       this.resumeQueue();
     }
 
-    if (this.showToast) {
-      this.displayToastMessage(message);
-    }
+    this.displayToastMessage(message);
   };
 
   return RequestQueue;
