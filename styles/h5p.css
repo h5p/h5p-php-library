@@ -306,10 +306,11 @@ div.h5p-fullscreen {
 .h5p-embed-dialog .h5p-inner,
 .h5p-reuse-dialog .h5p-inner,
 .h5p-content-user-data-reset-dialog .h5p-inner {
-  width: 316px;
+  min-width: 316px;
+  max-width: 400px;
   left: 50%;
   top: 50%;
-  margin: 0 0 0 -158px;
+  transform: translateX(-50%);
 }
 .h5p-embed-dialog .h5p-embed-code-container,
 .h5p-embed-size {
