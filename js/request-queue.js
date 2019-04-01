@@ -3,19 +3,18 @@
  *
  * @type {RequestQueue}
  */
-H5P.RequestQueue = (function ($) {
+H5P.RequestQueue = (function ($, EventDispatcher) {
   /**
    * A queue for requests, will be automatically processed when regaining connection
    *
-   * @param {string} itemName Name that requests will be stored as in local storage
-   * @param {string} eventName Name of event that will be triggered when a new item is added to the queue
+   * @param {boolean} [options.showToast] Disable showing toast when losing or regaining connection
    * @constructor
    */
-  const RequestQueue = function (itemName, eventName) {
+  const RequestQueue = function (options) {
+    EventDispatcher.call(this);
     this.processingQueue = false;
 
-    this.itemName = itemName;
-    this.eventName = eventName;
+    this.showToast = options.showToast;
 
     // Initialize listener for when requests are added to queue
     window.addEventListener('offline', this.updateOnlineStatus.bind(this));
@@ -46,7 +45,7 @@ H5P.RequestQueue = (function ($) {
 
     window.localStorage.setItem(this.itemName, JSON.stringify(storedStatements));
 
-    H5P.externalDispatcher.trigger(this.eventName);
+    this.trigger('requestQueued', storedStatements);
     return true;
   };
 
@@ -84,21 +83,23 @@ H5P.RequestQueue = (function ($) {
 
   /**
    * Start processing of requests queue
+   *
+   * @return {boolean} Returns false if it was not possible to resume processing queue
    */
   RequestQueue.prototype.resumeQueue = function () {
     // Not supported
     if (!H5PIntegration || !window.navigator || !window.localStorage) {
-      return;
+      return false;
     }
 
     // Already processing
     if (this.processingQueue) {
-      return;
+      return false;
     }
 
     // Application is offline, re-send when we detect a connection
     if (!window.navigator.onLine) {
-      return;
+      return false;
     }
 
     // We're online, attempt to send queued requests
@@ -110,7 +111,7 @@ H5P.RequestQueue = (function ($) {
 
     // No items left in queue
     if (!queueLength) {
-      return;
+      return true;
     }
 
     // Make sure requests are not changed while they're being handled
@@ -118,6 +119,7 @@ H5P.RequestQueue = (function ($) {
 
     // Process queue in original order
     this.processQueue(queue);
+    return true
   };
 
   /**
@@ -129,6 +131,8 @@ H5P.RequestQueue = (function ($) {
     if (!queue.length) {
       return;
     }
+
+    this.trigger('processingQueue');
 
     // Make sure the requests are processed in a FIFO order
     const request = queue.shift();
@@ -151,6 +155,11 @@ H5P.RequestQueue = (function ($) {
     }
   };
 
+  /**
+   * An item in the queue was processed
+   *
+   * @param {Array} queue Queue that was processed
+   */
   RequestQueue.prototype.onQueuedRequestProcessed = function (queue) {
     if (queue.length) {
       this.processQueue(queue);
@@ -167,7 +176,11 @@ H5P.RequestQueue = (function ($) {
     const requestQueue = this.getStoredRequests();
     if (requestQueue.length) {
       this.resumeQueue();
+      return;
     }
+
+    // Run empty queue callback
+    this.trigger('queueEmptied');
   };
 
   /**
@@ -207,10 +220,10 @@ H5P.RequestQueue = (function ($) {
       this.resumeQueue();
     }
 
-    this.displayToastMessage(message);
+    if (this.showToast) {
+      this.displayToastMessage(message);
+    }
   };
 
   return RequestQueue;
-})(H5P.jQuery);
-
-H5P.offlineRequestQueue = new H5P.RequestQueue('requestQueue', 'requestQueued');
+})(H5P.jQuery, H5P.EventDispatcher);

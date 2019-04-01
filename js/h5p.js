@@ -66,6 +66,21 @@ H5P.init = function (target) {
     H5P.$body = H5P.jQuery(document.body);
   }
 
+  H5P.offlineRequestQueue = new H5P.RequestQueue();
+  // We could handle previously failed requests here, instead we throw them away
+  // TODO: Add dialog
+  H5P.offlineRequestQueue.clear();
+  H5P.offlineRequestQueue.on('requestQueued', function () {
+  });
+
+  H5P.offlineRequestQueue.on('processingQueue', function () {
+  });
+
+  H5P.offlineRequestQueue.on('queueEmptied', function () {
+  });
+
+
+
   // Determine if we can use full screen
   if (H5P.fullscreenSupported === undefined) {
     /**
@@ -213,9 +228,6 @@ H5P.init = function (target) {
         H5P.setFinished(contentId, event.data.score, event.data.maxScore, event.data.time);
       }
     });
-
-    // Handle requests that failed while the user was offline
-    H5P.offlineRequestQueue.resumeQueue();
 
     // Listen for xAPI events.
     H5P.on(instance, 'xAPI', H5P.xAPICompletedListener);

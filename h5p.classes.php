@@ -3483,6 +3483,10 @@ class H5PCore {
       'connectionLost' => $this->h5pF->t('Connection lost. Results will be stored and sent when you regain connection.'),
       'connectionReestablished' => $this->h5pF->t('Connection reestablished.'),
       'resubmitScores' => $this->h5pF->t('Attempting to submit stored results.'),
+      'offlineDialogHeader' => $this->h5pF->t('Your connection to the server was lost'),
+      'offlineDialogBody' => $this->h5pF->t('We were unable to send information about your completion of this task. Please check your internet connection.'),
+      'offlineDialogRetryMessage' => $this->h5pF->t('Retrying in :num....'),
+      'offlineDialogRetryButtonLabel' => $this->h5pF->t('Retry now'),
     );
   }
 }
