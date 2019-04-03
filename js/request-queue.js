@@ -7,14 +7,15 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
   /**
    * A queue for requests, will be automatically processed when regaining connection
    *
-   * @param {boolean} [options.showToast] Disable showing toast when losing or regaining connection
+   * @param {boolean} [options.showToast] Show toast when losing or regaining connection
    * @constructor
    */
   const RequestQueue = function (options) {
     EventDispatcher.call(this);
     this.processingQueue = false;
+    options = options || {};
 
-    this.showToast = options ? options.showToast : false;
+    this.showToast = options.showToast;
     this.itemName = 'requestQueue';
 
     // Initialize listener for when requests are added to queue
@@ -23,7 +24,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
   };
 
   /**
-   * Add request to queue
+   * Add request to queue. Only supports posts currently.
    *
    * @param {string} url
    * @param {Object} data
@@ -46,7 +47,10 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
 
     window.localStorage.setItem(this.itemName, JSON.stringify(storedStatements));
 
-    this.trigger('requestQueued', storedStatements);
+    this.trigger('requestQueued', {
+      storedStatements: storedStatements,
+      processingQueue: this.processingQueue,
+    });
     return true;
   };
 
@@ -73,7 +77,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    *
    * @returns {boolean} True if the storage was successfully cleared
    */
-  RequestQueue.prototype.clear = function () {
+  RequestQueue.prototype.clearQueue = function () {
     if (!window.localStorage) {
       return false;
     }
@@ -98,20 +102,16 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
       return false;
     }
 
-    // Application is offline, re-send when we detect a connection
-    if (!window.navigator.onLine) {
-      return false;
-    }
-
-    // We're online, attempt to send queued requests
+    // Attempt to send queued requests
     const queue = this.getStoredRequests();
     const queueLength = queue.length;
 
     // Clear storage, failed requests will be re-added
-    this.clear();
+    this.clearQueue();
 
     // No items left in queue
     if (!queueLength) {
+      this.trigger('emptiedQueue', queue);
       return true;
     }
 
@@ -169,28 +169,20 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
 
     // Finished processing this queue
     this.processingQueue = false;
-    if (!window.navigator.onLine) {
-      return;
-    }
 
-    // Process next queue if items were added while processing current queue
+    // Run empty queue callback with next request queue
     const requestQueue = this.getStoredRequests();
-    if (requestQueue.length) {
-      this.resumeQueue();
-      return;
-    }
-
-    // Run empty queue callback
-    this.trigger('queueEmptied');
+    this.trigger('queueEmptied', requestQueue);
   };
 
   /**
    * Display toast message on the first content of current page
    *
    * @param {string} msg Message to display
+   * @param {boolean} [forceShow] Force override showing the toast
    */
-  RequestQueue.prototype.displayToastMessage = function (msg) {
-    if (!this.showToast) {
+  RequestQueue.prototype.displayToastMessage = function (msg, forceShow) {
+    if (!this.showToast && !forceShow) {
       return;
     }
     H5P.attachToastTo(
@@ -229,3 +221,192 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
 
   return RequestQueue;
 })(H5P.jQuery, H5P.EventDispatcher);
+
+/**
+ * Request queue for retrying failing requests, will automatically retry them when you come online
+ *
+ * @type {offlineRequestQueue}
+ */
+H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
+  return function offlineRequestQueue() {
+    const requestQueue = new RequestQueue();
+
+    // We could handle requests from previous pages here, but instead we throw them away
+    requestQueue.clearQueue();
+
+    let startTime = null;
+    const retryIntervals = [10, 20, 40, 60, 120, 300, 600];
+    let intervalIndex = -1;
+    let currentInterval = null;
+    let isAttached = false;
+    let isShowing = false;
+    let isLoading = false;
+
+    const offlineDialog = new Dialog({
+      headerText: H5P.t('offlineDialogHeader'),
+      dialogText: H5P.t('offlineDialogBody'),
+      confirmText: H5P.t('offlineDialogRetryButtonLabel'),
+      hideCancel: true,
+      hideExit: true,
+      classes: ['offline'],
+    });
+
+
+    const dialog = offlineDialog.getElement();
+
+    // Add retry text to body
+    const countDownText = document.createElement('div');
+    countDownText.classList.add('count-down');
+    countDownText.innerHTML = H5P.t('offlineDialogRetryMessage')
+      .replace(':num', '<span class="count-down-num">0</span>');
+
+    dialog.querySelector('.h5p-confirmation-dialog-text').appendChild(countDownText);
+    const countDownNum = countDownText.querySelector('.count-down-num');
+
+    // Create throbber
+    const throbberWrapper = document.createElement('div');
+    throbberWrapper.classList.add('throbber-wrapper');
+    const throbber = document.createElement('div');
+    throbber.classList.add('sending-requests-throbber');
+    throbberWrapper.appendChild(throbber);
+
+    requestQueue.on('requestQueued', function (e) {
+      // Already processing queue, wait until queue has finished processing before showing dialog
+      if (e.data && e.data.processingQueue) {
+        return;
+      }
+
+      if (!isAttached) {
+        const rootContent = document.body.querySelector('.h5p-content');
+        if (!rootContent) {
+          return;
+        }
+        offlineDialog.appendTo(rootContent);
+        rootContent.appendChild(throbberWrapper);
+        isAttached = true;
+      }
+
+      startCountDown();
+    }.bind(this));
+
+    requestQueue.on('queueEmptied', function (e) {
+      if (e.data && e.data.length) {
+        // New requests were added while processing queue or requests failed again. Re-queue requests.
+        startCountDown(true);
+        return;
+      }
+
+      // Successfully emptied queue
+      clearInterval(currentInterval);
+      toggleThrobber(false);
+      intervalIndex = -1;
+      if (isShowing) {
+        offlineDialog.hide();
+        isShowing = false;
+      }
+      requestQueue.displayToastMessage(H5P.t('offlineSuccessfulSubmit'), true);
+
+    }.bind(this));
+
+    offlineDialog.on('confirmed', function () {
+      // Show dialog on next render in case it is being hidden by the 'confirm' button
+      isShowing = false;
+      setTimeout(function () {
+        retryRequests();
+      }, 100);
+    }.bind(this));
+
+    /**
+     * Toggle throbber visibility
+     *
+     * @param {boolean} [forceShow] Will force throbber visibility if set
+     */
+    const toggleThrobber = function (forceShow) {
+      isLoading = !isLoading;
+      if (forceShow !== undefined) {
+        isLoading = forceShow;
+      }
+
+      if (isLoading && isShowing) {
+        offlineDialog.hide();
+        isShowing = false;
+      }
+
+      if (isLoading) {
+        throbberWrapper.classList.add('show');
+      }
+      else {
+        throbberWrapper.classList.remove('show');
+      }
+    };
+
+    /**
+     * Retries the failed requests
+     */
+    const retryRequests = function () {
+      clearInterval(currentInterval);
+      toggleThrobber(true);
+      requestQueue.resumeQueue();
+    };
+
+    /**
+     * Increments retry interval
+     */
+    const incrementRetryInterval = function () {
+      intervalIndex += 1;
+      if (intervalIndex >= retryIntervals.length) {
+        intervalIndex = retryIntervals.length - 1;
+      }
+    };
+
+    /**
+     * Starts counting down to retrying queued requests.
+     *
+     * @param forceDelayedShow
+     */
+    const startCountDown = function (forceDelayedShow) {
+      toggleThrobber(false);
+      if (!isShowing) {
+        if (forceDelayedShow) {
+          // Must force delayed show since dialog may be hiding, and confirmation dialog does not
+          //  support this.
+          setTimeout(function () {
+            offlineDialog.show();
+          }, 100);
+        }
+        else {
+          offlineDialog.show();
+        }
+      }
+      isShowing = true;
+      startTime = new Date().getTime();
+      incrementRetryInterval();
+      currentInterval = setInterval(updateCountDown, 100);
+    };
+
+    /**
+     * Updates the count down timer. Retries requests when time expires.
+     */
+    const updateCountDown = function () {
+      const time = new Date().getTime();
+      const timeElapsed = Math.floor((time - startTime) / 1000);
+      const timeLeft = retryIntervals[intervalIndex] - timeElapsed;
+      countDownNum.textContent = timeLeft.toString();
+
+      // Retry interval reached, retry requests
+      if (timeLeft <= 0) {
+        retryRequests();
+      }
+    };
+
+    /**
+     * Add request to offline request queue. Only supports posts for now.
+     *
+     * @param {string} url The request url
+     * @param {Object} data The request data
+     */
+    this.add = function (url, data) {
+      requestQueue.add(url, data);
+    };
+  };
+})(H5P.RequestQueue, H5P.ConfirmationDialog);

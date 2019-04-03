@@ -3489,6 +3489,7 @@ class H5PCore {
       'offlineDialogBody' => $this->h5pF->t('We were unable to send information about your completion of this task. Please check your internet connection.'),
       'offlineDialogRetryMessage' => $this->h5pF->t('Retrying in :num....'),
       'offlineDialogRetryButtonLabel' => $this->h5pF->t('Retry now'),
+      'offlineSuccessfulSubmit' => $this->h5pF->t('Successfully submitted results.'),
     );
   }
 }

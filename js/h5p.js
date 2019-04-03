@@ -66,20 +66,7 @@ H5P.init = function (target) {
     H5P.$body = H5P.jQuery(document.body);
   }
 
-  H5P.offlineRequestQueue = new H5P.RequestQueue();
-  // We could handle previously failed requests here, instead we throw them away
-  // TODO: Add dialog
-  H5P.offlineRequestQueue.clear();
-  H5P.offlineRequestQueue.on('requestQueued', function () {
-  });
-
-  H5P.offlineRequestQueue.on('processingQueue', function () {
-  });
-
-  H5P.offlineRequestQueue.on('queueEmptied', function () {
-  });
-
-
+  H5P.offlineRequestQueue = new H5P.OfflineRequestQueue();
 
   // Determine if we can use full screen
   if (H5P.fullscreenSupported === undefined) {
