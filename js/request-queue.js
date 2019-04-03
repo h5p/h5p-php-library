@@ -232,7 +232,14 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
  * @type {offlineRequestQueue}
  */
 H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
-  const offlineRequestQueue = function () {
+
+  /**
+   * Constructor
+   *
+   * @param {Object} [options] Options for offline request queue
+   * @param {Object} [options.instance] The H5P instance which UI components are placed within
+   */
+  const offlineRequestQueue = function (options) {
     const requestQueue = new RequestQueue();
 
     // We could handle requests from previous pages here, but instead we throw them away
@@ -245,6 +252,7 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
     let isAttached = false;
     let isShowing = false;
     let isLoading = false;
+    const instance = options.instance;
 
     const offlineDialog = new Dialog({
       headerText: H5P.t('offlineDialogHeader'),
@@ -253,6 +261,7 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
       hideCancel: true,
       hideExit: true,
       classes: ['offline'],
+      instance: instance,
     });
 
     const dialog = offlineDialog.getElement();
@@ -399,10 +408,10 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
           // Must force delayed show since dialog may be hiding, and confirmation dialog does not
           //  support this.
           setTimeout(function () {
-            offlineDialog.show();
+            offlineDialog.show(0);
           }, 100);
         } else {
-          offlineDialog.show();
+          offlineDialog.show(0);
         }
       }
       isShowing = true;

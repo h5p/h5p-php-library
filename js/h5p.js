@@ -104,8 +104,6 @@ H5P.init = function (target) {
       metadata: contentData.metadata
     };
 
-    H5P.offlineRequestQueue = new H5P.OfflineRequestQueue();
-
     H5P.getUserData(contentId, 'state', function (err, previousState) {
       if (previousState) {
         library.userDatas = {
@@ -137,6 +135,8 @@ H5P.init = function (target) {
 
     // Create new instance.
     var instance = H5P.newRunnable(library, contentId, $container, true, {standalone: true});
+
+    H5P.offlineRequestQueue = new H5P.OfflineRequestQueue({instance: instance});
 
     // Check if we should add and display a fullscreen button for this H5P.
     if (contentData.fullScreen == 1 && H5P.fullscreenSupported) {
