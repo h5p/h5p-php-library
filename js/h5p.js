@@ -66,8 +66,6 @@ H5P.init = function (target) {
     H5P.$body = H5P.jQuery(document.body);
   }
 
-  H5P.offlineRequestQueue = new H5P.OfflineRequestQueue();
-
   // Determine if we can use full screen
   if (H5P.fullscreenSupported === undefined) {
     /**
@@ -105,6 +103,8 @@ H5P.init = function (target) {
       params: JSON.parse(contentData.jsonContent),
       metadata: contentData.metadata
     };
+
+    H5P.offlineRequestQueue = new H5P.OfflineRequestQueue();
 
     H5P.getUserData(contentId, 'state', function (err, previousState) {
       if (previousState) {
@@ -2077,7 +2077,9 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     };
     H5P.jQuery.post(H5PIntegration.ajax.setFinished, data)
       .fail(function () {
-        H5P.offlineRequestQueue.add(H5PIntegration.ajax.setFinished, data);
+        if (H5P.offlineRequestQueue) {
+          H5P.offlineRequestQueue.add(H5PIntegration.ajax.setFinished, data);
+        }
       });
   }
 };
