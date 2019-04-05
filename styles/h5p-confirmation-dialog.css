@@ -130,6 +130,7 @@ button.h5p-confirmation-dialog-exit:hover {
 
 .h5p-confirmation-dialog-popup.offline .h5p-confirmation-dialog-confirm-button:before {
   content: "\e90b";
+  font-weight: normal;
 }
 
 .throbber-wrapper {
@@ -159,6 +160,11 @@ button.h5p-confirmation-dialog-exit:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.throbber-wrapper .sending-requests-throbber.top-offset {
+  top: initial;
+  transform: translateX(-50%);
 }
 
 .throbber-wrapper .sending-requests-throbber:before {

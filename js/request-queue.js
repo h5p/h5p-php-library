@@ -184,22 +184,22 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    *
    * @param {string} msg Message to display
    * @param {boolean} [forceShow] Force override showing the toast
+   * @param {Object} [configOverride] Override toast message config
    */
-  RequestQueue.prototype.displayToastMessage = function (msg, forceShow) {
+  RequestQueue.prototype.displayToastMessage = function (msg, forceShow, configOverride) {
     if (!this.showToast && !forceShow) {
       return;
     }
-    H5P.attachToastTo(
-      H5P.jQuery('.h5p-content:first')[0],
-      msg,
-      {
-        position: {
-          horizontal: 'centered',
-          vertical: 'centered',
-          noOverflowX: true
-        }
+
+    const config = H5P.jQuery.extend(true, {}, {
+      position: {
+        horizontal : 'centered',
+        vertical: 'centered',
+        noOverflowX: true,
       }
-    );
+    }, configOverride);
+
+    H5P.attachToastTo(H5P.jQuery('.h5p-content:first')[0], msg, config);
   };
 
   /**
@@ -316,7 +316,18 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
         offlineDialog.hide();
         isShowing = false;
       }
-      requestQueue.displayToastMessage(H5P.t('offlineSuccessfulSubmit'), true);
+
+      let toastConfig = {};
+      const topOffset = getFocusedElementOffset();
+      if (topOffset) {
+        toastConfig = {
+          position: {
+            vertical: 'top',
+            offsetVertical: topOffset,
+          }
+        };
+      }
+      requestQueue.displayToastMessage(H5P.t('offlineSuccessfulSubmit'), true, toastConfig);
 
     }.bind(this));
 
@@ -363,6 +374,12 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
       }
 
       if (isLoading) {
+        let topOffset = getFocusedElementOffset();
+        if (topOffset) {
+          throbber.classList.add('top-offset');
+          throbber.style.top = topOffset + 'px';
+        }
+
         throbberWrapper.classList.add('show');
       } else {
         throbberWrapper.classList.remove('show');
@@ -404,14 +421,18 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
 
       toggleThrobber(false);
       if (!isShowing) {
+        let topOffset = getFocusedElementOffset();
+        if (!topOffset) {
+          topOffset = 0;
+        }
         if (forceDelayedShow) {
           // Must force delayed show since dialog may be hiding, and confirmation dialog does not
           //  support this.
           setTimeout(function () {
-            offlineDialog.show(0);
+            offlineDialog.show(topOffset);
           }, 100);
         } else {
-          offlineDialog.show(0);
+          offlineDialog.show(topOffset);
         }
       }
       isShowing = true;
@@ -434,6 +455,23 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
       if (timeLeft <= 0) {
         retryRequests();
       }
+    };
+
+    /**
+     * Get previously focused element's top offset
+     * @return {null|number}
+     */
+    const getFocusedElementOffset = function () {
+      let previouslyFocused = offlineDialog.getPreviouslyFocused();
+      if (!previouslyFocused) {
+        previouslyFocused = document.activeElement;
+      }
+
+      if (!previouslyFocused) {
+        return null;
+      }
+
+      return H5P.jQuery(previouslyFocused).offset().top;
     };
 
     /**

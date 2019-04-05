@@ -379,6 +379,14 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     };
 
     /**
+     * Get previously focused element
+     * @return {HTMLElement}
+     */
+    this.getPreviouslyFocused = function () {
+      return previouslyFocused;
+    };
+
+    /**
      * Sets the minimum height of the view port
      *
      * @param {number|null} minHeight
