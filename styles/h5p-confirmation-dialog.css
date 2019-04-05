@@ -157,13 +157,8 @@ button.h5p-confirmation-dialog-exit:hover {
 
 .throbber-wrapper .sending-requests-throbber{
   position: absolute;
-  top: 50%;
+  top: 7em;
   left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.throbber-wrapper .sending-requests-throbber.top-offset {
-  top: initial;
   transform: translateX(-50%);
 }
 

@@ -262,6 +262,7 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
       hideExit: true,
       classes: ['offline'],
       instance: instance,
+      skipRestoreFocus: true,
     });
 
     const dialog = offlineDialog.getElement();
@@ -317,17 +318,16 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
         isShowing = false;
       }
 
-      let toastConfig = {};
-      const topOffset = getFocusedElementOffset();
-      if (topOffset) {
-        toastConfig = {
+      requestQueue.displayToastMessage(
+        H5P.t('offlineSuccessfulSubmit'),
+        true,
+        {
           position: {
             vertical: 'top',
-            offsetVertical: topOffset,
+            offsetVertical: '100',
           }
-        };
-      }
-      requestQueue.displayToastMessage(H5P.t('offlineSuccessfulSubmit'), true, toastConfig);
+        }
+      );
 
     }.bind(this));
 
@@ -374,12 +374,6 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
       }
 
       if (isLoading) {
-        let topOffset = getFocusedElementOffset();
-        if (topOffset) {
-          throbber.classList.add('top-offset');
-          throbber.style.top = topOffset + 'px';
-        }
-
         throbberWrapper.classList.add('show');
       } else {
         throbberWrapper.classList.remove('show');
@@ -421,18 +415,14 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
 
       toggleThrobber(false);
       if (!isShowing) {
-        let topOffset = getFocusedElementOffset();
-        if (!topOffset) {
-          topOffset = 0;
-        }
         if (forceDelayedShow) {
           // Must force delayed show since dialog may be hiding, and confirmation dialog does not
           //  support this.
           setTimeout(function () {
-            offlineDialog.show(topOffset);
+            offlineDialog.show(0);
           }, 100);
         } else {
-          offlineDialog.show(topOffset);
+          offlineDialog.show(0);
         }
       }
       isShowing = true;
@@ -455,23 +445,6 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
       if (timeLeft <= 0) {
         retryRequests();
       }
-    };
-
-    /**
-     * Get previously focused element's top offset
-     * @return {null|number}
-     */
-    const getFocusedElementOffset = function () {
-      let previouslyFocused = offlineDialog.getPreviouslyFocused();
-      if (!previouslyFocused) {
-        previouslyFocused = document.activeElement;
-      }
-
-      if (!previouslyFocused) {
-        return null;
-      }
-
-      return H5P.jQuery(previouslyFocused).offset().top;
     };
 
     /**

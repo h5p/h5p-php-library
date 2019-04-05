@@ -13,6 +13,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
    * @param [options.confirmText] Confirm dialog button text
    * @param [options.hideCancel] Hide cancel button
    * @param [options.hideExit] Hide exit button
+   * @param [options.skipRestoreFocus] Skip restoring focus when hiding the dialog
    * @param [options.classes] Extra classes for popup
    * @constructor
    */
@@ -358,7 +359,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
       // Restore focus
       stopCapturingFocus();
-      previouslyFocused.focus();
+      if (!options.skipRestoreFocus) {
+        previouslyFocused.focus();
+      }
       restoreUnderlay();
       setTimeout(function () {
         popupBackground.classList.add('hidden');
