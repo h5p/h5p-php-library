@@ -864,7 +864,7 @@ class H5PValidator {
         $valid = FALSE;
       }
       else {
-        $mainH5pData = $this->getJson($tmpPath, $zip, 'h5p.json');
+        $mainH5pData = $this->getJson($tmpPath, $zip, 'h5p.json', TRUE);
         if ($mainH5pData === NULL) {
           return FALSE; // Breaking error when reading from the archive.
         }
@@ -1044,7 +1044,7 @@ class H5PValidator {
    * @param string $file
    * @return mixed JSON content if valid, FALSE for invalid, NULL for breaking error.
    */
-  private function getJson($path, $zip, $file) {
+  private function getJson($path, $zip, $file, $assoc = FALSE) {
     // Get stream
     $stream = $zip->getStream($file);
     if (!$stream) {
@@ -1062,7 +1062,7 @@ class H5PValidator {
     }
 
     // Decode the data
-    $json = json_decode($contents, TRUE);
+    $json = json_decode($contents, $assoc);
     if ($json === NULL) {
       // JSON cannot be decoded or the recursion limit has been reached.
       $this->h5pF->setErrorMessage($this->h5pF->t('Unable to parse JSON from the package: %fileName', array('%fileName' => $file)), 'unable-to-parse-package');
