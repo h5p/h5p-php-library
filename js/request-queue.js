@@ -17,14 +17,6 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
 
     this.showToast = options.showToast;
     this.itemName = 'requestQueue';
-
-    // Initialize listener for when requests are added to queue
-    window.addEventListener('offline', this.updateOnlineStatus.bind(this));
-    window.addEventListener('online', this.updateOnlineStatus.bind(this));
-
-    this.on('connectionReestablished', function () {
-      this.resumeQueue();
-    }.bind(this));
   };
 
   /**
@@ -202,27 +194,6 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
     H5P.attachToastTo(H5P.jQuery('.h5p-content:first')[0], msg, config);
   };
 
-  /**
-   * Update online status
-   */
-  RequestQueue.prototype.updateOnlineStatus = function () {
-    // Lost connection
-    if (!window.navigator.onLine) {
-      this.displayToastMessage(H5P.t('connectionLost'));
-      return;
-    }
-
-    // Re-connected, resume processing of queue
-    let message = H5P.t('connectionReestablished');
-    const requestQueue = this.getStoredRequests();
-    if (requestQueue.length) {
-      message += ' ' + H5P.t('resubmitScores');
-      this.trigger('connectionReestablished');
-    }
-
-    this.displayToastMessage(message);
-  };
-
   return RequestQueue;
 })(H5P.jQuery, H5P.EventDispatcher);
 
@@ -331,17 +302,17 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
 
     }.bind(this));
 
-    requestQueue.on('connectionReestablished', function () {
-      // Skip resuming queue since request queue already does this
-      retryRequests(true);
-    }.bind(this));
-
     offlineDialog.on('confirmed', function () {
       // Show dialog on next render in case it is being hidden by the 'confirm' button
       isShowing = false;
       setTimeout(function () {
         retryRequests();
       }, 100);
+    }.bind(this));
+
+    // Initialize listener for when requests are added to queue
+    window.addEventListener('online', function () {
+      retryRequests();
     }.bind(this));
 
     // Listen for queued requests outside the iframe
@@ -381,15 +352,11 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
     };
     /**
      * Retries the failed requests
-     *
-     * @param {boolean} [skipResumeQueue] Skip resuming queue (just do the visuals)
      */
-    const retryRequests = function (skipResumeQueue) {
+    const retryRequests = function () {
       clearInterval(currentInterval);
       toggleThrobber(true);
-      if (!skipResumeQueue) {
-        requestQueue.resumeQueue();
-      }
+      requestQueue.resumeQueue();
     };
 
     /**
@@ -454,6 +421,11 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
      * @param {Object} data The request data
      */
     this.add = function (url, data) {
+      // Only queue request if it failed because we are offline
+      if (window.navigator.onLine) {
+        return false;
+      }
+
       requestQueue.add(url, data);
     };
   };

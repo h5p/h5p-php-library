@@ -2077,9 +2077,7 @@ H5P.setFinished = function (contentId, score, maxScore, time) {
     };
     H5P.jQuery.post(H5PIntegration.ajax.setFinished, data)
       .fail(function () {
-        if (H5P.offlineRequestQueue) {
-          H5P.offlineRequestQueue.add(H5PIntegration.ajax.setFinished, data);
-        }
+        H5P.offlineRequestQueue.add(H5PIntegration.ajax.setFinished, data);
       });
   }
 };

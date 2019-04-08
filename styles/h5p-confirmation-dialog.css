@@ -131,6 +131,7 @@ button.h5p-confirmation-dialog-exit:hover {
 .h5p-confirmation-dialog-popup.offline .h5p-confirmation-dialog-confirm-button:before {
   content: "\e90b";
   font-weight: normal;
+  vertical-align: text-bottom;
 }
 
 .throbber-wrapper {
