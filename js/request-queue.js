@@ -346,7 +346,8 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
 
       if (isLoading) {
         throbberWrapper.classList.add('show');
-      } else {
+      }
+      else {
         throbberWrapper.classList.remove('show');
       }
     };
@@ -388,7 +389,8 @@ H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
           setTimeout(function () {
             offlineDialog.show(0);
           }, 100);
-        } else {
+        }
+        else {
           offlineDialog.show(0);
         }
       }
