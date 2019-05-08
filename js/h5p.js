@@ -2552,7 +2552,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
     // Update file URLs and reset content Ids
     recursiveUpdate(clipboardData.specific, function (path) {
       var isTmpFile = (path.substr(-4, 4) === '#tmp');
-      if (!isTmpFile && clipboardData.contentId) {
+      if (!isTmpFile && clipboardData.contentId && !path.match(/^https?:\/\//i)) {
         // Comes from existing content
 
         if (H5PEditor.contentId) {
