@@ -18,7 +18,7 @@
 
     // Add "go" button
     $('<button/>', {
-      class: 'h5p-admin-upgrade-button',
+      class: 'h5p-admin-upgrade-button btn btn-primary ml-1',
       text: info.buttonLabel,
       click: function () {
         // Start new content upgrade
@@ -39,7 +39,7 @@
       html += '<option value="' + id + '">' + versions[id] + '</option>';
     }
     if (html !== '') {
-      html = '<select>' + html + '</select>';
+      html = '<select class="form-control form-inline custom-select">' + html + '</select>';
       return html;
     }
   };
