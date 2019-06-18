@@ -670,52 +670,103 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
   }
 };
 
-/**
- * Find the path to the content files based on the id of the content.
- * Also identifies and returns absolute paths.
- *
- * @param {string} path
- *   Relative to content folder or absolute.
- * @param {number} contentId
- *   ID of the content requesting the path.
- * @returns {string}
- *   Complete URL to path.
- */
-H5P.getPath = function (path, contentId) {
+(function () {
+  /**
+   * Helper for setting the crossOrigin attribute + the complete correct source.
+   * Note: This will start loading the resource.
+   *
+   * @param {Element} element DOM element, typically img, video or audio
+   * @param {Object} source File object from parameters/json_content (created by H5PEditor)
+   * @param {number} contentId Needed to determine the complete correct file path
+   */
+  H5P.setSource = function (element, source, contentId) {
+    const crossOrigin = H5P.getCrossOrigin(source);
+    if (crossOrigin) {
+      element.crossOrigin = crossOrigin;
+    }
+    else {
+      // In case this element has been used before.
+      element.removeAttribute('crossorigin');
+    }
+
+    element.src = H5P.getPath(source.path, contentId);
+  };
+
+  /**
+   * Check if the given path has a protocol.
+   *
+   * @private
+   * @param {string} path
+   * @return {string}
+   */
   var hasProtocol = function (path) {
     return path.match(/^[a-z0-9]+:\/\//i);
   };
 
-  if (hasProtocol(path)) {
-    return path;
-  }
-
-  var prefix;
-  var isTmpFile = (path.substr(-4,4) === '#tmp');
-  if (contentId !== undefined && !isTmpFile) {
-    // Check for custom override URL
-    if (H5PIntegration.contents !== undefined &&
-        H5PIntegration.contents['cid-' + contentId]) {
-      prefix = H5PIntegration.contents['cid-' + contentId].contentUrl;
+  /**
+   * Get the crossOrigin policy to use for img, video and audio tags on the current site.
+   *
+   * @param {Object|string} source File object from parameters/json_content - Can also be URL(deprecated usage)
+   * @returns {string|null} crossOrigin attribute value required by the source
+   */
+  H5P.getCrossOrigin = function (source) {
+    if (typeof source !== 'object') {
+      // Deprecated usage.
+      return H5PIntegration.crossorigin && H5PIntegration.crossoriginRegex && source.match(H5PIntegration.crossoriginRegex) ? H5PIntegration.crossorigin : null;
     }
-    if (!prefix) {
-      prefix = H5PIntegration.url + '/content/' + contentId;
+
+    if (H5PIntegration.crossorigin && !hasProtocol(source.path)) {
+      // This is a local file, use the local crossOrigin policy.
+      return H5PIntegration.crossorigin;
+      // Note: We cannot use this for all external sources since we do not know
+      // each server's individual policy. We could add support for a list of
+      // external sources and their policy later on.
     }
-  }
-  else if (window.H5PEditor !== undefined) {
-    prefix = H5PEditor.filesPath;
-  }
-  else {
-    return;
-  }
+  };
 
-  if (!hasProtocol(prefix)) {
-    // Use absolute urls
-    prefix = window.location.protocol + "//" + window.location.host + prefix;
-  }
+  /**
+   * Find the path to the content files based on the id of the content.
+   * Also identifies and returns absolute paths.
+   *
+   * @param {string} path
+   *   Relative to content folder or absolute.
+   * @param {number} contentId
+   *   ID of the content requesting the path.
+   * @returns {string}
+   *   Complete URL to path.
+   */
+  H5P.getPath = function (path, contentId) {
+    if (hasProtocol(path)) {
+      return path;
+    }
 
-  return prefix + '/' + path;
-};
+    var prefix;
+    var isTmpFile = (path.substr(-4,4) === '#tmp');
+    if (contentId !== undefined && !isTmpFile) {
+      // Check for custom override URL
+      if (H5PIntegration.contents !== undefined &&
+          H5PIntegration.contents['cid-' + contentId]) {
+        prefix = H5PIntegration.contents['cid-' + contentId].contentUrl;
+      }
+      if (!prefix) {
+        prefix = H5PIntegration.url + '/content/' + contentId;
+      }
+    }
+    else if (window.H5PEditor !== undefined) {
+      prefix = H5PEditor.filesPath;
+    }
+    else {
+      return;
+    }
+
+    if (!hasProtocol(prefix)) {
+      // Use absolute urls
+      prefix = window.location.protocol + "//" + window.location.host + prefix;
+    }
+
+    return prefix + '/' + path;
+  };
+})();
 
 /**
  * THIS FUNCTION IS DEPRECATED, USE getPath INSTEAD
@@ -2306,19 +2357,6 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
       });
     }
-  };
-
-  /**
-   * Get crossorigin option that is set for site. Usefull for setting crossorigin policy for elements.
-   *
-   * @returns {string|null} Returns the string that should be set as crossorigin policy for elements or null if
-   * no policy is set.
-   */
-  H5P.getCrossOrigin = function (url) {
-    var crossorigin = H5PIntegration.crossorigin;
-    var urlRegex = H5PIntegration.crossoriginRegex;
-
-    return crossorigin && urlRegex && url.match(urlRegex) ? crossorigin : null;
   };
 
   /**
