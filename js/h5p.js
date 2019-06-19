@@ -672,6 +672,35 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
 
 (function () {
   /**
+   * Helper for adding a query parameter to an existing path that may already
+   * contain one or a hash.
+   *
+   * @param {string} path
+   * @param {string} parameter
+   * @return {string}
+   */
+  H5P.addQueryParameter = function (path, parameter) {
+    let newPath, secondSplit;
+    const firstSplit = path.split('?');
+    if (firstSplit[1]) {
+      // There is already an existing query
+      secondSplit = firstSplit[1].split('#');
+      newPath = firstSplit[0] + '?' + secondSplit[0] + '&';
+    }
+    else {
+      // No existing query, just need to take care of the hash
+      secondSplit = firstSplit[0].split('#');
+      newPath = secondSplit[0] + '?';
+    }
+    newPath += parameter;
+    if (secondSplit[1]) {
+      // Add back the hash
+      newPath += '#' + secondSplit[1];
+    }
+    return newPath;
+  };
+
+  /**
    * Helper for setting the crossOrigin attribute + the complete correct source.
    * Note: This will start loading the resource.
    *
@@ -680,16 +709,24 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
    * @param {number} contentId Needed to determine the complete correct file path
    */
   H5P.setSource = function (element, source, contentId) {
+    let path = source.path;
+
     const crossOrigin = H5P.getCrossOrigin(source);
     if (crossOrigin) {
       element.crossOrigin = crossOrigin;
+
+      if (H5PIntegration.crossoriginCacheBuster) {
+        // Some sites may want to add a cache buster in case the same resource
+        // is used elsewhere without the crossOrigin attribute
+        path = H5P.addQueryParameter(path, H5PIntegration.crossoriginCacheBuster);
+      }
     }
     else {
       // In case this element has been used before.
       element.removeAttribute('crossorigin');
     }
 
-    element.src = H5P.getPath(source.path, contentId);
+    element.src = H5P.getPath(path, contentId);
   };
 
   /**
