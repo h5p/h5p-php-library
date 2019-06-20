@@ -3899,6 +3899,10 @@ class H5PContentValidator {
       $file->codecs = htmlspecialchars($file->codecs, ENT_QUOTES, 'UTF-8', FALSE);
     }
 
+    if (isset($file->bitrate)) {
+      $file->bitrate = intval($file->bitrate);
+    }
+
     if (isset($file->quality)) {
       if (!is_object($file->quality) || !isset($file->quality->level) || !isset($file->quality->label)) {
         unset($file->quality);
@@ -3940,7 +3944,7 @@ class H5PContentValidator {
    */
   public function validateVideo(&$video, $semantics) {
     foreach ($video as &$variant) {
-      $this->_validateFilelike($variant, $semantics, array('width', 'height', 'codecs', 'quality'));
+      $this->_validateFilelike($variant, $semantics, array('width', 'height', 'codecs', 'quality', 'bitrate'));
     }
   }
 
