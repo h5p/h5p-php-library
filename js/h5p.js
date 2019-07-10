@@ -783,7 +783,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
       return H5PIntegration.crossorigin && H5PIntegration.crossoriginRegex && source.match(H5PIntegration.crossoriginRegex) ? H5PIntegration.crossorigin : null;
     }
 
-    if (H5PIntegration.crossorigin && !hasProtocol(source.path)) {
+    if (H5PIntegration.crossorigin) {
       // This is a local file, use the local crossOrigin policy.
       return H5PIntegration.crossorigin;
       // Note: We cannot use this for all external sources since we do not know
