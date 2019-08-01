@@ -1,5 +1,5 @@
 .h5p-confirmation-dialog-background {
-  position: absolute;
+  position: fixed;
   height: 100%;
   width: 100%;
   left: 0;
