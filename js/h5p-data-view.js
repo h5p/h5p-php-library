@@ -430,12 +430,11 @@ var H5PDataView = (function ($) {
       'class': 'h5p-others-contents-toggler-label',
       'text': this.l10n.showOwnContentOnly,
       'for': 'h5p-others-contents-toggler'
-    });
+    }).prepend(this.$othersContentToggler);
 
     $('<div>', {
       'class': 'h5p-others-contents-toggler-wrapper'
-    }).append(this.$othersContentToggler)
-      .append($label)
+    }).append($label)
       .appendTo(this.$container);
   };
 
