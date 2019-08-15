@@ -1647,8 +1647,11 @@ class H5PStorage {
 
       $library_ids[] = $library['libraryId'];
     }
+
     // Make sure libraries dependencies, parameter filtering and export files gets regenerated for all content who uses these libraries.
-    $this->h5pF->clearFilteredParameters($library_ids);
+    if (!empty($library_ids)) {
+      $this->h5pF->clearFilteredParameters($library_ids);
+    }
 
     // Tell the user what we've done.
     if ($newOnes && $oldOnes) {
