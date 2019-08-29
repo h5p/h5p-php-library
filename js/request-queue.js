@@ -217,6 +217,21 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
  */
 H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
 
+  let localStorageSupported;
+  try {
+    localStorageSupported = (window.localStorage !== undefined);
+  }
+  catch (exception) {
+    localStorageSupported = false;
+  }
+
+  if (!localStorageSupported) {
+    // Return dummy class with the same interface, but which does nothing:
+    return function () {
+      this.add = function () {};
+    };
+  }
+
   /**
    * Constructor
    *
