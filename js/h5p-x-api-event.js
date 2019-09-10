@@ -141,6 +141,12 @@ H5P.XAPIEvent.prototype.setObject = function (instance) {
       }
     }
   }
+  else {
+    // Empty object
+    this.data.statement.object = {
+      definition: {}
+    };
+  }
 };
 
 /**
