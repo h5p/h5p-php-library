@@ -1828,6 +1828,49 @@ Class H5PExport {
   }
 
   /**
+   * Build h5p.json from content
+   *
+   * @return array associative
+   */
+  public static function getH5PdotJSON($content) {
+    $h5pJson = array(
+      'title' => self::revertH5PEditorTextEscape($content['title']),
+      'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
+      'mainLibrary' => $content['library']['name'],
+      'embedTypes' => explode(', ', $content['embedType'])
+    );
+
+    foreach (array('authors', 'source', 'license', 'licenseVersion', 'licenseExtras' ,'yearFrom', 'yearTo', 'changes', 'authorComments', 'defaultLanguage') as $field) {
+      if (isset($content['metadata'][$field]) && $content['metadata'][$field] !== '') {
+        if (($field !== 'authors' && $field !== 'changes') || (count($content['metadata'][$field]) > 0)) {
+          $h5pJson[$field] = json_decode(json_encode($content['metadata'][$field], TRUE)); // Will ensure proper escaping
+        }
+      }
+    }
+
+    // Remove all values that are not set
+    foreach ($h5pJson as $key => $value) {
+      if (!isset($value)) {
+        unset($h5pJson[$key]);
+      }
+    }
+
+    // Add dependencies
+    foreach ($content['dependencies'] as $library) {
+      if ($library['dependencyType'] === 'editor') {
+        continue; // Skip editor dependencies
+      }
+      $h5pJson[$library['dependencyType'] . 'Dependencies'][] = array(
+        'machineName' => $library['machineName'],
+        'majorVersion' => $library['majorVersion'],
+        'minorVersion' => $library['minorVersion']
+      );
+    }
+
+    return $h5pJson;
+  }
+
+  /**
    * Return path to h5p package.
    *
    * Creates package if not already created
@@ -1836,7 +1879,6 @@ Class H5PExport {
    * @return string
    */
   public function createExportFile($content) {
-
     // Get path to temporary folder, where export will be contained
     $tmpPath = $this->h5pC->fs->getTmpPath();
     mkdir($tmpPath, 0777, true);
@@ -1856,29 +1898,6 @@ Class H5PExport {
 
     // Make embedType into an array
     $embedTypes = explode(', ', $content['embedType']);
-
-    // Build h5p.json, the en-/de-coding will ensure proper escaping
-    $h5pJson = array (
-      'title' => self::revertH5PEditorTextEscape($content['title']),
-      'language' => (isset($content['language']) && strlen(trim($content['language'])) !== 0) ? $content['language'] : 'und',
-      'mainLibrary' => $content['library']['name'],
-      'embedTypes' => $embedTypes
-    );
-
-    foreach(array('authors', 'source', 'license', 'licenseVersion', 'licenseExtras' ,'yearFrom', 'yearTo', 'changes', 'authorComments', 'defaultLanguage') as $field) {
-      if (isset($content['metadata'][$field]) && $content['metadata'][$field] !== '') {
-        if (($field !== 'authors' && $field !== 'changes') || (!empty($content['metadata'][$field]))) {
-          $h5pJson[$field] = json_decode(json_encode($content['metadata'][$field], TRUE));
-        }
-      }
-    }
-
-    // Remove all values that are not set
-    foreach ($h5pJson as $key => $value) {
-      if (!isset($value)) {
-        unset($h5pJson[$key]);
-      }
-    }
 
     // Add dependencies to h5p
     foreach ($content['dependencies'] as $dependency) {
@@ -1910,19 +1929,10 @@ Class H5PExport {
         H5PCore::deleteFileTree($tmpPath);
         return FALSE;
       }
-
-      // Do not add editor dependencies to h5p json.
-      if ($dependency['type'] === 'editor') {
-        continue;
-      }
-
-      // Add to h5p.json dependencies
-      $h5pJson[$dependency['type'] . 'Dependencies'][] = array(
-        'machineName' => $library['machineName'],
-        'majorVersion' => $library['majorVersion'],
-        'minorVersion' => $library['minorVersion']
-      );
     }
+
+    // Build h5p.json
+    $h5pJson = self::getH5PdotJSON($content);
 
     // Save h5p.json
     $results = print_r(json_encode($h5pJson), true);
