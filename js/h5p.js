@@ -363,6 +363,24 @@ H5P.init = function (target) {
 
     // Resize content.
     H5P.trigger(instance, 'resize');
+
+    // Logic for hiding focus effects when using mouse
+    const wrapper = $element[0];
+    wrapper.classList.add('using-mouse');
+
+    // Switch between focus modes
+    wrapper.addEventListener('mousedown', function () {
+      wrapper.classList.add('using-mouse');
+    });
+
+    wrapper.addEventListener('keydown', function () {
+      wrapper.classList.remove('using-mouse');
+    });
+
+    // Make sure using-mouse is removed on the first tab into content as well
+    wrapper.addEventListener('keyup', function () {
+      wrapper.classList.remove('using-mouse');
+    });
   });
 
   // Insert H5Ps that should be in iframes.
@@ -1028,12 +1046,16 @@ H5P.Dialog = function (name, title, content, $element) {
                               </div>\
                             </div>')
     .insertAfter($element)
-    .click(function () {
+    .click(function (e) {
+      if (e && e.originalEvent && e.originalEvent.preventClosing) {
+        return;
+      }
+
       self.close();
     })
     .children('.h5p-inner')
-      .click(function () {
-        return false;
+      .click(function (e) {
+        e.originalEvent.preventClosing = true;
       })
       .find('.h5p-close')
         .click(function () {
