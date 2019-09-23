@@ -561,6 +561,6 @@ iframe.h5peditor-semi-fullscreen {
   z-index: 100001;
 }
 
-.h5p-content.using-mouse *:focus {
+.h5p-content.using-mouse *:not(textarea):focus {
   outline: none !important;
 }
