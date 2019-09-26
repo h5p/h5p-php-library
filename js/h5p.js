@@ -365,21 +365,9 @@ H5P.init = function (target) {
     H5P.trigger(instance, 'resize');
 
     // Logic for hiding focus effects when using mouse
-    const wrapper = $element[0];
-    wrapper.classList.add('using-mouse');
-
-    // Switch between focus modes
-    wrapper.addEventListener('mousedown', function () {
-      wrapper.classList.add('using-mouse');
-    });
-
-    wrapper.addEventListener('keydown', function () {
-      wrapper.classList.remove('using-mouse');
-    });
-
-    // Make sure using-mouse is removed on the first tab into content as well
-    wrapper.addEventListener('keyup', function () {
-      wrapper.classList.remove('using-mouse');
+    $element.addClass('using-mouse');
+    $element.on('mousedown keydown keyup', function (event) {
+      $element.toggleClass('using-mouse', event.type === 'mousedown');
     });
   });
 
