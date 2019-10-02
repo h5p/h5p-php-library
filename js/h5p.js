@@ -1253,7 +1253,7 @@ H5P.buildMetadataCopyrights = function (metadata) {
 H5P.openReuseDialog = function ($element, contentData, library, instance, contentId) {
   let html = '';
   if (contentData.displayOptions.export) {
-    html += '<button type="button" class="h5p-big-button h5p-download-button"><div class="h5p-button-title">Download as an .h5p file</div><div class="h5p-button-description">.h5p files may be uploaded to any web-site where H5P content may be created.</div></button>';
+    html += '<a class="h5p-big-button h5p-download-button" href="' + contentData.exportUrl + '" download><div class="h5p-button-title">Download as an .h5p file</div><div class="h5p-button-description">.h5p files may be uploaded to any web-site where H5P content may be created.</div></a>';
   }
   if (contentData.displayOptions.export && contentData.displayOptions.copy) {
     html += '<div class="h5p-horizontal-line-text"><span>or</span></div>';
@@ -1270,7 +1270,6 @@ H5P.openReuseDialog = function ($element, contentData, library, instance, conten
       e.stopPropagation();
     }).appendTo($dialog.find('h2'));
     $dialog.find('.h5p-download-button').click(function () {
-      window.location.href = contentData.exportUrl;
       instance.triggerXAPI('downloaded');
       dialog.close();
     });

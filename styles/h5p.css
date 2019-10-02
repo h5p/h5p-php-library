@@ -493,6 +493,7 @@ div.h5p-fullscreen {
 .h5p-big-button:hover {
   border: 1px solid #2747f7;
   background: #eff1fe;
+  text-decoration: none;
 }
 .h5p-big-button:active {
   border: 1px solid #dedede;
