@@ -369,6 +369,10 @@ H5P.init = function (target) {
     $element.on('mousedown keydown keyup', function (event) {
       $element.toggleClass('using-mouse', event.type === 'mousedown');
     });
+
+    if (H5P.externalDispatcher) {
+      H5P.externalDispatcher.trigger('initialized');
+    }
   });
 
   // Insert H5Ps that should be in iframes.
