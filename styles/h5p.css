@@ -367,10 +367,6 @@ div.h5p-fullscreen {
 }
 .h5p-popup-dialog .h5p-close {
   cursor: pointer;
-}
-.h5p-popup-dialog .h5p-close:after {
-  font-family: 'H5P';
-  content: "\e894";
   font-size: 2em;
   position: absolute;
   right: 0;
@@ -382,6 +378,10 @@ div.h5p-fullscreen {
   cursor: pointer;
   text-indent: -0.065em;
   z-index: 3
+}
+.h5p-popup-dialog .h5p-close:after {
+  font-family: 'H5P';
+  content: "\e894";
 }
 .h5p-popup-dialog .h5p-close:hover:after,
 .h5p-popup-dialog .h5p-close:focus:after {
@@ -412,7 +412,6 @@ div.h5p-fullscreen {
 .h5p-expander {
   cursor: pointer;
   font-size: 1.125em;
-  outline: none;
   margin: 0.5em 0 0;
   display: inline-block;
 }
