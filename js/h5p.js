@@ -1378,6 +1378,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size, instance)
     $dialog.find('.h5p-expander').click(expand).keypress(function (event) {
       if (event.keyCode === 32) {
         expand.apply(this);
+        return false;
       }
     });
   }).on('dialog-closed', function () {
