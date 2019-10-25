@@ -551,7 +551,7 @@ div.h5p-fullscreen {
 }
 .h5p-content pre > code,
 .h5peditor pre > code {
-  background-color: #d1d1d1;
+  background-color: #fafafa;
   padding: 5px;
   display: block;
   line-height: normal;
