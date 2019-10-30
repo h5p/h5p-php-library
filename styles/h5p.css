@@ -202,7 +202,7 @@ div.h5p-fullscreen {
   color: #999;
   text-decoration: none;
   outline: none;
-  line-height: 23px;
+  line-height: 22px;
 }
 .h5p-actions > .h5p-button:hover {
   color: #666;
@@ -223,8 +223,8 @@ div.h5p-fullscreen {
 .h5p-actions > .h5p-button:before {
   font-family: 'H5P';
   font-size: 20px;
-  line-height: 20px;
-  vertical-align: top;
+  line-height: 23px;
+  vertical-align: bottom;
   padding-right: 0;
 }
 .h5p-actions > .h5p-button.h5p-export:before {
