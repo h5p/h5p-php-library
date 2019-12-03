@@ -153,7 +153,7 @@ class H5PDevelopment {
     if (isset($this->libraries[$library]) === FALSE) {
       return NULL;
     }
-    return $this->getFileContents($this->filesPath . $this->libraries[$library]['path'] . '/semantics.json');
+    return $this->getFileContents($this->filesPath . '/' . $this->libraries[$library]['path'] . '/semantics.json');
   }
 
   /**
