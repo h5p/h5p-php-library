@@ -3,11 +3,11 @@
 /* Custom H5P font to use for icons. */
 @font-face {
   font-family: 'h5p';
-  src:    url('../fonts/h5p-core-23.eot?mz1lkp');
-  src:    url('../fonts/h5p-core-23.eot?mz1lkp#iefix') format('embedded-opentype'),
-  url('../fonts/h5p-core-23.ttf?mz1lkp') format('truetype'),
-  url('../fonts/h5p-core-23.woff?mz1lkp') format('woff'),
-  url('../fonts/h5p-core-23.svg?mz1lkp#h5p') format('svg');
+  src:    url('../fonts/h5p-core-24.eot?mz1lkp');
+  src:    url('../fonts/h5p-core-24.eot?mz1lkp#iefix') format('embedded-opentype'),
+  url('../fonts/h5p-core-24.ttf?mz1lkp') format('truetype'),
+  url('../fonts/h5p-core-24.woff?mz1lkp') format('woff'),
+  url('../fonts/h5p-core-24.svg?mz1lkp#h5p') format('svg');
   font-weight: normal;
   font-style: normal;
 }
