@@ -2458,7 +2458,7 @@ class H5PCore {
    * @param array $dependency
    * @return string
    */
-  protected function getDependencyPath(array $dependency): string {
+  protected function getDependencyPath(array $dependency) {
     return 'libraries/' . H5PCore::libraryToString($dependency, TRUE);
   }
 
