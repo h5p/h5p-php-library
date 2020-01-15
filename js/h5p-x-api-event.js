@@ -327,5 +327,6 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
   'copied',
   'accessed-reuse',
   'accessed-embed',
-  'accessed-copyright'
+  'accessed-copyright',
+  'showed-solution'
 ];

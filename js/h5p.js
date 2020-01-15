@@ -216,9 +216,6 @@ H5P.init = function (target) {
       }
     });
 
-    // Listen for xAPI events.
-    H5P.on(instance, 'xAPI', H5P.xAPICompletedListener);
-
     // Auto save current state if supported
     if (H5PIntegration.saveFreq !== false && (
         instance.getCurrentState instanceof Function ||
@@ -382,6 +379,9 @@ H5P.init = function (target) {
     this.contentDocument.write('<!doctype html><html class="h5p-iframe"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
     this.contentDocument.close();
   });
+
+  // Listen for xAPI events
+  H5P.externalDispatcher.on('xAPI', H5P.xAPICompletedListener2);
 };
 
 /**
