@@ -27,7 +27,11 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @returns {boolean}
    */
   RequestQueue.prototype.add = function (url, data) {
-    if (!window.localStorage) {
+    try {
+      if (!window.localStorage) {
+        return false;
+      }
+    } catch(err) {
       return false;
     }
 
@@ -56,7 +60,11 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @returns {boolean|Array} Stored requests
    */
   RequestQueue.prototype.getStoredRequests = function () {
-    if (!window.localStorage) {
+    try {
+      if (!window.localStorage) {
+        return false;
+      }
+    } catch(err) {
       return false;
     }
 
@@ -74,7 +82,11 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @returns {boolean} True if the storage was successfully cleared
    */
   RequestQueue.prototype.clearQueue = function () {
-    if (!window.localStorage) {
+    try {
+      if (!window.localStorage) {
+        return false;
+      }
+    } catch(err) {
       return false;
     }
 
@@ -89,7 +101,11 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    */
   RequestQueue.prototype.resumeQueue = function () {
     // Not supported
-    if (!H5PIntegration || !window.navigator || !window.localStorage) {
+    try {
+      if (!H5PIntegration || !window.navigator || !window.localStorage) {
+        return false;
+      }
+    } catch(err) {
       return false;
     }
 
