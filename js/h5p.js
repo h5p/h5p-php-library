@@ -80,6 +80,16 @@ H5P.init = function (target) {
     // Update: Seems to be no need as they've moved on to Webkit
   }
 
+  // Determine if we can use local storage
+  if (H5P.localStorageSupported === undefined) {
+    try {
+      H5P.localStorageSupported = (window.localStorage) ? true : false;
+    }
+    catch (error) {
+      H5P.localStorageSupported = false;
+    }
+  }
+
   // Deprecated variable, kept to maintain backwards compatability
   if (H5P.canHasFullScreen === undefined) {
     /**
@@ -2319,7 +2329,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
   function contentUserDataAjax(contentId, dataType, subContentId, done, data, preload, invalidate, async) {
     if (H5PIntegration.user === undefined) {
       // Not logged in, no use in saving.
-      done('Not signed in.');
+      done('Not signed in.'); // Return value used when storing state in localStorage
       return;
     }
 
@@ -2381,6 +2391,44 @@ H5P.createTitle = function (rawTitle, maxLength) {
     H5PIntegration.contents = H5PIntegration.contents || {};
     var content = H5PIntegration.contents['cid-' + contentId] || {};
     var preloadedData = content.contentUserData;
+
+    /*
+     * If previous state in DB is empty (user might not be logged in),
+     * alternatively try to preload state from localStorage
+     */
+    if (preloadedData && preloadedData[subContentId] && preloadedData[subContentId][dataId] === '{}') {
+      if (H5PIntegration.saveContentStorages && H5PIntegration.saveContentStorages.localStorage && H5P.localStorageSupported) {
+        const localStorageData = window.localStorage.getItem('H5P-cid-' + contentId + '-sid-' + subContentId);
+        if (localStorageData) {
+          let data = {};
+
+          try {
+            data = JSON.parse(localStorageData);
+          }
+          catch (err) {
+            console.error('Unable to parse JSON from state in localStorage.', err);
+          }
+
+          if (data.state && data.checksum) {
+            // Detect whether content parameters changed meanwhile
+            if (data.checksum === H5P.getNumericalHash(content.jsonContent)) {
+              try {
+                data = JSON.stringify(data.state);
+                preloadedData[subContentId][dataId] = data;
+              }
+              catch (err) {
+                console.error('Unable to stringify JSON for state in localStorage.', err);
+              }
+            }
+            else {
+              // Content has been changed
+              preloadedData[subContentId][dataId] = 'RESET';
+            }
+          }
+        }
+      }
+    }
+
     if (preloadedData && preloadedData[subContentId] && preloadedData[subContentId][dataId] !== undefined) {
       if (preloadedData[subContentId][dataId] === 'RESET') {
         done(undefined, null);
@@ -2486,6 +2534,18 @@ H5P.createTitle = function (rawTitle, maxLength) {
       if (options.errorCallback && error) {
         options.errorCallback(error);
       }
+
+      // Additionally store state in localStorage if requested
+      if ((!error || error === 'Not signed in.') &&
+        H5PIntegration.saveContentStorages && H5PIntegration.saveContentStorages.localStorage && H5P.localStorageSupported
+      ) {
+        // Add checksum of params to detect changes for resetting localStorage
+        window.localStorage.setItem(
+          'H5P-cid-' + contentId + '-sid-' + options.subContentId,
+          '{"checksum":' + H5P.getNumericalHash(content.jsonContent) + ',"state":' + data + '}'
+        );
+      }
+
     }, data, options.preloaded, options.deleteOnChange, options.async);
   };
 
@@ -2510,7 +2570,12 @@ H5P.createTitle = function (rawTitle, maxLength) {
       delete preloadedData[subContentId][dataId];
     }
 
-    contentUserDataAjax(contentId, dataId, subContentId, undefined, null);
+    contentUserDataAjax(contentId, dataId, subContentId, function (error) {
+      // When done deleting user data in DB, delete in localStorage
+      if ((!error || error === 'Not signed in.') && H5P.localStorageSupported) {
+        window.localStorage.removeItem('H5P-cid-' + contentId + '-sid-' + subContentId);
+      }
+    }, null);
   };
 
   /**
@@ -2614,6 +2679,20 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
     // Trigger an event so all 'Paste' buttons may be enabled.
     H5P.externalDispatcher.trigger('datainclipboard', {reset: false});
+  };
+
+  /**
+   * Get numerical hash for a text.
+   *
+   * @param {string} text - Text to be hashed.
+   */
+  H5P.getNumericalHash = function (text) {
+    text = text || '';
+    return text
+      .split('')
+      .reduce(function (result, current) {
+        return (((result << 5) - result) + current.charCodeAt(0)) | 0;
+      }, 0);
   };
 
   /**
