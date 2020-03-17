@@ -2398,7 +2398,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
      */
     if (preloadedData && preloadedData[subContentId] && preloadedData[subContentId][dataId] === '{}') {
       if (H5PIntegration.saveContentStorages && H5PIntegration.saveContentStorages.localStorage && H5P.localStorageSupported) {
-        const localStorageData = window.localStorage.getItem('H5P-cid-' + contentId + '-sid-' + subContentId);
+        const localStorageData = window.localStorage.getItem(H5P.getLocalStoragePrefix() + 'H5P-cid-' + contentId + '-sid-' + subContentId);
         if (localStorageData) {
           let data = {};
 
@@ -2541,7 +2541,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
       ) {
         // Add checksum of params to detect changes for resetting localStorage
         window.localStorage.setItem(
-          'H5P-cid-' + contentId + '-sid-' + options.subContentId,
+          H5P.getLocalStoragePrefix() + 'H5P-cid-' + contentId + '-sid-' + options.subContentId,
           '{"checksum":' + H5P.getNumericalHash(content.jsonContent) + ',"state":' + data + '}'
         );
       }
@@ -2573,7 +2573,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
     contentUserDataAjax(contentId, dataId, subContentId, function (error) {
       // When done deleting user data in DB, delete in localStorage
       if ((!error || error === 'Not signed in.') && H5P.localStorageSupported) {
-        window.localStorage.removeItem('H5P-cid-' + contentId + '-sid-' + subContentId);
+        window.localStorage.removeItem(H5P.getLocalStoragePrefix() + 'H5P-cid-' + contentId + '-sid-' + subContentId);
       }
     }, null);
   };
@@ -2693,6 +2693,19 @@ H5P.createTitle = function (rawTitle, maxLength) {
       .reduce(function (result, current) {
         return (((result << 5) - result) + current.charCodeAt(0)) | 0;
       }, 0);
+  };
+
+  /**
+   * Get prefix for localStorage. Relevant for multiple instances on same domain.
+   *
+   * @return {string} Prefix for localStorage.
+   */
+  H5P.getLocalStoragePrefix = function () {
+    if (!H5PIntegration.saveContentStorages || !H5PIntegration.saveContentStorages.localStorage || typeof(H5PIntegration.saveContentStorages.localStorage) !== 'string') {
+      return '';
+    }
+
+    return H5PIntegration.saveContentStorages.localStorage;
   };
 
   /**
