@@ -3754,7 +3754,7 @@ class H5PContentValidator {
     // Check if number is within allowed bounds even if step value is set.
     if (isset($semantics->step)) {
       $testNumber = $number - (isset($semantics->min) ? $semantics->min : 0);
-      $rest = $testNumber % $semantics->step;
+      $rest = fmod($testNumber, $semantics->step);
       if ($rest !== 0) {
         $number -= $rest;
       }
