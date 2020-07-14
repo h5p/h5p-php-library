@@ -752,6 +752,10 @@ class H5PValidator {
    * TRUE if the .h5p file is valid
    */
   public function isValidPackage($skipContent = FALSE, $upgradeOnly = FALSE) {
+    // Create a temporary dir to extract package in.
+    $tmpDir = $this->h5pF->getUploadedH5pFolderPath();
+    $tmpPath = $this->h5pF->getUploadedH5pPath();
+
     // Check dependencies, make sure Zip is present
     if (!class_exists('ZipArchive')) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Your PHP version does not support ZipArchive.'), 'zip-archive-unsupported');
@@ -763,10 +767,6 @@ class H5PValidator {
       unlink($tmpPath);
       return FALSE;
     }
-
-    // Create a temporary dir to extract package in.
-    $tmpDir = $this->h5pF->getUploadedH5pFolderPath();
-    $tmpPath = $this->h5pF->getUploadedH5pPath();
 
     // Only allow files with the .h5p extension:
     if (strtolower(substr($tmpPath, -3)) !== 'h5p') {
