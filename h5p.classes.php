@@ -911,7 +911,7 @@ class H5PValidator {
         // This is a breaking error, there's no need to continue. (the rest of the files will fail as well)
         $this->h5pF->setErrorMessage($this->h5pF->t('Unable to read file from the package: %fileName', array('%fileName' => $fileName)), 'unable-to-read-package-file');
         $zip->close();
-        unlink($path);
+        unlink($tmpPath);
         H5PCore::deleteFileTree($tmpDir);
         return FALSE;
       }
