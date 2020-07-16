@@ -733,7 +733,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     }
     else {
       // In case this element has been used before.
-      element.removeAttribute('crossorigin');
+      element.crossOrigin = "anonymous";
     }
 
     element.src = H5P.getPath(path, contentId);
