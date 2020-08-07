@@ -481,6 +481,10 @@ class H5PDefaultStorage implements \H5PFileStorage {
     return file_put_contents($filePath, $stream);
   }
 
+  public function waitForPendingPromises() {
+    // Only needed if there are pending promises from file transfers
+  }
+
   /**
    * Recursive function for copying directories.
    *

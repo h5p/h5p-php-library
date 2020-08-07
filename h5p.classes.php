@@ -987,6 +987,8 @@ class H5PValidator {
         fclose($fileStream);
       }
     }
+    // Wait for pending file transfers before closing zip
+    $this->h5pC->fs->waitForPendingPromises();
 
     // We're done with the zip file, clean up the stuff
     $zip->close();
