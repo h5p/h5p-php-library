@@ -1,0 +1,399 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+.h5p-hub-publish button,.h5p-hub-registration button{font-family:"Open Sans", sans-serif;font-size:0.75em;background:transparent;padding:0.75em 2em;color:#757575;border-radius:3em;border:1px solid #d6d6d6;cursor:pointer;font-weight:bold}.h5p-hub-publish button:before,.h5p-hub-registration button:before{font-weight:normal}.h5p-hub-publish button:hover,.h5p-hub-registration button:hover{color:#5f5f5f;border-color:#5f5f5f}.h5p-hub-publish button.contained.green,.h5p-hub-registration button.contained.green{color:#fff;border-color:#2b9684;background:#2b9684}.h5p-hub-publish button.contained.green:hover,.h5p-hub-registration button.contained.green:hover{border-color:#257a70;background:#257a70}.h5p-hub-publish button.outlined.green,.h5p-hub-registration button.outlined.green{border-width:0.125em;color:#2b9684;border-color:#2b9684}.h5p-hub-publish button.outlined.green:hover,.h5p-hub-registration button.outlined.green:hover{color:#257a70;border-color:#257a70}.h5p-hub-publish button.outlined.green[disabled],.h5p-hub-registration button.outlined.green[disabled]{color:#92cabf;border-color:#92cabf}
+
+.h5p-hub-publish .stepper{display:flex;width:100%;max-width:40em;align-items:center;flex-direction:row;margin:2em auto;padding:0 2em;box-sizing:border-box}.h5p-hub-publish .step-connector{flex-grow:1;margin-left:-2em;margin-right:-2em;position:relative;top:-0.6em}.h5p-hub-publish .step-connector-line{display:block;border-top-style:solid;border-top-width:1px;border-color:#d5d5d7}
+
+.h5p-hub-publish .step{text-align:center;font-size:0.75em;font-weight:bold}.h5p-hub-publish .step .step-icon{color:#303030;border-radius:50%;border:0.462em solid #e1e1e1;width:3.2em;height:3.2em;line-height:2.276;display:inline-block;z-index:1;position:relative;background:#fff;box-sizing:border-box}.h5p-hub-publish .step .step-icon .icon-check{line-height:2.276}.h5p-hub-publish .step .step-label{color:#757575;margin-top:0.5em;min-width:8em}.h5p-hub-publish .step.active{color:#20d2b2}.h5p-hub-publish .step.active .step-icon{border-color:#20d2b2;color:#0ea385}.h5p-hub-publish .step.completed .step-icon{background:#0ea385;border-color:#20d2b2;color:#fff}
+
+.h5p-hub-publish .form-element,.h5p-hub-registration .form-element{font-family:'Open Sans', sans-serif;padding:1em 0}.h5p-hub-publish .form-element label,.h5p-hub-registration .form-element label{display:block;color:#363636;margin-bottom:0.4em;font-weight:bold}.h5p-hub-publish .form-element.mandatory label:after,.h5p-hub-registration .form-element.mandatory label:after{content:'*';color:#d11e15;position:relative;top:-0.2em}.h5p-hub-publish .form-element input,.h5p-hub-registration .form-element input{font-size:0.917em;padding:0.833em;border:1px solid #bebdcd;border-radius:0.208em;width:100%;box-sizing:border-box;line-height:normal}.h5p-hub-publish .form-element input::placeholder,.h5p-hub-registration .form-element input::placeholder{font-style:italic}.h5p-hub-publish .form-element .description,.h5p-hub-registration .form-element .description{font-size:0.833em;color:#707475;margin:0 0 1em 0}.h5p-hub-publish .form-element textarea,.h5p-hub-registration .form-element textarea{border:1px solid #bebdcd;resize:none;font-size:0.833em;width:100%;border-radius:0.208em;padding:0.833em 0.833em;box-sizing:border-box}.h5p-hub-publish .form-element textarea::-webkit-scrollbar,.h5p-hub-registration .form-element textarea::-webkit-scrollbar{background-color:rgba(105,117,133,0.25);width:0.333em;border-radius:5.45256em}.h5p-hub-publish .form-element textarea::-webkit-scrollbar-thumb,.h5p-hub-registration .form-element textarea::-webkit-scrollbar-thumb{background-color:#697585;background-size:24px 100%;border-radius:5.45256em}.h5p-hub-publish .form-element textarea::placeholder,.h5p-hub-registration .form-element textarea::placeholder{font-style:italic}.h5p-hub-publish .form-element .link-button,.h5p-hub-registration .form-element .link-button{border:none;color:#2c67b0;text-decoration:underline;font-weight:500;padding:0;text-align:right}.h5p-hub-publish .form-element .details-row,.h5p-hub-registration .form-element .details-row{display:flex;align-content:center;align-items:center;justify-content:space-between}.h5p-hub-publish .step-content>.form-element:first-child,.h5p-hub-registration .step-content>.form-element:first-child{padding-top:0}.h5p-hub-publish .step-content>.form-element:last-child,.h5p-hub-registration .step-content>.form-element:last-child{padding-bottom:0}
+
+.h5p-hub-publish select{font-size:0.917em;border-radius:0.208em;padding:0.833em;color:#313131;background-color:#ffffff;font-family:"Open Sans", sans-serif;border:1px solid #bebdcd;width:100%;-webkit-appearance:none;-moz-appearance:none;line-height:normal}.h5p-hub-publish select:disabled{background-color:#ededed}.h5p-hub-publish select:disabled::before{content:"-"}.h5p-hub-publish select::-ms-expand{display:none}.h5p-hub-publish div.icon-arrow-down{position:relative;line-height:1.1em;pointer-events:none}.h5p-hub-publish div.icon-arrow-down:before{content:"\e925";transform:rotate(90deg);position:absolute;right:1em;top:1.8em;font-size:0.6em}
+
+.h5p-hub-publish .modal-content{z-index:2;background-color:#ffffff;opacity:1;position:relative;margin:2em 3em;border-radius:0.167em}.h5p-hub-publish .modal-overlay{position:absolute;top:0;left:0px;right:0px;bottom:0px;background-color:rgba(0,0,0,0.7);z-index:2}
+
+.h5p-hub-publish .chips-list{display:flex;list-style:none;padding:0;flex-wrap:wrap;margin:0 0 0.5em}.h5p-hub-publish .chips-list li button{font-size:0.708em;border-radius:0.083em;margin-right:0.5em;margin-top:0.5em;font-style:italic;color:#000000;display:flex;align-items:center;padding:0.75em 0.75em;border-color:#dddee2;outline:none}.h5p-hub-publish .chips-list li button .icon-close{font-size:0.8em;margin-left:2em}.h5p-hub-publish .chips-list li button:focus{background-color:#e8e8e8;border-color:#dddee2}.h5p-hub-publish .chips-list li button:hover{background-color:#f5f5f5;border-color:#dddee2}
+
+.h5p-hub-publish .checkbox,.h5p-hub-registration .checkbox{font-size:1.05em;padding:0.5em 0;font-weight:bold;display:flex;cursor:pointer;align-self:start;color:#4d5057;width:100%}.h5p-hub-publish .checkbox:focus,.h5p-hub-registration .checkbox:focus{box-shadow:0 0 0.4em 0.01em RGBA(26, 147, 244, 0.7);outline:none}.h5p-hub-publish .checkbox:hover.parent:after,.h5p-hub-registration .checkbox:hover.parent:after{color:#121212;font-family:'h5p';content:'\e924';transform:rotate(-90deg);font-style:normal;font-size:0.7em;display:inline-block;position:absolute;right:2em;align-self:center}.h5p-hub-publish .checkbox.highlighted.parent:after,.h5p-hub-registration .checkbox.highlighted.parent:after{color:#121212;font-family:'h5p';content:'\e924';transform:rotate(-90deg);font-style:normal;font-size:0.7em;display:inline-block;position:absolute;right:2em;align-self:center}.h5p-hub-publish .checkbox .content,.h5p-hub-registration .checkbox .content{display:flex}.h5p-hub-publish .checkbox .content-text,.h5p-hub-registration .checkbox .content-text{margin-left:2em}.h5p-hub-publish .checkbox .bold,.h5p-hub-registration .checkbox .bold{font-weight:bold}.h5p-hub-publish .checkbox .non-bold,.h5p-hub-registration .checkbox .non-bold{font-weight:normal}.h5p-hub-publish .checkbox .content .icon::before,.h5p-hub-registration .checkbox .content .icon::before{font-family:'h5p';content:'\e923';font-style:normal;font-weight:normal;font-size:1em;margin:0.4em 0.4em 0 0.4em;margin-right:1em}.h5p-hub-publish .checkbox.checked .content .icon::before,.h5p-hub-registration .checkbox.checked .content .icon::before{content:'\e938';font-family:'h5p';font-style:normal;font-weight:normal;font-size:1em;margin:0.4em 0.4em 0 0.4em;margin-right:1em}
+
+.h5p-hub-publish .checkbox-list{list-style:none;padding:0}
+
+.h5p-hub-publish .bottom-line{border-bottom:2px solid #697585}.h5p-hub-publish .category-header{background-color:#f2f2f2;color:#313131;font-style:italic;padding:0 0 0 0.9em;font-size:0.81788em}
+
+.h5p-hub-publish .search-button{width:100%}.h5p-hub-publish .search-button .search-field{position:relative}.h5p-hub-publish .search-button .search-field .icon-arrow{position:absolute;font-size:1.30353em;top:1.2em;right:0.7em;cursor:pointer;color:#000000;transform:rotate(90deg)}.h5p-hub-publish .search-button .search-field .icon-arrow::before{content:"\e925";font-family:"h5p";font-style:normal;font-size:0.6em}.h5p-hub-publish #filter-search-bar{border:none;padding:0.833em;font-style:italic;font-size:1.25em;width:100%;box-sizing:border-box}.h5p-hub-publish #filter-search-bar::placeholder{color:#b7b8ba}.h5p-hub-publish #filter-search-bar:focus{border-color:#3ba0f2;background-color:#fff;outline:none}
+
+.h5p-hub-publish .search-filter{position:relative;border:1px solid #bebdcd;border-radius:0.208em;font-size:0.833em}.h5p-hub-publish .search-filter .clear-button{background:none;position:absolute;top:0;padding:1.6em;right:3em;color:#757575;border:none}.h5p-hub-publish .search-filter .clear-button::before{content:"\e93a";font-family:"h5p";font-style:normal;font-size:1em}.h5p-hub-publish .search-filter .navigate-parent{font-size:1.25em;padding:0.3534em;display:flex;font-weight:bold;font-family:"Open Sans", sans-serif;border-top:1px solid #e6e6e8;align-items:center}.h5p-hub-publish .search-filter .navigate-parent button{background-color:#ffffff;position:relative;font-style:normal;font-size:0.8em;border-radius:50%;margin-right:0.4em;align-self:center;padding:0.5em;border:none}.h5p-hub-publish .search-filter .navigate-parent button::before{content:"\e937";font-family:"h5p";transform:rotate(180deg);font-weight:normal;display:inline-block}.h5p-hub-publish .search-filter .navigate-parent button:hover{background-color:#dadada;cursor:pointer}.h5p-hub-publish .search-filter .checkbox-list{overflow:hidden;overflow-y:scroll;max-height:25em;margin:0}.h5p-hub-publish .search-filter .checkbox-list li{border-bottom:1px solid #e6e6e8}.h5p-hub-publish .search-filter .checkbox-list li:last-child{border-bottom:none}.h5p-hub-publish .search-filter .checkbox-list li:first-child{border-top:1px solid #e6e6e8}.h5p-hub-publish .search-filter .checkbox-list li .content{padding:0.3em}.h5p-hub-publish .search-filter .checkbox-list li .content .label-text{margin-right:1em}.h5p-hub-publish .search-filter .checkbox-list li:focus{border-color:#3ba0f2;background-color:#fff;outline:none;box-shadow:none}.h5p-hub-publish .search-filter .checkbox-list li:hover{background-color:#f2f2f2}.h5p-hub-publish .search-filter .checkbox-list li.highlighted{outline:1px solid #3ba0f2;outline-offset:-1px;background-color:#fff;box-shadow:none}.h5p-hub-publish .search-filter .checkbox-list li:hover{background-color:rgba(230,230,232,0.25)}.h5p-hub-publish .search-filter .checkbox-list::-webkit-scrollbar{background-color:rgba(105,117,133,0.25);width:0.54525em;border-radius:5.45256em}.h5p-hub-publish .search-filter .checkbox-list::-webkit-scrollbar-thumb{background-color:#697585;background-size:24px 100%;border-radius:5.45256em}
+
+.h5p-hidden-read{width:1px;height:1px;top:-1px;position:absolute;text-indent:1px;overflow:hidden}
+
+.h5p-hub-publish .tip{position:relative;display:block}.h5p-hub-publish .tip.positioned{position:unset}.h5p-hub-publish .tip.bottom .tip-wrapper{top:115%}.h5p-hub-publish .tip.bottom .tip-wrapper .arrow:after{top:-0.75em;border-bottom-color:black;border-top-color:transparent}.h5p-hub-publish .tip.left-aligned .tip-wrapper{transform:none;top:-0.85em;right:0}.h5p-hub-publish .tip.left-aligned .tip-wrapper .tip{white-space:normal}.h5p-hub-publish .tip.left-aligned .tip-wrapper .arrow:after{left:auto;transform:none;right:1.3em}.h5p-hub-publish .tip .tip-wrapper{display:none;position:absolute;top:-3.5em;font-size:14px;font-weight:400;color:white;border-radius:0.4em;z-index:2}.h5p-hub-publish .tip .tip-wrapper.tip-wrapper-enter-done,.h5p-hub-publish .tip .tip-wrapper.tip-wrapper-enter,.h5p-hub-publish .tip .tip-wrapper.tip-wrapper-enter-active,.h5p-hub-publish .tip .tip-wrapper.tip-wrapper-exit,.h5p-hub-publish .tip .tip-wrapper.tip-wrapper-exit-active{display:block}.h5p-hub-publish .tip .tip-wrapper.tip-wrapper-enter{transform:translate(0, 30%);opacity:0}.h5p-hub-publish .tip .tip-wrapper.tip-wrapper-enter-active{transform:translate(0, 0);opacity:1;transition:opacity 0.2s, transform 0.2s}.h5p-hub-publish .tip .tip-wrapper.tip-wrapper-exit{transform:translate(0, 0);opacity:1}.h5p-hub-publish .tip .tip-wrapper.tip-wrapper-exit-active{transform:translate(0, 30%);opacity:0;transition:opacity 0.2s, transform 0.2s}.h5p-hub-publish .tip .tip-wrapper .tip{white-space:nowrap;background:black;padding:0.3em 1em;border-radius:0.4em}.h5p-hub-publish .tip .tip-wrapper .arrow:after{content:" ";position:absolute;left:50%;transform:translateX(-50%);pointer-events:none;border:0.4em solid transparent;border-top-color:black}
+
+.h5p-hub-publish .message,.h5p-hub-registration .message{font-size:0.833em;border-left:0.3em solid;padding:1em;margin:0.5em 0}.h5p-hub-publish .message.warning,.h5p-hub-registration .message.warning{border-color:#fdcc31;background:#fff8e0}.h5p-hub-publish .message.error,.h5p-hub-registration .message.error{border-color:#c1494b;background-color:#ece0e0}.h5p-hub-publish .message.success,.h5p-hub-registration .message.success{border-color:#03a953;background-color:#d9eae2}
+
+.h5p-hub-publish .h5p-hub-accordion-heading{display:flex;align-items:center}.h5p-hub-publish .h5p-hub-accordion-heading .icon-dropdown{font-size:0.4em;color:#616161;display:inline-block;left:0;display:flex;padding:0.2em 0.2em;transform:rotate(-90deg)}.h5p-hub-publish .h5p-hub-accordion-heading .icon-dropdown.open{transform:rotate(0)}.h5p-hub-publish .accordion-button{border:none;position:relative;padding:0.2em 0.2em;width:100%;justify-self:start;display:flex}.h5p-hub-publish .accordion-button .accordion-header{border:none;text-align:left;color:#616161}.h5p-hub-publish .panel-body{font-size:0.833em;margin-left:0.7em;color:#707475}
+
+.h5p-hub-publish .dialog-header{padding:1.708em 2.292em;border-bottom:1px solid #d5d5d7}.h5p-hub-publish .dialog-header .dialog-description{font-size:0.833em;color:#707475}.h5p-hub-publish .dialog-content{padding:1.708em 2.292em}.h5p-hub-publish .dialog-title{display:flex;justify-content:space-between}.h5p-hub-publish .dialog-title span{font-size:1.458em;color:#1a1a1a;margin-bottom:0.2em}.h5p-hub-publish .dialog-title button{max-height:2.77em}
+
+.h5p-hub-publish .tip-keywords{top:2.5em}
+
+.h5p-hub-publish .image-preview,.h5p-hub-registration .image-preview{width:4em;height:3em;margin-right:0.5em;display:inline-block;background-size:cover;background-position:center}
+
+.h5p-hub-publish .image-upload-container,.h5p-hub-registration .image-upload-container{width:4em;height:3em;margin-right:1em;position:relative}.h5p-hub-publish .image-upload-container .image-preview,.h5p-hub-registration .image-upload-container .image-preview{position:absolute;left:4px;top:4px;width:calc(100% - 4px);height:calc(100% - 4px)}.h5p-hub-publish .image-upload-container .icon-close,.h5p-hub-registration .image-upload-container .icon-close{cursor:pointer}.h5p-hub-publish .image-upload-container .icon-close:before,.h5p-hub-registration .image-upload-container .icon-close:before{font-size:0.6em;padding:0.5em;line-height:1.1;color:#fff;background:#000;position:absolute;z-index:1;display:inline-block;right:-1.2em;top:-1.2em;border:3px solid #fff;border-radius:50%;cursor:pointer;transition:all 0.3s}.h5p-hub-publish .image-upload-container .icon-close:hover:before,.h5p-hub-registration .image-upload-container .icon-close:hover:before{background:#eee;color:#000}.h5p-hub-publish .image-upload-container .image-upload,.h5p-hub-registration .image-upload-container .image-upload{position:absolute;top:0;left:0;width:100%;height:100%;border:0.125em dashed #bebdcd;color:#bebdcd;text-align:center;transition:all 0.3s}.h5p-hub-publish .image-upload-container .image-upload input,.h5p-hub-registration .image-upload-container .image-upload input{position:absolute;left:0;top:0;width:100%;height:100%;cursor:pointer;opacity:0}.h5p-hub-publish .image-upload-container .image-upload input::-webkit-file-upload-button,.h5p-hub-registration .image-upload-container .image-upload input::-webkit-file-upload-button{visibility:hidden}.h5p-hub-publish .image-upload-container .image-upload:hover,.h5p-hub-registration .image-upload-container .image-upload:hover{color:#777;border-color:#777}.h5p-hub-publish .image-upload-container .image-upload:before,.h5p-hub-registration .image-upload-container .image-upload:before{content:"+";font-size:2em;display:inline-block;position:relative;top:50%;transform:translateY(-50%)}.h5p-hub-publish .image-upload-container .image-upload.image-selected,.h5p-hub-registration .image-upload-container .image-upload.image-selected{border-style:solid;border-radius:0.1em}.h5p-hub-publish .image-upload-container .image-upload.image-selected:before,.h5p-hub-registration .image-upload-container .image-upload.image-selected:before{display:none}
+
+.h5p-hub-publish .optional .keywords .form-element label{margin-bottom:0.708em}.h5p-hub-publish .optional #screenshots{display:flex;flex-wrap:wrap;flex-direction:column}.h5p-hub-publish .optional #screenshots .image-upload-container{margin-top:0.4em}.h5p-hub-publish .optional #screenshots .row{margin-top:0.5em}.h5p-hub-publish .optional #screenshots .row .form-element{padding:0}.h5p-hub-publish .optional #screenshots .alt-text{padding:0.3em}.h5p-hub-publish .optional .optional-second-part{display:flex}@media (max-width: 576px){.h5p-hub-publish .optional .optional-second-part{flex-wrap:wrap}}.h5p-hub-publish .optional #long-description{height:10.458em}.h5p-hub-publish .optional #short-description{height:6.333em}
+
+.h5p-hub-publish .step-content.review .review-header{margin-bottom:1em;color:#363636}.h5p-hub-publish .step-content.review dl{border-top:1px solid #d5d5d5;margin:1.25em 0 0 0}.h5p-hub-publish .step-content.review .definition{border-bottom:1px solid #d5d5d5;display:flex}.h5p-hub-publish .step-content.review .definition dt{width:25%;min-width:25%;background:#f4f5f9;display:inline-block;padding:0.5em 0 0.5em 1em}.h5p-hub-publish .step-content.review .definition dd{color:#707475;display:inline-block;margin:0;padding:0.5em 0 0.5em 1em}.h5p-hub-publish .step-content.review .definition .img-alt{display:flex;align-items:center}.h5p-hub-publish .step-content.review .definition .screenshots{margin-bottom:0.2em}.h5p-hub-publish .step-content.review .definition .screenshots:last-child{margin-bottom:0}.h5p-hub-publish .step-content.review .definition .screenshots .image-preview{font-size:0.75em}
+
+.h5p-hub-publish .success-page{text-align:center}.h5p-hub-publish .success-page .step-icon-success{font-size:0.75em;border-radius:50%;border:0.462em solid #e1e1e1;width:3.2em;height:3.2em;line-height:2.276;display:inline-block;box-sizing:border-box;background:#0ea385;border-color:#20d2b2;color:#fff;margin-bottom:0.667em}.h5p-hub-publish .success-page .submitted-text{color:#0ea385;margin-bottom:2.167em;font-size:0.75em}.h5p-hub-publish .success-page .content-type{letter-spacing:0.146em;color:#303438;margin-bottom:0.7em}.h5p-hub-publish .success-page .title{font-size:1.75em;margin-bottom:0.5em;color:#1a1a1a}.h5p-hub-publish .success-page .now-submitted-text{font-size:1.458em;margin-bottom:1.75em;color:#1a1a1a}.h5p-hub-publish .success-page .content-available{font-size:0.833em;color:#707475}
+
+/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
+
+/* Document
+   ========================================================================== */
+
+/**
+ * 1. Correct the line height in all browsers.
+ * 2. Prevent adjustments of font size after orientation changes in iOS.
+ */
+
+html {
+  line-height: 1.15; /* 1 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+
+/* Sections
+   ========================================================================== */
+
+/**
+ * Remove the margin in all browsers.
+ */
+
+body {
+  margin: 0;
+}
+
+/**
+ * Render the `main` element consistently in IE.
+ */
+
+main {
+  display: block;
+}
+
+/**
+ * Correct the font size and margin on `h1` elements within `section` and
+ * `article` contexts in Chrome, Firefox, and Safari.
+ */
+
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+/* Grouping content
+   ========================================================================== */
+
+/**
+ * 1. Add the correct box sizing in Firefox.
+ * 2. Show the overflow in Edge and IE.
+ */
+
+hr {
+  box-sizing: content-box; /* 1 */
+  height: 0; /* 1 */
+  overflow: visible; /* 2 */
+}
+
+/**
+ * 1. Correct the inheritance and scaling of font size in all browsers.
+ * 2. Correct the odd `em` font sizing in all browsers.
+ */
+
+pre {
+  font-family: monospace, monospace; /* 1 */
+  font-size: 1em; /* 2 */
+}
+
+/* Text-level semantics
+   ========================================================================== */
+
+/**
+ * Remove the gray background on active links in IE 10.
+ */
+
+a {
+  background-color: transparent;
+}
+
+/**
+ * 1. Remove the bottom border in Chrome 57-
+ * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.
+ */
+
+abbr[title] {
+  border-bottom: none; /* 1 */
+  text-decoration: underline; /* 2 */
+  text-decoration: underline dotted; /* 2 */
+}
+
+/**
+ * Add the correct font weight in Chrome, Edge, and Safari.
+ */
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+/**
+ * 1. Correct the inheritance and scaling of font size in all browsers.
+ * 2. Correct the odd `em` font sizing in all browsers.
+ */
+
+code,
+kbd,
+samp {
+  font-family: monospace, monospace; /* 1 */
+  font-size: 1em; /* 2 */
+}
+
+/**
+ * Add the correct font size in all browsers.
+ */
+
+small {
+  font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` elements from affecting the line height in
+ * all browsers.
+ */
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/* Embedded content
+   ========================================================================== */
+
+/**
+ * Remove the border on images inside links in IE 10.
+ */
+
+img {
+  border-style: none;
+}
+
+/* Forms
+   ========================================================================== */
+
+/**
+ * 1. Change the font styles in all browsers.
+ * 2. Remove the margin in Firefox and Safari.
+ */
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit; /* 1 */
+  font-size: 100%; /* 1 */
+  line-height: 1.15; /* 1 */
+  margin: 0; /* 2 */
+}
+
+/**
+ * Show the overflow in IE.
+ * 1. Show the overflow in Edge.
+ */
+
+button,
+input { /* 1 */
+  overflow: visible;
+}
+
+/**
+ * Remove the inheritance of text transform in Edge, Firefox, and IE.
+ * 1. Remove the inheritance of text transform in Firefox.
+ */
+
+button,
+select { /* 1 */
+  text-transform: none;
+}
+
+/**
+ * Correct the inability to style clickable types in iOS and Safari.
+ */
+
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button;
+}
+
+/**
+ * Remove the inner border and padding in Firefox.
+ */
+
+button::-moz-focus-inner,
+[type="button"]::-moz-focus-inner,
+[type="reset"]::-moz-focus-inner,
+[type="submit"]::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+/**
+ * Restore the focus styles unset by the previous rule.
+ */
+
+button:-moz-focusring,
+[type="button"]:-moz-focusring,
+[type="reset"]:-moz-focusring,
+[type="submit"]:-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+/**
+ * Correct the padding in Firefox.
+ */
+
+fieldset {
+  padding: 0.35em 0.75em 0.625em;
+}
+
+/**
+ * 1. Correct the text wrapping in Edge and IE.
+ * 2. Correct the color inheritance from `fieldset` elements in IE.
+ * 3. Remove the padding so developers are not caught out when they zero out
+ *    `fieldset` elements in all browsers.
+ */
+
+legend {
+  box-sizing: border-box; /* 1 */
+  color: inherit; /* 2 */
+  display: table; /* 1 */
+  max-width: 100%; /* 1 */
+  padding: 0; /* 3 */
+  white-space: normal; /* 1 */
+}
+
+/**
+ * Add the correct vertical alignment in Chrome, Firefox, and Opera.
+ */
+
+progress {
+  vertical-align: baseline;
+}
+
+/**
+ * Remove the default vertical scrollbar in IE 10+.
+ */
+
+textarea {
+  overflow: auto;
+}
+
+/**
+ * 1. Add the correct box sizing in IE 10.
+ * 2. Remove the padding in IE 10.
+ */
+
+[type="checkbox"],
+[type="radio"] {
+  box-sizing: border-box; /* 1 */
+  padding: 0; /* 2 */
+}
+
+/**
+ * Correct the cursor style of increment and decrement buttons in Chrome.
+ */
+
+[type="number"]::-webkit-inner-spin-button,
+[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+/**
+ * 1. Correct the odd appearance in Chrome and Safari.
+ * 2. Correct the outline style in Safari.
+ */
+
+[type="search"] {
+  -webkit-appearance: textfield; /* 1 */
+  outline-offset: -2px; /* 2 */
+}
+
+/**
+ * Remove the inner padding in Chrome and Safari on macOS.
+ */
+
+[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+/**
+ * 1. Correct the inability to style clickable types in iOS and Safari.
+ * 2. Change font properties to `inherit` in Safari.
+ */
+
+::-webkit-file-upload-button {
+  -webkit-appearance: button; /* 1 */
+  font: inherit; /* 2 */
+}
+
+/* Interactive
+   ========================================================================== */
+
+/*
+ * Add the correct display in Edge, IE 10+, and Firefox.
+ */
+
+details {
+  display: block;
+}
+
+/*
+ * Add the correct display in all browsers.
+ */
+
+summary {
+  display: list-item;
+}
+
+/* Misc
+   ========================================================================== */
+
+/**
+ * Add the correct display in IE 10+.
+ */
+
+template {
+  display: none;
+}
+
+/**
+ * Add the correct display in IE 10.
+ */
+
+[hidden] {
+  display: none;
+}
+
+@keyframes spinner{0%{transform:translate3d(-50%, -50%, 0) rotate(0deg)}100%{transform:translate3d(-50%, -50%, 0) rotate(360deg)}}.h5p-hub-publish,.h5p-hub-registration-wrapper{position:relative;margin:2em auto;font-family:'Open Sans', sans-serif;max-width:1024px;border:1px solid #2c9586;border-radius:0.167em;box-sizing:border-box;font-size:18px;box-shadow:0px 0px 20px rgba(0,0,0,0.1)}.h5p-hub-publish .header,.h5p-hub-registration-wrapper .header{padding:1.5em;display:flex;align-items:center;width:100%;box-sizing:border-box;border-bottom:1px solid #d5d5d7}.h5p-hub-publish .header .title,.h5p-hub-registration-wrapper .header .title{font-size:1.458em;flex-grow:1}.h5p-hub-publish .step-panel,.h5p-hub-registration-wrapper .step-panel{margin:2em;border-radius:0.208em;border:1px solid #d5d5d7}.h5p-hub-publish .step-title,.h5p-hub-registration-wrapper .step-title{color:#1a1a1a;font-size:1.250em;font-weight:bold;border-bottom:1px solid #ccc;padding:1.2em 1.8em}.h5p-hub-publish .step-content,.h5p-hub-registration-wrapper .step-content{padding:2em}.h5p-hub-publish .footer,.h5p-hub-registration-wrapper .footer{padding:0 2em 2em;width:100%;box-sizing:border-box;position:relative}.h5p-hub-publish .footer .navigation,.h5p-hub-registration-wrapper .footer .navigation{display:flex}.h5p-hub-publish .footer .navigation button:before,.h5p-hub-registration-wrapper .footer .navigation button:before{font-family:'h5p';font-size:0.75em;content:"\e91a";transform:rotate(180deg);display:inline-block;margin-right:1em;line-height:1;position:relative;top:-0.1em}.h5p-hub-publish .footer .navigation .back:before,.h5p-hub-registration-wrapper .footer .navigation .back:before{transform:rotate(0)}.h5p-hub-publish .footer .navigation #share-in-process::before,.h5p-hub-registration-wrapper .footer .navigation #share-in-process::before{font-family:"h5p";font-size:0.75em;content:"\e928";animation:2s linear infinite spinner;top:0.5em}.h5p-hub-publish .footer .navigation .next,.h5p-hub-registration-wrapper .footer .navigation .next{margin-left:auto}.h5p-hub-publish .tip-text-field,.h5p-hub-registration-wrapper .tip-text-field{top:1.5em}.h5p-hub-publish .share-error,.h5p-hub-registration-wrapper .share-error{padding:0 2em 2em;text-align:end}.h5p-hub-publish .bold,.h5p-hub-registration-wrapper .bold{font-weight:bold}.h5p-hub-publish .row,.h5p-hub-registration-wrapper .row{display:flex;flex-wrap:wrap;margin-right:-1em}.h5p-hub-publish .row .form-element,.h5p-hub-registration-wrapper .row .form-element{flex-basis:100%;flex:1;min-width:17em;align-self:flex-end;border-right:1em solid #ffffff}@media (max-width: 576px){.h5p-hub-publish .row .form-element,.h5p-hub-registration-wrapper .row .form-element{min-width:calc(100% - 1em)}}.h5p-hub-publish .columns,.h5p-hub-registration-wrapper .columns{display:flex;margin-right:-1em}@media (max-width: 576px){.h5p-hub-publish .columns,.h5p-hub-registration-wrapper .columns{flex-wrap:wrap}}.h5p-hub-publish .columns .column,.h5p-hub-registration-wrapper .columns .column{width:50%;border-right:1em solid #ffffff}@media (max-width: 576px){.h5p-hub-publish .columns .column,.h5p-hub-registration-wrapper .columns .column{width:100%;margin-right:0}}.h5p-hub-publish .sharing-note,.h5p-hub-registration-wrapper .sharing-note{text-align:center;color:#707475;font-size:0.833em;width:calc(100% - 4.9em);position:absolute;z-index:-1;top:0.65em;box-sizing:border-box;padding:0 8em}.h5p-hub-publish .sharing-note .icon-info:before,.h5p-hub-registration-wrapper .sharing-note .icon-info:before{font-size:0.5em;display:inline-block;margin-right:1em;background:#d1d7e3;padding:0.4em;border-radius:50%;position:relative;top:-0.25em}.h5p-hub-publish .sr-only,.h5p-hub-registration-wrapper .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0}.h5p-hub-publish [class^="icon-"],.h5p-hub-publish [class*=" icon-"],.h5p-hub-registration-wrapper [class^="icon-"],.h5p-hub-registration-wrapper [class*=" icon-"]{font-family:'h5p' !important;speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.h5p-hub-publish .icon-dropdown:before,.h5p-hub-registration-wrapper .icon-dropdown:before{content:"\e925"}.h5p-hub-publish .icon-info:before,.h5p-hub-registration-wrapper .icon-info:before{content:"\e93c"}.h5p-hub-publish .icon-thick-arrow:before,.h5p-hub-registration-wrapper .icon-thick-arrow:before{content:"\e91a"}.h5p-hub-publish .icon-check:before,.h5p-hub-registration-wrapper .icon-check:before{content:"\e933"}.h5p-hub-publish .icon-close:before,.h5p-hub-registration-wrapper .icon-close:before{content:"\e93a"}.h5p-hub-publish .icon-plus:before,.h5p-hub-registration-wrapper .icon-plus:before{content:"\e939"}
+
