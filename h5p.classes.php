@@ -19,13 +19,18 @@ interface H5PFrameworkInterface {
   /**
    * Fetches a file from a remote server using HTTP GET
    *
-   * @param string $url Where you want to get or send data.
-   * @param array $data Data to post to the URL.
-   * @param bool $blocking Set to 'FALSE' to instantly time out (fire and forget).
-   * @param string $stream Path to where the file should be saved.
-   * @return string The content (response body). NULL if something went wrong
+   * @param  string  $url  Where you want to get or send data.
+   * @param  array  $data  Data to post to the URL.
+   * @param  bool  $blocking  Set to 'FALSE' to instantly time out (fire and forget).
+   * @param  string  $stream  Path to where the file should be saved.
+   * @param  bool  $fullData  Return additional response data such as headers and potentially other data
+   * @param  array  $headers  Headers to send
+   * @param  array  $files Files to send
+   * @param  string  $method
+   *
+   * @return string|array The content (response body), or an array with data. NULL if something went wrong
    */
-  public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL);
+  public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL, $fullData = FALSE, $headers = array(), $files = array(), $method = 'POST');
 
   /**
    * Set the tutorial URL for a library. All versions of the library is set
@@ -1661,7 +1666,7 @@ class H5PStorage {
     }
 
     // Go through the libraries again to save dependencies.
-    $library_ids = [];
+    $library_ids = array();
     foreach ($this->h5pC->librariesJsonData as &$library) {
       if (!$library['saveDependencies']) {
         continue;
@@ -2019,9 +2024,28 @@ abstract class H5PDisplayOptionBehaviour {
   const CONTROLLED_BY_PERMISSIONS = 4;
 }
 
+abstract class H5PContentHubSyncStatus {
+  const NOT_SYNCED = 0;
+  const SYNCED = 1;
+  const WAITING = 2;
+  const FAILED = 3;
+}
+
+abstract class H5PContentStatus {
+  const STATUS_UNPUBLISHED = 0;
+  const STATUS_DOWNLOADED = 1;
+  const STATUS_WAITING = 2;
+  const STATUS_FAILED_DOWNLOAD = 3;
+  const STATUS_FAILED_VALIDATION = 4;
+  const STATUS_SUSPENDED = 5;
+}
+
 abstract class H5PHubEndpoints {
   const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
   const SITES = 'api.h5p.org/v1/sites';
+  const METADATA = 'api-test.h5p.org/v1/metadata';
+  const CONTENT = 'api-test.h5p.org/v1/contents';
+  const REGISTER = 'api-test.h5p.org/v1/accounts';
 
   public static function createURL($endpoint) {
     $protocol = (extension_loaded('openssl') ? 'https' : 'http');
