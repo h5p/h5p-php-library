@@ -1981,6 +1981,13 @@ abstract class H5PDisplayOptionBehaviour {
   const CONTROLLED_BY_PERMISSIONS = 4;
 }
 
+abstract class H5PSaveContentStorages {
+  const NONE = 0;
+  const DATABASE = 1;
+  const LOCALSTORAGE = 2;
+  const DATABASE_LOCALSTORAGE = 3;
+}
+
 abstract class H5PHubEndpoints {
   const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
   const SITES = 'api.h5p.org/v1/sites';
