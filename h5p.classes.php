@@ -3715,6 +3715,32 @@ class H5PCore {
   /**
    * Publish content on the H5P Hub.
    *
+   * @param bigint $id
+   * @return stdClass
+   */
+  public function hubRetrieveContent($id) {
+    $headers = array(
+      'Authorization' => $this->hubGetAuthorizationHeader(),
+      'Accept' => 'application/json',
+    );
+
+    $response = $this->h5pF->fetchExternalData(
+      H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT . "/{$id}"),
+      NULL, TRUE, NULL, TRUE, $headers
+    );
+
+    if (empty($response['data'])) {
+      throw new Exception($this->h5pF->t('Unable to authorize with the H5P Hub. Please check your Hub registration and connection.'));
+    }
+    
+    $hub_content = json_decode($response['data'])->data;
+    $hub_content->id = "$hub_content->id";
+    return $hub_content;
+  }
+
+  /**
+   * Publish content on the H5P Hub.
+   *
    * @param array $data Data from content publishing process
    * @param array $files Files to upload with the content publish
    * @return stdClass
