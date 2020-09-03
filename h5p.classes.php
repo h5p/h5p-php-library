@@ -3728,7 +3728,7 @@ class H5PCore {
       H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT . "/{$id}"),
       NULL, TRUE, NULL, TRUE, $headers
     );
-    
+
     if (empty($response['data'])) {
       throw new Exception($this->h5pF->t('Unable to authorize with the H5P Hub. Please check your Hub registration and connection.'));
     }
@@ -3861,6 +3861,7 @@ class H5PCore {
     $url = H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT);
     $response = $this->h5pF->fetchExternalData("{$url}/{$hubId}", array(
       'download_url' => $exportPath,
+      'resync' => '1',
     ), true, null, true, $headers, array(), 'PUT');
 
     if (!empty($response) && $response['status'] === 200) {
