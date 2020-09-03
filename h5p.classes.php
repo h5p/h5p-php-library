@@ -3728,11 +3728,11 @@ class H5PCore {
       H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT . "/{$id}"),
       NULL, TRUE, NULL, TRUE, $headers
     );
-
+    
     if (empty($response['data'])) {
       throw new Exception($this->h5pF->t('Unable to authorize with the H5P Hub. Please check your Hub registration and connection.'));
     }
-    
+
     $hub_content = json_decode($response['data'])->data;
     $hub_content->id = "$hub_content->id";
     return $hub_content;
@@ -3743,16 +3743,23 @@ class H5PCore {
    *
    * @param array $data Data from content publishing process
    * @param array $files Files to upload with the content publish
+   * @param bigint $content_hub_id For updating existing content
    * @return stdClass
    */
-  public function hubPublishContent($data, $files) {
+  public function hubPublishContent($data, $files, $content_hub_id = NULL) {
     $headers = array(
       'Authorization' => $this->hubGetAuthorizationHeader(),
       'Accept' => 'application/json',
     );
 
+    $endpoint = H5PHubEndpoints::CONTENT;
+    if ($content_hub_id !== NULL) {
+      $endpoint .= "/{$content_hub_id}";
+      $data['_method'] = 'PUT';
+    }
+
     $response = $this->h5pF->fetchExternalData(
-      H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT),
+      H5PHubEndpoints::createURL($endpoint),
       $data, TRUE, NULL, TRUE, $headers, $files
     );
 
