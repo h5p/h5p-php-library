@@ -3902,6 +3902,106 @@ class H5PCore {
 
     return json_decode($accountInfo['data'])->data;
   }
+
+  /**
+   * Register account
+   *
+   * @param string $token XSRF token
+   * @param array $formData Form data. Should include: name, email, description,
+   *    contact_person, phone, address, city, zip, country, remove_logo
+   * @param object $logo Input image
+   *
+   * @return array
+   */
+  public function hubRegisterAccount($token, $formData, $logo) {
+    if (!H5PCore::validToken('content_hub_registration', $token)) {
+      return [
+        'message'     => 'Invalid token',
+        'status_code' => 401,
+        'error_code'  => 'INVALID_TOKEN',
+        'success'     => FALSE,
+      ];
+    }
+
+    $uuid = $this->h5pF->getOption('site_uuid', '');
+    if (empty($uuid)) {
+      return [
+        'message'     => $this->h5pF->t('Site is missing a unique site uuid. The H5P Content Hub is disabled until this problem can be resolved. Please enable the H5P Hub through your site settings before trying again.'),
+        'status_code' => 403,
+        'error_code'  => 'MISSING_SITE_UUID',
+        'success'     => FALSE,
+      ];
+    }
+
+    $formData['site_uuid'] = $uuid;
+
+    $headers  = [];
+    $endpoint = H5PHubEndpoints::REGISTER;
+    // Update if already registered
+    $hasRegistered = $this->h5pF->getOption('hub_secret');
+    if ($hasRegistered) {
+      $endpoint            .= "/{$uuid}";
+      $formData['_method'] = 'PUT';
+      $headers             = [
+        'Authorization' => $this->hubGetAuthorizationHeader(),
+      ];
+    }
+
+    $url          = H5PHubEndpoints::createURL($endpoint);
+    $registration = $this->h5pF->fetchExternalData(
+      $url,
+      $formData,
+      NULL,
+      NULL,
+      TRUE,
+      $headers,
+      isset($logo) ? ['logo' => $logo] : []
+    );
+
+    try {
+      $results = json_decode($registration['data']);
+    } catch (Exception $e) {
+      return [
+        'message'     => 'Could not parse json response.',
+        'status_code' => 424,
+        'error_code'  => 'COULD_NOT_PARSE_RESPONSE',
+        'success'     => FALSE,
+      ];
+    }
+
+    if (isset($results->errors->site_uuid)) {
+      return [
+        'message'     => 'Site UUID is not unique.',
+        'status_code' => 403,
+        'error_code'  => 'SITE_UUID_NOT_UNIQUE',
+        'success'     => FALSE,
+      ];
+    }
+
+    if (
+      !isset($results->success)
+      || $results->success === FALSE
+      || !$hasRegistered && !isset($results->account->secret)
+      || $registration['status'] !== 200
+    ) {
+      return [
+        'message'     => 'Registration failed.',
+        'status_code' => 422,
+        'error_code'  => 'REGISTRATION_FAILED',
+        'success'     => FALSE,
+      ];
+    }
+
+    if (!$hasRegistered) {
+      $this->h5pF->setOption('hub_secret', $results->account->secret);
+    }
+
+    return [
+      'message'     => $this->h5pF->t('Account successfully registered.'),
+      'status_code' => 200,
+      'success'     => TRUE,
+    ];
+  }
 }
 
 /**
