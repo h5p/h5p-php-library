@@ -3634,16 +3634,19 @@ class H5PCore {
       'offlineDialogRetryButtonLabel' => $this->h5pF->t('Retry now'),
       'offlineSuccessfulSubmit' => $this->h5pF->t('Successfully submitted results.'),
       'mainTitle' => $this->h5pF->t('Sharing <strong>:title</strong>'),
+      'editInfoTitle' => $this->h5pF->t('Edit info for <strong>:title</strong>'),
       'cancel' => $this->h5pF->t('Cancel'),
       'back' => $this->h5pF->t('Back'),
       'next' => $this->h5pF->t('Next'),
       'reviewInfo' => $this->h5pF->t('Review info'),
       'share' => $this->h5pF->t('Share'),
+      'saveChanges' => $this->h5pF->t('Save changes'),
       'close' => $this->h5pF->t('Close'),
       'registerOnHub' => $this->h5pF->t('Register on the Hub'),
       'requiredInfo' => $this->h5pF->t('Required Info'),
       'optionalInfo' => $this->h5pF->t('Optional Info'),
       'reviewAndShare' => $this->h5pF->t('Review & Share'),
+      'reviewAndSave' => $this->h5pF->t('Review & Save'),
       'shared' => $this->h5pF->t('Shared'),
       'currentStep' => $this->h5pF->t('Step :step of :total'),
       'sharingNote' => $this->h5pF->t('All content details can be edited after sharing'),
@@ -3673,6 +3676,7 @@ class H5PCore {
       'screenshots' => $this->h5pF->t('Screenshots'),
       'helpChoosingLicense' => $this->h5pF->t('Help me choose a license'),
       'shareFailed' => $this->h5pF->t('Share failed.'),
+      'editingFailed' => $this->h5pF->t('Editing failed.'),
       'shareTryAgain' => $this->h5pF->t('Something went wrong, please try to share agian.'),
       'pleaseWait' => $this->h5pF->t('Please wait...'),
       'language' => $this->h5pF->t('Language'),
@@ -3684,7 +3688,9 @@ class H5PCore {
       'screenshotsDescription' => $this->h5pF->t('Add up to five screenshots of your content'),
       'submitted' => $this->h5pF->t('Submitted!'),
       'isNowSubmitted' => $this->h5pF->t('Is now submitted to H5P Hub'),
+      'changeHasBeenSubmitted' => $this->h5pF->t('A change has been submited for'),
       'contentAvailable' => $this->h5pF->t('Your content will soon be available for download'),
+      'contentUpdateSoon' => $this->h5pF->t('Your content will update soon'),
       'contentLicenseTitle' => $this->h5pF->t('Content License Info'),
       'licenseDialogDescription' => $this->h5pF->t('Click on a specific license to get info about proper usage'),
       'publisherFieldTitle' => $this->h5pF->t('Publisher'),
@@ -3752,6 +3758,7 @@ class H5PCore {
       'Accept' => 'application/json',
     );
 
+    $data['published'] = '1';
     $endpoint = H5PHubEndpoints::CONTENT;
     if ($content_hub_id !== NULL) {
       $endpoint .= "/{$content_hub_id}";
