@@ -3677,7 +3677,7 @@ class H5PCore {
       'helpChoosingLicense' => $this->h5pF->t('Help me choose a license'),
       'shareFailed' => $this->h5pF->t('Share failed.'),
       'editingFailed' => $this->h5pF->t('Editing failed.'),
-      'shareTryAgain' => $this->h5pF->t('Something went wrong, please try to share agian.'),
+      'shareTryAgain' => $this->h5pF->t('Something went wrong, please try to share again.'),
       'pleaseWait' => $this->h5pF->t('Please wait...'),
       'language' => $this->h5pF->t('Language'),
       'level' => $this->h5pF->t('Level'),
@@ -3772,6 +3772,10 @@ class H5PCore {
 
     if (empty($response['data'])) {
       throw new Exception($this->h5pF->t('Unable to authorize with the H5P Hub. Please check your Hub registration and connection.'));
+    }
+
+    if (isset($response['status']) && $response['status'] !== 200) {
+      throw new Exception($this->h5pF->t('Connecting to the content hub failed, please try again later.'));
     }
 
     $result = json_decode($response['data']);
