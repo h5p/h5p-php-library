@@ -3739,6 +3739,10 @@ class H5PCore {
       throw new Exception($this->h5pF->t('Unable to authorize with the H5P Hub. Please check your Hub registration and connection.'));
     }
 
+    if (isset($response['status']) && $response['status'] !== 200) {
+      throw new Exception($this->h5pF->t('Connecting to the content hub failed, please try again later.'));
+    }
+
     $hub_content = json_decode($response['data'])->data;
     $hub_content->id = "$hub_content->id";
     return $hub_content;
