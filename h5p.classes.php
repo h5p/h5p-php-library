@@ -2889,10 +2889,11 @@ class H5PCore {
    * implementation is responsible for invoking this, eg using cron
    *
    * @param bool $fetchingDisabled
+   * @param bool $onlyRegister Only register site with H5P.org
    *
    * @return bool|object Returns endpoint data if found, otherwise FALSE
    */
-  public function fetchLibrariesMetadata($fetchingDisabled = FALSE) {
+  public function fetchLibrariesMetadata($fetchingDisabled = FALSE, $onlyRegister = false) {
     // Gather data
     $uuid = $this->h5pF->getOption('site_uuid', '');
     $platform = $this->h5pF->getPlatformInfo();
@@ -2930,10 +2931,15 @@ class H5PCore {
       $this->h5pF->setInfoMessage(
         $this->h5pF->t('Your site was successfully registered with the H5P Hub.')
       );
+      $uuid = $json->uuid;
       // TODO: Uncomment when key is once again available in H5P Settings
 //      $this->h5pF->setInfoMessage(
 //        $this->h5pF->t('You have been provided a unique key that identifies you with the Hub when receiving new updates. The key is available for viewing in the "H5P Settings" page.')
 //      );
+    }
+
+    if ($onlyRegister) {
+      return $uuid;
     }
 
     if ($this->h5pF->getOption('send_usage_statistics', TRUE)) {
@@ -3774,7 +3780,7 @@ class H5PCore {
       $data, TRUE, NULL, TRUE, $headers, $files
     );
 
-    if (empty($response['data'])) {
+    if (empty($response['data']) || $response['status'] === 403) {
       throw new Exception($this->h5pF->t('Unable to authorize with the H5P Hub. Please check your Hub registration and connection.'));
     }
 
@@ -3804,10 +3810,10 @@ class H5PCore {
     $site_uuid = $this->h5pF->getOption('site_uuid', '');
     $hub_secret = $this->h5pF->getOption('hub_secret', '');
     if (empty($site_uuid)) {
-      throw new Exception($this->h5pF->t('Missing Site UUID. Please check your Hub registration.'));
+      $this->h5pF->setErrorMessage($this->h5pF->t('Missing Site UUID. Please check your Hub registration.'));
     }
-    if (empty($hub_secret)) {
-      throw new Exception($this->h5pF->t('Missing Hub Secret. Please check your Hub registration.'));
+    elseif (empty($hub_secret)) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Missing Hub Secret. Please check your Hub registration.'));
     }
     return 'Basic ' . base64_encode("$site_uuid:$hub_secret");
   }
@@ -3898,6 +3904,11 @@ class H5PCore {
   public function hubAccountInfo() {
     $siteUuid = $this->h5pF->getOption('site_uuid', null);
     $secret   = $this->h5pF->getOption('hub_secret', null);
+    if (empty($siteUuid) && !empty($secret)) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('H5P Hub secret is set without a site uuid. This may be fixed by restoring the site uuid or removing the hub secret and registering a new account with the content hub.'));
+      throw new Exception('Hub secret not set');
+    }
+
     if (empty($siteUuid) || empty($secret)) {
       return false;
     }
@@ -3910,6 +3921,12 @@ class H5PCore {
     $url = H5PHubEndpoints::createURL(H5PHubEndpoints::REGISTER);
     $accountInfo = $this->h5pF->fetchExternalData("{$url}/{$siteUuid}",
       null, true, null, true, $headers, array(), 'GET');
+
+    if ($accountInfo['status'] === 401) {
+      // Unauthenticated, invalid hub secret and site uuid combination
+      $this->h5pF->setErrorMessage($this->h5pF->t('Hub account authentication info is invalid. This may be fixed by an admin by restoring the hub secret or register a new account with the content hub.'));
+      return false;
+    }
 
     if ($accountInfo['status'] !== 200) {
       return false;
@@ -3940,12 +3957,16 @@ class H5PCore {
 
     $uuid = $this->h5pF->getOption('site_uuid', '');
     if (empty($uuid)) {
-      return [
-        'message'     => $this->h5pF->t('Site is missing a unique site uuid. The H5P Content Hub is disabled until this problem can be resolved. Please enable the H5P Hub through your site settings before trying again.'),
-        'status_code' => 403,
-        'error_code'  => 'MISSING_SITE_UUID',
-        'success'     => FALSE,
-      ];
+      // Attempt to fetch a new site uuid
+      $uuid = $this->fetchLibrariesMetadata(false, true);
+      if (!$uuid) {
+        return [
+          'message'     => $this->h5pF->t('Site is missing a unique site uuid and was unable to set a new one. The H5P Content Hub is disabled until this problem can be resolved. Please make sure the H5P Hub is enabled in the H5P settings and try again later.'),
+          'status_code' => 403,
+          'error_code'  => 'MISSING_SITE_UUID',
+          'success'     => FALSE,
+        ];
+      }
     }
 
     $formData['site_uuid'] = $uuid;
@@ -3986,7 +4007,7 @@ class H5PCore {
 
     if (isset($results->errors->site_uuid)) {
       return [
-        'message'     => 'Site UUID is not unique.',
+        'message'     => 'Site UUID is not unique. This must be fixed by an admin by restoring the hub secret or remove the site uuid and register as a new account with the content hub.',
         'status_code' => 403,
         'error_code'  => 'SITE_UUID_NOT_UNIQUE',
         'success'     => FALSE,
@@ -4016,6 +4037,71 @@ class H5PCore {
       'status_code' => 200,
       'success'     => TRUE,
     ];
+  }
+
+  /**
+   * Get status of content from content hub
+   *
+   * @param string $hubContentId
+   * @param int $syncStatus
+   *
+   * @return false|int Returns a new H5PContentStatus if successful, else false
+   */
+  public function getHubContentStatus($hubContentId, $syncStatus) {
+    $headers = array(
+      'Authorization' => $this->hubGetAuthorizationHeader(),
+      'Accept' => 'application/json',
+    );
+
+    $url     = H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT);
+    $response = $this->h5pF->fetchExternalData("{$url}/{$hubContentId}/status",
+      null, true, null, true, $headers);
+
+    if (isset($response['status']) && $response['status'] === 403) {
+      $msg = $this->h5pF->t('The request for content status was unauthorized. This could be because the content belongs to a different account, or your account is not setup properly.');
+      $this->h5pF->setErrorMessage($msg);
+      return false;
+    }
+    if (empty($response) || $response['status'] !== 200) {
+      $msg = $this->h5pF->t('Could not get content hub sync status for content.');
+      $this->h5pF->setErrorMessage($msg);
+      return false;
+    }
+
+    $data = json_decode($response['data']);
+
+    if (isset($data->messages)) {
+      // TODO: Is this the right place/way to display them?
+
+      if (!empty($data->messages->info)) {
+        foreach ($data->messages->info as $info) {
+          $this->h5pF->setInfoMessage($info);
+        }
+      }
+      if (!empty($data->messages->error)) {
+        foreach ($data->messages->error as $error) {
+          $this->h5pF->setErrorMessage($error->message, $error->code);
+        }
+      }
+    }
+
+    $contentStatus = intval($data->status);
+    // Content status updated
+    if ($contentStatus !== H5PContentStatus::STATUS_WAITING) {
+      $newState = H5PContentHubSyncStatus::SYNCED;
+      if ($contentStatus !== H5PContentStatus::STATUS_DOWNLOADED) {
+        $newState = H5PContentHubSyncStatus::FAILED;
+      }
+      else if (intval($syncStatus) !== $contentStatus) {
+        // Content status successfully transitioned to synced/downloaded
+        $successMsg = $this->h5pF->t('Content was successfully shared on the content hub.');
+        $this->h5pF->setInfoMessage($successMsg);
+      }
+
+      return $newState;
+    }
+
+    return false;
   }
 }
 
