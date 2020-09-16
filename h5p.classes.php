@@ -3718,6 +3718,8 @@ class H5PCore {
       'maxLength' => $this->h5pF->t(':length is the maximum number of characters'),
       'keywordExists' => $this->h5pF->t('Keyword already exists!'),
       'licenseDetails' => $this->h5pF->t('License details'),
+      'remove' => $this->h5pF->t('Remove'),
+      'removeImage' => $this->h5pF->t('Remove image'),
     );
   }
 
