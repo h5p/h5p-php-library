@@ -3720,6 +3720,10 @@ class H5PCore {
       'licenseDetails' => $this->h5pF->t('License details'),
       'remove' => $this->h5pF->t('Remove'),
       'removeImage' => $this->h5pF->t('Remove image'),
+      'cancelPublishConfirmationDialogTitle' => $this->h5pF->t('Cancel sharing'),
+      'cancelPublishConfirmationDialogDescription' => $this->h5pF->t('Are you sure you want to cancel the sharing process?'),
+      'cancelPublishConfirmationDialogCancelButtonText' => $this->h5pF->t('No'),
+      'cancelPublishConfirmationDialogConfirmButtonText' => $this->h5pF->t('Yes'),
     );
   }
 
