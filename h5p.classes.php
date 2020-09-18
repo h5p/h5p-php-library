@@ -3712,7 +3712,7 @@ class H5PCore {
       'successfullyRegistred' => $this->h5pF->t('You have successfully registered an account on the H5P Hub'),
       'successfullyRegistredDescription' => $this->h5pF->t('You account details can be changed'),
       'accountDetailsLinkText' => $this->h5pF->t('here'),
-      'registrationTitle' => $this->h5pF->t('H5P Hub Registration and End User License Agreement (EULA)'),
+      'registrationTitle' => $this->h5pF->t('Hub Registration'),
       'registrationFailed' => $this->h5pF->t('An error occurred'),
       'registrationFailedDescription' => $this->h5pF->t('We were not able to create an account at this point. Something went wrong. Try again later.'),
       'maxLength' => $this->h5pF->t(':length is the maximum number of characters'),
