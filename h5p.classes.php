@@ -3660,6 +3660,7 @@ class H5PCore {
       'licenseVersionDescription' => $this->h5pF->t('Select a license version'),
       'disciplineLabel' => $this->h5pF->t('Disciplines'),
       'disciplineDescription' => $this->h5pF->t('You can select multiple disciplines'),
+      'disciplineLimitReachedMessage' => $this->h5pF->t('You can select up to :numDisciplines disciplines'),
       'discipline' => array(
         'searchPlaceholder' => $this->h5pF->t('Select one or more disciplines'),
         'in' => $this->h5pF->t('in'),
