@@ -464,12 +464,14 @@ class H5PDefaultStorage implements \H5PFileStorage {
   /**
    * Store the given stream into the given file.
    *
-   * @param string $path
-   * @param string $file
-   * @param resource $stream
+   * @param  string  $path
+   * @param  string  $file
+   * @param  resource  $stream
+   * @param  Closure  $callback
+   *
    * @return bool
    */
-  public function saveFileFromZip($path, $file, $stream) {
+  public function saveFileFromZip($path, $file, $stream, $callback) {
     $filePath = $path . '/' . $file;
 
     // Make sure the directory exists first
@@ -478,7 +480,9 @@ class H5PDefaultStorage implements \H5PFileStorage {
     self::dirReady($matches[1]);
 
     // Store in local storage folder
-    return file_put_contents($filePath, $stream);
+    $success = file_put_contents($filePath, $stream);
+    $callback();
+    return $success;
   }
 
   public function waitForPendingPromises() {

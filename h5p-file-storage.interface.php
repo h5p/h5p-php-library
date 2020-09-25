@@ -220,12 +220,14 @@ interface H5PFileStorage {
   /**
    * Store the given stream into the given file.
    *
-   * @param string $path
-   * @param string $file
-   * @param resource $stream
+   * @param  string  $path
+   * @param  string  $file
+   * @param  resource  $stream
+   * @param  Closure  $callback
+   *
    * @return bool
    */
-  public function saveFileFromZip($path, $file, $stream);
+  public function saveFileFromZip($path, $file, $stream, $callback);
 
   /**
    * Wait for any async pending file transfers

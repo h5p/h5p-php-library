@@ -980,12 +980,12 @@ class H5PValidator {
       }
 
       // Use file interface to allow overrides
-      $this->h5pC->fs->saveFileFromZip($tmpDir, $fileName, $fileStream);
-
-      // Clean up
-      if (is_resource($fileStream)) {
-        fclose($fileStream);
-      }
+      $this->h5pC->fs->saveFileFromZip($tmpDir, $fileName, $fileStream, function () use ($fileStream) {
+        // Clean up
+        if (is_resource($fileStream)) {
+          fclose($fileStream);
+        }
+      });
     }
     // Wait for pending file transfers before closing zip
     $this->h5pC->fs->waitForPendingPromises();
