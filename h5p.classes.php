@@ -5231,6 +5231,9 @@ class H5PContentValidator {
 
   public function getMetadataSemantics() {
     static $semantics;
+    if ($semantics) {
+      return $semantics;
+    }
 
     $cc_versions = array(
       (object) array(
