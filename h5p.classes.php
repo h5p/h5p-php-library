@@ -3725,7 +3725,7 @@ class H5PCore {
       'cancelPublishConfirmationDialogDescription' => $this->h5pF->t('Are you sure you want to cancel the sharing process?'),
       'cancelPublishConfirmationDialogCancelButtonText' => $this->h5pF->t('No'),
       'cancelPublishConfirmationDialogConfirmButtonText' => $this->h5pF->t('Yes'),
-      'add': => $this->h5pF->t('Add')
+      'add' => $this->h5pF->t('Add')
     );
   }
 
