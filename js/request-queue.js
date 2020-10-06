@@ -20,6 +20,19 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
   };
 
   /**
+   * Check to see if localStorage is available
+   *
+   * @return {boolean}
+   */
+  const hasLocalStorage = function () {
+    try {
+      return !!window.localStorage;
+    } catch (err){
+      return false;
+    }
+  }
+  
+  /**
    * Add request to queue. Only supports posts currently.
    *
    * @param {string} url
@@ -27,7 +40,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @returns {boolean}
    */
   RequestQueue.prototype.add = function (url, data) {
-    if (!window.localStorage) {
+    if (!hasLocalStorage()) {
       return false;
     }
 
@@ -56,7 +69,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @returns {boolean|Array} Stored requests
    */
   RequestQueue.prototype.getStoredRequests = function () {
-    if (!window.localStorage) {
+    if (!hasLocalStorage()) {
       return false;
     }
 
@@ -74,7 +87,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @returns {boolean} True if the storage was successfully cleared
    */
   RequestQueue.prototype.clearQueue = function () {
-    if (!window.localStorage) {
+    if (!hasLocalStorage()) {
       return false;
     }
 
@@ -89,7 +102,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    */
   RequestQueue.prototype.resumeQueue = function () {
     // Not supported
-    if (!H5PIntegration || !window.navigator || !window.localStorage) {
+    if (!H5PIntegration || !window.navigator || !hasLocalStorage()) {
       return false;
     }
 
