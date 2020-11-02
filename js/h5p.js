@@ -224,10 +224,16 @@ H5P.init = function (target) {
         instance.getCurrentState instanceof Function ||
         typeof instance.getCurrentState === 'function')) {
 
-      var saveTimer, save = function () {
+      var saveTimer, lastSavedState, save = function () {
         var state = instance.getCurrentState();
-        if (state !== undefined) {
+
+        // Compare the last state with current state
+        var equalStates = H5P.isObjectEqual(state, lastSavedState);
+        
+        // Save user data when the current state changes
+        if (state !== undefined && !equalStates) {
           H5P.setUserData(contentId, 'state', state, {deleteOnChange: true});
+          lastSavedState = state;
         }
         if (H5PIntegration.saveFreq) {
           // Continue autosave
@@ -1399,6 +1405,145 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size, instance)
 
   dialog.open();
 };
+
+
+/**
+ * Internal recursive function that determines if two objects are equivalent
+ * 
+ * Returns true if equal and false otherwise
+ * 
+ * @param {object} aObject First object being compared
+ * @param {object} bObject Second object being compared
+ * @param {Array} [aStack] a stack reprentation of the first objects' internal object stack
+ * @param {Array} [bStack] a stack reprentation of the second objects' internal object stack
+ */
+H5P.isObjectEqual = function (aObject, bObject, aStack, bStack) {
+
+  // Handle circular object comparison 
+  const pushStack = function() {
+    aStack = aStack || [];
+    bStack = bStack || [];
+    var aLength = aStack.length;
+    for(let i = 0; i < aLength; i++){
+      if(aStack[i] === aObject) {
+        return bStack[i] === bObject;
+      }
+    }
+  
+    aStack.push(aObject);
+    bStack.push(bObject);
+  }
+
+  if(aObject === null || bObject === null) {
+    return false;
+  }
+
+  if(aObject !== aObject) {
+    return bObject !== bObject;
+  }
+
+  // Compare objects via their types
+
+  var className = toString.call(aObject);
+  if(className !== toString.call(bObject)){
+    return false;
+  }
+
+  switch(className) {
+    case '[object String]':
+      return '' + aObject === '' + bObject;
+    
+    case '[object Number]':
+      if(+aObject !== +aObject) {
+        return +bObject !== +bObject;
+      }
+    
+    case '[object Boolean]':
+      return +aObject === +bObject;
+
+    case '[object Undefined]':
+      return true;
+    
+    case '[object Array]':
+      pushStack();
+      aLength = aObject.length;
+      if(aLength !== bObject.length) {
+        return false;
+      }
+      
+      // Compare array contents recursively
+      for(let i = 0; i < aLength; i++) {
+        if(!H5P.isObjectEqual(aObject[i], bObject[i], aStack, bStack)){
+          return false;
+        }
+      }
+      aStack.pop();
+      bStack.pop();
+
+    case '[object Object]':
+      pushStack();
+      if(typeof aObject != 'object' || typeof bObject != 'object'){
+        return false;
+      }
+      var _keys = H5P.keys(aObject);
+      var aLength = _keys.length;
+  
+      if(H5P.keys(bObject).length !== aLength){
+        return false;
+      }
+  
+      // Compare nested objects recursively
+      for(let i = 0; i < aLength; i++) {
+        key = _keys[i];
+        if(!(H5P.hasKey(bObject, key) && H5P.isObjectEqual(aObject[key], bObject[key], aStack, bStack))) {
+          return false;
+        }
+      }
+      aStack.pop();
+      bStack.pop();
+  }
+
+  return true;
+}
+
+/**
+ * Helper function to determine if an object has a given key
+ * 
+ * @param {object} obj 
+ * @param {string} key 
+ */
+H5P.hasKey = function(obj, key) {
+  return obj != null && typeof obj !== 'undefined' && hasOwnProperty.call(obj, key);
+}
+
+/**
+ * Helper function to determine if a given variable is an object
+ * 
+ * @param {object} obj 
+ */
+H5P.isObject = function(obj) {
+  var type = typeof obj;
+  return type === 'function' || type === 'object' && !!obj;
+}
+
+/**
+ * Helper function that creates an array of an objects' respective keys
+ * 
+ * @param {object} obj 
+ */
+H5P.keys = function(obj) {
+
+    var keys = [];
+    if(!H5P.isObject(obj)){
+      return keys;
+    }
+    for(var key in obj) {
+      if (H5P.hasKey(obj, key)) {
+        keys.push(key);
+      } 
+    } 
+    return keys;
+}
 
 /**
  * Show a toast message.
