@@ -224,10 +224,16 @@ H5P.init = function (target) {
         instance.getCurrentState instanceof Function ||
         typeof instance.getCurrentState === 'function')) {
 
-      var saveTimer, save = function () {
+      var saveTimer, lastSavedState, save = function () {
         var state = instance.getCurrentState();
-        if (state !== undefined) {
+
+        //compare last state with current state, returns true if no change has been made
+        var stateChanged = H5P.eq(state, lastSavedState, null, null);
+
+        //setUserData and save only when state is defined and the state has changed
+        if (state !== undefined && !stateChanged) {
           H5P.setUserData(contentId, 'state', state, {deleteOnChange: true});
+          lastSavedState = state;
         }
         if (H5PIntegration.saveFreq) {
           // Continue autosave
@@ -1399,6 +1405,183 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size, instance)
 
   dialog.open();
 };
+
+
+/**
+ * Recursive internal function that compares two objects, utilizing deepEqual
+ * 
+ * 
+ * @param {object} a The first object to be compared
+ * @param {object} b The second object to be compared
+ * @param {object} aStack First object internal object stack
+ * @param {object} bStack Second object internal object stack
+ */
+H5P.eq = function(a, b, aStack, bStack) {
+
+  //identical objects are equal but not identical, ex. 0 === -0
+  if(a === b) {
+    return a !== 0 || 1 / a === 1 / b;
+  }
+
+  //null and undefined only equal to themselves
+  if(a === null || b === null) {
+    return false;
+  }
+
+  //NaN equivalent but not reflexive
+  if(a !== a) {
+    return b !== b;
+  }
+
+  //exhaust primitives
+  var type = typeof a;
+  if(type !== 'function' && type !== 'object' && typeof b !== 'object') {
+    return false;
+  }
+  return H5P.deepEqual(a, b, aStack, bStack);
+}
+
+
+/**
+ * Internal recursive function that determines if two objects are equivalent
+ * 
+ * Returns true if equal and false otherwise
+ * 
+ * @param {object} aObject First object being compared
+ * @param {object} bObject Second object being compared
+ * @param {object} aStack a stack reprentation of the first objects' internal object stack
+ * @param {object} bStack a stack reprentation of the second objects' internal object stack
+ */
+H5P.deepEqual = function (aObject, bObject, aStack, bStack) {
+  
+  //compare class names, also catches initial case in which one object is undefined
+  var className = toString.call(aObject);
+  if(className !== toString.call(bObject)){
+    return false;
+  }
+
+  //primitives
+  switch(className) {
+    case '[object RegExp]':
+
+    case '[object String]':
+      return '' + a === '' + b;
+    
+    case '[object Number]':
+      if(+aObject !== +aObject) {
+        return +bObject !== +bObject;
+      }
+      return +aObject === 0 ? 1 / +aObject === 1 / bObject : +aObject === +bObject;
+    
+    case '[object Date]':
+    case '[object Boolean]':
+      return +aObject === +bObject;
+  }
+
+
+  //leaves us with Object and Array
+  var isArray = className === '[object Array]';
+  if(!isArray){
+    //must be objects if not array
+    if(typeof aObject != 'object' || typeof bObject != 'object'){
+      return false;
+    }
+  }
+
+  //init stacks or reassign
+  aStack = aStack || [];
+  bStack = bStack || [];
+  var aLength = aStack.length;
+  //stack lengths cannot be different
+  while(aLength--){
+    if(aStack[aLength] === aObject) {
+      return bStack[aLength] === bObject;
+    }
+  }
+
+  aStack.push(aObject);
+  bStack.push(bObject);
+
+  //recursively compare objects and arrays
+  if(isArray) {
+    //not equal if lengths are different
+    aLength = aObject.length;
+    if(aLength !== bObject.length) {
+      return false;
+    }
+    
+    //internally compare the arrays
+    while(aLength--) {
+      if(!H5P.eq(aObject[aLength], bObject[aLength], aStack, bStack)){
+        return false;
+      }
+    }
+  }
+  //deep compare the objects
+  else {
+    var _keys = H5P.keys(aObject), key;
+    aLength = _keys.length;
+
+    //not equal if number of object properties differ
+    if(H5P.keys(bObject).length !== aLength){
+      return false;
+    }
+
+    //deep compare each member of the object
+    while(aLength--) {
+      key = _keys[aLength];
+      if(!(H5P.hasKeys(bObject, key) && H5P.eq(aObject[key], bObject[key], aStack, bStack))) {
+        return false;
+      }
+    }
+  }
+
+  //pop stacks
+  aStack.pop();
+  bStack.pop();
+
+  return true;
+}
+
+/**
+ * Helper function to determine if an object has keys
+ * 
+ * @param {object} obj 
+ * @param {string} key 
+ */
+H5P.hasKeys = function(obj, key) {
+  return obj != null && hasOwnProperty.call(obj, key);
+}
+
+/**
+ * Helper function to determine if a given variable is an object
+ * 
+ * @param {object} obj 
+ */
+H5P.isObject = function(obj) {
+  var type = typeof obj;
+  return type === 'function' || type === 'object' && !!obj;
+}
+
+/**
+ * Helper function that creates an array of an objects' respective keys
+ * 
+ * @param {object} obj 
+ */
+H5P.keys = function(obj) {
+    if(!H5P.isObject(obj)){
+      return [];
+    }
+    var keys = [];
+    for(var key in obj) {
+      if (H5P.hasKeys(obj, key)) {
+        keys.push(key);
+      } 
+    } 
+    return keys;
+}
+
+
 
 /**
  * Show a toast message.
