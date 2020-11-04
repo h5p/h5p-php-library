@@ -19,18 +19,13 @@ interface H5PFrameworkInterface {
   /**
    * Fetches a file from a remote server using HTTP GET
    *
-   * @param  string  $url  Where you want to get or send data.
-   * @param  array  $data  Data to post to the URL.
-   * @param  bool  $blocking  Set to 'FALSE' to instantly time out (fire and forget).
-   * @param  string  $stream  Path to where the file should be saved.
-   * @param  bool  $fullData  Return additional response data such as headers and potentially other data
-   * @param  array  $headers  Headers to send
-   * @param  array  $files Files to send
-   * @param  string  $method
-   *
-   * @return string|array The content (response body), or an array with data. NULL if something went wrong
+   * @param string $url Where you want to get or send data.
+   * @param array $data Data to post to the URL.
+   * @param bool $blocking Set to 'FALSE' to instantly time out (fire and forget).
+   * @param string $stream Path to where the file should be saved.
+   * @return string The content (response body). NULL if something went wrong
    */
-  public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL, $fullData = FALSE, $headers = array(), $files = array(), $method = 'POST');
+  public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL);
 
   /**
    * Set the tutorial URL for a library. All versions of the library is set
@@ -628,44 +623,6 @@ interface H5PFrameworkInterface {
    * @return boolean
    */
   public function libraryHasUpgrade($library);
-
-  /**
-   * Replace content hub metadata cache
-   *
-   * @param JsonSerializable $metadata Metadata as received from content hub
-   * @param string $lang Language in ISO 639-1
-   *
-   * @return mixed
-   */
-  public function replaceContentHubMetadataCache($metadata, $lang);
-
-  /**
-   * Get content hub metadata cache from db
-   *
-   * @param  string  $lang Language code in ISO 639-1
-   *
-   * @return JsonSerializable Json string
-   */
-  public function getContentHubMetadataCache($lang = 'en');
-
-  /**
-   * Get time of last content hub metadata check
-   *
-   * @param  string  $lang Language code iin ISO 639-1 format
-   *
-   * @return string|null Time in RFC7231 format
-   */
-  public function getContentHubMetadataChecked($lang = 'en');
-
-  /**
-   * Set time of last content hub metadata check
-   *
-   * @param  int|null  $time Time in RFC7231 format
-   * @param  string  $lang Language code iin ISO 639-1 format
-   *
-   * @return bool True if successful
-   */
-  public function setContentHubMetadataChecked($time, $lang = 'en');
 }
 
 /**
@@ -2024,28 +1981,9 @@ abstract class H5PDisplayOptionBehaviour {
   const CONTROLLED_BY_PERMISSIONS = 4;
 }
 
-abstract class H5PContentHubSyncStatus {
-  const NOT_SYNCED = 0;
-  const SYNCED = 1;
-  const WAITING = 2;
-  const FAILED = 3;
-}
-
-abstract class H5PContentStatus {
-  const STATUS_UNPUBLISHED = 0;
-  const STATUS_DOWNLOADED = 1;
-  const STATUS_WAITING = 2;
-  const STATUS_FAILED_DOWNLOAD = 3;
-  const STATUS_FAILED_VALIDATION = 4;
-  const STATUS_SUSPENDED = 5;
-}
-
 abstract class H5PHubEndpoints {
   const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
   const SITES = 'api.h5p.org/v1/sites';
-  const METADATA = 'api-test.h5p.org/v1/metadata';
-  const CONTENT = 'api-test.h5p.org/v1/contents';
-  const REGISTER = 'api-test.h5p.org/v1/accounts';
 
   public static function createURL($endpoint) {
     $protocol = (extension_loaded('openssl') ? 'https' : 'http');
@@ -3363,72 +3301,6 @@ class H5PCore {
     $interface->setInfoMessage($interface->t('Library cache was successfully updated!'));
     $interface->setOption('content_type_cache_updated_at', time());
     return $data;
-  }
-
-  /**
-   * Update content hub metadata cache
-   */
-  public function updateContentHubMetadataCache($lang = 'en') {
-    $url          = H5PHubEndpoints::createURL(H5PHubEndpoints::METADATA);
-    $lastModified = $this->h5pF->getContentHubMetadataChecked($lang);
-
-    $headers = array();
-    if (!empty($lastModified)) {
-      $headers['If-Modified-Since'] = $lastModified;
-    }
-    $data = $this->h5pF->fetchExternalData("{$url}?lang={$lang}", NULL, TRUE, NULL, TRUE, $headers, NULL, 'GET');
-    $lastChecked = new DateTime('now', new DateTimeZone('GMT'));
-
-    if ($data['status'] !== 200 && $data['status'] !== 304) {
-      // If this was not a success, set the error message and return
-      $this->h5pF->setErrorMessage(
-        $this->h5pF->t('No metadata was received from the H5P Hub. Please try again later.')
-      );
-      return null;
-    }
-
-    // Update timestamp
-    $this->h5pF->setContentHubMetadataChecked($lastChecked->getTimestamp(), $lang);
-
-    // Not modified
-    if ($data['status'] === 304) {
-      return null;
-    }
-    $this->h5pF->replaceContentHubMetadataCache($data['data'], $lang);
-    // TODO: If 200 should we have checked if it decodes? Or 'success'? Not sure if necessary though
-    return $data['data'];
-  }
-
-  /**
-   * Get updated content hub metadata cache
-   *
-   * @param  string  $lang Language as ISO 639-1 code
-   *
-   * @return JsonSerializable|string
-   */
-  public function getUpdatedContentHubMetadataCache($lang = 'en') {
-    $lastUpdate = $this->h5pF->getContentHubMetadataChecked($lang);
-    if (!$lastUpdate) {
-      return $this->updateContentHubMetadataCache($lang);
-    }
-
-    $lastUpdate = new DateTime($lastUpdate);
-    $expirationTime = $lastUpdate->getTimestamp() + (60 * 60 * 24); // Check once per day
-    if (time() > $expirationTime) {
-      $update = $this->updateContentHubMetadataCache($lang);
-      if (!empty($update)) {
-        return $update;
-      }
-    }
-
-    $storedCache = $this->h5pF->getContentHubMetadataCache($lang);
-    if (!$storedCache) {
-      // We don't have the value stored for some reason, reset last update and re-fetch
-      $this->h5pF->setContentHubMetadataChecked(null, $lang);
-      return $this->updateContentHubMetadataCache($lang);
-    }
-
-    return $storedCache;
   }
 
   /**
