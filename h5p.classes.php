@@ -3406,26 +3406,26 @@ class H5PCore {
    *
    * @return JsonSerializable|string
    */
-  public function getUpdatedContentHubMetadataCache($lang = 'en') {
-    $lastUpdate = $this->h5pF->getContentHubMetadataChecked($lang);
+  public function getUpdatedContentHubMetadataCache() {
+    $lastUpdate = $this->h5pF->getContentHubMetadataChecked($this->language);
     if (!$lastUpdate) {
-      return $this->updateContentHubMetadataCache($lang);
+      return $this->updateContentHubMetadataCache($this->language);
     }
 
     $lastUpdate = new DateTime($lastUpdate);
     $expirationTime = $lastUpdate->getTimestamp() + (60 * 60 * 24); // Check once per day
     if (time() > $expirationTime) {
-      $update = $this->updateContentHubMetadataCache($lang);
+      $update = $this->updateContentHubMetadataCache($this->language);
       if (!empty($update)) {
         return $update;
       }
     }
 
-    $storedCache = $this->h5pF->getContentHubMetadataCache($lang);
+    $storedCache = $this->h5pF->getContentHubMetadataCache($this->language);
     if (!$storedCache) {
       // We don't have the value stored for some reason, reset last update and re-fetch
-      $this->h5pF->setContentHubMetadataChecked(null, $lang);
-      return $this->updateContentHubMetadataCache($lang);
+      $this->h5pF->setContentHubMetadataChecked(null, $this->language);
+      return $this->updateContentHubMetadataCache($this->language);
     }
 
     return $storedCache;
