@@ -19,13 +19,18 @@ interface H5PFrameworkInterface {
   /**
    * Fetches a file from a remote server using HTTP GET
    *
-   * @param string $url Where you want to get or send data.
-   * @param array $data Data to post to the URL.
-   * @param bool $blocking Set to 'FALSE' to instantly time out (fire and forget).
-   * @param string $stream Path to where the file should be saved.
-   * @return string The content (response body). NULL if something went wrong
+   * @param  string  $url  Where you want to get or send data.
+   * @param  array  $data  Data to post to the URL.
+   * @param  bool  $blocking  Set to 'FALSE' to instantly time out (fire and forget).
+   * @param  string  $stream  Path to where the file should be saved.
+   * @param  bool  $fullData  Return additional response data such as headers and potentially other data
+   * @param  array  $headers  Headers to send
+   * @param  array  $files Files to send
+   * @param  string  $method
+   *
+   * @return string|array The content (response body), or an array with data. NULL if something went wrong
    */
-  public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL);
+  public function fetchExternalData($url, $data = NULL, $blocking = TRUE, $stream = NULL, $fullData = FALSE, $headers = array(), $files = array(), $method = 'POST');
 
   /**
    * Set the tutorial URL for a library. All versions of the library is set
@@ -623,6 +628,44 @@ interface H5PFrameworkInterface {
    * @return boolean
    */
   public function libraryHasUpgrade($library);
+
+  /**
+   * Replace content hub metadata cache
+   *
+   * @param JsonSerializable $metadata Metadata as received from content hub
+   * @param string $lang Language in ISO 639-1
+   *
+   * @return mixed
+   */
+  public function replaceContentHubMetadataCache($metadata, $lang);
+
+  /**
+   * Get content hub metadata cache from db
+   *
+   * @param  string  $lang Language code in ISO 639-1
+   *
+   * @return JsonSerializable Json string
+   */
+  public function getContentHubMetadataCache($lang = 'en');
+
+  /**
+   * Get time of last content hub metadata check
+   *
+   * @param  string  $lang Language code iin ISO 639-1 format
+   *
+   * @return string|null Time in RFC7231 format
+   */
+  public function getContentHubMetadataChecked($lang = 'en');
+
+  /**
+   * Set time of last content hub metadata check
+   *
+   * @param  int|null  $time Time in RFC7231 format
+   * @param  string  $lang Language code iin ISO 639-1 format
+   *
+   * @return bool True if successful
+   */
+  public function setContentHubMetadataChecked($time, $lang = 'en');
 }
 
 /**
@@ -1981,9 +2024,28 @@ abstract class H5PDisplayOptionBehaviour {
   const CONTROLLED_BY_PERMISSIONS = 4;
 }
 
+abstract class H5PContentHubSyncStatus {
+  const NOT_SYNCED = 0;
+  const SYNCED = 1;
+  const WAITING = 2;
+  const FAILED = 3;
+}
+
+abstract class H5PContentStatus {
+  const STATUS_UNPUBLISHED = 0;
+  const STATUS_DOWNLOADED = 1;
+  const STATUS_WAITING = 2;
+  const STATUS_FAILED_DOWNLOAD = 3;
+  const STATUS_FAILED_VALIDATION = 4;
+  const STATUS_SUSPENDED = 5;
+}
+
 abstract class H5PHubEndpoints {
   const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
   const SITES = 'api.h5p.org/v1/sites';
+  const METADATA = 'api-test.h5p.org/v1/metadata';
+  const CONTENT = 'api-test.h5p.org/v1/contents';
+  const REGISTER = 'api-test.h5p.org/v1/accounts';
 
   public static function createURL($endpoint) {
     $protocol = (extension_loaded('openssl') ? 'https' : 'http');
@@ -3304,6 +3366,72 @@ class H5PCore {
   }
 
   /**
+   * Update content hub metadata cache
+   */
+  public function updateContentHubMetadataCache($lang = 'en') {
+    $url          = H5PHubEndpoints::createURL(H5PHubEndpoints::METADATA);
+    $lastModified = $this->h5pF->getContentHubMetadataChecked($lang);
+
+    $headers = array();
+    if (!empty($lastModified)) {
+      $headers['If-Modified-Since'] = $lastModified;
+    }
+    $data = $this->h5pF->fetchExternalData("{$url}?lang={$lang}", NULL, TRUE, NULL, TRUE, $headers, NULL, 'GET');
+    $lastChecked = new DateTime('now', new DateTimeZone('GMT'));
+
+    if ($data['status'] !== 200 && $data['status'] !== 304) {
+      // If this was not a success, set the error message and return
+      $this->h5pF->setErrorMessage(
+        $this->h5pF->t('No metadata was received from the H5P Hub. Please try again later.')
+      );
+      return null;
+    }
+
+    // Update timestamp
+    $this->h5pF->setContentHubMetadataChecked($lastChecked->getTimestamp(), $lang);
+
+    // Not modified
+    if ($data['status'] === 304) {
+      return null;
+    }
+    $this->h5pF->replaceContentHubMetadataCache($data['data'], $lang);
+    // TODO: If 200 should we have checked if it decodes? Or 'success'? Not sure if necessary though
+    return $data['data'];
+  }
+
+  /**
+   * Get updated content hub metadata cache
+   *
+   * @param  string  $lang Language as ISO 639-1 code
+   *
+   * @return JsonSerializable|string
+   */
+  public function getUpdatedContentHubMetadataCache($lang = 'en') {
+    $lastUpdate = $this->h5pF->getContentHubMetadataChecked($lang);
+    if (!$lastUpdate) {
+      return $this->updateContentHubMetadataCache($lang);
+    }
+
+    $lastUpdate = new DateTime($lastUpdate);
+    $expirationTime = $lastUpdate->getTimestamp() + (60 * 60 * 24); // Check once per day
+    if (time() > $expirationTime) {
+      $update = $this->updateContentHubMetadataCache($lang);
+      if (!empty($update)) {
+        return $update;
+      }
+    }
+
+    $storedCache = $this->h5pF->getContentHubMetadataCache($lang);
+    if (!$storedCache) {
+      // We don't have the value stored for some reason, reset last update and re-fetch
+      $this->h5pF->setContentHubMetadataChecked(null, $lang);
+      return $this->updateContentHubMetadataCache($lang);
+    }
+
+    return $storedCache;
+  }
+
+  /**
    * Check if the current server setup is valid and set error messages
    *
    * @return object Setup object with errors and disable hub properties
@@ -3979,6 +4107,163 @@ class H5PCore {
     }
 
     return false;
+  }
+
+  /**
+   * Publish content on the H5P Hub.
+   *
+   * @param array $data Data from content publishing process
+   * @param array $files Files to upload with the content publish
+   * @return stdClass
+   */
+  public function hubPublishContent($data, $files) {
+    $headers = array(
+      'Authorization' => $this->hubGetAuthorizationHeader(),
+      'Accept' => 'application/json',
+    );
+
+    $response = $this->h5pF->fetchExternalData(
+      H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT),
+      $data, TRUE, NULL, TRUE, $headers, $files
+    );
+
+    if (empty($response['data'])) {
+      throw new Exception($this->h5pF->t('Unable to authorize with the H5P Hub. Please check your Hub registration and connection.'));
+    }
+
+    $result = json_decode($response['data']);
+    if (isset($result->success) && $result->success === TRUE) {
+      return $result;
+    }
+    elseif (!empty($result->errors)) {
+      // Relay any error messages
+      $e = new Exception($this->h5pF->t('Validation failed.'));
+      $e->errors = $result->errors;
+      throw $e;
+    }
+  }
+
+  /**
+   * Creates the authorization header needed to access the private parts of
+   * the H5P Hub.
+   *
+   * @return string
+   */
+  public function hubGetAuthorizationHeader() {
+    $site_uuid = $this->h5pF->getOption('site_uuid', '');
+    $hub_secret = $this->h5pF->getOption('hub_secret', '');
+    if (empty($site_uuid)) {
+      throw new Exception($this->h5pF->t('Missing Site UUID. Please check your Hub registration.'));
+    }
+    if (empty($hub_secret)) {
+      throw new Exception($this->h5pF->t('Missing Hub Secret. Please check your Hub registration.'));
+    }
+    return 'Basic ' . base64_encode("$site_uuid:$hub_secret");
+  }
+
+  /**
+   * Unpublish content from content hub
+   *
+   * @param  integer  $hubId  Content hub id
+   * @param  string  $token  CSRF token
+   *
+   * @return bool True if successful
+   */
+  public function hubUnpublishContent($hubId, $token) {
+    if (!self::validToken('content_hub_token', $token)) {
+      $msg = $this->h5pF->t('Could not unpublish content because token was invalid. Please try again.');
+      $this->h5pF->setErrorMessage($msg);
+
+      return false;
+    }
+
+    $headers = array(
+      'Authorization' => $this->hubGetAuthorizationHeader(),
+      'Accept' => 'application/json',
+    );
+
+    $url = H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT);
+    $response = $this->h5pF->fetchExternalData("{$url}/{$hubId}", array(
+      'published' => '0',
+    ), true, null, true, $headers, array(), 'PUT');
+
+    // Remove shared status if successful
+    if (!empty($response) && $response['status'] === 200) {
+      $msg = $this->h5pF->t('Content successfully unpublished');
+      $this->h5pF->setInfoMessage($msg);
+
+      return true;
+    }
+    $msg = $this->h5pF->t('Content unpublish failed');
+    $this->h5pF->setErrorMessage($msg);
+
+    return false;
+  }
+
+  /**
+   * Sync content with content hub
+   *
+   * @param integer $hubId Content hub id
+   * @param string $token CSRF token
+   * @param string $exportPath Export path where .h5p for content can be found
+   *
+   * @return bool
+   */
+  public function hubSyncContent($hubId, $token, $exportPath) {
+    if (!self::validToken('content_hub_token', $token)) {
+      $msg = $this->h5pF->t('Could not sync content because token was invalid. Please try again.');
+      $this->h5pF->setErrorMessage($msg);
+
+      return false;
+    }
+
+    $headers = array(
+      'Authorization' => $this->hubGetAuthorizationHeader(),
+      'Accept' => 'application/json',
+    );
+
+    $url = H5PHubEndpoints::createURL(H5PHubEndpoints::CONTENT);
+    $response = $this->h5pF->fetchExternalData("{$url}/{$hubId}", array(
+      'download_url' => $exportPath,
+    ), true, null, true, $headers, array(), 'PUT');
+
+    if (!empty($response) && $response['status'] === 200) {
+      $msg = $this->h5pF->t('Content sync queued');
+      $this->h5pF->setInfoMessage($msg);
+      return true;
+    }
+
+    $msg = $this->h5pF->t('Content sync failed');
+    $this->h5pF->setErrorMessage($msg);
+    return false;
+  }
+
+  /**
+   * Fetch account info for our site from the content hub
+   *
+   * @return array|bool|string False if account is not setup, otherwise data
+   */
+  public function hubAccountInfo() {
+    $siteUuid = $this->h5pF->getOption('site_uuid', null);
+    $secret   = $this->h5pF->getOption('hub_secret', null);
+    if (empty($siteUuid) || empty($secret)) {
+      return false;
+    }
+
+    $headers = array(
+      'Authorization' => $this->hubGetAuthorizationHeader(),
+      'Accept' => 'application/json',
+    );
+
+    $url = H5PHubEndpoints::createURL(H5PHubEndpoints::REGISTER);
+    $accountInfo = $this->h5pF->fetchExternalData("{$url}/{$siteUuid}",
+      null, true, null, true, $headers, array(), 'GET');
+
+    if ($accountInfo['status'] !== 200) {
+      return false;
+    }
+
+    return json_decode($accountInfo['data'])->data;
   }
 }
 
