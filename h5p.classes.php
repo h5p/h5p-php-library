@@ -3751,6 +3751,10 @@ class H5PCore {
     }
 
     if (isset($response['status']) && $response['status'] !== 200) {
+      if ($response['status'] === 404) {
+        $this->h5pF->setErrorMessage($this->h5pF->t('Content is not shared on the H5P OER Hub.'));
+        return NULL;
+      }
       throw new Exception($this->h5pF->t('Connecting to the content hub failed, please try again later.'));
     }
 
