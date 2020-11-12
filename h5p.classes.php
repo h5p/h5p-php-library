@@ -3831,18 +3831,10 @@ class H5PCore {
    * Unpublish content from content hub
    *
    * @param  integer  $hubId  Content hub id
-   * @param  string  $token  CSRF token
    *
    * @return bool True if successful
    */
-  public function hubUnpublishContent($hubId, $token) {
-    if (!self::validToken('content_hub_token', $token)) {
-      $msg = $this->h5pF->t('Could not unpublish content because token was invalid. Please try again.');
-      $this->h5pF->setErrorMessage($msg);
-
-      return false;
-    }
-
+  public function hubUnpublishContent($hubId) {
     $headers = array(
       'Authorization' => $this->hubGetAuthorizationHeader(),
       'Accept' => 'application/json',
