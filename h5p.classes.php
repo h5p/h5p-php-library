@@ -3862,19 +3862,11 @@ class H5PCore {
    * Sync content with content hub
    *
    * @param integer $hubId Content hub id
-   * @param string $token CSRF token
    * @param string $exportPath Export path where .h5p for content can be found
    *
    * @return bool
    */
-  public function hubSyncContent($hubId, $token, $exportPath) {
-    if (!self::validToken('content_hub_token', $token)) {
-      $msg = $this->h5pF->t('Could not sync content because token was invalid. Please try again.');
-      $this->h5pF->setErrorMessage($msg);
-
-      return false;
-    }
-
+  public function hubSyncContent($hubId, $exportPath) {
     $headers = array(
       'Authorization' => $this->hubGetAuthorizationHeader(),
       'Accept' => 'application/json',
