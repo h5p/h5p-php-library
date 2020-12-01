@@ -3725,7 +3725,9 @@ class H5PCore {
       'cancelPublishConfirmationDialogDescription' => $this->h5pF->t('Are you sure you want to cancel the sharing process?'),
       'cancelPublishConfirmationDialogCancelButtonText' => $this->h5pF->t('No'),
       'cancelPublishConfirmationDialogConfirmButtonText' => $this->h5pF->t('Yes'),
-      'add' => $this->h5pF->t('Add')
+      'add' => $this->h5pF->t('Add'),
+      'updateRegistrationOnHub' => $this->h5pF->t('Save account settings'),
+      'successfullyUpdated' => $this->h5pF->t('Your H5P Hub account settings have successfully been changed'),
     );
   }
 
@@ -3931,22 +3933,13 @@ class H5PCore {
   /**
    * Register account
    *
-   * @param string $token XSRF token
    * @param array $formData Form data. Should include: name, email, description,
    *    contact_person, phone, address, city, zip, country, remove_logo
    * @param object $logo Input image
    *
    * @return array
    */
-  public function hubRegisterAccount($token, $formData, $logo) {
-    if (!H5PCore::validToken('content_hub_registration', $token)) {
-      return [
-        'message'     => 'Invalid token',
-        'status_code' => 401,
-        'error_code'  => 'INVALID_TOKEN',
-        'success'     => FALSE,
-      ];
-    }
+  public function hubRegisterAccount($formData, $logo) {
 
     $uuid = $this->h5pF->getOption('site_uuid', '');
     if (empty($uuid)) {
@@ -4004,6 +3997,14 @@ class H5PCore {
         'status_code' => 403,
         'error_code'  => 'SITE_UUID_NOT_UNIQUE',
         'success'     => FALSE,
+      ];
+    }
+
+    if (isset($results->errors->logo)) {
+      return [
+        'message' => $results->errors->logo[0],
+        'status_code' => 400,
+        'success' => FALSE,
       ];
     }
 
