@@ -669,7 +669,7 @@ class H5PValidator {
       'author' => '/^.{1,255}$/',
       'log' => '/^.{1,5000}$/'
     ),
-    'authorComments' => '/^.{1,5000}$/',
+    'authorComments' => '/^.{1,5000}$/s',
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     // deprecated
