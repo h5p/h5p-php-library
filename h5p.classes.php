@@ -3709,7 +3709,7 @@ class H5PCore {
       'zip' => $this->h5pF->t('Zip'),
       'country' => $this->h5pF->t('Country'),
       'logoUploadText' => $this->h5pF->t('Organization logo or avatar'),
-      'acceptTerms' => $this->h5pF->t('I accept the terms of the license agreement'),
+      'acceptTerms' => $this->h5pF->t('I accept the <a href=":url" target="_blank">terms of use</a>'),
       'successfullyRegistred' => $this->h5pF->t('You have successfully registered an account on the H5P Hub'),
       'successfullyRegistredDescription' => $this->h5pF->t('You account details can be changed'),
       'accountDetailsLinkText' => $this->h5pF->t('here'),
