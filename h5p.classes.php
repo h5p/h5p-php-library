@@ -3748,7 +3748,7 @@ class H5PCore {
       'iconDescription' => $this->h5pF->t('640x480px. If not selected content will use category icon'),
       'screenshotsDescription' => $this->h5pF->t('Add up to five screenshots of your content'),
       'submitted' => $this->h5pF->t('Submitted!'),
-      'isNowSubmitted' => $this->h5pF->t('Is now submitted to H5P Hub'),
+      'isNowSubmitted' => $this->h5pF->t('Is now submitted to the H5P Hub'),
       'changeHasBeenSubmitted' => $this->h5pF->t('A change has been submited for'),
       'contentAvailable' => $this->h5pF->t('Your content will normally be available in the Hub within one business day.'),
       'contentUpdateSoon' => $this->h5pF->t('Your content will update soon'),
