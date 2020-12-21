@@ -5034,6 +5034,8 @@ class H5PContentValidator {
     $mode = 0;
     $attrName = '';
     $skip = false;
+    $hasDir = false;
+    $hasLang = false;    
 
     while (strlen($attr) != 0) {
       // Was the last operation successful?
@@ -5102,18 +5104,22 @@ class H5PContentValidator {
             }
 
             if ($attrName === 'dir') {
-              if ($match[1] == 'ltr' || $match[1] == 'rtl') {
+              if (!$hasDir && ($match[1] == 'ltr' || $match[1] == 'rtl')) {
                 // Only allow two language directions
                 $attrArr[] = 'dir="' . $match[1] . '"';
+                $hasDir = true;
               }
+              break;
             }
 
             if ($attrName === 'lang') {
               // Allow language code from whitelist
               // NOTE: This is the same as the one in h5peditor.js and they have to be in sync.
-              if (in_array($match[1], array('aa', 'ab', 'ae', 'af', 'ak', 'am', 'ar', 'as', 'ast', 'av', 'ay', 'az', 'ba', 'be', 'bg', 'bh', 'bi', 'bm', 'bn', 'bo', 'br', 'bs', 'ca', 'ce', 'ch', 'co', 'cr', 'cs', 'cu', 'cv', 'cy', 'da', 'de', 'dv', 'dz', 'ee', 'el', 'en', 'en-gb', 'eo', 'es', 'es-mx', 'et', 'eu', 'fa', 'ff', 'fi', 'fil', 'fj', 'fo', 'fr', 'fy', 'ga', 'gd', 'gl', 'gn', 'gsw-berne', 'gu', 'gv', 'ha', 'he', 'hi', 'ho', 'hr', 'ht', 'hu', 'hy', 'hz', 'ia', 'id', 'ie', 'ig', 'ik', 'is', 'it', 'iu', 'ja', 'jv', 'ka', 'kg', 'ki', 'kj', 'kk', 'kl', 'km', 'kn', 'ko', 'kr', 'ks', 'ku', 'kv', 'kw', 'ky', 'la', 'lb', 'lg', 'ln', 'lo', 'lt', 'lv', 'mg', 'mh', 'mi', 'mk', 'ml', 'mn', 'mo', 'mr', 'ms', 'mt', 'my', 'na', 'nd', 'ne', 'ng', 'nl', 'nb', 'nn', 'nr', 'nv', 'ny', 'oc', 'om', 'or', 'os', 'pa', 'pi', 'pl', 'ps', 'pt', 'pt-pt', 'pt-br', 'qu', 'rm', 'rn', 'ro', 'ru', 'rw', 'sa', 'sc', 'sco', 'sd', 'se', 'sg', 'sh', 'si', 'sk', 'sl', 'sm', 'sma', 'sme', 'smj', 'sn', 'so', 'sq', 'sr', 'ss', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'ti', 'tk', 'tl', 'tn', 'to', 'tr', 'ts', 'tt', 'tw', 'ty', 'ug', 'uk', 'ur', 'uz', 've', 'vi', 'wo', 'xh', 'xx-lolspeak', 'yi', 'yo', 'za', 'zh', 'zh-hans', 'zh-hant', 'zh-tw', 'zu'))) {
+              if (!$hasLang && in_array($match[1], array('aa', 'ab', 'ae', 'af', 'ak', 'am', 'ar', 'as', 'ast', 'av', 'ay', 'az', 'ba', 'be', 'bg', 'bh', 'bi', 'bm', 'bn', 'bo', 'br', 'bs', 'ca', 'ce', 'ch', 'co', 'cr', 'cs', 'cu', 'cv', 'cy', 'da', 'de', 'dv', 'dz', 'ee', 'el', 'en', 'en-gb', 'eo', 'es', 'es-mx', 'et', 'eu', 'fa', 'ff', 'fi', 'fil', 'fj', 'fo', 'fr', 'fy', 'ga', 'gd', 'gl', 'gn', 'gsw-berne', 'gu', 'gv', 'ha', 'he', 'hi', 'ho', 'hr', 'ht', 'hu', 'hy', 'hz', 'ia', 'id', 'ie', 'ig', 'ik', 'is', 'it', 'iu', 'ja', 'jv', 'ka', 'kg', 'ki', 'kj', 'kk', 'kl', 'km', 'kn', 'ko', 'kr', 'ks', 'ku', 'kv', 'kw', 'ky', 'la', 'lb', 'lg', 'ln', 'lo', 'lt', 'lv', 'mg', 'mh', 'mi', 'mk', 'ml', 'mn', 'mo', 'mr', 'ms', 'mt', 'my', 'na', 'nd', 'ne', 'ng', 'nl', 'nb', 'nn', 'nr', 'nv', 'ny', 'oc', 'om', 'or', 'os', 'pa', 'pi', 'pl', 'ps', 'pt', 'pt-pt', 'pt-br', 'qu', 'rm', 'rn', 'ro', 'ru', 'rw', 'sa', 'sc', 'sco', 'sd', 'se', 'sg', 'sh', 'si', 'sk', 'sl', 'sm', 'sma', 'sme', 'smj', 'sn', 'so', 'sq', 'sr', 'ss', 'st', 'su', 'sv', 'sw', 'ta', 'te', 'tg', 'th', 'ti', 'tk', 'tl', 'tn', 'to', 'tr', 'ts', 'tt', 'tw', 'ty', 'ug', 'uk', 'ur', 'uz', 've', 'vi', 'wo', 'xh', 'xx-lolspeak', 'yi', 'yo', 'za', 'zh', 'zh-hans', 'zh-hant', 'zh-tw', 'zu'))) {
                 $attrArr[] = 'lang="' . $match[1] . '"';
+                $hasLang = true;
               }
+              break;
             }
 
             $thisVal = $this->filter_xss_bad_protocol($match[1]);
