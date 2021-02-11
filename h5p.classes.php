@@ -3648,6 +3648,7 @@ class H5PCore {
       'share' => $this->h5pF->t('Share'),
       'saveChanges' => $this->h5pF->t('Save changes'),
       'registerOnHub' => $this->h5pF->t('Register on the H5P Hub'),
+      'updateRegistrationOnHub' => $this->h5pF->t('Save account settings'),
       'requiredInfo' => $this->h5pF->t('Required Info'),
       'optionalInfo' => $this->h5pF->t('Optional Info'),
       'reviewAndShare' => $this->h5pF->t('Review & Share'),
@@ -3712,6 +3713,7 @@ class H5PCore {
       'acceptTerms' => $this->h5pF->t('I accept the <a href=":url" target="_blank">terms of use</a>'),
       'successfullyRegistred' => $this->h5pF->t('You have successfully registered an account on the H5P Hub'),
       'successfullyRegistredDescription' => $this->h5pF->t('You account details can be changed'),
+      'successfullyUpdated' => $this->h5pF->t('Your H5P Hub account settings have successfully been changed'),
       'accountDetailsLinkText' => $this->h5pF->t('here'),
       'registrationTitle' => $this->h5pF->t('H5P Hub Registration'),
       'registrationFailed' => $this->h5pF->t('An error occurred'),
@@ -3726,8 +3728,12 @@ class H5PCore {
       'cancelPublishConfirmationDialogCancelButtonText' => $this->h5pF->t('No'),
       'cancelPublishConfirmationDialogConfirmButtonText' => $this->h5pF->t('Yes'),
       'add' => $this->h5pF->t('Add'),
-      'updateRegistrationOnHub' => $this->h5pF->t('Save account settings'),
-      'successfullyUpdated' => $this->h5pF->t('Your H5P Hub account settings have successfully been changed'),
+      'age' => $this->h5pF->t('Typical age'),
+      'ageDescription' => $this->h5pF->t('The target audience of this content. Possible input formats separated by commas: "1,34-45,-50,59-".'),
+      'invalidAge' => $this->h5pF->t('Invalid input format for Typical age. Possible input formats separated by commas: "1, 34-45, -50, -59-".'),
+      'contactPersonDescription' => $this->h5pF->t('H5P will reach out to the contact person in case there are any issues with the content shared by the publisher. The contact person\'s name or other information will not be published or shared with third parties'),
+      'emailAddressDescription' => $this->h5pF->t('The email address will be used by H5P to reach out to the publisher in case of any issues with the content or in case the publisher needs to recover their account. It will not be published or shared with any third parties'),
+      'copyrightWarning' => $this->h5pF->t('Copyrighted material cannot be shared in the H5P Content Hub. If the content is licensed with a OER friendly license like Creative Commons, please choose the appropriate license. If not this content cannot be shared.'),
     );
   }
 
