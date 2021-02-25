@@ -733,7 +733,7 @@ class H5PValidator {
     'source' => '/^(http[s]?:\/\/.+)$/',
     'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|CC0 1\.0|GNU GPL|PD|ODC PDDL|CC PDM|U|C)$/',
     'licenseVersion' => '/^(1\.0|2\.0|2\.5|3\.0|4\.0)$/',
-    'licenseExtras' => '/^.{1,5000}$/s',
+    'licenseExtras' => '/^[\s\S]{1,5000}$/',
     'yearsFrom' => '/^([0-9]{1,4})$/',
     'yearsTo' => '/^([0-9]{1,4})$/',
     'changes' => array(
