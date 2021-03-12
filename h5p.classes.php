@@ -3663,7 +3663,7 @@ class H5PCore {
       'disciplineDescription' => $this->h5pF->t('You can select multiple disciplines'),
       'disciplineLimitReachedMessage' => $this->h5pF->t('You can select up to :numDisciplines disciplines'),
       'discipline' => array(
-        'searchPlaceholder' => $this->h5pF->t('Select one or more disciplines'),
+        'searchPlaceholder' => $this->h5pF->t('Type to search for disciplines'),
         'in' => $this->h5pF->t('in'),
         'dropdownButton' => $this->h5pF->t('Dropdown button'),
       ),
