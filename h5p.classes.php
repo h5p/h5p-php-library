@@ -3734,6 +3734,9 @@ class H5PCore {
       'contactPersonDescription' => $this->h5pF->t('H5P will reach out to the contact person in case there are any issues with the content shared by the publisher. The contact person\'s name or other information will not be published or shared with third parties'),
       'emailAddressDescription' => $this->h5pF->t('The email address will be used by H5P to reach out to the publisher in case of any issues with the content or in case the publisher needs to recover their account. It will not be published or shared with any third parties'),
       'copyrightWarning' => $this->h5pF->t('Copyrighted material cannot be shared in the H5P Content Hub. If the content is licensed with a OER friendly license like Creative Commons, please choose the appropriate license. If not this content cannot be shared.'),
+      'keywordsExits' => $this->h5pF->t('Keywords already exists!'),
+      'someKeywordsExits' => $this->h5pF->t('Some of these keywords already exist'),
+
     );
   }
 
