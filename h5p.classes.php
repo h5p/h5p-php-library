@@ -3694,7 +3694,7 @@ class H5PCore {
       'submitted' => $this->h5pF->t('Submitted!'),
       'isNowSubmitted' => $this->h5pF->t('Is now submitted to H5P Hub'),
       'changeHasBeenSubmitted' => $this->h5pF->t('A change has been submited for'),
-      'contentAvailable' => $this->h5pF->t('Your content will soon be available for download'),
+      'contentAvailable' => $this->h5pF->t('Your content will normally be available in the Hub within one business day.'),
       'contentUpdateSoon' => $this->h5pF->t('Your content will update soon'),
       'contentLicenseTitle' => $this->h5pF->t('Content License Info'),
       'licenseDialogDescription' => $this->h5pF->t('Click on a specific license to get info about proper usage'),
