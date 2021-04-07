@@ -2043,9 +2043,9 @@ abstract class H5PContentStatus {
 abstract class H5PHubEndpoints {
   const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
   const SITES = 'api.h5p.org/v1/sites';
-  const METADATA = 'api-test.h5p.org/v1/metadata';
-  const CONTENT = 'api-test.h5p.org/v1/contents';
-  const REGISTER = 'api-test.h5p.org/v1/accounts';
+  const METADATA = 'hub-api.h5p.org/v1/metadata';
+  const CONTENT = 'hub-api.h5p.org/v1/contents';
+  const REGISTER = 'hub-api.h5p.org/v1/accounts';
 
   public static function createURL($endpoint) {
     $protocol = (extension_loaded('openssl') ? 'https' : 'http');
