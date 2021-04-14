@@ -3670,7 +3670,7 @@ class H5PCore {
       'removeChip' => $this->h5pF->t('Remove :chip from the list'),
       'keywordsPlaceholder' => $this->h5pF->t('Add keywords'),
       'keywords' => $this->h5pF->t('Keywords'),
-      'keywordsDescription' => $this->h5pF->t('You can add multiple keywords. Press "Enter" to confirm each keyword'),
+      'keywordsDescription' => $this->h5pF->t('You can add multiple keywords separated by commas. Press "Enter" or "Add" to confirm keywords'),
       'altText' => $this->h5pF->t('Alt text'),
       'reviewMessage' => $this->h5pF->t('Please review the info below before you share'),
       'subContentWarning' => $this->h5pF->t('Sub-content (images, questions etc.) will be shared under :license unless otherwise specified in the authoring tool'),
