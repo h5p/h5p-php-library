@@ -574,6 +574,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
    * @private
    */
   var entered = function () {
+    H5P.isFullscreen = true;
     // Do not rely on window resize events.
     H5P.trigger(instance, 'resize');
     H5P.trigger(instance, 'focus');
@@ -603,7 +604,6 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     H5P.trigger(instance, 'exitFullScreen');
   };
 
-  H5P.isFullscreen = true;
   if (H5P.fullScreenBrowserPrefix === undefined || forceSemiFullScreen === true) {
     // Create semi fullscreen.
 
@@ -663,18 +663,24 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     // Create real fullscreen.
 
     before('h5p-fullscreen');
-    var first, eventName = (H5P.fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : H5P.fullScreenBrowserPrefix + 'fullscreenchange');
-    document.addEventListener(eventName, function fullscreenCallback() {
-      if (first === undefined) {
-        // We are entering fullscreen mode
-        first = false;
-        entered();
+    const eventName = (H5P.fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : H5P.fullScreenBrowserPrefix + 'fullscreenchange');
+    document.addEventListener(eventName, function () {
+      const isEntering = document.fullscreenElement;
+
+      if (isEntering && H5P.isFullscreen) {
+        // Already in fullscreen. Do nothing
         return;
       }
 
-      // We are exiting fullscreen
-      done('h5p-fullscreen');
-      document.removeEventListener(eventName, fullscreenCallback, false);
+      if (isEntering) {
+        // We are entering fullscreen mode
+        entered();
+      }
+      else {
+        // We are exiting fullscreen
+        done('h5p-fullscreen');
+        document.removeEventListener(eventName, arguments.callee, false);
+      }
     });
 
     if (H5P.fullScreenBrowserPrefix === '') {
