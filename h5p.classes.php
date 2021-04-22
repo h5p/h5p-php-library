@@ -4852,7 +4852,7 @@ class H5PContentValidator {
       return '&lt;';
     }
 
-    if (!preg_match('%^<\s*(/\s*)?([a-zA-Z0-9\-]+)([^>]*)>?|(<!--.*?-->)$%', $string, $matches)) {
+    if (!preg_match('%^<\s*(/\s*)?([a-zA-Z0-9\-]+)\s*([^>]*)>?|(<!--.*?-->)$%', $string, $matches)) {
       // Seriously malformed.
       return '';
     }
@@ -4914,7 +4914,13 @@ class H5PContentValidator {
           // Attribute name, href for instance.
           if (preg_match('/^([-a-zA-Z]+)/', $attr, $match)) {
             $attrName = strtolower($match[1]);
-            $skip = ($attrName == 'style' || substr($attrName, 0, 2) == 'on');
+            $skip = (
+              $attrname == 'style' ||
+              substr($attrname, 0, 2) == 'on' ||
+              substr($attrname, 0, 1) == '-' ||
+              // Ignore long attributes to avoid unnecessary processing overhead.
+              strlen($attrname) > 96
+            );
             $working = $mode = 1;
             $attr = preg_replace('/^[-a-zA-Z]+/', '', $attr);
           }
