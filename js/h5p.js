@@ -377,13 +377,29 @@ H5P.init = function (target) {
 
   // Insert H5Ps that should be in iframes.
   H5P.jQuery('iframe.h5p-iframe:not(.h5p-initialized)', target).each(function () {
-    var contentId = H5P.jQuery(this).addClass('h5p-initialized').data('content-id');
+    const iframe = this;
+    const $iframe = $(iframe);
+
+    const contentId = $iframe.data('content-id');
     const contentData = H5PIntegration.contents['cid-' + contentId];
-    const language = contentData && contentData.metadata && contentData.metadata.defaultLanguage
+    const contentLanguage = contentData && contentData.metadata && contentData.metadata.defaultLanguage
       ? contentData.metadata.defaultLanguage : 'en';
-    this.contentDocument.open();
-    this.contentDocument.write('<!doctype html><html class="h5p-iframe" lang="' + language + '"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
-    this.contentDocument.close();
+
+    const writeDocument = function () {
+      iframe.contentDocument.open();
+      iframe.contentDocument.write('<!doctype html><html class="h5p-iframe" lang="' + contentLanguage + '"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
+      iframe.contentDocument.close();
+    };
+
+    $iframe.addClass('h5p-initialized')
+    if (iframe.contentDocument === null) {
+      // In some Edge cases the iframe isn't always loaded when the page is ready.
+      $iframe.on('load', writeDocument);
+      $iframe.attr('src', 'about:blank');
+    }
+    else {
+      writeDocument();
+    }
   });
 };
 
