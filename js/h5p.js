@@ -378,7 +378,7 @@ H5P.init = function (target) {
   // Insert H5Ps that should be in iframes.
   H5P.jQuery('iframe.h5p-iframe:not(.h5p-initialized)', target).each(function () {
     const iframe = this;
-    const $iframe = $(iframe);
+    const $iframe = H5P.jQuery(iframe);
 
     const contentId = $iframe.data('content-id');
     const contentData = H5PIntegration.contents['cid-' + contentId];
