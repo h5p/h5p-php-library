@@ -47,6 +47,23 @@ else if (document.documentElement.msRequestFullscreen) {
   H5P.fullScreenBrowserPrefix = 'ms';
 }
 
+// Disable native fullscreen on iPad for certain content types
+if (H5P.fullScreenBrowserPrefix !== undefined && // Native fullscreen support
+  window.H5PIntegration && H5PIntegration.contents && // Can has content
+  (navigator.platform === 'iPad' || // iPad 12
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)  // iPad 13+ (May hit Macs with touch in the future)
+)) {
+  for (let content in H5PIntegration.contents) {
+    if (H5PIntegration.contents.hasOwnProperty(content) && H5PIntegration.contents[content].library) { // Content has content type
+      if (['H5P.Chase', 'H5P.MultiPoll', 'H5P.WordCloud', 'H5P.Emoticon', 'H5P.DragQuestion', 'H5P.ThreeImage'].indexOf(H5PIntegration.contents[content].library.split(' ')[0]) !== -1) {
+        // Use semi-fullscreen due to touch gestures and UI on top when using native fullscreen
+        delete H5P.fullScreenBrowserPrefix;
+        break;
+      }
+    }
+  }
+}
+
 /**
  * Keep track of when the H5Ps where started.
  *
