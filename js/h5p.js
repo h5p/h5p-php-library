@@ -743,7 +743,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     let path = source.path;
 
     const crossOrigin = H5P.getCrossOrigin(source);
-    if (crossOrigin) {
+    if (crossOrigin && !path.match(/https?:\/\/[^\/]*(vimeo|akamaized)/ig)) {
       element.crossOrigin = crossOrigin;
 
       if (H5PIntegration.crossoriginCacheBuster) {
