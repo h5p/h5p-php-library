@@ -23,7 +23,7 @@ H5P.$window = H5P.jQuery(window);
 H5P.instances = [];
 
 // Detect if we support fullscreen, and what prefix to use.
-if (document.documentElement.requestFullScreen) {
+if (document.documentElement.requestFullscreen) {
   /**
    * Browser prefix to use when entering fullscreen mode.
    * undefined means no fullscreen support.
@@ -676,7 +676,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     });
 
     if (H5P.fullScreenBrowserPrefix === '') {
-      $element[0].requestFullScreen();
+      $element[0].requestFullscreen();
     }
     else {
       var method = (H5P.fullScreenBrowserPrefix === 'ms' ? 'msRequestFullscreen' : H5P.fullScreenBrowserPrefix + 'RequestFullScreen');
