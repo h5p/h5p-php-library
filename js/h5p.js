@@ -286,6 +286,10 @@ H5P.init = function (target) {
 
           // Free parent
           iframe.parentElement.style.height = parentHeight;
+
+          if (H5P.externalDispatcher) {
+            H5P.externalDispatcher.trigger('iframeResized');
+          }
         };
 
         H5P.on(instance, 'resize', function () {
