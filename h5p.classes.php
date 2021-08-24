@@ -1927,6 +1927,11 @@ Class H5PExport {
       }
     }
 
+    // Close session before finishing zip file, which might take
+    // substantial time to allow other pages to use session without
+    // waiting on the file operation to finish.
+    \core\session\manager::write_close();
+
     // Close zip and remove tmp dir
     $zip->close();
     H5PCore::deleteFileTree($tmpPath);
