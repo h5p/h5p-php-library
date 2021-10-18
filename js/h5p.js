@@ -243,7 +243,7 @@ H5P.init = function (target) {
       // xAPI events will schedule a save in three seconds.
       H5P.on(instance, 'xAPI', function (event) {
         var verb = event.getVerb();
-        if (verb === 'completed' || verb === 'progressed') {
+        if (verb === 'completed' || verb === 'progressed' || verb === 'answered') {
           clearTimeout(saveTimer);
           saveTimer = setTimeout(save, 3000);
         }
