@@ -929,6 +929,10 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
     extras.metadata = library.metadata;
   }
 
+  extras.isScoringEnabled = (library.isScoringEnabled !== undefined ? library.isScoringEnabled : !!H5PIntegration.postUserStatistics);
+  extras.isReportingAvailable = (library.isReportingAvailable !== undefined ? library.isReportingAvailable : !!H5PIntegration.reportingIsAvailable);
+  extras.isReportingEnabled = (library.isReportingEnabled !== undefined ? library.isReportingEnabled : !!H5PIntegration.reportingIsEnabled);
+
   // Makes all H5P libraries extend H5P.ContentType:
   var standalone = extras.standalone || false;
   // This order makes it possible for an H5P library to override H5P.ContentType functions!
