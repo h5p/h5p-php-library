@@ -704,15 +704,15 @@ class H5PValidator {
     'source' => '/^(http[s]?:\/\/.+)$/',
     'license' => '/^(CC BY|CC BY-SA|CC BY-ND|CC BY-NC|CC BY-NC-SA|CC BY-NC-ND|CC0 1\.0|GNU GPL|PD|ODC PDDL|CC PDM|U|C)$/',
     'licenseVersion' => '/^(1\.0|2\.0|2\.5|3\.0|4\.0)$/',
-    'licenseExtras' => '/^.{1,5000}$/',
+    'licenseExtras' => '/^(.|\n|\r){1,5000}$/',
     'yearsFrom' => '/^([0-9]{1,4})$/',
     'yearsTo' => '/^([0-9]{1,4})$/',
     'changes' => array(
       'date' => '/^[0-9]{2}-[0-9]{2}-[0-9]{2} [0-9]{1,2}:[0-9]{2}:[0-9]{2}$/',
       'author' => '/^.{1,255}$/',
-      'log' => '/^.{1,5000}$/'
+      'log' => '/^(.|\n|\r){1,5000}$/'
     ),
-    'authorComments' => '/^.{1,5000}$/',
+    'authorComments' => '/^(.|\n|\r){1,5000}$/',
     'w' => '/^[0-9]{1,4}$/',
     'h' => '/^[0-9]{1,4}$/',
     // deprecated
