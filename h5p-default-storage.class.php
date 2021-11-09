@@ -215,6 +215,10 @@ class H5PDefaultStorage implements \H5PFileStorage {
                   if (preg_match("/^(data:|([a-z0-9]+:)?\/)/i", $matches[1]) === 1) {
                     return $matches[0]; // Not relative, skip
                   }
+                  if (strpos(url, "/") == 0) {
+                    // To avoid duplicate double slash
+                    $cssRelPath = substr($cssRelPath, 1);
+                  }
                   return 'url("../' . $cssRelPath . $matches[1] . '")';
               },
               $assetContent) . "\n";
