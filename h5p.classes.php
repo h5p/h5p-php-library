@@ -3736,7 +3736,8 @@ class H5PCore {
       'copyrightWarning' => $this->h5pF->t('Copyrighted material cannot be shared in the H5P Content Hub. If the content is licensed with a OER friendly license like Creative Commons, please choose the appropriate license. If not this content cannot be shared.'),
       'keywordsExits' => $this->h5pF->t('Keywords already exists!'),
       'someKeywordsExits' => $this->h5pF->t('Some of these keywords already exist'),
-
+      'width' => $this->h5pF->t('width'),
+      'height' => $this->h5pF->t('height')
     );
   }
 
