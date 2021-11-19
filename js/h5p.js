@@ -662,7 +662,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
 
     before('h5p-fullscreen');
     var first, eventName = (H5P.fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : H5P.fullScreenBrowserPrefix + 'fullscreenchange');
-    document.addEventListener(eventName, function () {
+    document.addEventListener(eventName, function fullscreenCallback() {
       if (first === undefined) {
         // We are entering fullscreen mode
         first = false;
@@ -672,7 +672,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
 
       // We are exiting fullscreen
       done('h5p-fullscreen');
-      document.removeEventListener(eventName, arguments.callee, false);
+      document.removeEventListener(eventName, fullscreenCallback, false);
     });
 
     if (H5P.fullScreenBrowserPrefix === '') {
