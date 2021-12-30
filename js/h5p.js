@@ -2398,22 +2398,33 @@ H5P.createTitle = function (rawTitle, maxLength) {
       return;
     }
 
-    var options = {
-      url: H5PIntegration.ajax.contentUserData.replace(':contentId', contentId).replace(':dataType', dataType).replace(':subContentId', subContentId ? subContentId : 0),
+    const url = H5PIntegration.ajax.contentUserData
+      .replace(':contentId', contentId)
+      .replace(':dataType', dataType)
+      .replace(':subContentId', subContentId ? subContentId : 0);
+
+    // If data is set, we are sending/storing data
+    if (data !== undefined) {
+      const successfullyQueued = H5P.sendBeacon(url, {
+        data: (data === null ? 0 : data),
+        preload: (preload ? 1 : 0),
+        invalidate: (invalidate ? 1 : 0),
+      });
+
+      if (done !== undefined) {
+        done(successfullyQueued ? undefined : 'failed sending');
+      }
+      return;
+    }
+    
+    // If we get here, we are fetching data
+    const options = {
+      type: 'GET',
+      url: url,
       dataType: 'json',
       async: async === undefined ? true : async
     };
-    if (data !== undefined) {
-      options.type = 'POST';
-      options.data = {
-        data: (data === null ? 0 : data),
-        preload: (preload ? 1 : 0),
-        invalidate: (invalidate ? 1 : 0)
-      };
-    }
-    else {
-      options.type = 'GET';
-    }
+    
     if (done !== undefined) {
       options.error = function (xhr, error) {
         done(error);
@@ -2435,6 +2446,24 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
     $.ajax(options);
   }
+  
+  /**
+   * Send a message using the Beacon API
+   * 
+   * @param {string} url 
+   * @param {object} data 
+   * @returns {bool}
+   */
+  H5P.sendBeacon = function (url, data) {
+    const formdata = new FormData();
+
+    for (let key in data) {
+      formdata.append(key, data[key]);
+    }
+
+    return navigator.sendBeacon(url, formdata);
+  };
+  
 
   /**
    * Get user data for given content.
@@ -2899,13 +2928,14 @@ H5P.createTitle = function (rawTitle, maxLength) {
       H5P.init(document.body);
     }
 
-    if (H5PIntegration.saveFreq !== false) {
+    const windowHasH5Ps = (H5P.instances.length !== 0);
+    if (windowHasH5Ps && H5PIntegration.saveFreq !== false) {
       // When was the last state stored
       var lastStoredOn = 0;
       // Store the current state of the H5P when leaving the page.
       var storeCurrentState = function () {
         // Make sure at least 250 ms has passed since last save
-        var currentTime = new Date().getTime();
+        var currentTime = Date.now();
         if (currentTime - lastStoredOn > 250) {
           lastStoredOn = currentTime;
           for (var i = 0; i < H5P.instances.length; i++) {
@@ -2929,6 +2959,13 @@ H5P.createTitle = function (rawTitle, maxLength) {
       });
       // pagehide is used on iPad when tabs are switched
       H5P.$window.on('pagehide', storeCurrentState);
+
+      // Visibility change might occur e.g. when switching tabs
+      window.document.addEventListener('visibilitychange', function () {
+        if (window.document.visibilityState === 'hidden') {
+          storeCurrentState();
+        }
+      });
     }
   });
 
