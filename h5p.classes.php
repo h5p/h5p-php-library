@@ -5267,6 +5267,7 @@ class H5PContentValidator {
         'type' => 'text',
         'label' => $this->h5pF->t('Assistive Technologies label'),
         'optional' => TRUE,
+        'maxLength' => '100'
       ),
       (object) array(
         'name' => 'license',
