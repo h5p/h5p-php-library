@@ -55,6 +55,8 @@ html.h5p-iframe .h5p-content {
   line-height: 1.5em;
   width: 100%;
   height: auto;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
 }
 html.h5p-iframe .h5p-fullscreen .h5p-content,
 html.h5p-iframe .h5p-semi-fullscreen .h5p-content {
