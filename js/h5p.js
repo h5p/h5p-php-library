@@ -2466,6 +2466,18 @@ H5P.createTitle = function (rawTitle, maxLength) {
   
 
   /**
+   * Generate a unique key to use when storing user data in the localstorage
+   * 
+   * @param {number} contentId 
+   * @param {string} dataId 
+   * @param {string} subContentId
+   * @returns {string}
+   */
+  const generateUserDataKey = function (contentId, dataId, subContentId) {
+    return `h5p-user-data-${contentId}-${dataId}-${subContentId}`;
+  };
+
+  /**
    * Get user data for given content.
    *
    * @param {number} contentId
@@ -2497,12 +2509,12 @@ H5P.createTitle = function (rawTitle, maxLength) {
         done(err);
       }
     }
-    else if (dataId !== 'state') {
+    else {
       const userDataKey = generateUserDataKey(contentId, dataId, subContentId);
 
       // Check localstorage first
       try {
-        const item = JSON.parse(localStorage.getItem(userDataKey));
+        const item = localStorage.getItem(userDataKey);
         if (item !== null) {
           done(undefined, item);
           return;
@@ -2525,9 +2537,21 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
         preloadedData[subContentId][dataId] = data;
 
-        // Done. Try to decode JSON
+        // Done. 
         try {
-          done(undefined, JSON.parse(data));
+          // Try to decode JSON
+          data = JSON.parse(data);
+
+          // Store in localstorage. This is done in addition to storing it in setUserData, to make
+          // sure we stop existing stored flags being served by localstorage.
+          if (data) {
+            try {
+              localStorage.setItem(userDataKey, data);
+            }
+            catch (error) { /* Expected to fail, since not all browsers allow this */ }
+          }
+
+          done(undefined, data);
         }
         catch (e) {
           done(e);
@@ -2600,14 +2624,10 @@ H5P.createTitle = function (rawTitle, maxLength) {
     preloadedData[options.subContentId][dataId] = data;
 
     // Store in localstorage first
-    // Do not store content state locally. It should always be served by the backend on view
-    if (dataId !== 'state') {
-      try {
-        // Remove inverted comma from the starting of the string
-        localStorage.setItem(generateUserDataKey(contentId, dataId, options.subContentId), data);
-      }
-      catch (error) { /* Expected to fail, since not all browsers allow this */ }
+    try {      
+      localStorage.setItem(generateUserDataKey(contentId, dataId, options.subContentId), data);
     }
+    catch (error) { /* Expected to fail, since not all browsers allow this */ }
 
     contentUserDataAjax(contentId, dataId, options.subContentId, function (error) {
       if (options.errorCallback && error) {
