@@ -270,11 +270,13 @@ H5P.init = function (target) {
           //        @see https://github.com/h5p/h5p-moodle-plugin/issues/237
           iframe.getBoundingClientRect();
 
+          // For Semi-fullscreen below line overrides the scroll height
+          const scrollHeight = iframe.contentDocument.body.scrollHeight;
           // Reset iframe height, in case content has shrinked.
           iframe.style.height = '1px';
 
           // Resize iframe so all content is visible.
-          iframe.style.height = (iframe.contentDocument.body.scrollHeight) + 'px';
+          iframe.style.height = scrollHeight + 'px';
 
           // Free parent
           iframe.parentElement.style.height = parentHeight;
