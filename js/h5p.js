@@ -2514,7 +2514,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
       // Check localstorage first
       try {
-        const item = localStorage.getItem(userDataKey);
+        const item = JSON.parse(localStorage.getItem(userDataKey));
         if (item !== null) {
           done(undefined, item);
           return;
@@ -2539,9 +2539,6 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
         // Done.
         try {
-          // Try to decode JSON
-          data = JSON.parse(data);
-
           // Store in localstorage. This is done in addition to storing it in setUserData, to make
           // sure we stop existing stored flags being served by localstorage.
           if (data) {
