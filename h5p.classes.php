@@ -202,6 +202,14 @@ interface H5PFrameworkInterface {
   public function mayUpdateLibraries();
 
   /**
+   * Check whether the provided list of libraries can be installed.
+   *
+   * @param array $libraries
+   * @return boolean
+   */
+  public function mayInstallSpecificLibraries(array $libraries);
+
+  /**
    * Store data about a library
    *
    * Also fills in the libraryId in the libraryData object if the object is new
@@ -1597,7 +1605,8 @@ class H5PStorage {
    * FALSE otherwise
    */
   public function savePackage($content = NULL, $contentMainId = NULL, $skipContent = FALSE, $options = array()) {
-    if ($this->h5pC->mayUpdateLibraries()) {
+    if ($this->h5pC->mayUpdateLibraries() &&
+        $this->h5pF->mayInstallSpecificLibraries($this->h5pC->librariesJsonData)) {
       // Save the libraries we processed during validation
       $this->saveLibraries();
     }
