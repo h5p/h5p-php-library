@@ -39,7 +39,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  Library properties
    */
   public function saveLibrary($library) {
-    $dest = $this->path . '/libraries/' . \H5PCore::libraryToString($library, TRUE);
+    $dest = $this->path . '/libraries/' . \H5PCore::libraryToFolderName($library);
 
     // Make sure destination dir doesn't exist
     \H5PCore::deleteFileTree($dest);
@@ -133,7 +133,8 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  Folder that library resides in
    */
   public function exportLibrary($library, $target, $developmentPath=NULL) {
-    $folder = \H5PCore::libraryToString($library, TRUE);
+    $folder = \H5PCore::libraryToFolderName($library);
+
     $srcPath = ($developmentPath === NULL ? "/libraries/{$folder}" : $developmentPath);
     self::copyFileTree("{$this->path}{$srcPath}", "{$target}/{$folder}");
   }
