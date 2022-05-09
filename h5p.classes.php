@@ -1626,14 +1626,15 @@ class H5PStorage {
       // Assume new library
       $new = TRUE;
       if ($existingLibrary) {
+        $new = false;
         // We have the library installed already (with the same major + minor)
 
         $library['libraryId'] = $existingLibrary['libraryId'];
 
         // Is this a newer patchVersion?
-        $new = $existingLibrary['patchVersion'] < $library['patchVersion'];
+        $newerPatchVersion = $existingLibrary['patchVersion'] < $library['patchVersion'];
 
-        if (!$new) {
+        if (!$newerPatchVersion) {
           $library['saveDependencies'] = FALSE;
           // This is an older version, no need to save.
           continue;
