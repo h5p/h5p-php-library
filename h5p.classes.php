@@ -1620,20 +1620,20 @@ class H5PStorage {
 
     // Go through libraries that came with this package
     foreach ($this->h5pC->librariesJsonData as $libString => &$library) {
-      // Find local library identifier
-      $libraryId = $this->h5pC->getLibraryId($library, $libString);
+      // Find local library with same major + minor
+      $existingLibrary = $this->h5pC->loadLibrary($library['machineName'], $library['majorVersion'], $library['minorVersion']);
 
       // Assume new library
       $new = TRUE;
-      if ($libraryId) {
-        // Found old library
-        $library['libraryId'] = $libraryId;
+      if ($existingLibrary) {
+        // We have the library installed already (with the same major + minor)
 
-        if ($this->h5pF->isPatchedLibrary($library)) {
-          // This is a newer version than ours. Upgrade!
-          $new = FALSE;
-        }
-        else {
+        $library['libraryId'] = $existingLibrary['libraryId'];
+
+        // Is this a newer patchVersion?
+        $new = $existingLibrary['patchVersion'] < $library['patchVersion'];
+
+        if (!$new) {
           $library['saveDependencies'] = FALSE;
           // This is an older version, no need to save.
           continue;
@@ -1662,6 +1662,10 @@ class H5PStorage {
 
       // Remove tmp folder
       H5PCore::deleteFileTree($library['uploadDirectory']);
+
+      if ($existingLibrary) {
+        $this->h5pC->fs->deleteLibrary($existingLibrary);
+      }
 
       if ($new) {
         $newOnes++;
@@ -3159,6 +3163,8 @@ class H5PCore {
    * @return int Identifier, or FALSE if non-existent
    */
   public function getLibraryId($library, $libString = NULL) {
+    static $libraryIdMap = [];
+
     if (!$libString) {
       $libString = self::libraryToString($library);
     }

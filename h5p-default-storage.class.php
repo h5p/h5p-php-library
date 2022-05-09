@@ -48,6 +48,10 @@ class H5PDefaultStorage implements \H5PFileStorage {
     self::copyFileTree($library['uploadDirectory'], $dest);
   }
 
+  public function deleteLibrary($library) {
+    // TODO
+  }
+
   /**
    * Store the content folder.
    *
