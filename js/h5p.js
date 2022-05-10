@@ -349,13 +349,7 @@ H5P.init = function (target) {
     if (!H5P.isFramed || H5P.externalEmbed === false) {
       // Resize everything when window is resized.
       H5P.jQuery(window.parent).resize(function () {
-        if (window.parent.H5P.isFullscreen) {
-          // Use timeout to avoid bug in certain browsers when exiting fullscreen. Some browser will trigger resize before the fullscreenchange event.
-          H5P.trigger(instance, 'resize');
-        }
-        else {
-          H5P.trigger(instance, 'resize');
-        }
+        H5P.trigger(instance, 'resize');
       });
     }
 
