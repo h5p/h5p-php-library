@@ -114,7 +114,7 @@ H5P.init = function (target) {
           state: previousState
         };
       }
-      else if (previousState === null && H5PIntegration.saveFreq) {
+      else if (reset && H5PIntegration.saveFreq) {
         // Content has been reset. Display dialog.
         delete contentData.contentUserData;
         var dialog = new H5P.Dialog('content-user-data-reset', 'Data Reset', '<p>' + H5P.t('contentChanged') + '</p><p>' + H5P.t('startingOver') + '</p><div class="h5p-dialog-ok-button" tabIndex="0" role="button">OK</div>', $container);
@@ -2416,7 +2416,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
       }
       return;
     }
-    
+
     // If we get here, we are fetching data
     const options = {
       type: 'GET',
@@ -2424,7 +2424,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
       dataType: 'json',
       async: async === undefined ? true : async
     };
-    
+
     if (done !== undefined) {
       options.error = function (xhr, error) {
         done(error);
@@ -2446,12 +2446,12 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
     $.ajax(options);
   }
-  
+
   /**
    * Send a message using the Beacon API
-   * 
-   * @param {string} url 
-   * @param {object} data 
+   *
+   * @param {string} url
+   * @param {object} data
    * @returns {bool}
    */
   H5P.sendBeacon = function (url, data) {
@@ -2463,13 +2463,13 @@ H5P.createTitle = function (rawTitle, maxLength) {
 
     return navigator.sendBeacon(url, formdata);
   };
-  
+
 
   /**
    * Generate a unique key to use when storing user data in the localstorage
-   * 
-   * @param {number} contentId 
-   * @param {string} dataId 
+   *
+   * @param {number} contentId
+   * @param {string} dataId
    * @param {string} subContentId
    * @returns {string}
    */
@@ -2499,7 +2499,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
     var preloadedData = content.contentUserData;
     if (preloadedData && preloadedData[subContentId] && preloadedData[subContentId][dataId] !== undefined) {
       if (preloadedData[subContentId][dataId] === 'RESET') {
-        done(undefined, null);
+        done(undefined, null, true);
         return;
       }
       try {
@@ -2537,7 +2537,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
         preloadedData[subContentId][dataId] = data;
 
-        // Done. 
+        // Done.
         try {
           // Try to decode JSON
           data = JSON.parse(data);
