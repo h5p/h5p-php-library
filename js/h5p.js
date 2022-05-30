@@ -2497,7 +2497,19 @@ H5P.createTitle = function (rawTitle, maxLength) {
         done(err);
       }
     }
-    else {
+    else if (dataId !== 'state') {
+      const userDataKey = generateUserDataKey(contentId, dataId, subContentId);
+
+      // Check localstorage first
+      try {
+        const item = JSON.parse(localStorage.getItem(userDataKey));
+        if (item !== null) {
+          done(undefined, item);
+          return;
+        }
+      }
+      catch (error) { /* Expected to fail, since not all browsers allow this */ }
+
       contentUserDataAjax(contentId, dataId, subContentId, function (err, data) {
         if (err || data === undefined) {
           done(err, data);
@@ -2586,6 +2598,17 @@ H5P.createTitle = function (rawTitle, maxLength) {
     }
 
     preloadedData[options.subContentId][dataId] = data;
+
+    // Store in localstorage first
+    // Do not store content state locally. It should always be served by the backend on view
+    if (dataId !== 'state') {
+      try {
+        // Remove inverted comma from the starting of the string
+        localStorage.setItem(generateUserDataKey(contentId, dataId, options.subContentId), data);
+      }
+      catch (error) { /* Expected to fail, since not all browsers allow this */ }
+    }
+
     contentUserDataAjax(contentId, dataId, options.subContentId, function (error) {
       if (options.errorCallback && error) {
         options.errorCallback(error);
