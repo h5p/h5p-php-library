@@ -1887,8 +1887,10 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
  * @param {string} source
  * @param {number} width
  * @param {number} height
+ * @param {string} alt 
+ *  alternative text for the thumbnail
  */
-H5P.Thumbnail = function (source, width, height, alt=null) {
+H5P.Thumbnail = function (source, width, height, alt) {
   var thumbWidth, thumbHeight = 100;
   if (width !== undefined) {
     thumbWidth = Math.round(thumbHeight * (width / height));
@@ -1900,7 +1902,7 @@ H5P.Thumbnail = function (source, width, height, alt=null) {
    * @returns {string} HTML.
    */
   this.toString = function () {
-    return '<img src="' + source + (alt ? '" alt="' + alt : '') + '" class="h5p-thumbnail" height="' + thumbHeight + '"' + (thumbWidth === undefined ? '' : ' width="' + thumbWidth + '"') + '/>';
+    return '<img src="' + source + '" alt="' + (alt ? alt : '') + '" class="h5p-thumbnail" height="' + thumbHeight + '"' + (thumbWidth === undefined ? '' : ' width="' + thumbWidth + '"') + '/>';
   };
 };
 
