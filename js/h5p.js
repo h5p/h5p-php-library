@@ -1237,7 +1237,7 @@ H5P.findCopyrights = function (info, parameters, contentId, extras) {
           const path = data.params.file.path;
           const width = data.params.file.width;
           const height = data.params.file.height;
-          metadataCopyrights.setThumbnail(new H5P.Thumbnail(H5P.getPath(path, contentId), width, height));
+          metadataCopyrights.setThumbnail(new H5P.Thumbnail(H5P.getPath(path, contentId), width, height, data.params.alt));
         }
         info.addMedia(metadataCopyrights);
       }
@@ -1888,7 +1888,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
  * @param {number} width
  * @param {number} height
  */
-H5P.Thumbnail = function (source, width, height) {
+H5P.Thumbnail = function (source, width, height, alt=null) {
   var thumbWidth, thumbHeight = 100;
   if (width !== undefined) {
     thumbWidth = Math.round(thumbHeight * (width / height));
@@ -1900,7 +1900,7 @@ H5P.Thumbnail = function (source, width, height) {
    * @returns {string} HTML.
    */
   this.toString = function () {
-    return '<img src="' + source + '" alt="' + H5P.t('thumbnail') + '" class="h5p-thumbnail" height="' + thumbHeight + '"' + (thumbWidth === undefined ? '' : ' width="' + thumbWidth + '"') + '/>';
+    return '<img src="' + source + (alt ? '" alt="' + alt : '') + '" class="h5p-thumbnail" height="' + thumbHeight + '"' + (thumbWidth === undefined ? '' : ' width="' + thumbWidth + '"') + '/>';
   };
 };
 
