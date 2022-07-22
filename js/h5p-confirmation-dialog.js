@@ -135,9 +135,8 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Exit button
     var exitButton = document.createElement('button');
     exitButton.classList.add('h5p-confirmation-dialog-exit');
-    exitButton.setAttribute('aria-hidden', 'true');
     exitButton.tabIndex = -1;
-    exitButton.title = options.cancelText;
+    exitButton.setAttribute('aria-label', options.cancelText);
 
     // Cancel handler
     cancelButton.addEventListener('click', dialogCanceled);
@@ -146,7 +145,8 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         dialogCanceled(e);
       }
       else if (e.which === 9 && e.shiftKey) { // Shift-tab
-        flowTo(confirmButton, e);
+        const nextbutton = options.hideExit ? confirmButton : exitButton;
+        flowTo(nextbutton, e);
       }
     });
 
@@ -164,8 +164,14 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       if (e.which === 32) { // Space
         dialogConfirmed(e);
       }
-      else if (e.which === 9 && !e.shiftKey) { // Tab
-        const nextButton = !options.hideCancel ? cancelButton : confirmButton;
+      else if (e.which === 9 && !e.shiftKey) { // Tab        
+        let nextButton = confirmButton;
+        if (!options.hideExit) {
+          nextButton = exitButton;
+        }
+        else if (!options.hideCancel) {
+          nextButton = cancelButton;
+        }
         flowTo(nextButton, e);
       }
     });
@@ -176,6 +182,10 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     exitButton.addEventListener('keydown', function (e) {
       if (e.which === 32) { // Space
         dialogCanceled(e);
+      }
+      else if (e.which === 9 && !e.shiftKey) { // Tab        
+        const nextButton = options.hideCancel ? confirmButton : cancelButton;
+        flowTo(nextButton, e);
       }
     });
     if (!options.hideExit) {
