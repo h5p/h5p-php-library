@@ -87,7 +87,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     popup.setAttribute('aria-labelledby', 'h5p-confirmation-dialog-dialog-text-' + uniqueId);
     popupBackground.appendChild(popup);
     popup.addEventListener('keydown', function (e) {
-      if (e.which === 27) {// Esc key
+      if (e.key === 'Escape') {// Esc key
         // Exit dialog
         dialogCanceled(e);
       }
@@ -141,10 +141,10 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Cancel handler
     cancelButton.addEventListener('click', dialogCanceled);
     cancelButton.addEventListener('keydown', function (e) {
-      if (e.which === 32) { // Space
+      if (e.key === ' ') { // Space
         dialogCanceled(e);
       }
-      else if (e.which === 9 && e.shiftKey) { // Shift-tab
+      else if (e.key === 'Tab' && e.shiftKey) { // Shift-tab
         const nextbutton = options.hideExit ? confirmButton : exitButton;
         flowTo(nextbutton, e);
       }
@@ -161,10 +161,10 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Confirm handler
     confirmButton.addEventListener('click', dialogConfirmed);
     confirmButton.addEventListener('keydown', function (e) {
-      if (e.which === 32) { // Space
+      if (e.key === ' ') { // Space
         dialogConfirmed(e);
       }
-      else if (e.which === 9 && !e.shiftKey) { // Tab        
+      else if (e.key === 'Tab' && !e.shiftKey) { // Tab        
         let nextButton = confirmButton;
         if (!options.hideExit) {
           nextButton = exitButton;
@@ -180,10 +180,10 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Exit handler
     exitButton.addEventListener('click', dialogCanceled);
     exitButton.addEventListener('keydown', function (e) {
-      if (e.which === 32) { // Space
+      if (e.key === ' ') { // Space
         dialogCanceled(e);
       }
-      else if (e.which === 9 && !e.shiftKey) { // Tab        
+      else if (e.key === 'Tab' && !e.shiftKey) { // Tab        
         const nextButton = options.hideCancel ? confirmButton : cancelButton;
         flowTo(nextButton, e);
       }
