@@ -228,12 +228,15 @@ div.h5p-fullscreen {
 .h5p-actions .h5p-link:focus {
   color: #666;
 }
+.h5p-actions > .h5p-button > span {
+  color: #6A6A6A;
+}
 .h5p-actions > .h5p-button:focus,
 .h5p-actions .h5p-link:focus {
   outline-style: solid;
   outline-width: thin;
   outline-offset: -2px;
-  outline-color: #9ecaed;
+  outline-color: #5981A1;
 }
 .h5p-actions > .h5p-button:before {
   font-family: 'H5P';
@@ -257,7 +260,7 @@ div.h5p-fullscreen {
   font-size: 2.0em;
   line-height: 23px;
   overflow: hidden;
-  color: #999;
+  color: #6a6a6a;
   text-decoration: none;
   outline: none;
 }
