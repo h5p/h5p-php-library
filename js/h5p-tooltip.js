@@ -32,9 +32,7 @@ H5P.Tooltip = (function (EventDispatcher) {
     this.hover = false;
     this.focus = false;
 
-    // Declare constants for event listeners
-    const iframeBody = document.getElementsByTagName('body')[0];
-
+    // Function used by the escape listener
     const escapeFunction = function (e) {
       if (e.key === 'Escape') {
         tooltip.classList.remove('h5p-tooltip-visible');
@@ -61,39 +59,38 @@ H5P.Tooltip = (function (EventDispatcher) {
     }
     
     //Add event listeners to triggeringElement
-    triggeringElement.onmouseenter = function () {
-      tooltip.classList.add('h5p-tooltip-visible');
-      self.ensureTooltipVisible();
-      self.hover = true;
-      self.listenForEscape();
-    }
-    triggeringElement.onmouseleave = function () {
-      // Only hide tooltip if not focused
-      if(self.focus === false) {
-        tooltip.classList.remove('h5p-tooltip-visible');
-        self.stopListeningForEscape();
-      }
-      self.hover = false;
-    }
+    triggeringElement.addEventListener('mouseenter', function () {
+      showTooltip(true);
+    });
+    triggeringElement.addEventListener('mouseleave', function () {
+      hideTooltip(true);
+    });
     triggeringElement.addEventListener('focusin', function () {
-      tooltip.classList.add('h5p-tooltip-visible');
-      self.ensureTooltipVisible();
-      self.focus = true;
-      self.listenForEscape();
+      showTooltip(false);
     });
     triggeringElement.addEventListener('focusout', function () {
-      // Only hide tooltip if not hovered
-      if(self.hover === false) {
-        tooltip.classList.remove('h5p-tooltip-visible');
-        self.stopListeningForEscape();
-      }
-      self.focus = false;
+      hideTooltip(false);
     });
 
     /**
-     * Ensures that all of the tooltip is visible
+     * Makes the tooltip visible and activates it's functionality
+     * 
+     * @param {Boolean} triggeredByHover True if triggered by mouse, false if triggered by focus
      */
-    this.ensureTooltipVisible = function () {
+    const showTooltip = function (triggeredByHover) {
+      if (triggeredByHover) {
+        self.hover = true;
+      }
+      else {
+        self.focus = true;
+      }
+      
+      tooltip.classList.add('h5p-tooltip-visible');
+
+      // Add listener to iframe body, as esc keypress would not be detected otherwise
+      document.body.addEventListener('keydown', escapeFunction, true);
+
+      // Ensure that all of the tooltip is visible
       const availableWidth = document.body.clientWidth;
       const tooltipWidth = tooltip.offsetWidth;
       const triggeringElementWidth = triggeringElement.clientWidth;
@@ -113,20 +110,28 @@ H5P.Tooltip = (function (EventDispatcher) {
         tooltip.classList.remove('h5p-tooltip-right');
         tooltip.classList.remove('h5p-tooltip-left');
       }
-    };
-
-    /**
-     * Add listener to iframe body, as esc keypress would not be detected otherwise 
-     */
-    this.listenForEscape = function () {
-      iframeBody.addEventListener('keydown', escapeFunction, true);
     }
 
     /**
-     * Remove iframe body listener
+     * Hides the tooltip and removes listeners
+     *
+     * @param {Boolean} triggeredByHover True if triggered by mouse, false if triggered by focus
      */
-     this.stopListeningForEscape = function () {
-      iframeBody.removeEventListener('keydown', escapeFunction, true);
+     const hideTooltip = function (triggeredByHover) {
+      if (triggeredByHover) {
+        self.hover = false;
+      }
+      else {
+        self.focus = false;
+      }
+
+      // Only hide tooltip if neither hovered nor focused
+      if (!self.hover && !self.focus) {   
+        tooltip.classList.remove('h5p-tooltip-visible');
+
+        // Remove iframe body listener
+        document.body.removeEventListener('keydown', escapeFunction, true);
+      }
     }
     
     /**
