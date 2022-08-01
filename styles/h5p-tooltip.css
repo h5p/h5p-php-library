@@ -1,33 +1,72 @@
 .h5p-tooltip {
-	display: none;
-	position: absolute;
-	bottom: 100%;
-	left: 50%;
-	transform: translateX(-50%);
+  --translateX: -50%;
+  --translateY: 0;
 
-	z-index: 3; /* Must be above feedback, which is 2 */
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(var(--translateX)) translateY(var(--translateY));
 
-	font-size: 0.9rem;
-	line-height: 1.5rem;
+  z-index: 3; /* Must be above feedback, which is 2 */
 
-	padding: 0 0.5rem;
-	white-space: nowrap;
+  font-size: 0.9rem;
+  line-height: 1.5rem;
 
-	background: #000;
-	color: #FFF;
+  padding: 0 0.5rem;
+  white-space: nowrap;
+
+  background: #000;
+  color: #FFF;
 }
-  
-.h5p-tooltip-visible {
-	display: block;
-}
 
-.h5p-tooltip-right {
-	left: auto;
-	right: 0;
-	transform: translateX(0);
+.h5p-tooltip-bottom {
+  top: 100%;
+  bottom: auto;
 }
 
 .h5p-tooltip-left {
-	left: 0;
-	transform: translateX(0);
+  --translateY: -50%;
+  --translateX: 0;
+  top: 50%;
+  bottom: auto;
+  left: auto;
+  right: 100%;
+}
+
+.h5p-tooltip-right {
+  --translateY: -50%;
+  --translateX: 0;
+  top: 50%;
+  bottom: auto;
+  left: 100%;
+  right: auto;
+}
+
+.h5p-tooltip-visible {
+  display: block;
+}
+
+.h5p-tooltip-adjusted-left {
+  --translateX: 0;
+  left: auto;
+  right: 0;
+}
+
+.h5p-tooltip-adjusted-right {
+  --translateX: 0;
+  left: 0;
+  right: auto;
+}
+
+.h5p-tooltip-adjusted-up {
+  --translateY: 0;
+  bottom: 0;
+  top: auto;
+}
+
+.h5p-tooltip-adjusted-down {
+  --translateY: 0;
+  top: 0;
+  bottom: auto;
 }
