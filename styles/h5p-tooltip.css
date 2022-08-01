@@ -7,10 +7,10 @@
 
 	z-index: 3; /* Must be above feedback, which is 2 */
 
-	font-size: 0.75em;
-	line-height: 1.5em;
+	font-size: 0.9rem;
+	line-height: 1.5rem;
 
-	padding: 0 0.3em;
+	padding: 0 0.5rem;
 	white-space: nowrap;
 
 	background: #000;
