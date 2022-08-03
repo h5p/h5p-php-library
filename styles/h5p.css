@@ -228,27 +228,37 @@ div.h5p-fullscreen {
 .h5p-actions .h5p-link:focus {
   color: #666;
 }
-.h5p-actions > .h5p-button:focus,
+.h5p-actions > .h5p-button > button {
+  display: inline-flex;
+  padding: 0 0.75em 0 0.25em;
+
+  /* Disable default button style */
+  background: none;
+	color: inherit;
+	border: none;
+	font: inherit;
+}
+.h5p-actions > .h5p-button:focus > button,
 .h5p-actions .h5p-link:focus {
   outline-style: solid;
   outline-width: thin;
   outline-offset: -2px;
   outline-color: #9ecaed;
 }
-.h5p-actions > .h5p-button:before {
+.h5p-actions > .h5p-button > button:before {
   font-family: 'H5P';
   font-size: 20px;
   line-height: 23px;
   vertical-align: bottom;
   padding-right: 0;
 }
-.h5p-actions > .h5p-button.h5p-export:before {
+.h5p-actions > .h5p-button.h5p-export > button:before {
   content: "\e90b";
 }
-.h5p-actions > .h5p-button.h5p-copyrights:before {
+.h5p-actions > .h5p-button.h5p-copyrights > button:before {
   content: "\e88f";
 }
-.h5p-actions > .h5p-button.h5p-embed:before {
+.h5p-actions > .h5p-button.h5p-embed > button:before {
   content: "\e892";
 }
 .h5p-actions .h5p-link {

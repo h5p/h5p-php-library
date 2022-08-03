@@ -40,8 +40,7 @@ H5P.ActionBar = (function ($, EventDispatcher) {
         appendTo: $actions
       });
 
-      H5P.jQuery('<span/>', {
-        role: 'button',
+      H5P.jQuery('<button/>', {
         tabindex: 0,
         title: H5P.t(type + 'Description'),
         html: H5P.t(type),
