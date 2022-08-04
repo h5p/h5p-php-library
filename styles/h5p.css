@@ -237,6 +237,7 @@ div.h5p-fullscreen {
 	color: inherit;
 	border: none;
 	font: inherit;
+  cursor: pointer;
 }
 .h5p-actions > .h5p-button:focus > button,
 .h5p-actions .h5p-link:focus {
