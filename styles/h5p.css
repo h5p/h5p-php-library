@@ -231,10 +231,10 @@ div.h5p-fullscreen {
 .h5p-actions > .h5p-button > button {
   display: inline-flex;
   padding: 0 0.75em 0 0.25em;
+  color: #6A6A6A;
 
   /* Disable default button style */
   background: none;
-  color: inherit;
   border: none;
   font: inherit;
   cursor: pointer;
@@ -244,7 +244,7 @@ div.h5p-fullscreen {
   outline-style: solid;
   outline-width: thin;
   outline-offset: -2px;
-  outline-color: #9ecaed;
+  outline-color: #5981A1;
 }
 .h5p-actions > .h5p-button > button:before {
   font-family: 'H5P';
@@ -268,7 +268,7 @@ div.h5p-fullscreen {
   font-size: 2.0em;
   line-height: 23px;
   overflow: hidden;
-  color: #999;
+  color: #6a6a6a;
   text-decoration: none;
   outline: none;
 }

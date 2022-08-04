@@ -186,7 +186,7 @@ H5P.init = function (target) {
         instance.triggerXAPI('accessed-reuse');
       });
       actionBar.on('copyrights', function () {
-        var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container);
+        var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container, $actions.find('.h5p-copyrights')[0]);
         dialog.open(true);
         instance.triggerXAPI('accessed-copyright');
       });
@@ -1039,13 +1039,15 @@ H5P.t = function (key, vars, ns) {
  *   Displayed inside the dialog.
  * @param {H5P.jQuery} $element
  *   Which DOM element the dialog should be inserted after.
+ * @param {H5P.jQuery} $returnElement
+ *   Which DOM element the focus should be moved to on close   
  */
-H5P.Dialog = function (name, title, content, $element) {
+H5P.Dialog = function (name, title, content, $element, $returnElement) {
   /** @alias H5P.Dialog# */
   var self = this;
-  var $dialog = H5P.jQuery('<div class="h5p-popup-dialog h5p-' + name + '-dialog" role="dialog" tabindex="-1">\
+  var $dialog = H5P.jQuery('<div class="h5p-popup-dialog h5p-' + name + '-dialog" aria-labelledby="' + name + '-dialog-header" aria-modal="true" role="dialog" tabindex="-1">\
                               <div class="h5p-inner">\
-                                <h2>' + title + '</h2>\
+                                <h2 id="' + name + '-dialog-header">' + title + '</h2>\
                                 <div class="h5p-scroll-content">' + content + '</div>\
                                 <div class="h5p-close" role="button" tabindex="0" aria-label="' + H5P.t('close') + '" title="' + H5P.t('close') + '"></div>\
                               </div>\
@@ -1104,7 +1106,12 @@ H5P.Dialog = function (name, title, content, $element) {
       $dialog.remove();
       H5P.jQuery(self).trigger('dialog-closed', [$dialog]);
       $element.attr('tabindex', '-1');
-      $element.focus();
+      if ($returnElement) {
+        $returnElement.focus();
+      }
+      else {
+        $element.focus();
+      }
     }, 200);
   };
 };
