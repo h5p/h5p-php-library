@@ -234,9 +234,9 @@ div.h5p-fullscreen {
 
   /* Disable default button style */
   background: none;
-	color: inherit;
-	border: none;
-	font: inherit;
+  color: inherit;
+  border: none;
+  font: inherit;
   cursor: pointer;
 }
 .h5p-actions > .h5p-button:focus > button,
