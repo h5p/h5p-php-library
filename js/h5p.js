@@ -365,7 +365,7 @@ H5P.init = function (target) {
     });
 
     if (H5P.externalDispatcher) {
-      H5P.externalDispatcher.trigger('initialized');
+      H5P.externalDispatcher.trigger('initialized', { contentId: contentId });
     }
   });
 
