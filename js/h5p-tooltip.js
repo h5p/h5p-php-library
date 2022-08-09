@@ -48,8 +48,8 @@ H5P.Tooltip = (function (EventDispatcher) {
     tooltip.classList.add('h5p-tooltip');
     tooltip.id = tooltipId;
     tooltip.role = 'tooltip';
-    tooltip.innerHTML = options.text || triggeringElement.ariaLabel || '';
-    tooltip.ariaHidden = options.ariaHidden;
+    tooltip.innerHTML = options.text || triggeringElement.getAttribute('aria-label') || '';
+    tooltip.setAttribute('aria-hidden', options.ariaHidden);
     tooltip.classList.add(...options.classes);
 
     triggeringElement.appendChild(tooltip);
@@ -59,7 +59,7 @@ H5P.Tooltip = (function (EventDispatcher) {
     // Mutation observer will be used even if the original elements
     // doesn't have any aria-label.
     new MutationObserver(function (mutations) {
-      const ariaLabel = mutations[0].target.ariaLabel;
+      const ariaLabel = mutations[0].target.getAttribute('aria-label');
       if (ariaLabel) {
         tooltip.innerHTML = ariaLabel;
       }
