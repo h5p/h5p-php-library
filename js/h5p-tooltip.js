@@ -4,21 +4,21 @@ H5P.Tooltip = (function (EventDispatcher) {
 
   /**
    * Create an accessible tooltip
-   * 
+   *
    * @param {HTMLElement} triggeringElement The element that should trigger the tooltip
    * @param {Object} options Options for tooltip
    * @param {String} options.text The text to be displayed in the tooltip
    *  If not set, will attempt to set text = aria-label of triggeringElement
    * @param {String[]} options.classes Extra css classes for the tooltip
-   * @param {Boolean} options.ariaHidden Whether the hover should be read by screen readers or not
-   * @param {String} options.position Where the tooltip should appear in relation to the 
+   * @param {Boolean} options.ariaHidden Whether the hover should be read by screen readers or not (default: false)
+   * @param {String} options.position Where the tooltip should appear in relation to the
    *  triggeringElement. Accepted positions are "top" (default), "left", "right" and "bottom"
-   * 
+   *
    * @constructor
    */
   function Tooltip(triggeringElement, options) {
     EventDispatcher.call(this);
-    
+
     /** @alias H5P.Tooltip */
     let self = this;
 
@@ -28,7 +28,6 @@ H5P.Tooltip = (function (EventDispatcher) {
 
     // Default options
     options = options || {};
-    options.text = options.text || triggeringElement.ariaLabel || '';
     options.classes = options.classes || [];
     options.ariaHidden = options.ariaHidden || false;
 
@@ -49,13 +48,25 @@ H5P.Tooltip = (function (EventDispatcher) {
     tooltip.classList.add('h5p-tooltip');
     tooltip.id = tooltipId;
     tooltip.role = 'tooltip';
-    tooltip.innerHTML = options.text;
+    tooltip.innerHTML = options.text || triggeringElement.ariaLabel || '';
     tooltip.ariaHidden = options.ariaHidden;
-    options.classes.forEach(extraClass => {
-      tooltip.classList.add(extraClass);
-    });
+    tooltip.classList.add(...options.classes);
 
     triggeringElement.appendChild(tooltip);
+
+    // Use a mutation observer to listen for aria-label being
+    // changed for the triggering element. If so, update the tooltip.
+    // Mutation observer will be used even if the original elements
+    // doesn't have any aria-label.
+    new MutationObserver(function (mutations) {
+      const ariaLabel = mutations[0].target.ariaLabel;
+      if (ariaLabel) {
+        tooltip.innerHTML = ariaLabel;
+      }
+    }).observe(triggeringElement, {
+      attributes: true,
+      attributeFilter: ['aria-label'],
+    });
 
     // Set the initial position based on options.position
     switch (options.position) {
@@ -76,7 +87,7 @@ H5P.Tooltip = (function (EventDispatcher) {
     if (!options.ariaHidden) {
       triggeringElement.setAttribute('aria-describedby', tooltipId);
     }
-    
+
     //Add event listeners to triggeringElement
     triggeringElement.addEventListener('mouseenter', function () {
       showTooltip(true);
@@ -93,7 +104,7 @@ H5P.Tooltip = (function (EventDispatcher) {
 
     /**
      * Makes the tooltip visible and activates it's functionality
-     * 
+     *
      * @param {Boolean} triggeredByHover True if triggered by mouse, false if triggered by focus
      */
     const showTooltip = function (triggeredByHover) {
@@ -103,7 +114,7 @@ H5P.Tooltip = (function (EventDispatcher) {
       else {
         self.focus = true;
       }
-      
+
       tooltip.classList.add('h5p-tooltip-visible');
 
       // Add listener to iframe body, as esc keypress would not be detected otherwise
@@ -175,14 +186,14 @@ H5P.Tooltip = (function (EventDispatcher) {
       }
 
       // Only hide tooltip if neither hovered nor focused
-      if (!self.hover && !self.focus) {   
+      if (!self.hover && !self.focus) {
         tooltip.classList.remove('h5p-tooltip-visible');
 
         // Remove iframe body listener
         document.body.removeEventListener('keydown', escapeFunction, true);
       }
     }
-    
+
     /**
      * Retrieve tooltip
      *
