@@ -87,7 +87,7 @@ H5P.Tooltip = (function () {
       triggeringElement.setAttribute('aria-describedby', tooltipId);
     }
 
-    //Add event listeners to triggeringElement
+    // Add event listeners to triggeringElement
     triggeringElement.addEventListener('mouseenter', function () {
       showTooltip(true);
     });
@@ -99,6 +99,11 @@ H5P.Tooltip = (function () {
     });
     triggeringElement.addEventListener('focusout', function () {
       hideTooltip(false);
+    });
+
+    // Prevent clicks on the tooltip from triggering onClick listeners on the triggeringElement
+    tooltip.addEventListener('click', function (event) {
+      event.stopPropagation();
     });
 
     /**
