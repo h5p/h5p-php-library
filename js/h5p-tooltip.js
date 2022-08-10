@@ -1,5 +1,5 @@
 /*global H5P*/
-H5P.Tooltip = (function (EventDispatcher) {
+H5P.Tooltip = (function () {
   "use strict";
 
   /**
@@ -17,7 +17,6 @@ H5P.Tooltip = (function (EventDispatcher) {
    * @constructor
    */
   function Tooltip(triggeringElement, options) {
-    EventDispatcher.call(this);
 
     /** @alias H5P.Tooltip */
     let self = this;
@@ -215,11 +214,8 @@ H5P.Tooltip = (function (EventDispatcher) {
     };
   }
 
-  Tooltip.prototype = Object.create(EventDispatcher.prototype);
-  Tooltip.prototype.constructor = Tooltip;
-
   return Tooltip;
 
-}(H5P.EventDispatcher));
+})();
 
 H5P.Tooltip.uniqueId = -1;
