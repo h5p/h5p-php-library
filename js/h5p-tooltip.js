@@ -10,7 +10,7 @@ H5P.Tooltip = (function (EventDispatcher) {
    * @param {String} options.text The text to be displayed in the tooltip
    *  If not set, will attempt to set text = aria-label of triggeringElement
    * @param {String[]} options.classes Extra css classes for the tooltip
-   * @param {Boolean} options.ariaHidden Whether the hover should be read by screen readers or not (default: false)
+   * @param {Boolean} options.ariaHidden Whether the hover should be read by screen readers or not (default: true)
    * @param {String} options.position Where the tooltip should appear in relation to the
    *  triggeringElement. Accepted positions are "top" (default), "left", "right" and "bottom"
    *
@@ -29,7 +29,7 @@ H5P.Tooltip = (function (EventDispatcher) {
     // Default options
     options = options || {};
     options.classes = options.classes || [];
-    options.ariaHidden = options.ariaHidden || false;
+    options.ariaHidden = options.ariaHidden || true;
 
     // Initiate state
     this.hover = false;
@@ -61,7 +61,7 @@ H5P.Tooltip = (function (EventDispatcher) {
     new MutationObserver(function (mutations) {
       const ariaLabel = mutations[0].target.getAttribute('aria-label');
       if (ariaLabel) {
-        tooltip.innerHTML = ariaLabel;
+        tooltip.innerHTML = options.text || ariaLabel;
       }
     }).observe(triggeringElement, {
       attributes: true,
@@ -193,6 +193,17 @@ H5P.Tooltip = (function (EventDispatcher) {
         document.body.removeEventListener('keydown', escapeFunction, true);
       }
     }
+
+    /**
+     * Change the text displayed by the tooltip
+     *
+     * @param {String} text The new text to be displayed
+     *  Set to null to use aria-label of triggeringElement instead
+     */
+    this.setText = function (text) {
+      options.text = text;
+      tooltip.innerHTML = options.text || triggeringElement.getAttribute('aria-label') || '';
+    };
 
     /**
      * Retrieve tooltip
