@@ -124,9 +124,18 @@ H5P.Tooltip = (function () {
       // Add listener to iframe body, as esc keypress would not be detected otherwise
       document.body.addEventListener('keydown', escapeFunction, true);
 
+      // h5p-container is more accurate, but not available in i.e. cp editor
+      let container = document.getElementsByClassName('h5p-container');
+      if (container) {
+        container = container[0];
+      }
+      else {
+        container = document.body;
+      }
+
       // Ensure that all of the tooltip is visible
-      const availableWidth = document.body.clientWidth;
-      const availableHeight = document.getElementsByClassName('h5p-container')[0].clientHeight;
+      const availableWidth = container.clientWidth;
+      const availableHeight = container.clientHeight;
       const tooltipWidth = tooltip.offsetWidth;
       const tooltipOffsetTop = tooltip.offsetTop;
       const triggerWidth = triggeringElement.clientWidth;
