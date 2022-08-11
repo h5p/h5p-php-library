@@ -18,9 +18,6 @@ H5P.Tooltip = (function () {
    */
   function Tooltip(triggeringElement, options) {
 
-    /** @alias H5P.Tooltip */
-    let self = this;
-
     // Make sure tooltips have unique id
     H5P.Tooltip.uniqueId += 1;
     const tooltipId = "h5p-tooltip-" + H5P.Tooltip.uniqueId;
@@ -31,8 +28,8 @@ H5P.Tooltip = (function () {
     options.ariaHidden = options.ariaHidden || true;
 
     // Initiate state
-    this.hover = false;
-    this.focus = false;
+    let hover = false;
+    let focus = false;
 
     // Function used by the escape listener
     const escapeFunction = function (e) {
@@ -113,10 +110,10 @@ H5P.Tooltip = (function () {
      */
     const showTooltip = function (triggeredByHover) {
       if (triggeredByHover) {
-        self.hover = true;
+        hover = true;
       }
       else {
-        self.focus = true;
+        focus = true;
       }
 
       tooltip.classList.add('h5p-tooltip-visible');
@@ -192,14 +189,14 @@ H5P.Tooltip = (function () {
      */
      const hideTooltip = function (triggeredByHover) {
       if (triggeredByHover) {
-        self.hover = false;
+        hover = false;
       }
       else {
-        self.focus = false;
+        focus = false;
       }
 
       // Only hide tooltip if neither hovered nor focused
-      if (!self.hover && !self.focus) {
+      if (!hover && !focus) {
         tooltip.classList.remove('h5p-tooltip-visible');
 
         // Remove iframe body listener
