@@ -64,6 +64,48 @@ H5P.Tooltip = (function () {
       attributeFilter: ['aria-label'],
     });
 
+    // Use intersection observer to adjust the tooltip if it is not completely visible
+    new IntersectionObserver(function (entries) {
+      entries.forEach((entry) => {
+        const target = entry.target;
+
+        // Stop adjusting when hidden (to prevent a false positive next time)
+        if (entry.intersectionRatio === 0) {
+          target.classList.remove('h5p-tooltip-adjusted-down');
+          target.classList.remove('h5p-tooltip-adjusted-up');
+          target.classList.remove('h5p-tooltip-adjusted-left');
+          target.classList.remove('h5p-tooltip-adjusted-right');
+        }        
+        // Adjust if not completely visible when meant to be
+        else if (entry.intersectionRatio < 1 && (hover || focus)) {
+          const targetRect = entry.boundingClientRect;
+          const intersectionRect = entry.intersectionRect;
+
+          // Going out of screen on left side
+          if (intersectionRect.left > targetRect.left) {
+            target.classList.add('h5p-tooltip-adjusted-right');
+            target.classList.remove('h5p-tooltip-adjusted-left');
+          }
+          // Going out of screen on right side
+          else if (intersectionRect.right < targetRect.right) {
+            target.classList.add('h5p-tooltip-adjusted-left');
+            target.classList.remove('h5p-tooltip-adjusted-right');
+          }
+
+          // going out of top of screen
+          if (intersectionRect.top > targetRect.top) {
+            target.classList.add('h5p-tooltip-adjusted-down');
+            target.classList.remove('h5p-tooltip-adjusted-up');
+          }
+          // going out of bottom of screen
+          else if (intersectionRect.bottom < targetRect.bottom) {
+            target.classList.add('h5p-tooltip-adjusted-up');
+            target.classList.remove('h5p-tooltip-adjusted-down');
+          }
+        }
+      });
+    }).observe(tooltip);
+
     // Set the initial position based on options.position
     switch (options.position) {
       case "left":
@@ -120,66 +162,6 @@ H5P.Tooltip = (function () {
 
       // Add listener to iframe body, as esc keypress would not be detected otherwise
       document.body.addEventListener('keydown', escapeFunction, true);
-
-      // h5p-container is more accurate, but not available in i.e. cp editor
-      let container = document.getElementsByClassName('h5p-container');
-      if (container) {
-        container = container[0];
-      }
-      else {
-        container = document.body;
-      }
-
-      // Ensure that all of the tooltip is visible
-      const availableWidth = container.clientWidth;
-      const availableHeight = container.clientHeight;
-      const tooltipWidth = tooltip.offsetWidth;
-      const tooltipOffsetTop = tooltip.offsetTop;
-      const triggerWidth = triggeringElement.clientWidth;
-      const triggerHeight = triggeringElement.clientHeight;
-      const offsetLeft = triggeringElement.offsetLeft;
-      const offsetTop = triggeringElement.offsetTop;
-      const position = options.position;
-
-      let adjusted = false;
-
-      // Going out of screen on left side
-      if ((position === "left" && (offsetLeft < tooltipWidth)) ||
-        (offsetLeft + triggerWidth < tooltipWidth)) {
-        tooltip.classList.add('h5p-tooltip-adjusted-right');
-        tooltip.classList.remove('h5p-tooltip-adjusted-left');
-        adjusted = true;
-      }
-      // Going out of screen on right side
-      else if ((position === "right" && (offsetLeft + triggerWidth + tooltipWidth > availableWidth)) ||
-        (offsetLeft + tooltipWidth > availableWidth)) {
-        tooltip.classList.add('h5p-tooltip-adjusted-left');
-        tooltip.classList.remove('h5p-tooltip-adjusted-right');
-        adjusted = true;
-      }
-
-      // going out of top of screen
-      if ((position === "top" && (offsetTop < -tooltipOffsetTop)) ||
-        (offsetTop < tooltipOffsetTop)) {
-        tooltip.classList.add('h5p-tooltip-adjusted-down');
-        tooltip.classList.remove('h5p-tooltip-adjusted-up');
-        adjusted = true;
-      }
-      // going out of bottom of screen
-      else if ((position === "bottom" && (offsetTop + tooltipOffsetTop + tooltip.clientHeight > availableHeight)) ||
-        (offsetTop + triggerHeight + tooltipOffsetTop > availableHeight)) {
-        tooltip.classList.add('h5p-tooltip-adjusted-up');
-        tooltip.classList.remove('h5p-tooltip-adjusted-down');
-        adjusted = true;
-      }
-
-      // Reset adjustments
-      if (!adjusted) {
-        tooltip.classList.remove('h5p-tooltip-adjusted-down');
-        tooltip.classList.remove('h5p-tooltip-adjusted-up');
-        tooltip.classList.remove('h5p-tooltip-adjusted-left');
-        tooltip.classList.remove('h5p-tooltip-adjusted-right');
-      }
     }
 
     /**
