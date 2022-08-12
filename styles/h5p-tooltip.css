@@ -21,19 +21,22 @@
 
   cursor: default;
 
-  /* To hide the position adjustments */
-  -webkit-animation: 150ms ease 0s normal forwards 1 fadein;
-  animation: 150ms ease 0s normal forwards 1 fadein;
+  /* To hide the position adjustments and to get a bit more 
+     pleasent popup effect */
+  -webkit-animation: 800ms ease 0s normal forwards 1 fadein;
+  animation: 800ms ease 0s normal forwards 1 fadein;
 }
 
 @keyframes fadein{
-  0% { opacity:0; }
-  100% { opacity:1; }
+  0% { opacity: 0; }
+  80% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 @-webkit-keyframes fadein{
-  0% { opacity:0; }
-  100% { opacity:1; }
+  0% { opacity: 0; }
+  80% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 .h5p-tooltip-bottom {

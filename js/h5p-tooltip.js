@@ -71,10 +71,11 @@ H5P.Tooltip = (function () {
 
         // Stop adjusting when hidden (to prevent a false positive next time)
         if (entry.intersectionRatio === 0) {
-          target.classList.remove('h5p-tooltip-adjusted-down');
-          target.classList.remove('h5p-tooltip-adjusted-up');
-          target.classList.remove('h5p-tooltip-adjusted-left');
-          target.classList.remove('h5p-tooltip-adjusted-right');
+          target.classList.remove(
+            'h5p-tooltip-adjusted-down',
+            'h5p-tooltip-adjusted-up',
+            'h5p-tooltip-adjusted-left',
+            'h5p-tooltip-adjusted-right');
         }        
         // Adjust if not completely visible when meant to be
         else if (entry.intersectionRatio < 1 && (hover || focus)) {
