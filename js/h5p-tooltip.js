@@ -1,6 +1,6 @@
 /*global H5P*/
 H5P.Tooltip = (function () {
-  "use strict";
+  'use strict';
 
   /**
    * Create an accessible tooltip
@@ -20,7 +20,7 @@ H5P.Tooltip = (function () {
 
     // Make sure tooltips have unique id
     H5P.Tooltip.uniqueId += 1;
-    const tooltipId = "h5p-tooltip-" + H5P.Tooltip.uniqueId;
+    const tooltipId = 'h5p-tooltip-' + H5P.Tooltip.uniqueId;
 
     // Default options
     options = options || {};
@@ -50,76 +50,19 @@ H5P.Tooltip = (function () {
 
     triggeringElement.appendChild(tooltip);
 
-    // Use a mutation observer to listen for aria-label being
-    // changed for the triggering element. If so, update the tooltip.
-    // Mutation observer will be used even if the original elements
-    // doesn't have any aria-label.
-    new MutationObserver(function (mutations) {
-      const ariaLabel = mutations[0].target.getAttribute('aria-label');
-      if (ariaLabel) {
-        tooltip.innerHTML = options.text || ariaLabel;
-      }
-    }).observe(triggeringElement, {
-      attributes: true,
-      attributeFilter: ['aria-label'],
-    });
-
-    // Use intersection observer to adjust the tooltip if it is not completely visible
-    new IntersectionObserver(function (entries) {
-      entries.forEach((entry) => {
-        const target = entry.target;
-
-        // Stop adjusting when hidden (to prevent a false positive next time)
-        if (entry.intersectionRatio === 0) {
-          target.classList.remove(
-            'h5p-tooltip-adjusted-down',
-            'h5p-tooltip-adjusted-up',
-            'h5p-tooltip-adjusted-left',
-            'h5p-tooltip-adjusted-right');
-        }        
-        // Adjust if not completely visible when meant to be
-        else if (entry.intersectionRatio < 1 && (hover || focus)) {
-          const targetRect = entry.boundingClientRect;
-          const intersectionRect = entry.intersectionRect;
-
-          // Going out of screen on left side
-          if (intersectionRect.left > targetRect.left) {
-            target.classList.add('h5p-tooltip-adjusted-right');
-            target.classList.remove('h5p-tooltip-adjusted-left');
-          }
-          // Going out of screen on right side
-          else if (intersectionRect.right < targetRect.right) {
-            target.classList.add('h5p-tooltip-adjusted-left');
-            target.classList.remove('h5p-tooltip-adjusted-right');
-          }
-
-          // going out of top of screen
-          if (intersectionRect.top > targetRect.top) {
-            target.classList.add('h5p-tooltip-adjusted-down');
-            target.classList.remove('h5p-tooltip-adjusted-up');
-          }
-          // going out of bottom of screen
-          else if (intersectionRect.bottom < targetRect.bottom) {
-            target.classList.add('h5p-tooltip-adjusted-up');
-            target.classList.remove('h5p-tooltip-adjusted-down');
-          }
-        }
-      });
-    }).observe(tooltip);
-
     // Set the initial position based on options.position
     switch (options.position) {
-      case "left":
+      case 'left':
         tooltip.classList.add('h5p-tooltip-left');
         break;
-      case "right":
+      case 'right':
         tooltip.classList.add('h5p-tooltip-right');
         break;
-      case "bottom":
+      case 'bottom':
         tooltip.classList.add('h5p-tooltip-bottom');
         break;
       default:
-        options.position = "top";
+        options.position = 'top';
     }
 
     // Aria-describedby will override aria-hidden
@@ -145,6 +88,65 @@ H5P.Tooltip = (function () {
     tooltip.addEventListener('click', function (event) {
       event.stopPropagation();
     });
+
+    // Use a mutation observer to listen for aria-label being
+    // changed for the triggering element. If so, update the tooltip.
+    // Mutation observer will be used even if the original elements
+    // doesn't have any aria-label.
+    new MutationObserver(function (mutations) {
+      const ariaLabel = mutations[0].target.getAttribute('aria-label');
+      if (ariaLabel) {
+        tooltip.innerHTML = options.text || ariaLabel;
+      }
+    }).observe(triggeringElement, {
+      attributes: true,
+      attributeFilter: ['aria-label'],
+    });
+
+    // Use intersection observer to adjust the tooltip if it is not completely visible
+    new IntersectionObserver(function (entries) {
+      entries.forEach((entry) => {
+        const target = entry.target;
+        const positionClass = 'h5p-tooltip-' + options.position;
+
+        // Stop adjusting when hidden (to prevent a false positive next time)
+        if (entry.intersectionRatio === 0) {
+          ['h5p-tooltip-down', 'h5p-tooltip-left', 'h5p-tooltip-right']
+            .forEach(function (adjustmentClass) {
+              if (adjustmentClass !== positionClass) {
+                target.classList.remove(adjustmentClass);
+              }
+            });
+        }        
+        // Adjust if not completely visible when meant to be
+        else if (entry.intersectionRatio < 1 && (hover || focus)) {
+          const targetRect = entry.boundingClientRect;
+          const intersectionRect = entry.intersectionRect;
+
+          // Going out of screen on left side
+          if (intersectionRect.left > targetRect.left) {
+            target.classList.add('h5p-tooltip-right');
+            target.classList.remove(positionClass);
+          }
+          // Going out of screen on right side
+          else if (intersectionRect.right < targetRect.right) {
+            target.classList.add('h5p-tooltip-left');
+            target.classList.remove(positionClass);
+          }
+
+          // going out of top of screen
+          if (intersectionRect.top > targetRect.top) {
+            target.classList.add('h5p-tooltip-down');
+            target.classList.remove(positionClass);
+          }
+          // going out of bottom of screen
+          else if (intersectionRect.bottom < targetRect.bottom) {
+            target.classList.add('h5p-tooltip-up');
+            target.classList.remove(positionClass);
+          }
+        }
+      });
+    }).observe(tooltip);
 
     /**
      * Makes the tooltip visible and activates it's functionality
