@@ -2071,12 +2071,13 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 24
+    'minorVersion' => 25
   );
   public static $styles = array(
     'styles/h5p.css',
     'styles/h5p-confirmation-dialog.css',
-    'styles/h5p-core-button.css'
+    'styles/h5p-core-button.css',
+    'styles/h5p-tooltip.css',
   );
   public static $scripts = array(
     'js/jquery.js',
@@ -2088,6 +2089,7 @@ class H5PCore {
     'js/h5p-confirmation-dialog.js',
     'js/h5p-action-bar.js',
     'js/request-queue.js',
+    'js/h5p-tooltip.js',
   );
   public static $adminScripts = array(
     'js/jquery.js',
