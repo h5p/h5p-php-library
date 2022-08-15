@@ -1,40 +1,35 @@
 /*global H5P*/
-H5P.Tooltip = (function (EventDispatcher) {
-  "use strict";
+H5P.Tooltip = (function () {
+  'use strict';
 
   /**
    * Create an accessible tooltip
-   * 
+   *
    * @param {HTMLElement} triggeringElement The element that should trigger the tooltip
    * @param {Object} options Options for tooltip
    * @param {String} options.text The text to be displayed in the tooltip
    *  If not set, will attempt to set text = aria-label of triggeringElement
    * @param {String[]} options.classes Extra css classes for the tooltip
-   * @param {Boolean} options.ariaHidden Whether the hover should be read by screen readers or not
-   * @param {String} options.position Where the tooltip should appear in relation to the 
+   * @param {Boolean} options.ariaHidden Whether the hover should be read by screen readers or not (default: true)
+   * @param {String} options.position Where the tooltip should appear in relation to the
    *  triggeringElement. Accepted positions are "top" (default), "left", "right" and "bottom"
-   * 
+   *
    * @constructor
    */
   function Tooltip(triggeringElement, options) {
-    EventDispatcher.call(this);
-    
-    /** @alias H5P.Tooltip */
-    let self = this;
 
     // Make sure tooltips have unique id
     H5P.Tooltip.uniqueId += 1;
-    const tooltipId = "h5p-tooltip-" + H5P.Tooltip.uniqueId;
+    const tooltipId = 'h5p-tooltip-' + H5P.Tooltip.uniqueId;
 
     // Default options
     options = options || {};
-    options.text = options.text || triggeringElement.ariaLabel || '';
     options.classes = options.classes || [];
-    options.ariaHidden = options.ariaHidden || false;
+    options.ariaHidden = options.ariaHidden || true;
 
     // Initiate state
-    this.hover = false;
-    this.focus = false;
+    let hover = false;
+    let focus = false;
 
     // Function used by the escape listener
     const escapeFunction = function (e) {
@@ -49,35 +44,33 @@ H5P.Tooltip = (function (EventDispatcher) {
     tooltip.classList.add('h5p-tooltip');
     tooltip.id = tooltipId;
     tooltip.role = 'tooltip';
-    tooltip.innerHTML = options.text;
-    tooltip.ariaHidden = options.ariaHidden;
-    options.classes.forEach(extraClass => {
-      tooltip.classList.add(extraClass);
-    });
+    tooltip.innerHTML = options.text || triggeringElement.getAttribute('aria-label') || '';
+    tooltip.setAttribute('aria-hidden', options.ariaHidden);
+    tooltip.classList.add(...options.classes);
 
     triggeringElement.appendChild(tooltip);
 
     // Set the initial position based on options.position
     switch (options.position) {
-      case "left":
+      case 'left':
         tooltip.classList.add('h5p-tooltip-left');
         break;
-      case "right":
+      case 'right':
         tooltip.classList.add('h5p-tooltip-right');
         break;
-      case "bottom":
+      case 'bottom':
         tooltip.classList.add('h5p-tooltip-bottom');
         break;
       default:
-        options.position = "top";
+        options.position = 'top';
     }
 
     // Aria-describedby will override aria-hidden
     if (!options.ariaHidden) {
       triggeringElement.setAttribute('aria-describedby', tooltipId);
     }
-    
-    //Add event listeners to triggeringElement
+
+    // Add event listeners to triggeringElement
     triggeringElement.addEventListener('mouseenter', function () {
       showTooltip(true);
     });
@@ -91,74 +84,87 @@ H5P.Tooltip = (function (EventDispatcher) {
       hideTooltip(false);
     });
 
+    // Prevent clicks on the tooltip from triggering onClick listeners on the triggeringElement
+    tooltip.addEventListener('click', function (event) {
+      event.stopPropagation();
+    });
+
+    // Use a mutation observer to listen for aria-label being
+    // changed for the triggering element. If so, update the tooltip.
+    // Mutation observer will be used even if the original elements
+    // doesn't have any aria-label.
+    new MutationObserver(function (mutations) {
+      const ariaLabel = mutations[0].target.getAttribute('aria-label');
+      if (ariaLabel) {
+        tooltip.innerHTML = options.text || ariaLabel;
+      }
+    }).observe(triggeringElement, {
+      attributes: true,
+      attributeFilter: ['aria-label'],
+    });
+
+    // Use intersection observer to adjust the tooltip if it is not completely visible
+    new IntersectionObserver(function (entries) {
+      entries.forEach((entry) => {
+        const target = entry.target;
+        const positionClass = 'h5p-tooltip-' + options.position;
+
+        // Stop adjusting when hidden (to prevent a false positive next time)
+        if (entry.intersectionRatio === 0) {
+          ['h5p-tooltip-down', 'h5p-tooltip-left', 'h5p-tooltip-right']
+            .forEach(function (adjustmentClass) {
+              if (adjustmentClass !== positionClass) {
+                target.classList.remove(adjustmentClass);
+              }
+            });
+        }        
+        // Adjust if not completely visible when meant to be
+        else if (entry.intersectionRatio < 1 && (hover || focus)) {
+          const targetRect = entry.boundingClientRect;
+          const intersectionRect = entry.intersectionRect;
+
+          // Going out of screen on left side
+          if (intersectionRect.left > targetRect.left) {
+            target.classList.add('h5p-tooltip-right');
+            target.classList.remove(positionClass);
+          }
+          // Going out of screen on right side
+          else if (intersectionRect.right < targetRect.right) {
+            target.classList.add('h5p-tooltip-left');
+            target.classList.remove(positionClass);
+          }
+
+          // going out of top of screen
+          if (intersectionRect.top > targetRect.top) {
+            target.classList.add('h5p-tooltip-down');
+            target.classList.remove(positionClass);
+          }
+          // going out of bottom of screen
+          else if (intersectionRect.bottom < targetRect.bottom) {
+            target.classList.add('h5p-tooltip-up');
+            target.classList.remove(positionClass);
+          }
+        }
+      });
+    }).observe(tooltip);
+
     /**
      * Makes the tooltip visible and activates it's functionality
-     * 
+     *
      * @param {Boolean} triggeredByHover True if triggered by mouse, false if triggered by focus
      */
     const showTooltip = function (triggeredByHover) {
       if (triggeredByHover) {
-        self.hover = true;
+        hover = true;
       }
       else {
-        self.focus = true;
+        focus = true;
       }
-      
+
       tooltip.classList.add('h5p-tooltip-visible');
 
       // Add listener to iframe body, as esc keypress would not be detected otherwise
       document.body.addEventListener('keydown', escapeFunction, true);
-
-      // Ensure that all of the tooltip is visible
-      const availableWidth = document.body.clientWidth;
-      const availableHeight = document.getElementsByClassName('h5p-container')[0].clientHeight;
-      const tooltipWidth = tooltip.offsetWidth;
-      const tooltipOffsetTop = tooltip.offsetTop;
-      const triggerWidth = triggeringElement.clientWidth;
-      const triggerHeight = triggeringElement.clientHeight;
-      const offsetLeft = triggeringElement.offsetLeft;
-      const offsetTop = triggeringElement.offsetTop;
-      const position = options.position;
-
-      let adjusted = false;
-
-      // Going out of screen on left side
-      if ((position === "left" && (offsetLeft < tooltipWidth)) ||
-        (offsetLeft + triggerWidth < tooltipWidth)) {
-        tooltip.classList.add('h5p-tooltip-adjusted-right');
-        tooltip.classList.remove('h5p-tooltip-adjusted-left');
-        adjusted = true;
-      }
-      // Going out of screen on right side
-      else if ((position === "right" && (offsetLeft + triggerWidth + tooltipWidth > availableWidth)) ||
-        (offsetLeft + tooltipWidth > availableWidth)) {
-        tooltip.classList.add('h5p-tooltip-adjusted-left');
-        tooltip.classList.remove('h5p-tooltip-adjusted-right');
-        adjusted = true;
-      }
-
-      // going out of top of screen
-      if ((position === "top" && (offsetTop < -tooltipOffsetTop)) ||
-        (offsetTop < tooltipOffsetTop)) {
-        tooltip.classList.add('h5p-tooltip-adjusted-down');
-        tooltip.classList.remove('h5p-tooltip-adjusted-up');
-        adjusted = true;
-      }
-      // going out of bottom of screen
-      else if ((position === "bottom" && (offsetTop + tooltipOffsetTop + tooltip.clientHeight > availableHeight)) ||
-        (offsetTop + triggerHeight + tooltipOffsetTop > availableHeight)) {
-        tooltip.classList.add('h5p-tooltip-adjusted-up');
-        tooltip.classList.remove('h5p-tooltip-adjusted-down');
-        adjusted = true;
-      }
-
-      // Reset adjustments
-      if (!adjusted) {
-        tooltip.classList.remove('h5p-tooltip-adjusted-down');
-        tooltip.classList.remove('h5p-tooltip-adjusted-up');
-        tooltip.classList.remove('h5p-tooltip-adjusted-left');
-        tooltip.classList.remove('h5p-tooltip-adjusted-right');
-      }
     }
 
     /**
@@ -168,21 +174,32 @@ H5P.Tooltip = (function (EventDispatcher) {
      */
      const hideTooltip = function (triggeredByHover) {
       if (triggeredByHover) {
-        self.hover = false;
+        hover = false;
       }
       else {
-        self.focus = false;
+        focus = false;
       }
 
       // Only hide tooltip if neither hovered nor focused
-      if (!self.hover && !self.focus) {   
+      if (!hover && !focus) {
         tooltip.classList.remove('h5p-tooltip-visible');
 
         // Remove iframe body listener
         document.body.removeEventListener('keydown', escapeFunction, true);
       }
     }
-    
+
+    /**
+     * Change the text displayed by the tooltip
+     *
+     * @param {String} text The new text to be displayed
+     *  Set to null to use aria-label of triggeringElement instead
+     */
+    this.setText = function (text) {
+      options.text = text;
+      tooltip.innerHTML = options.text || triggeringElement.getAttribute('aria-label') || '';
+    };
+
     /**
      * Retrieve tooltip
      *
@@ -193,11 +210,8 @@ H5P.Tooltip = (function (EventDispatcher) {
     };
   }
 
-  Tooltip.prototype = Object.create(EventDispatcher.prototype);
-  Tooltip.prototype.constructor = Tooltip;
-
   return Tooltip;
 
-}(H5P.EventDispatcher));
+})();
 
 H5P.Tooltip.uniqueId = -1;
