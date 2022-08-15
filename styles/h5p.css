@@ -192,7 +192,6 @@ div.h5p-fullscreen {
 .h5p-content ul.h5p-actions {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
-  overflow: hidden;
   list-style: none;
   padding: 0px 10px;
   margin: 0;
@@ -219,34 +218,38 @@ div.h5p-fullscreen {
   outline: none;
   line-height: 22px;
 }
-.h5p-actions > .h5p-button:hover {
+.h5p-actions button:hover {
   color: #333;
 }
-.h5p-actions > .h5p-button:active,
-.h5p-actions > .h5p-button:focus,
+.h5p-actions button:active,
+.h5p-actions button:focus,
 .h5p-actions .h5p-link:active,
 .h5p-actions .h5p-link:focus {
   color: #666;
 }
-.h5p-actions > .h5p-button > button {
+.h5p-actions button {
   display: inline-flex;
-  padding: 0 0.75em 0 0.25em;
+  padding: 0;
+  margin: 0;
   color: #6A6A6A;
+  position: relative;
 
   /* Disable default button style */
   background: none;
   border: none;
   font: inherit;
   cursor: pointer;
+
+  line-height: 2;
 }
-.h5p-actions > .h5p-button:focus > button,
+.h5p-actions button:focus,
 .h5p-actions .h5p-link:focus {
   outline-style: solid;
   outline-width: thin;
   outline-offset: -2px;
   outline-color: #5981A1;
 }
-.h5p-actions > .h5p-button > button:before {
+.h5p-actions button:before {
   font-family: 'H5P';
   font-size: 20px;
   line-height: 23px;
@@ -267,7 +270,7 @@ div.h5p-fullscreen {
   margin-right: 0;
   font-size: 2.0em;
   line-height: 23px;
-  overflow: hidden;
+  position: relative;
   color: #6a6a6a;
   text-decoration: none;
   outline: none;
