@@ -35,14 +35,15 @@ H5P.ActionBar = (function ($, EventDispatcher) {
       var handler = function () {
         self.trigger(type);
       };
-      var $actionButton = H5P.jQuery('<li/>', {
+
+      let $actionList = H5P.jQuery('<li/>', {
         'class': 'h5p-button h5p-noselect h5p-' + (customClass ? customClass : type),
         appendTo: $actions
       });
 
       H5P.jQuery('<button/>', {
         tabindex: 0,
-        title: H5P.t(type + 'Description'),
+        'aria-label': H5P.t(type + 'Description'),
         html: H5P.t(type),
         on: {
           click: handler,
@@ -53,8 +54,10 @@ H5P.ActionBar = (function ($, EventDispatcher) {
             }
           }
         },
-        appendTo: $actionButton
+        appendTo: $actionList
       });
+
+      new H5P.Tooltip($actionButton.get(0));
 
       hasActions = true;
     };
