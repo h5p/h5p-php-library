@@ -11,6 +11,10 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
    * @param [options.dialogText] Dialog text
    * @param [options.cancelText] Cancel dialog button text
    * @param [options.confirmText] Confirm dialog button text
+   * @param [options.hideCancel] Hide cancel button
+   * @param [options.hideExit] Hide exit button
+   * @param [options.skipRestoreFocus] Skip restoring focus when hiding the dialog
+   * @param [options.classes] Extra classes for popup
    * @constructor
    */
   function ConfirmationDialog(options) {
@@ -73,11 +77,17 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Create outer popup
     var popup = document.createElement('div');
     popup.classList.add('h5p-confirmation-dialog-popup', 'hidden');
+    if (options.classes) {
+      options.classes.forEach(function (popupClass) {
+        popup.classList.add(popupClass);
+      });
+    }
+
     popup.setAttribute('role', 'dialog');
     popup.setAttribute('aria-labelledby', 'h5p-confirmation-dialog-dialog-text-' + uniqueId);
     popupBackground.appendChild(popup);
     popup.addEventListener('keydown', function (e) {
-      if (e.which === 27) {// Esc key
+      if (e.key === 'Escape') {// Esc key
         // Exit dialog
         dialogCanceled(e);
       }
@@ -118,37 +128,51 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     // Confirm button
     var confirmButton = document.createElement('button');
-    confirmButton.classList.add('h5p-core-button',
-      'h5p-confirmation-dialog-confirm-button');
+    confirmButton.classList.add('h5p-core-button');
+    confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
     confirmButton.textContent = options.confirmText;
 
     // Exit button
     var exitButton = document.createElement('button');
     exitButton.classList.add('h5p-confirmation-dialog-exit');
-    exitButton.setAttribute('aria-hidden', 'true');
     exitButton.tabIndex = -1;
-    exitButton.title = options.cancelText;
+    exitButton.setAttribute('aria-label', options.cancelText);
 
     // Cancel handler
     cancelButton.addEventListener('click', dialogCanceled);
     cancelButton.addEventListener('keydown', function (e) {
-      if (e.which === 32) { // Space
+      if (e.key === ' ') { // Space
         dialogCanceled(e);
       }
-      else if (e.which === 9 && e.shiftKey) { // Shift-tab
-        flowTo(confirmButton, e);
+      else if (e.key === 'Tab' && e.shiftKey) { // Shift-tab
+        const nextbutton = options.hideExit ? confirmButton : exitButton;
+        flowTo(nextbutton, e);
       }
     });
-    buttons.appendChild(cancelButton);
+
+    if (!options.hideCancel) {
+      buttons.appendChild(cancelButton);
+    }
+    else {
+      // Center buttons
+      buttons.classList.add('center');
+    }
 
     // Confirm handler
     confirmButton.addEventListener('click', dialogConfirmed);
     confirmButton.addEventListener('keydown', function (e) {
-      if (e.which === 32) { // Space
+      if (e.key === ' ') { // Space
         dialogConfirmed(e);
       }
-      else if (e.which === 9 && !e.shiftKey) { // Tab
-        flowTo(cancelButton, e);
+      else if (e.key === 'Tab' && !e.shiftKey) { // Tab        
+        let nextButton = confirmButton;
+        if (!options.hideExit) {
+          nextButton = exitButton;
+        }
+        else if (!options.hideCancel) {
+          nextButton = cancelButton;
+        }
+        flowTo(nextButton, e);
       }
     });
     buttons.appendChild(confirmButton);
@@ -156,11 +180,17 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Exit handler
     exitButton.addEventListener('click', dialogCanceled);
     exitButton.addEventListener('keydown', function (e) {
-      if (e.which === 32) { // Space
+      if (e.key === ' ') { // Space
         dialogCanceled(e);
       }
+      else if (e.key === 'Tab' && !e.shiftKey) { // Tab        
+        const nextButton = options.hideCancel ? confirmButton : cancelButton;
+        flowTo(nextButton, e);
+      }
     });
-    popup.appendChild(exitButton);
+    if (!options.hideExit) {
+      popup.appendChild(exitButton);
+    }
 
     // Wrapper element
     var wrapperElement;
@@ -272,8 +302,12 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      */
     var fitToContainer = function (offsetTop) {
       var popupOffsetTop = parseInt(popup.style.top, 10);
-      if (offsetTop) {
+      if (offsetTop !== undefined) {
         popupOffsetTop = offsetTop;
+      }
+
+      if (!popupOffsetTop) {
+        popupOffsetTop = 0;
       }
 
       // Overflows height
@@ -315,7 +349,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
           if (resizeIFrame && options.instance) {
             var minHeight = parseInt(popup.offsetHeight, 10) +
               exitButtonOffset + (2 * shadowOffset);
-            wrapperElement.style.minHeight = minHeight + 'px';
+            self.setViewPortMinimumHeight(minHeight);
             options.instance.trigger('resize');
             resizeIFrame = false;
           }
@@ -335,14 +369,44 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
       // Restore focus
       stopCapturingFocus();
-      previouslyFocused.focus();
+      if (!options.skipRestoreFocus) {
+        previouslyFocused.focus();
+      }
       restoreUnderlay();
       setTimeout(function () {
         popupBackground.classList.add('hidden');
         wrapperElement.removeChild(popupBackground);
+        self.setViewPortMinimumHeight(null);
       }, 100);
 
       return this;
+    };
+
+    /**
+     * Retrieve element
+     *
+     * @return {HTMLElement}
+     */
+    this.getElement = function () {
+      return popup;
+    };
+
+    /**
+     * Get previously focused element
+     * @return {HTMLElement}
+     */
+    this.getPreviouslyFocused = function () {
+      return previouslyFocused;
+    };
+
+    /**
+     * Sets the minimum height of the view port
+     *
+     * @param {number|null} minHeight
+     */
+    this.setViewPortMinimumHeight = function (minHeight) {
+      var container = document.querySelector('.h5p-container') || document.body;
+      container.style.minHeight = (typeof minHeight === 'number') ? (minHeight + 'px') : minHeight;
     };
   }
 

@@ -1,4 +1,4 @@
-var H5P = H5P || {};
+var H5P = window.H5P = window.H5P || {};
 
 /**
  * Used for xAPI events.
@@ -133,12 +133,25 @@ H5P.XAPIEvent.prototype.setObject = function (instance) {
       }
     }
     else {
-      if (H5PIntegration && H5PIntegration.contents && H5PIntegration.contents['cid-' + instance.contentId].title) {
+      var content = H5P.getContentForInstance(instance.contentId);
+      if (content && content.metadata && content.metadata.title) {
         this.data.statement.object.definition.name = {
-          "en-US": H5P.createTitle(H5PIntegration.contents['cid-' + instance.contentId].title)
+          "en-US": H5P.createTitle(content.metadata.title)
         };
       }
     }
+  }
+  else {
+    // Content types view always expect to have a contentId when they are displayed.
+    // This is not the case if they are displayed in the editor as part of a preview.
+    // The fix is to set an empty object with definition for the xAPI event, so all
+    // the content types that rely on this does not have to handle it. This means
+    // that content types that are being previewed will send xAPI completed events,
+    // but since there are no scripts that catch these events in the editor,
+    // this is not a problem.
+    this.data.statement.object = {
+      definition: {}
+    };
   }
 };
 
@@ -150,7 +163,6 @@ H5P.XAPIEvent.prototype.setObject = function (instance) {
  */
 H5P.XAPIEvent.prototype.setContext = function (instance) {
   if (instance.parent && (instance.parent.contentId || instance.parent.subContentId)) {
-    var parentId = instance.parent.subContentId === undefined ? instance.parent.contentId : instance.parent.subContentId;
     this.data.statement.context = {
       "contextActivities": {
         "parent": [
@@ -217,7 +229,7 @@ H5P.XAPIEvent.prototype.setActor = function () {
  * @returns {number}
  *   The max score, or null if not defined
  */
-H5P.XAPIEvent.prototype.getMaxScore = function() {
+H5P.XAPIEvent.prototype.getMaxScore = function () {
   return this.getVerifiedStatementValue(['result', 'score', 'max']);
 };
 
@@ -227,7 +239,7 @@ H5P.XAPIEvent.prototype.getMaxScore = function() {
  * @returns {number}
  *   The score, or null if not defined
  */
-H5P.XAPIEvent.prototype.getScore = function() {
+H5P.XAPIEvent.prototype.getScore = function () {
   return this.getVerifiedStatementValue(['result', 'score', 'raw']);
 };
 
@@ -239,13 +251,23 @@ H5P.XAPIEvent.prototype.getScore = function() {
  */
 H5P.XAPIEvent.prototype.getContentXAPIId = function (instance) {
   var xAPIId;
-  if (instance.contentId && H5PIntegration && H5PIntegration.contents) {
+  if (instance.contentId && H5PIntegration && H5PIntegration.contents && H5PIntegration.contents['cid-' + instance.contentId]) {
     xAPIId =  H5PIntegration.contents['cid-' + instance.contentId].url;
     if (instance.subContentId) {
       xAPIId += '?subContentId=' +  instance.subContentId;
     }
   }
   return xAPIId;
+};
+
+/**
+ * Check if this event is sent from a child (i.e not from grandchild)
+ *
+ * @return {Boolean}
+ */
+H5P.XAPIEvent.prototype.isFromChild = function () {
+  var parentId = this.getVerifiedStatementValue(['context', 'contextActivities', 'parent', 0, 'id']);
+  return !parentId || parentId.indexOf('subContentId') === -1;
 };
 
 /**
@@ -257,7 +279,7 @@ H5P.XAPIEvent.prototype.getContentXAPIId = function (instance) {
  * @returns {*}
  *   The value of the property if it is set, null otherwise.
  */
-H5P.XAPIEvent.prototype.getVerifiedStatementValue = function(keys) {
+H5P.XAPIEvent.prototype.getVerifiedStatementValue = function (keys) {
   var val = this.data.statement;
   for (var i = 0; i < keys.length; i++) {
     if (val[keys[i]] === undefined) {
@@ -298,5 +320,12 @@ H5P.XAPIEvent.allowedXAPIVerbs = [
   'shared',
   'suspended',
   'terminated',
-  'voided'
+  'voided',
+
+  // Custom verbs used for action toolbar below content
+  'downloaded',
+  'copied',
+  'accessed-reuse',
+  'accessed-embed',
+  'accessed-copyright'
 ];
