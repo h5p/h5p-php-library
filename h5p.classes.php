@@ -2090,6 +2090,7 @@ class H5PCore {
     'js/h5p-action-bar.js',
     'js/request-queue.js',
     'js/h5p-tooltip.js',
+    'js/xapi-parent-forwarder.js'
   );
   public static $adminScripts = array(
     'js/jquery.js',
