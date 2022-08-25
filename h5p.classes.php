@@ -2727,13 +2727,11 @@ class H5PCore {
    * Writes library data as string on the form {machineName} {majorVersion}.{minorVersion}
    *
    * @param array $library
-   *  With keys machineName, majorVersion and minorVersion
-   * @param boolean $folderName
-   *  Use hyphen instead of space in returned string.
+   *  With keys (machineName and/or name), majorVersion and minorVersion
    * @return string
    *  On the form {machineName} {majorVersion}.{minorVersion}
    */
-  public static function libraryToString($library, $folderName = FALSE) {
+  public static function libraryToString($library) {
     $name = $library['machineName'] ?? $library['name'];
 
     return "{$name} {$library['majorVersion']}.{$library['minorVersion']}";
