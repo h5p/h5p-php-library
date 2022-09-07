@@ -4924,7 +4924,7 @@ class H5PContentValidator {
     // Store the text format.
     $this->_filter_xss_split($allowed_tags, TRUE);
     // Remove NULL characters (ignored by some browsers).
-    $string = str_replace(chr(0), '', $string);
+    $string = str_replace(chr(0), '', (string) $string);
     // Remove Netscape 4 JS entities.
     $string = preg_replace('%&\s*\{[^}]*(\}\s*;?|$)%', '', $string);
 
