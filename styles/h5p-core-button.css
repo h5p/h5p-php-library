@@ -27,6 +27,7 @@ button.h5p-core-button {
 }
 button.h5p-core-button:focus {
   background: #1f67a8;
+  outline: 2px solid black;
 }
 button.h5p-core-button:hover {
   background: rgba(31, 103, 168, 0.83);
