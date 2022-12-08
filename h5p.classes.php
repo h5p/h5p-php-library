@@ -853,7 +853,7 @@ class H5PValidator {
       $totalSize += $fileStat['size'];
 
       $fileName = mb_strtolower($fileStat['name']);
-      if (preg_match('/(^[\._]|\/[\._])/', $fileName) !== 0) {
+      if (preg_match('/(^[\._]|\/[\._]|\\\[\._])/', $fileName) !== 0) {
         continue; // Skip any file or folder starting with a . or _
       }
       elseif ($fileName === 'h5p.json') {
@@ -933,7 +933,7 @@ class H5PValidator {
     for ($i = 0; $i < $zip->numFiles; $i++) {
       $fileName = $zip->statIndex($i)['name'];
 
-      if (preg_match('/(^[\._]|\/[\._])/', $fileName) !== 0) {
+      if (preg_match('/(^[\._]|\/[\._]|\\\[\._])/', $fileName) !== 0) {
         continue; // Skip any file or folder starting with a . or _
       }
 
