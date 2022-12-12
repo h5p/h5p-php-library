@@ -1625,7 +1625,7 @@ class H5PStorage {
 
       // Assume new library
       $new = TRUE;
-      if ($existingLibrary) {
+      if (isset($existingLibrary['libraryId'])) {
         $new = false;
         // We have the library installed already (with the same major + minor)
 
