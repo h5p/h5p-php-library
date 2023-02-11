@@ -76,6 +76,7 @@ html.h5p-iframe .h5p-semi-fullscreen .h5p-content {
   background-color: #000;
 }
 body.h5p-semi-fullscreen {
+  background-color: #fff;
   position: fixed;
   width: 100%;
   height: 100%;
