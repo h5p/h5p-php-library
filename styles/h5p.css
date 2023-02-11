@@ -169,6 +169,8 @@ div.h5p-fullscreen {
   right: 0;
   bottom: 0;
   z-index: 100001;
+  margin: 0;
+  padding: 0;
 }
 .h5p-iframe-wrapper.h5p-semi-fullscreen .buttons {
   position: absolute;
