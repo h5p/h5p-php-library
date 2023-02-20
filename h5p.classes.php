@@ -1640,13 +1640,12 @@ class H5PStorage {
         // We have the library installed already (with the same major + minor)
 
         $library['libraryId'] = $existingLibrary['libraryId'];
-
-        // Is this a newer patchVersion?
-        $newerPatchVersion = $existingLibrary['patchVersion'] < $library['patchVersion'];
-
-        if (!$newerPatchVersion) {
+        
+        $isNewerVersion = $existingLibrary['patchVersion'] < $library['patchVersion'];
+        // Determine if we should skip saving this library
+        if (!$this->h5pF->isInDevMode() && !$isNewerVersion) {
+          // Dev mode is off and this is an older patch version, skip saving.
           $library['saveDependencies'] = FALSE;
-          // This is an older version, no need to save.
           continue;
         }
       }
