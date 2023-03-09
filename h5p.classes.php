@@ -674,6 +674,7 @@ interface H5PFrameworkInterface {
 class H5PValidator {
   public $h5pF;
   public $h5pC;
+  public $h5pCV;
 
   // Schemas used to validate the h5p files
   private $h5pRequired = array(
