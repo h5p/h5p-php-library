@@ -4026,20 +4026,6 @@ class H5PContentValidator {
         }
       }
     }
-    if (!(isset($semantics->optional) && $semantics->optional)) {
-      if ($group === NULL) {
-        // Error no value. Errors aren't printed...
-        return;
-      }
-      foreach ($semantics->fields as $field) {
-        if (!(isset($field->optional) && $field->optional)) {
-          // Check if field is in group.
-          if (! property_exists($group, $field->name)) {
-            //$this->h5pF->setErrorMessage($this->h5pF->t('No value given for mandatory field ' . $field->name));
-          }
-        }
-      }
-    }
   }
 
   /**
