@@ -3961,6 +3961,11 @@ class H5PCore {
       $this->h5pF->setErrorMessage($this->h5pF->t('Hub account authentication info is invalid. This may be fixed by an admin by restoring the hub secret or register a new account with the content hub.'));
       return false;
     }
+    
+    if ($accountInfo['status'] === 403) {
+      // Unauthenticated, cannot find site uuid
+      return 'Unauthenticated.';
+    }
 
     if ($accountInfo['status'] !== 200) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Unable to retrieve HUB account information. Please contact support.'));
@@ -3968,6 +3973,19 @@ class H5PCore {
     }
 
     return json_decode($accountInfo['data'])->data;
+  }
+  
+  /**
+   * Check if registered for HUB
+   * 
+   * @return bool False if account is not setup, otherwise true
+   */
+  public function hubRegistered() {
+    $accountInfo = $this->hubAccountInfo();
+    if (!$accountInfo || $accountInfo === 'Unauthenticated.') {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -4000,7 +4018,7 @@ class H5PCore {
     $headers  = [];
     $endpoint = H5PHubEndpoints::REGISTER;
     // Update if already registered
-    $hasRegistered = $this->h5pF->getOption('hub_secret');
+    $hasRegistered = $this->hubRegistered();
     if ($hasRegistered) {
       $endpoint            .= "/{$uuid}";
       $formData['_method'] = 'PUT';
