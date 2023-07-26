@@ -84,7 +84,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     popup.setAttribute('role', 'dialog');
-    popup.setAttribute('aria-labelledby', 'h5p-confirmation-dialog-dialog-text-' + uniqueId);
+    popup.setAttribute('aria-modal', 'true');
+    popup.setAttribute('aria-labelledby', 'h5p-confirmation-dialog-header-' + uniqueId);
+    popup.tabIndex = 0;
     popupBackground.appendChild(popup);
     popup.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {// Esc key
@@ -96,6 +98,8 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Popup header
     var header = document.createElement('div');
     header.classList.add('h5p-confirmation-dialog-header');
+    header.id = 'h5p-confirmation-dialog-header-' + uniqueId;
+    header.setAttribute('aria-hidden', 'true');
     popup.appendChild(header);
 
     // Header text
@@ -113,7 +117,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     var text = document.createElement('div');
     text.classList.add('h5p-confirmation-dialog-text');
     text.innerHTML = options.dialogText;
-    text.id = 'h5p-confirmation-dialog-dialog-text-' + uniqueId;
     body.appendChild(text);
 
     // Popup buttons
@@ -353,6 +356,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
             options.instance.trigger('resize');
             resizeIFrame = false;
           }
+          popup.focus();
         }, 100);
       }, 0);
 
