@@ -97,7 +97,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Popup header
     var header = document.createElement('div');
     header.classList.add('h5p-confirmation-dialog-header');
-    header.id = 'h5p-confirmation-dialog-header-' + uniqueId;
     popup.appendChild(header);
 
     // Header text
