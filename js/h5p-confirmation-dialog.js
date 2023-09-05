@@ -85,8 +85,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     popup.setAttribute('role', 'dialog');
     popup.setAttribute('aria-modal', 'true');
-    popup.setAttribute('aria-labelledby', 'h5p-confirmation-dialog-header-' + uniqueId);
-    popup.tabIndex = 0;
+    popup.tabIndex = -1;
     popupBackground.appendChild(popup);
     popup.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {// Esc key
@@ -98,8 +97,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Popup header
     var header = document.createElement('div');
     header.classList.add('h5p-confirmation-dialog-header');
-    header.id = 'h5p-confirmation-dialog-header-' + uniqueId;
-    header.setAttribute('aria-hidden', 'true');
     popup.appendChild(header);
 
     // Header text
@@ -345,9 +342,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         popupBackground.classList.remove('hiding');
 
         setTimeout(function () {
-          // Focus confirm button
-          confirmButton.focus();
-
           // Resize iFrame if necessary
           if (resizeIFrame && options.instance) {
             var minHeight = parseInt(popup.offsetHeight, 10) +
