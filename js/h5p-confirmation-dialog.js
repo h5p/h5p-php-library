@@ -1,4 +1,4 @@
-/*/*global H5P*/
+/*global H5P*/
 H5P.ConfirmationDialog = (function (EventDispatcher) {
   "use strict";
 
