@@ -3507,7 +3507,16 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
-  private static $allowed_styleable_tags = array('span', 'p', 'div','h1','h2','h3', 'td');
+  private static $allowed_styleable_tags = [
+    'span',
+    'p',
+    'div',
+    'h1',
+    'h2',
+    'h3',
+    'td',
+    'li'
+  ];
 
   /**
    * Constructor for the H5PContentValidator
@@ -3630,10 +3639,10 @@ class H5PContentValidator {
           $stylePatterns[] = '/^font-family: *[-a-z0-9," ]+;?$/i';
         }
         if (isset($semantics->font->color) && $semantics->font->color) {
-          $stylePatterns[] = '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+          $stylePatterns[] = '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
         }
         if (isset($semantics->font->background) && $semantics->font->background) {
-          $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+          $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
         }
         if (isset($semantics->font->spacing) && $semantics->font->spacing) {
           $stylePatterns[] = '/^letter-spacing: *[0-9.]+(em|px|%) *;?$/i';
@@ -4353,13 +4362,20 @@ class H5PContentValidator {
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
             if ($allowedStyles && $attrName === 'style') {
               // Allow certain styles
+
+              $validatedStyles = [];
+              $styles = explode(';', $match[1]);
+
               foreach ($allowedStyles as $pattern) {
-                if (preg_match($pattern, $match[1])) {
-                  // All patterns are start to end patterns, and CKEditor adds one span per style
-                  $attrArr[] = 'style="' . $match[1] . '"';
-                  break;
+                foreach ($styles as $style) {
+                  $style = trim($style);
+                  if (preg_match($pattern, $style)) {
+                    $validatedStyles[] = $style;
+                  }
                 }
               }
+              
+              $attrArr[] = 'style="' . implode(';', $validatedStyles) . ';"';
               break;
             }
 
