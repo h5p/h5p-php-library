@@ -674,6 +674,7 @@ interface H5PFrameworkInterface {
 class H5PValidator {
   public $h5pF;
   public $h5pC;
+  public $h5pCV;
 
   // Schemas used to validate the h5p files
   private $h5pRequired = array(
@@ -853,7 +854,7 @@ class H5PValidator {
       $totalSize += $fileStat['size'];
 
       $fileName = mb_strtolower($fileStat['name']);
-      if (preg_match('/(^[\._]|\/[\._])/', $fileName) !== 0) {
+      if (preg_match('/(^[\._]|\/[\._]|\\\[\._])/', $fileName) !== 0) {
         continue; // Skip any file or folder starting with a . or _
       }
       elseif ($fileName === 'h5p.json') {
@@ -933,7 +934,7 @@ class H5PValidator {
     for ($i = 0; $i < $zip->numFiles; $i++) {
       $fileName = $zip->statIndex($i)['name'];
 
-      if (preg_match('/(^[\._]|\/[\._])/', $fileName) !== 0) {
+      if (preg_match('/(^[\._]|\/[\._]|\\\[\._])/', $fileName) !== 0) {
         continue; // Skip any file or folder starting with a . or _
       }
 
@@ -1625,7 +1626,7 @@ class H5PStorage {
 
       // Assume new library
       $new = TRUE;
-      if ($existingLibrary) {
+      if (isset($existingLibrary['libraryId'])) {
         $new = false;
         // We have the library installed already (with the same major + minor)
 
@@ -2071,12 +2072,13 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 24
+    'minorVersion' => 25
   );
   public static $styles = array(
     'styles/h5p.css',
     'styles/h5p-confirmation-dialog.css',
-    'styles/h5p-core-button.css'
+    'styles/h5p-core-button.css',
+    'styles/h5p-tooltip.css',
   );
   public static $scripts = array(
     'js/jquery.js',
@@ -2088,6 +2090,7 @@ class H5PCore {
     'js/h5p-confirmation-dialog.js',
     'js/h5p-action-bar.js',
     'js/request-queue.js',
+    'js/h5p-tooltip.js',
   );
   public static $adminScripts = array(
     'js/jquery.js',
@@ -2725,13 +2728,11 @@ class H5PCore {
    * Writes library data as string on the form {machineName} {majorVersion}.{minorVersion}
    *
    * @param array $library
-   *  With keys machineName, majorVersion and minorVersion
-   * @param boolean $folderName
-   *  Use hyphen instead of space in returned string.
+   *  With keys (machineName and/or name), majorVersion and minorVersion
    * @return string
    *  On the form {machineName} {majorVersion}.{minorVersion}
    */
-  public static function libraryToString($library, $folderName = FALSE) {
+  public static function libraryToString($library) {
     $name = $library['machineName'] ?? $library['name'];
 
     return "{$name} {$library['majorVersion']}.{$library['minorVersion']}";
@@ -3794,7 +3795,7 @@ class H5PCore {
         $this->h5pF->setErrorMessage($this->h5pF->t('Content is not shared on the H5P OER Hub.'));
         return NULL;
       }
-      throw new Exception($this->h5pF->t('Connecting to the content hub failed, please try again later.'));
+      throw new Exception($this->h5pF->t("Couldn't communicate with the H5P Hub. Please try again later."));
     }
 
     $hub_content = json_decode($response['data'])->data;
@@ -3942,6 +3943,7 @@ class H5PCore {
     }
 
     if (empty($siteUuid) || empty($secret)) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Missing Site UUID or Hub Secret. Please check your Hub registration.'));
       return false;
     }
 
@@ -3961,6 +3963,7 @@ class H5PCore {
     }
 
     if ($accountInfo['status'] !== 200) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('Unable to retrieve HUB account information. Please contact support.'));
       return false;
     }
 
@@ -4052,7 +4055,7 @@ class H5PCore {
       || $registration['status'] !== 200
     ) {
       return [
-        'message'     => 'Registration failed.',
+        'message'     => 'Unable to register the account. Please contact support team.',
         'status_code' => 422,
         'error_code'  => 'REGISTRATION_FAILED',
         'success'     => FALSE,

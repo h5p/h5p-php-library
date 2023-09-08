@@ -84,10 +84,11 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     popup.setAttribute('role', 'dialog');
-    popup.setAttribute('aria-labelledby', 'h5p-confirmation-dialog-dialog-text-' + uniqueId);
+    popup.setAttribute('aria-modal', 'true');
+    popup.tabIndex = -1;
     popupBackground.appendChild(popup);
     popup.addEventListener('keydown', function (e) {
-      if (e.which === 27) {// Esc key
+      if (e.key === 'Escape') {// Esc key
         // Exit dialog
         dialogCanceled(e);
       }
@@ -113,7 +114,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     var text = document.createElement('div');
     text.classList.add('h5p-confirmation-dialog-text');
     text.innerHTML = options.dialogText;
-    text.id = 'h5p-confirmation-dialog-dialog-text-' + uniqueId;
     body.appendChild(text);
 
     // Popup buttons
@@ -135,18 +135,18 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Exit button
     var exitButton = document.createElement('button');
     exitButton.classList.add('h5p-confirmation-dialog-exit');
-    exitButton.setAttribute('aria-hidden', 'true');
     exitButton.tabIndex = -1;
-    exitButton.title = options.cancelText;
+    exitButton.setAttribute('aria-label', options.cancelText);
 
     // Cancel handler
     cancelButton.addEventListener('click', dialogCanceled);
     cancelButton.addEventListener('keydown', function (e) {
-      if (e.which === 32) { // Space
+      if (e.key === ' ') { // Space
         dialogCanceled(e);
       }
-      else if (e.which === 9 && e.shiftKey) { // Shift-tab
-        flowTo(confirmButton, e);
+      else if (e.key === 'Tab' && e.shiftKey) { // Shift-tab
+        const nextbutton = options.hideExit ? confirmButton : exitButton;
+        flowTo(nextbutton, e);
       }
     });
 
@@ -161,11 +161,17 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Confirm handler
     confirmButton.addEventListener('click', dialogConfirmed);
     confirmButton.addEventListener('keydown', function (e) {
-      if (e.which === 32) { // Space
+      if (e.key === ' ') { // Space
         dialogConfirmed(e);
       }
-      else if (e.which === 9 && !e.shiftKey) { // Tab
-        const nextButton = !options.hideCancel ? cancelButton : confirmButton;
+      else if (e.key === 'Tab' && !e.shiftKey) { // Tab        
+        let nextButton = confirmButton;
+        if (!options.hideExit) {
+          nextButton = exitButton;
+        }
+        else if (!options.hideCancel) {
+          nextButton = cancelButton;
+        }
         flowTo(nextButton, e);
       }
     });
@@ -174,8 +180,12 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Exit handler
     exitButton.addEventListener('click', dialogCanceled);
     exitButton.addEventListener('keydown', function (e) {
-      if (e.which === 32) { // Space
+      if (e.key === ' ') { // Space
         dialogCanceled(e);
+      }
+      else if (e.key === 'Tab' && !e.shiftKey) { // Tab        
+        const nextButton = options.hideCancel ? confirmButton : cancelButton;
+        flowTo(nextButton, e);
       }
     });
     if (!options.hideExit) {
@@ -332,9 +342,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         popupBackground.classList.remove('hiding');
 
         setTimeout(function () {
-          // Focus confirm button
-          confirmButton.focus();
-
           // Resize iFrame if necessary
           if (resizeIFrame && options.instance) {
             var minHeight = parseInt(popup.offsetHeight, 10) +
@@ -343,6 +350,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
             options.instance.trigger('resize');
             resizeIFrame = false;
           }
+          popup.focus();
         }, 100);
       }, 0);
 
