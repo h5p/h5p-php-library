@@ -1,4 +1,4 @@
-/*global H5P*/
+/*/*global H5P*/
 H5P.ConfirmationDialog = (function (EventDispatcher) {
   "use strict";
 
@@ -84,8 +84,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     popup.setAttribute('role', 'dialog');
-    popup.setAttribute('aria-modal', 'true');
-    popup.tabIndex = -1;
+    popup.setAttribute('aria-labelledby', 'h5p-confirmation-dialog-dialog-text-' + uniqueId);
     popupBackground.appendChild(popup);
     popup.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {// Esc key
@@ -114,6 +113,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     var text = document.createElement('div');
     text.classList.add('h5p-confirmation-dialog-text');
     text.innerHTML = options.dialogText;
+    text.id = 'h5p-confirmation-dialog-dialog-text-' + uniqueId;
     body.appendChild(text);
 
     // Popup buttons
@@ -342,6 +342,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         popupBackground.classList.remove('hiding');
 
         setTimeout(function () {
+          // Focus confirm button
+          confirmButton.focus();
+
           // Resize iFrame if necessary
           if (resizeIFrame && options.instance) {
             var minHeight = parseInt(popup.offsetHeight, 10) +
@@ -350,7 +353,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
             options.instance.trigger('resize');
             resizeIFrame = false;
           }
-          popup.focus();
         }, 100);
       }, 0);
 
