@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * The base class for H5P events. Extend to track H5P events in your system.
  *

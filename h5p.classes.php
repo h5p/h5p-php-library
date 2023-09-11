@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Interface defining functions the h5p library needs the framework to implement
  */
