@@ -4,52 +4,52 @@
  */
 abstract class H5PMetadata {
 
-  private static $fields = array(
-    'title' => array(
+  private static $fields = [
+    'title' => [
       'type' => 'text',
       'maxLength' => 255
-    ),
-    'a11yTitle' => array(
+    ],
+    'a11yTitle' => [
       'type' => 'text',
       'maxLength' => 255,
-    ),
-    'authors' => array(
+    ],
+    'authors' => [
       'type' => 'json'
-    ),
-    'changes' => array(
+    ],
+    'changes' => [
       'type' => 'json'
-    ),
-    'source' => array(
+    ],
+    'source' => [
       'type' => 'text',
       'maxLength' => 255
-    ),
-    'license' => array(
+    ],
+    'license' => [
       'type' => 'text',
       'maxLength' => 32
-    ),
-    'licenseVersion' => array(
+    ],
+    'licenseVersion' => [
       'type' => 'text',
       'maxLength' => 10
-    ),
-    'licenseExtras' => array(
+    ],
+    'licenseExtras' => [
       'type' => 'text',
       'maxLength' => 5000
-    ),
-    'authorComments' => array(
+    ],
+    'authorComments' => [
       'type' => 'text',
       'maxLength' => 5000
-    ),
-    'yearFrom' => array(
+    ],
+    'yearFrom' => [
       'type' => 'int'
-    ),
-    'yearTo' => array(
+    ],
+    'yearTo' => [
       'type' => 'int'
-    ),
-    'defaultLanguage' => array(
+    ],
+    'defaultLanguage' => [
       'type' => 'text',
       'maxLength' => 32,
-    )
-  );
+    ]
+  ];
 
   /**
    * JSON encode metadata
@@ -83,8 +83,8 @@ abstract class H5PMetadata {
    * @param array $types
    * @return array
    */
-  public static function toDBArray($metadata, $include_title = true, $include_missing = true, &$types = array()) {
-    $fields = array();
+  public static function toDBArray($metadata, $include_title = true, $include_missing = true, &$types = []) {
+    $fields = [];
 
     if (!is_array($metadata)) {
       $metadata = (array) $metadata;

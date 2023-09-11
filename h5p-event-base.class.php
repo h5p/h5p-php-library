@@ -130,8 +130,9 @@ abstract class H5PEventBase {
    * @return boolean
    */
   private static function isAction($type, $sub_type) {
-    if ( ($type === 'content' && in_array($sub_type, array('create', 'create upload', 'update', 'update upload', 'upgrade', 'delete'))) ||
-         ($type === 'library' && in_array($sub_type, array('create', 'update'))) ) {
+    if ( ($type === 'content' && in_array($sub_type, ['create', 'create upload', 'update', 'update upload', 'upgrade', 'delete']
+            )) ||
+         ($type === 'library' && in_array($sub_type, ['create', 'update'])) ) {
       return TRUE; // Log actions
     }
     return FALSE;
@@ -146,7 +147,7 @@ abstract class H5PEventBase {
    * @return array with keyed values
    */
   protected function getDataArray() {
-    return array(
+    return [
       'created_at' => $this->time,
       'type' => $this->type,
       'sub_type' => empty($this->sub_type) ? '' : $this->sub_type,
@@ -154,7 +155,7 @@ abstract class H5PEventBase {
       'content_title' => empty($this->content_title) ? '' : $this->content_title,
       'library_name' => empty($this->library_name) ? '' : $this->library_name,
       'library_version' => empty($this->library_version) ? '' : $this->library_version
-    );
+    ];
   }
 
   /**
@@ -164,7 +165,7 @@ abstract class H5PEventBase {
    * @return array with strings
    */
   protected function getFormatArray() {
-    return array(
+    return [
       '%d',
       '%s',
       '%s',
@@ -172,7 +173,7 @@ abstract class H5PEventBase {
       '%s',
       '%s',
       '%s'
-    );
+    ];
   }
 
   /**

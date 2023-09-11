@@ -58,7 +58,7 @@ class H5PDevelopment {
    * @param string $path Libraries development folder
    */
   private function findLibraries($path) {
-    $this->libraries = array();
+    $this->libraries = [];
 
     if (is_dir($path) === FALSE) {
       return;
@@ -111,7 +111,7 @@ class H5PDevelopment {
       $this->h5pF->deleteLibraryDependencies($library['libraryId']);
       // This isn't optimal, but without it we would get duplicate warnings.
       // TODO: You might get PDOExceptions if two or more requests does this at the same time!!
-      $types = array('preloaded', 'dynamic', 'editor');
+      $types = ['preloaded', 'dynamic', 'editor'];
       foreach ($types as $type) {
         if (isset($library[$type . 'Dependencies'])) {
           $this->h5pF->saveLibraryDependencies($library['libraryId'], $library[$type . 'Dependencies'], $type);

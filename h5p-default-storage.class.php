@@ -234,10 +234,12 @@ class H5PDefaultStorage implements \H5PFileStorage {
       $ext = ($type === 'scripts' ? 'js' : 'css');
       $outputfile = "/cachedassets/{$key}.{$ext}";
       file_put_contents($this->path . $outputfile, $content);
-      $files[$type] = array((object) array(
+      $files[$type] = [
+          (object) [
         'path' => $outputfile,
         'version' => ''
-      ));
+          ]
+      ];
     }
   }
 
@@ -249,22 +251,26 @@ class H5PDefaultStorage implements \H5PFileStorage {
    * @return array
    */
   public function getCachedAssets($key) {
-    $files = array();
+    $files = [];
 
     $js = "/cachedassets/{$key}.js";
     if (file_exists($this->path . $js)) {
-      $files['scripts'] = array((object) array(
+      $files['scripts'] = [
+          (object) [
         'path' => $js,
         'version' => ''
-      ));
+          ]
+      ];
     }
 
     $css = "/cachedassets/{$key}.css";
     if (file_exists($this->path . $css)) {
-      $files['styles'] = array((object) array(
+      $files['styles'] = [
+          (object) [
         'path' => $css,
         'version' => ''
-      ));
+          ]
+      ];
     }
 
     return empty($files) ? NULL : $files;
@@ -278,7 +284,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    */
   public function deleteCachedAssets($keys) {
     foreach ($keys as $hash) {
-      foreach (array('js', 'css') as $ext) {
+      foreach (['js', 'css'] as $ext) {
         $path = "{$this->path}/cachedassets/{$hash}.{$ext}";
         if (file_exists($path)) {
           unlink($path);
@@ -383,7 +389,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
     }
 
     $contentSource = $source . '/' . 'content';
-    $contentFiles = array_diff(scandir($contentSource), array('.','..', 'content.json'));
+    $contentFiles = array_diff(scandir($contentSource), ['.','..', 'content.json']);
     foreach ($contentFiles as $file) {
       if (is_dir("{$contentSource}/{$file}")) {
         self::copyFileTree("{$contentSource}/{$file}", "{$target}/{$file}");
@@ -489,7 +495,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
     $filePath = $path . '/' . $file;
 
     // Make sure the directory exists first
-    $matches = array();
+    $matches = [];
     preg_match('/(.+)\/[^\/]*$/', $filePath, $matches);
     self::dirReady($matches[1]);
 
@@ -543,12 +549,12 @@ class H5PDefaultStorage implements \H5PFileStorage {
    */
   private static function getIgnoredFiles($file) {
     if (file_exists($file) === FALSE) {
-      return array();
+      return [];
     }
 
     $contents = file_get_contents($file);
     if ($contents === FALSE) {
-      return array();
+      return [];
     }
 
     return preg_split('/\s+/', $contents);
