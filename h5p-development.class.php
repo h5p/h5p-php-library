@@ -11,12 +11,14 @@ class H5PDevelopment {
     public const MODE_CONTENT = 1;
     public const MODE_LIBRARY = 2;
 
-  private $h5pF, $libraries, $language, $filesPath;
+    private H5PFrameworkInterface $h5pF;
+
+    private $libraries, $language, $filesPath;
 
   /**
    * Constructor.
    *
-   * @param H5PFrameworkInterface|object $H5PFramework
+   * @param H5PFrameworkInterface $H5PFramework
    *  The frameworks implementation of the H5PFrameworkInterface
    * @param string $filesPath
    *  Path to where H5P should store its files
@@ -39,7 +41,7 @@ class H5PDevelopment {
    * Get contents of file.
    *
    * @param string $file File path.
-   * @return mixed String on success or NULL on failure.
+   * @return string|null String on success or NULL on failure.
    */
   private function getFileContents($file) {
     if (file_exists($file) === FALSE) {
@@ -183,7 +185,7 @@ class H5PDevelopment {
    * Writes library as string on the form "name majorVersion.minorVersion"
    *
    * @param string $name Machine readable library name
-   * @param integer $majorVersion
+   * @param int $majorVersion
    * @param $minorVersion
    * @return string Library identifier.
    */
