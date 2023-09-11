@@ -7,9 +7,9 @@ declare(strict_types=1);
  */
 class H5PDevelopment {
 
-  const MODE_NONE = 0;
-  const MODE_CONTENT = 1;
-  const MODE_LIBRARY = 2;
+    public const MODE_NONE = 0;
+    public const MODE_CONTENT = 1;
+    public const MODE_LIBRARY = 2;
 
   private $h5pF, $libraries, $language, $filesPath;
 

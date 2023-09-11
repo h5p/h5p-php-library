@@ -2048,44 +2048,44 @@ Class H5PExport {
 }
 
 abstract class H5PPermission {
-  const DOWNLOAD_H5P = 0;
-  const EMBED_H5P = 1;
-  const CREATE_RESTRICTED = 2;
-  const UPDATE_LIBRARIES = 3;
-  const INSTALL_RECOMMENDED = 4;
-  const COPY_H5P = 8;
+    public const DOWNLOAD_H5P = 0;
+    public const EMBED_H5P = 1;
+    public const CREATE_RESTRICTED = 2;
+    public const UPDATE_LIBRARIES = 3;
+    public const INSTALL_RECOMMENDED = 4;
+    public const COPY_H5P = 8;
 }
 
 abstract class H5PDisplayOptionBehaviour {
-  const NEVER_SHOW = 0;
-  const CONTROLLED_BY_AUTHOR_DEFAULT_ON = 1;
-  const CONTROLLED_BY_AUTHOR_DEFAULT_OFF = 2;
-  const ALWAYS_SHOW = 3;
-  const CONTROLLED_BY_PERMISSIONS = 4;
+    public const NEVER_SHOW = 0;
+    public const CONTROLLED_BY_AUTHOR_DEFAULT_ON = 1;
+    public const CONTROLLED_BY_AUTHOR_DEFAULT_OFF = 2;
+    public const ALWAYS_SHOW = 3;
+    public const CONTROLLED_BY_PERMISSIONS = 4;
 }
 
 abstract class H5PContentHubSyncStatus {
-  const NOT_SYNCED = 0;
-  const SYNCED = 1;
-  const WAITING = 2;
-  const FAILED = 3;
+    public const NOT_SYNCED = 0;
+    public const SYNCED = 1;
+    public const WAITING = 2;
+    public const FAILED = 3;
 }
 
 abstract class H5PContentStatus {
-  const STATUS_UNPUBLISHED = 0;
-  const STATUS_DOWNLOADED = 1;
-  const STATUS_WAITING = 2;
-  const STATUS_FAILED_DOWNLOAD = 3;
-  const STATUS_FAILED_VALIDATION = 4;
-  const STATUS_SUSPENDED = 5;
+    public const STATUS_UNPUBLISHED = 0;
+    public const STATUS_DOWNLOADED = 1;
+    public const STATUS_WAITING = 2;
+    public const STATUS_FAILED_DOWNLOAD = 3;
+    public const STATUS_FAILED_VALIDATION = 4;
+    public const STATUS_SUSPENDED = 5;
 }
 
 abstract class H5PHubEndpoints {
-  const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
-  const SITES = 'api.h5p.org/v1/sites';
-  const METADATA = 'hub-api.h5p.org/v1/metadata';
-  const CONTENT = 'hub-api.h5p.org/v1/contents';
-  const REGISTER = 'hub-api.h5p.org/v1/accounts';
+    public const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
+    public const SITES = 'api.h5p.org/v1/sites';
+    public const METADATA = 'hub-api.h5p.org/v1/metadata';
+    public const CONTENT = 'hub-api.h5p.org/v1/contents';
+    public const REGISTER = 'hub-api.h5p.org/v1/accounts';
 
   public static function createURL($endpoint) {
     $protocol = (extension_loaded('openssl') ? 'https' : 'http');
@@ -2130,24 +2130,24 @@ class H5PCore {
   public static $defaultLibraryWhitelistExtras = 'js css svg xml';
 
   public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $h5pD, $disableFileCheck;
-  const SECONDS_IN_WEEK = 604800;
+    public const SECONDS_IN_WEEK = 604800;
 
   private $exportEnabled;
 
   // Disable flags
-  const DISABLE_NONE = 0;
-  const DISABLE_FRAME = 1;
-  const DISABLE_DOWNLOAD = 2;
-  const DISABLE_EMBED = 4;
-  const DISABLE_COPYRIGHT = 8;
-  const DISABLE_ABOUT = 16;
+    public const DISABLE_NONE = 0;
+    public const DISABLE_FRAME = 1;
+    public const DISABLE_DOWNLOAD = 2;
+    public const DISABLE_EMBED = 4;
+    public const DISABLE_COPYRIGHT = 8;
+    public const DISABLE_ABOUT = 16;
 
-  const DISPLAY_OPTION_FRAME = 'frame';
-  const DISPLAY_OPTION_DOWNLOAD = 'export';
-  const DISPLAY_OPTION_EMBED = 'embed';
-  const DISPLAY_OPTION_COPYRIGHT = 'copyright';
-  const DISPLAY_OPTION_ABOUT = 'icon';
-  const DISPLAY_OPTION_COPY = 'copy';
+    public const DISPLAY_OPTION_FRAME = 'frame';
+    public const DISPLAY_OPTION_DOWNLOAD = 'export';
+    public const DISPLAY_OPTION_EMBED = 'embed';
+    public const DISPLAY_OPTION_COPYRIGHT = 'copyright';
+    public const DISPLAY_OPTION_ABOUT = 'icon';
+    public const DISPLAY_OPTION_COPY = 'copy';
 
   // Map flags to string
   public static $disable = [
