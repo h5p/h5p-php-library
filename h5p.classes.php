@@ -1333,7 +1333,7 @@ class H5PValidator {
         $this->h5pF->setErrorMessage(
             $this->h5pF->t('The system was unable to install the <em>%component</em> component from the package, it requires a newer version of the H5P plugin. This site is currently running version %current, whereas the required version is %required or higher. You should consider upgrading and then try again.',
                 [
-                  '%component' => (isset($h5pData['title']) ? $h5pData['title'] : $library_name),
+                  '%component' => ($h5pData['title'] ?? $library_name),
                   '%current' => H5PCore::$coreApi['majorVersion'] . '.' . H5PCore::$coreApi['minorVersion'],
                   '%required' => $h5pData['coreApi']['majorVersion'] . '.' . $h5pData['coreApi']['minorVersion']
                 ]
@@ -3100,18 +3100,14 @@ class H5PCore {
 
     if ($this->h5pF->getOption(self::DISPLAY_OPTION_FRAME, TRUE)) {
       $display_options[self::DISPLAY_OPTION_FRAME] =
-        isset($current_display_options[self::DISPLAY_OPTION_FRAME]) ?
-        $current_display_options[self::DISPLAY_OPTION_FRAME] :
-        TRUE;
+          $current_display_options[self::DISPLAY_OPTION_FRAME] ?? true;
 
       // Download
       $export = $this->h5pF->getOption(self::DISPLAY_OPTION_DOWNLOAD, H5PDisplayOptionBehaviour::ALWAYS_SHOW);
       if ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON ||
           $export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
         $display_options[self::DISPLAY_OPTION_DOWNLOAD] =
-          isset($current_display_options[self::DISPLAY_OPTION_DOWNLOAD]) ?
-          $current_display_options[self::DISPLAY_OPTION_DOWNLOAD] :
-          ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
+            $current_display_options[self::DISPLAY_OPTION_DOWNLOAD] ?? ($export == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
       }
 
       // Embed
@@ -3119,17 +3115,13 @@ class H5PCore {
       if ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON ||
           $embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_OFF) {
         $display_options[self::DISPLAY_OPTION_EMBED] =
-          isset($current_display_options[self::DISPLAY_OPTION_EMBED]) ?
-          $current_display_options[self::DISPLAY_OPTION_EMBED] :
-          ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
+            $current_display_options[self::DISPLAY_OPTION_EMBED] ?? ($embed == H5PDisplayOptionBehaviour::CONTROLLED_BY_AUTHOR_DEFAULT_ON);
       }
 
       // Copyright
       if ($this->h5pF->getOption(self::DISPLAY_OPTION_COPYRIGHT, TRUE)) {
         $display_options[self::DISPLAY_OPTION_COPYRIGHT] =
-          isset($current_display_options[self::DISPLAY_OPTION_COPYRIGHT]) ?
-          $current_display_options[self::DISPLAY_OPTION_COPYRIGHT] :
-          TRUE;
+            $current_display_options[self::DISPLAY_OPTION_COPYRIGHT] ?? true;
       }
     }
 
@@ -4397,7 +4389,7 @@ class H5PContentValidator {
     if (!($text === '' && isset($semantics->optional) && $semantics->optional) && isset($semantics->regexp)) {
       // Escaping '/' found in patterns, so that it does not break regexp fencing.
       $pattern = '/' . str_replace('/', '\\/', $semantics->regexp->pattern) . '/';
-      $pattern .= isset($semantics->regexp->modifiers) ? $semantics->regexp->modifiers : '';
+      $pattern .= $semantics->regexp->modifiers ?? '';
       if (preg_match($pattern, $text) === 0) {
         // Note: explicitly ignore return value FALSE, to avoid removing text
         // if regexp is invalid...
@@ -4474,7 +4466,7 @@ class H5PContentValidator {
     }
     // Check if number is within allowed bounds even if step value is set.
     if (isset($semantics->step)) {
-      $testNumber = $number - (isset($semantics->min) ? $semantics->min : 0);
+      $testNumber = $number - ($semantics->min ?? 0);
       $rest = $testNumber % $semantics->step;
       if ($rest !== 0) {
         $number -= $rest;
