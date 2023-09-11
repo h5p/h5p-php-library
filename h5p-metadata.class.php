@@ -7,7 +7,7 @@ declare(strict_types=1);
  */
 abstract class H5PMetadata {
 
-  private static $fields = [
+  private static array $fields = [
     'title' => [
       'type' => 'text',
       'maxLength' => 255
@@ -60,8 +60,9 @@ abstract class H5PMetadata {
    * @param object $content
    * @return string
    */
-  public static function toJSON($content) {
-    // Note: deliberatly creating JSON string "manually" to improve performance
+  public static function toJSON(object $content): string
+  {
+    // Note: deliberately creating JSON string "manually" to improve performance
     return
       '{"title":' . (isset($content->title) ? json_encode($content->title) : 'null') .
       ',"a11yTitle":' . ($content->a11y_title ?? 'null') .
@@ -86,7 +87,8 @@ abstract class H5PMetadata {
    * @param array $types
    * @return array
    */
-  public static function toDBArray($metadata, $include_title = true, $include_missing = true, &$types = []) {
+  public static function toDBArray(mixed $metadata, bool $include_title = true, bool $include_missing = true, array &$types = []): array
+  {
     $fields = [];
 
     if (!is_array($metadata)) {
@@ -145,7 +147,8 @@ abstract class H5PMetadata {
    * @param array $metadataSettings
    * @return string
    */
-  public static function boolifyAndEncodeSettings($metadataSettings) {
+  public static function boolifyAndEncodeSettings(array $metadataSettings): string
+  {
     // Convert metadataSettings values to boolean
     if (isset($metadataSettings['disable'])) {
       $metadataSettings['disable'] = $metadataSettings['disable'] === 1;
