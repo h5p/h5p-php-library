@@ -17,7 +17,7 @@ declare(strict_types=1);
  * @copyright  2016 Joubel AS
  * @license    MIT
  */
-class H5PDefaultStorage implements \H5PFileStorage
+class H5PDefaultStorage implements H5PFileStorage
 {
     private $path, $alteditorpath;
 
@@ -44,10 +44,10 @@ class H5PDefaultStorage implements \H5PFileStorage
      */
     public function saveLibrary($library)
     {
-        $dest = $this->path . '/libraries/' . \H5PCore::libraryToFolderName($library);
+        $dest = $this->path . '/libraries/' . H5PCore::libraryToFolderName($library);
 
         // Make sure destination dir doesn't exist
-        \H5PCore::deleteFileTree($dest);
+        H5PCore::deleteFileTree($dest);
 
         // Move library folder
         self::copyFileTree($library['uploadDirectory'], $dest);
@@ -68,10 +68,10 @@ class H5PDefaultStorage implements \H5PFileStorage
      */
     public function saveContent($source, $content)
     {
-        $dest = "{$this->path}/content/{$content['id']}";
+        $dest = "$this->path/content/{$content['id']}";
 
         // Remove any old content
-        \H5PCore::deleteFileTree($dest);
+        H5PCore::deleteFileTree($dest);
 
         self::copyFileTree($source, $dest);
     }
@@ -84,7 +84,7 @@ class H5PDefaultStorage implements \H5PFileStorage
      */
     public function deleteContent($content)
     {
-        \H5PCore::deleteFileTree("{$this->path}/content/{$content['id']}");
+        H5PCore::deleteFileTree("$this->path/content/{$content['id']}");
     }
 
     /**
@@ -148,7 +148,7 @@ class H5PDefaultStorage implements \H5PFileStorage
    */
   public function exportLibrary($library, $target, $developmentPath = null)
   {
-      $srcFolder = \H5PCore::libraryToFolderName($library);
+      $srcFolder = H5PCore::libraryToFolderName($library);
       $srcPath = ($developmentPath === null ? "/libraries/{$srcFolder}" : $developmentPath);
 
       // Library folders inside the H5P zip file shall not contain patch version in the folder name
@@ -197,7 +197,7 @@ class H5PDefaultStorage implements \H5PFileStorage
      * Check if the given export file exists
      *
      * @param string $filename
-     * @return boolean
+     * @return bool
      */
     public function hasExport($filename)
     {
@@ -325,7 +325,7 @@ class H5PDefaultStorage implements \H5PFileStorage
      * Save files uploaded through the editor.
      * The files must be marked as temporary until the content form is saved.
      *
-     * @param H5peditorFile $file
+     * @param \H5peditorFile $file
      * @param int $contentid
      */
     public function saveFile($file, $contentId)
@@ -399,7 +399,7 @@ class H5PDefaultStorage implements \H5PFileStorage
         }
 
         // TODO: Remove $contentId and never copy temporary files into content folder. JI-366
-        if ($contentId === null || $contentId == 0) {
+        if ($contentId == 0) {
             $target = $this->getEditorPath();
         } else {
             // Use content folder
@@ -437,8 +437,8 @@ class H5PDefaultStorage implements \H5PFileStorage
      * Used when saving content.
      *
      * @param string $file path + name
-     * @param int $contentid
-     * @return string|int File ID or NULL if not found
+     * @param $contentId
+     * @return string|int|null File ID or NULL if not found
      */
     public function removeContentFile($file, $contentId)
     {
@@ -453,10 +453,11 @@ class H5PDefaultStorage implements \H5PFileStorage
                 if (is_dir($dir) && count(scandir($dir)) === 2) { // empty contains '.' and '..'
                     rmdir($dir); // Remove empty parent
                 } else {
-                    return; // Not empty
+                    return null; // Not empty
                 }
             }
         }
+        return null;
     }
 
     /**
@@ -530,15 +531,14 @@ class H5PDefaultStorage implements \H5PFileStorage
      *  From path
      * @param string $destination
      *  To path
-     * @return boolean
-     *  Indicates if the directory existed.
+     * @return void
      *
      * @throws Exception Unable to copy the file
      */
     private static function copyFileTree($source, $destination)
     {
         if (!self::dirReady($destination)) {
-            throw new \Exception('unabletocopy');
+            throw new Exception('unabletocopy');
         }
 
         $ignoredFiles = self::getIgnoredFiles("{$source}/.h5pignore");
@@ -546,7 +546,7 @@ class H5PDefaultStorage implements \H5PFileStorage
         $dir = opendir($source);
         if ($dir === false) {
             trigger_error('Unable to open directory ' . $source, E_USER_WARNING);
-            throw new \Exception('unabletocopy');
+            throw new Exception('unabletocopy');
         }
 
         while (false !== ($file = readdir($dir))) {
