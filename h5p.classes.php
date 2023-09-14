@@ -4154,6 +4154,7 @@ class H5PContentValidator {
     'h1',
     'h2',
     'h3',
+    'table',
     'td',
     'li'
   ];
@@ -4290,6 +4291,11 @@ class H5PContentValidator {
         if (isset($semantics->font->height) && $semantics->font->height) {
           $stylePatterns[] = '/^line-height: *[0-9.]+(em|px|%|) *;?$/i';
         }
+      }
+
+      // Allow styling of tables if they are allowed
+      if (isset($semantics->tags) && in_array('table', $semantics->tags)) {
+        $stylePatterns[] = '/^border-style: *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *;?$/i';
       }
 
       // Alignment is allowed for all wysiwyg texts
