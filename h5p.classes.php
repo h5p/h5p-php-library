@@ -4155,6 +4155,8 @@ class H5PContentValidator {
     'h2',
     'h3',
     'table',
+    'col',
+    'figure',
     'td',
     'li'
   ];
@@ -4254,7 +4256,7 @@ class H5PContentValidator {
 
       // Add related tags for table etc.
       if (in_array('table', $tags)) {
-        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'thead', 'tbody', 'tfoot'));
+        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'col', 'thead', 'tbody', 'tfoot', "figure", 'figcaption'));
       }
       if (in_array('b', $tags) && ! in_array('strong', $tags)) {
         $tags[] = 'strong';
@@ -4296,6 +4298,8 @@ class H5PContentValidator {
       // Allow styling of tables if they are allowed
       if (isset($semantics->tags) && in_array('table', $semantics->tags)) {
         $stylePatterns[] = '/^border-style: *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *;?$/i';
+        $stylePatterns[] = '/^width: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^float: *(right|left|none) *;?$/i';
       }
 
       // Alignment is allowed for all wysiwyg texts
