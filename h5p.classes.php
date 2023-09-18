@@ -4298,6 +4298,7 @@ class H5PContentValidator {
       // Allow styling of tables if they are allowed
       if (isset($semantics->tags) && in_array('table', $semantics->tags)) {
         $stylePatterns[] = '/^border-style: *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *;?$/i';
+        $stylePatterns[] = '/^border-width: *[0-9.]+(em|px|%|) *;?$/i';
         $stylePatterns[] = '/^width: *[0-9.]+(em|px|%|) *;?$/i';
         $stylePatterns[] = '/^float: *(right|left|none) *;?$/i';
       }
