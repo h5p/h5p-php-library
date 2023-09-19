@@ -2079,6 +2079,7 @@ class H5PCore {
     'styles/h5p-confirmation-dialog.css',
     'styles/h5p-core-button.css',
     'styles/h5p-tooltip.css',
+    'styles/h5p-table.css',
   );
   public static $scripts = array(
     'js/jquery.js',
