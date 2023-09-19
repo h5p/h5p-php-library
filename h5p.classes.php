@@ -4158,6 +4158,7 @@ class H5PContentValidator {
     'col',
     'figure',
     'td',
+    'th',
     'li'
   ];
 
@@ -4299,8 +4300,13 @@ class H5PContentValidator {
       if (isset($semantics->tags) && in_array('table', $semantics->tags)) {
         $stylePatterns[] = '/^border-style: *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *;?$/i';
         $stylePatterns[] = '/^border-width: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^border-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
         $stylePatterns[] = '/^width: *[0-9.]+(em|px|%|) *;?$/i';
         $stylePatterns[] = '/^float: *(right|left|none) *;?$/i';
+
+        // Table can have background color when font bgcolor is disabled
+        // Double entry of bgcolor in stylePatterns shouldn't matter
+        $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
       }
 
       // Alignment is allowed for all wysiwyg texts
