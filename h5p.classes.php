@@ -4299,9 +4299,13 @@ class H5PContentValidator {
 
       // Allow styling of tables if they are allowed
       if (isset($semantics->tags) && in_array('table', $semantics->tags)) {
+        // CKEditor outputs border as width style color
+        $stylePatterns[] = '/^border: *[0-9.]+(em|px|%|) *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
         $stylePatterns[] = '/^border-style: *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *;?$/i';
         $stylePatterns[] = '/^border-width: *[0-9.]+(em|px|%|) *;?$/i';
         $stylePatterns[] = '/^border-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
+
+        $stylePatterns[] = '/^vertical-align: *(middle|top|bottom);?$/i';
         $stylePatterns[] = '/^width: *[0-9.]+(em|px|%|) *;?$/i';
         $stylePatterns[] = '/^float: *(right|left|none) *;?$/i';
 
