@@ -198,9 +198,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Focus capturing
     var focusPredator;
 
-    // Maintains hidden state of elements
-    var wrapperSiblingsHidden = [];
-    var popupSiblingsHidden = [];
+    // Maintains busy state of elements
+    var wrapperSiblingsBusy = [];
+    var popupSiblingsBusy = [];
 
     // Element with focus before dialog
     var previouslyFocused;
@@ -230,35 +230,35 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * Hide siblings of element from assistive technology
      *
      * @param {HTMLElement} element
-     * @returns {Array} The previous hidden state of all siblings
+     * @returns {Array} The previous busy state of all siblings
      */
     var hideSiblings = function (element) {
-      var hiddenSiblings = [];
+      var busySiblings = [];
       var siblings = element.parentNode.children;
       var i;
       for (i = 0; i < siblings.length; i += 1) {
-        // Preserve hidden state
-        hiddenSiblings[i] = siblings[i].getAttribute('aria-hidden') ?
+        // Preserve busy state
+        busySiblings[i] = siblings[i].getAttribute('aria-busy') ?
           true : false;
 
         if (siblings[i] !== element) {
           siblings[i].setAttribute('aria-busy', true);
         }
       }
-      return hiddenSiblings;
+      return busySiblings;
     };
 
     /**
      * Restores assistive technology state of element's siblings
      *
      * @param {HTMLElement} element
-     * @param {Array} hiddenSiblings Hidden state of all siblings
+     * @param {Array} busySiblings Busy state of all siblings
      */
-    var restoreSiblings = function (element, hiddenSiblings) {
+    var restoreSiblings = function (element, busySiblings) {
       var siblings = element.parentNode.children;
       var i;
       for (i = 0; i < siblings.length; i += 1) {
-        if (siblings[i] !== element && !hiddenSiblings[i]) {
+        if (siblings[i] !== element && !busySiblings[i]) {
           siblings[i].removeAttribute('aria-busy');
         }
       }
@@ -284,16 +284,16 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * Hide siblings in underlay from assistive technologies
      */
     var disableUnderlay = function () {
-      wrapperSiblingsHidden = hideSiblings(wrapperElement);
-      popupSiblingsHidden = hideSiblings(popupBackground);
+      wrapperSiblingsBusy = hideSiblings(wrapperElement);
+      popupSiblingsBusy = hideSiblings(popupBackground);
     };
 
     /**
      * Restore state of underlay for assistive technologies
      */
     var restoreUnderlay = function () {
-      restoreSiblings(wrapperElement, wrapperSiblingsHidden);
-      restoreSiblings(popupBackground, popupSiblingsHidden);
+      restoreSiblings(wrapperElement, wrapperSiblingsBusy);
+      restoreSiblings(popupBackground, popupSiblingsBusy);
     };
 
     /**
