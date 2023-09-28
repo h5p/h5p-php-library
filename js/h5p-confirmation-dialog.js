@@ -364,14 +364,14 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * @returns {H5P.ConfirmationDialog}
      */
     this.hide = function () {
-      popupBackground.classList.add('hiding');
-      popup.classList.add('hidden');
-
       // Restore focus
       stopCapturingFocus();
       if (!options.skipRestoreFocus) {
         previouslyFocused.focus();
       }
+
+      popupBackground.classList.add('hiding');
+      popup.classList.add('hidden');
 
       restoreUnderlay();
 
