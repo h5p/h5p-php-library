@@ -259,7 +259,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       var i;
       for (i = 0; i < siblings.length; i += 1) {
         if (siblings[i] !== element && !hiddenSiblings[i]) {
-          siblings[i].setAttribute('aria-busy', false);
+          siblings[i].removeAttribute('aria-busy');
         }
       }
     };
