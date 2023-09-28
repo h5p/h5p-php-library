@@ -242,7 +242,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
           true : false;
 
         if (siblings[i] !== element) {
-          siblings[i].setAttribute('aria-hidden', true);
+          siblings[i].setAttribute('aria-busy', true);
         }
       }
       return hiddenSiblings;
@@ -259,7 +259,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       var i;
       for (i = 0; i < siblings.length; i += 1) {
         if (siblings[i] !== element && !hiddenSiblings[i]) {
-          siblings[i].removeAttribute('aria-hidden');
+          siblings[i].setAttribute('aria-busy', false);
         }
       }
     };
@@ -372,7 +372,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       if (!options.skipRestoreFocus) {
         previouslyFocused.focus();
       }
+
       restoreUnderlay();
+
       setTimeout(function () {
         popupBackground.classList.add('hidden');
         wrapperElement.removeChild(popupBackground);
