@@ -4258,7 +4258,7 @@ class H5PContentValidator {
 
       // Add related tags for table etc.
       if (in_array('table', $tags)) {
-        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'col', 'thead', 'tbody', 'tfoot', "figure", 'figcaption'));
+        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'col', 'thead', 'tbody', 'tfoot', 'figure', 'figcaption'));
       }
       if (in_array('b', $tags) && ! in_array('strong', $tags)) {
         $tags[] = 'strong';
