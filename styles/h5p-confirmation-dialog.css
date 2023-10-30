@@ -181,3 +181,18 @@ button.h5p-confirmation-dialog-exit:hover {
     transform: rotate(359deg);
   }
 }
+
+@media (prefers-reduced-motion) {
+  .h5p-confirmation-dialog-background {
+    .h5p-confirmation-dialog-popup {
+      -webkit-transition: none;
+      transition: none;
+    }
+
+    &.hiding {
+      .h5p-confirmation-dialog-popup {
+        opacity: 0;
+      }
+    }
+  }
+}
