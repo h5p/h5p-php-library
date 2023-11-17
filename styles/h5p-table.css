@@ -13,20 +13,31 @@
       height: 100%;
       width: 100%;
       border-spacing: 0;
-      border: 1px solid #8C8C8C;
+      border-width: 1px;
+      border-color:  #494949;
 
       td, th {
-        padding: 0;
-        border: 1px solid #8C8C8C;
+        padding: 1px;
+        border-color:  #494949;
+        border-bottom-style: solid;
+      }
+
+      td {
+        border-width: 0.083em;
       }
 
       th {
         text-align: center;
+        border-width: .167em;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
       }
     }
 
     figcaption {
-      background-color: #f7f7f7;
+      background-color: transparent;
       caption-side: top;
       color: #333;
       display: table-caption;
