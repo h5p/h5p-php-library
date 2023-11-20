@@ -4306,7 +4306,9 @@ class H5PContentValidator {
         $stylePatterns[] = '/^border-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
 
         $stylePatterns[] = '/^vertical-align: *(middle|top|bottom);?$/i';
+        $stylePatterns[] = '/^padding: *[0-9.]+(em|px|%|) *;?$/i';
         $stylePatterns[] = '/^width: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^height: *[0-9.]+(em|px|%|) *;?$/i';
         $stylePatterns[] = '/^float: *(right|left|none) *;?$/i';
 
         // Table can have background color when font bgcolor is disabled
