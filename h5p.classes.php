@@ -2079,6 +2079,7 @@ class H5PCore {
     'styles/h5p-confirmation-dialog.css',
     'styles/h5p-core-button.css',
     'styles/h5p-tooltip.css',
+    'styles/h5p-table.css',
   );
   public static $scripts = array(
     'js/jquery.js',
@@ -4154,7 +4155,11 @@ class H5PContentValidator {
     'h1',
     'h2',
     'h3',
+    'table',
+    'col',
+    'figure',
     'td',
+    'th',
     'li'
   ];
 
@@ -4253,7 +4258,7 @@ class H5PContentValidator {
 
       // Add related tags for table etc.
       if (in_array('table', $tags)) {
-        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'thead', 'tbody', 'tfoot'));
+        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'col', 'thead', 'tbody', 'tfoot', 'figure', 'figcaption'));
       }
       if (in_array('b', $tags) && ! in_array('strong', $tags)) {
         $tags[] = 'strong';
@@ -4290,6 +4295,25 @@ class H5PContentValidator {
         if (isset($semantics->font->height) && $semantics->font->height) {
           $stylePatterns[] = '/^line-height: *[0-9.]+(em|px|%|) *;?$/i';
         }
+      }
+
+      // Allow styling of tables if they are allowed
+      if (isset($semantics->tags) && in_array('table', $semantics->tags)) {
+        // CKEditor outputs border as width style color
+        $stylePatterns[] = '/^border: *[0-9.]+(em|px|%|) *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
+        $stylePatterns[] = '/^border-style: *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *;?$/i';
+        $stylePatterns[] = '/^border-width: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^border-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
+
+        $stylePatterns[] = '/^vertical-align: *(middle|top|bottom);?$/i';
+        $stylePatterns[] = '/^padding: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^width: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^height: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^float: *(right|left|none) *;?$/i';
+
+        // Table can have background color when font bgcolor is disabled
+        // Double entry of bgcolor in stylePatterns shouldn't matter
+        $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
       }
 
       // Alignment is allowed for all wysiwyg texts
