@@ -2128,6 +2128,21 @@ class H5PCore {
     self::DISABLE_COPYRIGHT => self::DISPLAY_OPTION_COPYRIGHT
   );
 
+  /** @var string */
+  public $url;
+
+  /** @var int evelopment mode. */
+  public $development_mode;
+
+  /** @var bool aggregated files for assets. */
+  public $aggregateAssets;
+
+  /** @var string full path of plugin. */
+  protected $fullPluginPath;
+
+  /** @var string regex for converting copied files paths. */
+  public $relativePathRegExp;
+
   /**
    * Constructor for the H5PCore
    *
@@ -4148,6 +4163,9 @@ class H5PContentValidator {
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
   private static $allowed_styleable_tags = array('span', 'p', 'div','h1','h2','h3', 'td');
+
+  /** @var bool Allowed styles status. */
+  protected $allowedStyles;
 
   /**
    * Constructor for the H5PContentValidator
