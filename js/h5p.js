@@ -32,19 +32,12 @@ if (document.documentElement.requestFullscreen) {
   H5P.fullScreenBrowserPrefix = '';
 }
 else if (document.documentElement.webkitRequestFullScreen) {
+  /*
+   * Safari across older versions/mobile does only work properly with webkit prefix
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/requestFullscreen
+   */
   H5P.safariBrowser = navigator.userAgent.match(/version\/([.\d]+)/i);
   H5P.safariBrowser = (H5P.safariBrowser === null ? 0 : parseInt(H5P.safariBrowser[1]));
-
-  // Do not allow fullscreen for safari < 7.
-  if (H5P.safariBrowser === 0 || H5P.safariBrowser > 6) {
-    H5P.fullScreenBrowserPrefix = 'webkit';
-  }
-}
-else if (document.documentElement.mozRequestFullScreen) {
-  H5P.fullScreenBrowserPrefix = 'moz';
-}
-else if (document.documentElement.msRequestFullscreen) {
-  H5P.fullScreenBrowserPrefix = 'ms';
 }
 
 /**
@@ -74,10 +67,7 @@ H5P.init = function (target) {
      * fullscreen, and the semi-fullscreen solution doesn't work when embedded.
      * @type {boolean}
      */
-    H5P.fullscreenSupported = !H5PIntegration.fullscreenDisabled && !H5P.fullscreenDisabled && (!(H5P.isFramed && H5P.externalEmbed !== false) || !!(document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled));
-    // -We should consider document.msFullscreenEnabled when they get their
-    // -element sizing corrected. Ref. https://connect.microsoft.com/IE/feedback/details/838286/ie-11-incorrectly-reports-dom-element-sizes-in-fullscreen-mode-when-fullscreened-element-is-within-an-iframe
-    // Update: Seems to be no need as they've moved on to Webkit
+    H5P.fullscreenSupported = !H5PIntegration.fullscreenDisabled && !H5P.fullscreenDisabled && (!(H5P.isFramed && H5P.externalEmbed !== false) || !!(document.fullscreenEnabled || document.webkitFullscreenEnabled));
   }
 
   // Deprecated variable, kept to maintain backwards compatability
@@ -655,7 +645,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     // Create real fullscreen.
 
     before('h5p-fullscreen');
-    var first, eventName = (H5P.fullScreenBrowserPrefix === 'ms' ? 'MSFullscreenChange' : H5P.fullScreenBrowserPrefix + 'fullscreenchange');
+    var first, eventName = H5P.fullScreenBrowserPrefix + 'fullscreenchange';
     document.addEventListener(eventName, function fullscreenCallback() {
       if (first === undefined) {
         // We are entering fullscreen mode
@@ -673,7 +663,7 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
       $element[0].requestFullscreen();
     }
     else {
-      var method = (H5P.fullScreenBrowserPrefix === 'ms' ? 'msRequestFullscreen' : H5P.fullScreenBrowserPrefix + 'RequestFullScreen');
+      var method = H5P.fullScreenBrowserPrefix + 'RequestFullscreen';
       var params = (H5P.fullScreenBrowserPrefix === 'webkit' && H5P.safariBrowser === 0 ? Element.ALLOW_KEYBOARD_INPUT : undefined);
       $element[0][method](params);
     }
@@ -682,9 +672,6 @@ H5P.fullScreen = function ($element, instance, exitCallback, body, forceSemiFull
     H5P.exitFullScreen = function () {
       if (H5P.fullScreenBrowserPrefix === '') {
         document.exitFullscreen();
-      }
-      else if (H5P.fullScreenBrowserPrefix === 'moz') {
-        document.mozCancelFullScreen();
       }
       else {
         document[H5P.fullScreenBrowserPrefix + 'ExitFullscreen']();
