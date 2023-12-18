@@ -6,6 +6,7 @@
     table-layout: fixed;
     margin: 0 auto;
     padding: 0;
+    float: left;
 
     /* The actual table */
     table {
