@@ -2124,31 +2124,22 @@ H5P.trim = function (value) {
 };
 
 /**
- * Recursive function that detects deep empty structures.
+ * Recursively detect deep empty structures.
  *
- * @param {*} value
- * @returns {bool}
+ * @param {*} item Item to check for being empty.
+ * @returns {boolean} True if empty.
  */
-H5P.isEmpty = value => {
-  if (!value && value !== 0 && value !== false) {
+H5P.isEmpty = (item) => {
+  if (!item && item !== 0 && item !== false) {
     return true; // undefined, null, NaN and empty strings.
   }
-  else if (Array.isArray(value)) {
-    for (let i = 0; i < value.length; i++) {
-      if (!H5P.isEmpty(value[i])) {
-        return false; // Array contains a non-empty value
-      }
-    }
-    return true; // Empty array
+  else if (Array.isArray(item)) {
+    return item.every((item) => H5P.isEmpty(item));
   }
-  else if (typeof value === 'object') {
-    for (let prop in value) {
-      if (value.hasOwnProperty(prop) && !H5P.isEmpty(value[prop])) {
-        return false; // Object contains a non-empty value
-      }
-    }
-    return true; // Empty object
+  else if (typeof item === 'object') {
+    return Object.values(item).every((item) => H5P.isEmpty(item));
   }
+
   return false;
 };
 
