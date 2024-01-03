@@ -4281,7 +4281,7 @@ class H5PContentValidator {
           $stylePatterns[] = '/^font-size: *[0-9.]+(em|px|%) *;?$/i';
         }
         if (isset($semantics->font->family) && $semantics->font->family) {
-          $stylePatterns[] = '/^font-family: *[-a-z0-9," ]+;?$/i';
+          $stylePatterns[] = '/^font-family: *[-a-z0-9,\'&; ]+;?$/i';
         }
         if (isset($semantics->font->color) && $semantics->font->color) {
           $stylePatterns[] = '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
@@ -5012,6 +5012,11 @@ class H5PContentValidator {
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
             if ($allowedStyles && $attrName === 'style') {
               // Allow certain styles
+
+              // Prevent font family from getting split wrong because of the ; in &quot;
+              if (str_contains($match[1], 'font-family')) {
+                $match[1] = str_replace('&quot;', "'", $match[1]);
+              }
 
               $validatedStyles = [];
               $styles = explode(';', $match[1]);
