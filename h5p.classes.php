@@ -3780,7 +3780,12 @@ class H5PCore {
       'keywordsExits' => $this->h5pF->t('Keywords already exists!'),
       'someKeywordsExits' => $this->h5pF->t('Some of these keywords already exist'),
       'width' => $this->h5pF->t('width'),
-      'height' => $this->h5pF->t('height')
+      'height' => $this->h5pF->t('height'),
+      'rotateLeft' => $this->h5pF->t('Rotate Left'),
+      'rotateRight' => $this->h5pF->t('Rotate Right'),
+      'cropImage' => $this->h5pF->t('Crop Image'),
+      'confirmCrop' => $this->h5pF->t('Confirm Crop'),
+      'cancelCrop' => $this->h5pF->t('Cancel Crop')
     );
   }
 
