@@ -104,6 +104,243 @@ H5P.init = function (target) {
       metadata: contentData.metadata
     };
 
+    var completeInit = function() {
+      // Create new instance.
+      var instance = H5P.newRunnable(library, contentId, $container, true, {standalone: true});
+
+      H5P.offlineRequestQueue = new H5P.OfflineRequestQueue({instance: instance});
+
+      // Check if we should add and display a fullscreen button for this H5P.
+      if (contentData.fullScreen == 1 && H5P.fullscreenSupported) {
+        H5P.jQuery(
+          '<div class="h5p-content-controls">' +
+          '<div role="button" ' +
+          'tabindex="0" ' +
+          'class="h5p-enable-fullscreen" ' +
+          'aria-label="' + H5P.t('fullscreen') + '" ' +
+          'title="' + H5P.t('fullscreen') + '">' +
+          '</div>' +
+          '</div>')
+          .prependTo($container)
+          .children()
+          .click(function () {
+            H5P.fullScreen($container, instance);
+          })
+          .keydown(function (e) {
+            if (e.which === 32 || e.which === 13) {
+              H5P.fullScreen($container, instance);
+              return false;
+            }
+          })
+        ;
+      }
+
+      /**
+       * Create action bar
+       */
+      var displayOptions = contentData.displayOptions;
+      var displayFrame = false;
+      if (displayOptions.frame) {
+        // Special handling of copyrights
+        if (displayOptions.copyright) {
+          var copyrights = H5P.getCopyrights(instance, library.params, contentId, library.metadata);
+          if (!copyrights) {
+            displayOptions.copyright = false;
+          }
+        }
+
+        // Create action bar
+        var actionBar = new H5P.ActionBar(displayOptions);
+        var $actions = actionBar.getDOMElement();
+
+        actionBar.on('reuse', function () {
+          H5P.openReuseDialog($actions, contentData, library, instance, contentId);
+          instance.triggerXAPI('accessed-reuse');
+        });
+        actionBar.on('copyrights', function () {
+          var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container, $actions.find('.h5p-copyrights')[0]);
+          dialog.open(true);
+          instance.triggerXAPI('accessed-copyright');
+        });
+        actionBar.on('embed', function () {
+          H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
+            width: $element.width(),
+            height: $element.height()
+          }, instance);
+          instance.triggerXAPI('accessed-embed');
+        });
+
+        if (actionBar.hasActions()) {
+          displayFrame = true;
+          $actions.insertAfter($container);
+        }
+      }
+
+      $element.addClass(displayFrame ? 'h5p-frame' : 'h5p-no-frame');
+
+      // Keep track of when we started
+      H5P.opened[contentId] = new Date();
+
+      // Handle events when the user finishes the content. Useful for logging exercise results.
+      H5P.on(instance, 'finish', function (event) {
+        if (event.data !== undefined) {
+          H5P.setFinished(contentId, event.data.score, event.data.maxScore, event.data.time);
+        }
+      });
+
+      // Listen for xAPI events.
+      H5P.on(instance, 'xAPI', H5P.xAPICompletedListener);
+
+      // Auto save current state if supported
+      if (H5PIntegration.saveFreq !== false && (
+        instance.getCurrentState instanceof Function ||
+        typeof instance.getCurrentState === 'function')) {
+
+        var saveTimer, save = function () {
+          var state = instance.getCurrentState();
+          if (state !== undefined) {
+            H5P.setUserData(contentId, 'state', state, {deleteOnChange: true});
+          }
+          if (H5PIntegration.saveFreq) {
+            // Continue autosave
+            saveTimer = setTimeout(save, H5PIntegration.saveFreq * 1000);
+          }
+        };
+
+        if (H5PIntegration.saveFreq) {
+          // Start autosave
+          saveTimer = setTimeout(save, H5PIntegration.saveFreq * 1000);
+        }
+
+        // xAPI events will schedule a save in three seconds.
+        H5P.on(instance, 'xAPI', function (event) {
+          var verb = event.getVerb();
+          if (verb === 'completed' || verb === 'progressed') {
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(save, 3000);
+          }
+        });
+      }
+
+      if (H5P.isFramed) {
+        var resizeDelay;
+        if (H5P.externalEmbed === false) {
+          // Internal embed
+          // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
+          var iframe = window.frameElement;
+          var resizeIframe = function () {
+            if (window.parent.H5P.isFullscreen) {
+              return; // Skip if full screen.
+            }
+
+            // Retain parent size to avoid jumping/scrolling
+            var parentHeight = iframe.parentElement.style.height;
+            iframe.parentElement.style.height = iframe.parentElement.clientHeight + 'px';
+
+            // Note:  Force layout reflow
+            //        This fixes a flickering bug for embedded content on iPads
+            //        @see https://github.com/h5p/h5p-moodle-plugin/issues/237
+            iframe.getBoundingClientRect();
+
+            // Reset iframe height, in case content has shrinked.
+            iframe.style.height = '1px';
+
+            // Resize iframe so all content is visible.
+            iframe.style.height = (iframe.contentDocument.body.scrollHeight) + 'px';
+
+            // Free parent
+            iframe.parentElement.style.height = parentHeight;
+          };
+
+          H5P.on(instance, 'resize', function () {
+            // Use a delay to make sure iframe is resized to the correct size.
+            clearTimeout(resizeDelay);
+            resizeDelay = setTimeout(function () {
+              resizeIframe();
+            }, 1);
+          });
+        }
+        else if (H5P.communicator) {
+          // External embed
+          var parentIsFriendly = false;
+
+          // Handle that the resizer is loaded after the iframe
+          H5P.communicator.on('ready', function () {
+            H5P.communicator.send('hello');
+          });
+
+          // Handle hello message from our parent window
+          H5P.communicator.on('hello', function () {
+            // Initial setup/handshake is done
+            parentIsFriendly = true;
+
+            // Make iframe responsive
+            document.body.style.height = 'auto';
+
+            // Hide scrollbars for correct size
+            document.body.style.overflow = 'hidden';
+
+            // Content need to be resized to fit the new iframe size
+            H5P.trigger(instance, 'resize');
+          });
+
+          // When resize has been prepared tell parent window to resize
+          H5P.communicator.on('resizePrepared', function () {
+            H5P.communicator.send('resize', {
+              scrollHeight: document.body.scrollHeight
+            });
+          });
+
+          H5P.communicator.on('resize', function () {
+            H5P.trigger(instance, 'resize');
+          });
+
+          H5P.on(instance, 'resize', function () {
+            if (H5P.isFullscreen) {
+              return; // Skip iframe resize
+            }
+
+            // Use a delay to make sure iframe is resized to the correct size.
+            clearTimeout(resizeDelay);
+            resizeDelay = setTimeout(function () {
+              // Only resize if the iframe can be resized
+              if (parentIsFriendly) {
+                H5P.communicator.send('prepareResize', {
+                  scrollHeight: document.body.scrollHeight,
+                  clientHeight: document.body.clientHeight
+                });
+              }
+              else {
+                H5P.communicator.send('hello');
+              }
+            }, 0);
+          });
+        }
+      }
+
+      if (!H5P.isFramed || H5P.externalEmbed === false) {
+        // Resize everything when window is resized.
+        H5P.jQuery(window.parent).resize(function () {
+          H5P.trigger(instance, 'resize');
+        });
+      }
+
+      H5P.instances.push(instance);
+
+      // Resize content.
+      H5P.trigger(instance, 'resize');
+
+      // Logic for hiding focus effects when using mouse
+      $element.addClass('using-mouse');
+      $element.on('mousedown keydown keyup', function (event) {
+        $element.toggleClass('using-mouse', event.type === 'mousedown');
+      });
+
+      if (H5P.externalDispatcher) {
+        H5P.externalDispatcher.trigger('initialized');
+      }
+    };
+
     H5P.getUserData(contentId, 'state', function (err, previousState) {
       if (previousState) {
         library.userDatas = {
@@ -131,242 +368,10 @@ H5P.init = function (target) {
         dialog.open();
       }
       // If previousState is false we don't have a previous state
+
+      // After loading state, complete initialization
+      completeInit();
     });
-
-    // Create new instance.
-    var instance = H5P.newRunnable(library, contentId, $container, true, {standalone: true});
-
-    H5P.offlineRequestQueue = new H5P.OfflineRequestQueue({instance: instance});
-
-    // Check if we should add and display a fullscreen button for this H5P.
-    if (contentData.fullScreen == 1 && H5P.fullscreenSupported) {
-      H5P.jQuery(
-        '<div class="h5p-content-controls">' +
-          '<div role="button" ' +
-                'tabindex="0" ' +
-                'class="h5p-enable-fullscreen" ' +
-                'aria-label="' + H5P.t('fullscreen') + '" ' +
-                'title="' + H5P.t('fullscreen') + '">' +
-          '</div>' +
-        '</div>')
-        .prependTo($container)
-          .children()
-          .click(function () {
-            H5P.fullScreen($container, instance);
-          })
-        .keydown(function (e) {
-          if (e.which === 32 || e.which === 13) {
-            H5P.fullScreen($container, instance);
-            return false;
-          }
-        })
-      ;
-    }
-
-    /**
-     * Create action bar
-     */
-    var displayOptions = contentData.displayOptions;
-    var displayFrame = false;
-    if (displayOptions.frame) {
-      // Special handling of copyrights
-      if (displayOptions.copyright) {
-        var copyrights = H5P.getCopyrights(instance, library.params, contentId, library.metadata);
-        if (!copyrights) {
-          displayOptions.copyright = false;
-        }
-      }
-
-      // Create action bar
-      var actionBar = new H5P.ActionBar(displayOptions);
-      var $actions = actionBar.getDOMElement();
-
-      actionBar.on('reuse', function () {
-        H5P.openReuseDialog($actions, contentData, library, instance, contentId);
-        instance.triggerXAPI('accessed-reuse');
-      });
-      actionBar.on('copyrights', function () {
-        var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container, $actions.find('.h5p-copyrights')[0]);
-        dialog.open(true);
-        instance.triggerXAPI('accessed-copyright');
-      });
-      actionBar.on('embed', function () {
-        H5P.openEmbedDialog($actions, contentData.embedCode, contentData.resizeCode, {
-          width: $element.width(),
-          height: $element.height()
-        }, instance);
-        instance.triggerXAPI('accessed-embed');
-      });
-
-      if (actionBar.hasActions()) {
-        displayFrame = true;
-        $actions.insertAfter($container);
-      }
-    }
-
-    $element.addClass(displayFrame ? 'h5p-frame' : 'h5p-no-frame');
-
-    // Keep track of when we started
-    H5P.opened[contentId] = new Date();
-
-    // Handle events when the user finishes the content. Useful for logging exercise results.
-    H5P.on(instance, 'finish', function (event) {
-      if (event.data !== undefined) {
-        H5P.setFinished(contentId, event.data.score, event.data.maxScore, event.data.time);
-      }
-    });
-
-    // Listen for xAPI events.
-    H5P.on(instance, 'xAPI', H5P.xAPICompletedListener);
-
-    // Auto save current state if supported
-    if (H5PIntegration.saveFreq !== false && (
-        instance.getCurrentState instanceof Function ||
-        typeof instance.getCurrentState === 'function')) {
-
-      var saveTimer, save = function () {
-        var state = instance.getCurrentState();
-        if (state !== undefined) {
-          H5P.setUserData(contentId, 'state', state, {deleteOnChange: true});
-        }
-        if (H5PIntegration.saveFreq) {
-          // Continue autosave
-          saveTimer = setTimeout(save, H5PIntegration.saveFreq * 1000);
-        }
-      };
-
-      if (H5PIntegration.saveFreq) {
-        // Start autosave
-        saveTimer = setTimeout(save, H5PIntegration.saveFreq * 1000);
-      }
-
-      // xAPI events will schedule a save in three seconds.
-      H5P.on(instance, 'xAPI', function (event) {
-        var verb = event.getVerb();
-        if (verb === 'completed' || verb === 'progressed') {
-          clearTimeout(saveTimer);
-          saveTimer = setTimeout(save, 3000);
-        }
-      });
-    }
-
-    if (H5P.isFramed) {
-      var resizeDelay;
-      if (H5P.externalEmbed === false) {
-        // Internal embed
-        // Make it possible to resize the iframe when the content changes size. This way we get no scrollbars.
-        var iframe = window.frameElement;
-        var resizeIframe = function () {
-          if (window.parent.H5P.isFullscreen) {
-            return; // Skip if full screen.
-          }
-
-          // Retain parent size to avoid jumping/scrolling
-          var parentHeight = iframe.parentElement.style.height;
-          iframe.parentElement.style.height = iframe.parentElement.clientHeight + 'px';
-
-          // Note:  Force layout reflow
-          //        This fixes a flickering bug for embedded content on iPads
-          //        @see https://github.com/h5p/h5p-moodle-plugin/issues/237
-          iframe.getBoundingClientRect();
-
-          // Reset iframe height, in case content has shrinked.
-          iframe.style.height = '1px';
-
-          // Resize iframe so all content is visible.
-          iframe.style.height = (iframe.contentDocument.body.scrollHeight) + 'px';
-
-          // Free parent
-          iframe.parentElement.style.height = parentHeight;
-        };
-
-        H5P.on(instance, 'resize', function () {
-          // Use a delay to make sure iframe is resized to the correct size.
-          clearTimeout(resizeDelay);
-          resizeDelay = setTimeout(function () {
-            resizeIframe();
-          }, 1);
-        });
-      }
-      else if (H5P.communicator) {
-        // External embed
-        var parentIsFriendly = false;
-
-        // Handle that the resizer is loaded after the iframe
-        H5P.communicator.on('ready', function () {
-          H5P.communicator.send('hello');
-        });
-
-        // Handle hello message from our parent window
-        H5P.communicator.on('hello', function () {
-          // Initial setup/handshake is done
-          parentIsFriendly = true;
-
-          // Make iframe responsive
-          document.body.style.height = 'auto';
-
-          // Hide scrollbars for correct size
-          document.body.style.overflow = 'hidden';
-
-          // Content need to be resized to fit the new iframe size
-          H5P.trigger(instance, 'resize');
-        });
-
-        // When resize has been prepared tell parent window to resize
-        H5P.communicator.on('resizePrepared', function () {
-          H5P.communicator.send('resize', {
-            scrollHeight: document.body.scrollHeight
-          });
-        });
-
-        H5P.communicator.on('resize', function () {
-          H5P.trigger(instance, 'resize');
-        });
-
-        H5P.on(instance, 'resize', function () {
-          if (H5P.isFullscreen) {
-            return; // Skip iframe resize
-          }
-
-          // Use a delay to make sure iframe is resized to the correct size.
-          clearTimeout(resizeDelay);
-          resizeDelay = setTimeout(function () {
-            // Only resize if the iframe can be resized
-            if (parentIsFriendly) {
-              H5P.communicator.send('prepareResize', {
-                scrollHeight: document.body.scrollHeight,
-                clientHeight: document.body.clientHeight
-              });
-            }
-            else {
-              H5P.communicator.send('hello');
-            }
-          }, 0);
-        });
-      }
-    }
-
-    if (!H5P.isFramed || H5P.externalEmbed === false) {
-      // Resize everything when window is resized.
-      H5P.jQuery(window.parent).resize(function () {
-        H5P.trigger(instance, 'resize');
-      });
-    }
-
-    H5P.instances.push(instance);
-
-    // Resize content.
-    H5P.trigger(instance, 'resize');
-
-    // Logic for hiding focus effects when using mouse
-    $element.addClass('using-mouse');
-    $element.on('mousedown keydown keyup', function (event) {
-      $element.toggleClass('using-mouse', event.type === 'mousedown');
-    });
-
-    if (H5P.externalDispatcher) {
-      H5P.externalDispatcher.trigger('initialized');
-    }
   });
 
   // Insert H5Ps that should be in iframes.
@@ -1040,7 +1045,7 @@ H5P.t = function (key, vars, ns) {
  * @param {H5P.jQuery} $element
  *   Which DOM element the dialog should be inserted after.
  * @param {H5P.jQuery} $returnElement
- *   Which DOM element the focus should be moved to on close   
+ *   Which DOM element the focus should be moved to on close
  */
 H5P.Dialog = function (name, title, content, $element, $returnElement) {
   /** @alias H5P.Dialog# */
@@ -1894,7 +1899,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
  * @param {string} source
  * @param {number} width
  * @param {number} height
- * @param {string} alt 
+ * @param {string} alt
  *  alternative text for the thumbnail
  */
 H5P.Thumbnail = function (source, width, height, alt) {
@@ -2716,7 +2721,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
         return path.substr(0, prefix.length) === prefix ? path : prefix + path;
       }
-      
+
       return path; // Will automatically be looked for in tmp folder
     });
 
