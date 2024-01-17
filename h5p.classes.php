@@ -2283,6 +2283,8 @@ class H5PCore {
         }
 
       }
+    } else {
+      return NULL;
     }
 
     $params = json_encode($params->params);
