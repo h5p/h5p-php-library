@@ -4311,6 +4311,9 @@ class H5PContentValidator {
         $stylePatterns[] = '/^height: *[0-9.]+(em|px|%|) *;?$/i';
         $stylePatterns[] = '/^float: *(right|left|none) *;?$/i';
 
+        // Needed for backwards compatibility
+        $stylePatterns[] = '/^border-collapse: *collapse *;?$/i';
+
         // Table can have background color when font bgcolor is disabled
         // Double entry of bgcolor in stylePatterns shouldn't matter
         $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
