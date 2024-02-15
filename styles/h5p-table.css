@@ -21,6 +21,7 @@
         padding: 1px;
         border-color:  #494949;
         border-bottom-style: solid;
+        min-width: 2em;
       }
 
       td {
