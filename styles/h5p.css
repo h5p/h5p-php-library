@@ -70,7 +70,7 @@ html.h5p-iframe .h5p-semi-fullscreen .h5p-content {
 }
 .h5p-container {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 .h5p-iframe-wrapper.h5p-fullscreen {
   background-color: #000;
