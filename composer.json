@@ -21,7 +21,8 @@
     ],
     "require": {
         "php": ">=8.2.0",
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+        "ext-zip": "*"
     },
     "autoload": {
         "files": [

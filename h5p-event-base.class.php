@@ -92,7 +92,7 @@ abstract class H5PEventBase
      *  Name of event type
      * @param string $sub_type
      *  Name of event sub type
-     * @return boolean
+     * @return bool
      */
     private static function validLogLevel($type, $sub_type)
     {
@@ -117,7 +117,7 @@ abstract class H5PEventBase
      *  Name of event type
      * @param string $sub_type
      *  Name of event sub type
-     * @return boolean
+     * @return bool
      */
     private static function validStats($type, $sub_type)
     {
@@ -138,7 +138,7 @@ abstract class H5PEventBase
      *  Name of event type
      * @param string $sub_type
      *  Name of event sub type
-     * @return boolean
+     * @return bool
      */
     private static function isAction($type, $sub_type)
     {
