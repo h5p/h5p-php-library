@@ -666,6 +666,13 @@ interface H5PFrameworkInterface {
    * @return bool True if successful
    */
   public function setContentHubMetadataChecked($time, $lang = 'en');
+
+  /**
+   * Callback for reset hub data
+   *
+   * @return void
+   */
+  public function resetHubOrganizationData();
 }
 
 /**
@@ -3982,6 +3989,12 @@ class H5PCore {
       return false;
     }
 
+    if ($accountInfo['status'] === 403) {
+      // Unauthenticated, cannot find site uuid
+      $this->h5pF->resetHubOrganizationData();
+      return false;
+    }
+
     if ($accountInfo['status'] !== 200) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Unable to retrieve HUB account information. Please contact support.'));
       return false;
@@ -4020,7 +4033,7 @@ class H5PCore {
     $headers  = [];
     $endpoint = H5PHubEndpoints::REGISTER;
     // Update if already registered
-    $hasRegistered = $this->h5pF->getOption('hub_secret');
+    $hasRegistered = $this->hubAccountInfo() ? true : false;
     if ($hasRegistered) {
       $endpoint            .= "/{$uuid}";
       $formData['_method'] = 'PUT';
@@ -4112,8 +4125,7 @@ class H5PCore {
       null, true, null, true, $headers);
 
     if (isset($response['status']) && $response['status'] === 403) {
-      $msg = $this->h5pF->t('The request for content status was unauthorized. This could be because the content belongs to a different account, or your account is not setup properly.');
-      $this->h5pF->setErrorMessage($msg);
+      $this->h5pF->resetHubOrganizationData();
       return false;
     }
     if (empty($response) || $response['status'] !== 200) {
