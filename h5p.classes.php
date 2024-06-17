@@ -3964,7 +3964,6 @@ class H5PCore {
     }
 
     if (empty($siteUuid) || empty($secret)) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Missing Site UUID or Hub Secret. Please check your Hub registration.'));
       return false;
     }
 
