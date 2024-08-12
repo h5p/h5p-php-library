@@ -1,0 +1,67 @@
+:root {
+  /* TODO: Set dynamically */
+
+  /* COLORS */
+  /* User picked */
+  --main-cta-base: #00509E;
+  --secondary-cta-base: #482776;
+  --alternative-base: #EEEFFA;
+  --background: #CFDAF1;
+
+  /* User generated */
+  --main-cta-light: #006AD1;
+  --main-cta-dark: #00366B;
+  --contrast-cta: #E0F1FF;
+  --contrast-cta-white: #00509E;
+  --contrast-cta-light: rgba(0, 80, 158, 0.1);
+
+  --secondary-cta-light: #60349D;
+  --secondary-cta-dark: #311B50;
+  --contrast-cta: #F3F1F5;
+
+  --alternative-light: #F7F8FD;
+  --alternative-dark: #E7E9F8;
+  --alternative-darker: #DFE1F6;
+
+  /* Fixed */
+  --text-primary: #101729;
+  --text-secondary: #354054;
+  --text-third: #737373;
+  --ui-base: #FFFFFF;
+  --stroke-1: #CDD1F6;
+  --stroke-2: #EDEEFB;
+
+  /* SPACING */
+  /* Small (default) */
+  --spacing-primary-small: 1rem;
+  --spacing-secondary-small: 0.5rem;
+
+  /* Medium */
+  --spacing-primary-medium: 2rem;
+  --spacing-secondary-medium: 1rem;
+
+  /* Large */
+  --spacing-primary-large: 3rem;
+  --spacing-secondary-large: 2rem;
+  --spacing-primary-large-small-screen: 2rem;
+}
+
+.h5p-content {
+  --spacing-primary: var(--spacing-primary-small);
+  --spacing-secondary: var(--spacing-secondary-small);
+}
+
+.h5p-content.h5p-medium {
+  --spacing-primary: var(--spacing-primary-medium);
+  --spacing-secondary: var(--spacing-secondary-medium);
+}
+
+.h5p-content.h5p-large {
+  --spacing-primary: var(--spacing-primary-large);
+  --spacing-secondary: var(--spacing-secondary-large);
+
+  /* Small screens */
+  @media (max-width: 576px) {
+    --spacing-primary: var(--spacing-primary-large-small-screen);
+  }
+}

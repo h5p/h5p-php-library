@@ -2078,6 +2078,8 @@ class H5PCore {
     'styles/h5p.css',
     'styles/h5p-confirmation-dialog.css',
     'styles/h5p-core-button.css',
+    'styles/h5p-theme.css',
+    'styles/h5p-theme-variables.css',
     'styles/h5p-tooltip.css',
   );
   public static $scripts = array(
