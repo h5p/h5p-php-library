@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+*{
+	font-family: "Inter", sans-serif !important;
+}
+@font-face {
+  font-family: 'h5p-theme';
+  src:  url('../fonts/h5p-theme-v1.1/fonts/h5p-theme.eot?h1atjl');
+  src:  url('../fonts/h5p-theme-v1.1/fonts/h5p-theme.eot?h1atjl#iefix') format('embedded-opentype'),
+    url('../fonts/h5p-theme-v1.1/fonts/h5p-theme.ttf?h1atjl') format('truetype'),
+    url('../fonts/h5p-theme-v1.1/fonts/h5p-theme.woff?h1atjl') format('woff'),
+    url('../fonts/h5p-theme-v1.1/fonts/h5p-theme.svg?h1atjl#h5p-core-30') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* input field */
+.theme-input{
+	background-color: var(--ui-base);
+	box-shadow: inset 0px 0px 4px 4px rgba(117, 128, 147, 0.10);
+	border-radius: var(--border-radius-medium);
+	border: 2px solid var(--stroke-1);
+	padding: var(--spacing-primary-small);
+}
+.theme-input:focus{
+	outline: none;
+    box-shadow:  0 0 0.5em 0 var(--focus);
+    border-color: var(--focus);
+}
+
+/* navigation */
+.theme-nav-button{
+	background-color: var(--secondary-cta-base) !important;
+	color: var(--contrast-cta) !important;
+	font-size: 1rem;
+	font-weight: bold;
+	border-radius: var(--border-radius-medium);
+	display: block;
+	padding: var(--spacing-secondary-small);
+}
+.theme-next:before{
+	padding-right: var(--spacing-secondary-small);
+}
+.theme-previous:before{
+	padding-left: var(--spacing-secondary-small);
+}
+
+/* primary cta */
+.theme-primary-cta{
+	background-color: var(--main-cta-base) !important;
+	color: var(--contrast-cta) !important;
+	border-radius: var(--border-radius-medium);
+	font-weight: bold;
+	padding: var(--spacing-primary-small);
+}

@@ -6,7 +6,7 @@
   --main-cta-base: #00509E;
   --secondary-cta-base: #482776;
   --alternative-base: #EEEFFA;
-  --background: #CFDAF1;
+  --background: #CFDAF1; /*#CFDAF1*/
 
   /* User generated */
   --main-cta-light: #006AD1;
@@ -30,6 +30,19 @@
   --ui-base: #FFFFFF;
   --stroke-1: #CDD1F6;
   --stroke-2: #EDEEFB;
+  --stroke-3: #E5E5E5;
+  --focus: #3b54a5;	
+	
+  --feedback-correct-main: #256D1D;
+  --feedback-correct-secondary: #f3fcf0;
+  --feedback-correct-third: #dbf5d0;
+	
+  --feedback-incorrect-main: #a13236;
+  --feedback-incorrect-secondary: #faf0f4;
+  --feedback-incorrect-third: #efcfdd;
+	
+  --border-radius-large: 0.5rem;
+  --border-radius-medium: 0.25rem;
 
   /* SPACING */
   /* Small (default) */
@@ -43,6 +56,7 @@
   /* Large */
   --spacing-primary-large: 3rem;
   --spacing-secondary-large: 2rem;
+  --spacing-third-large: 1rem;
   --spacing-primary-large-small-screen: 2rem;
 }
 

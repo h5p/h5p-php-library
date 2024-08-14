@@ -1,0 +1,39 @@
+@font-face {
+  font-family: 'h5p-theme';
+  src:  url('fonts/h5p-theme.eot?i89ek1');
+  src:  url('fonts/h5p-theme.eot?i89ek1#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?i89ek1') format('truetype'),
+    url('fonts/h5p-theme.woff?i89ek1') format('woff'),
+    url('fonts/h5p-theme.svg?i89ek1#h5p-theme') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'h5p-theme' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-previous:before {
+  content: "\e900";
+}
+.icon-next:before {
+  content: "\e901";
+}
+.icon-feedback-incorrect:before {
+  content: "\e902";
+}
+.icon-feedback-correct:before {
+  content: "\e903";
+}
