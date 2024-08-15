@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?i89ek1');
-  src:  url('fonts/h5p-theme.eot?i89ek1#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?i89ek1') format('truetype'),
-    url('fonts/h5p-theme.woff?i89ek1') format('woff'),
-    url('fonts/h5p-theme.svg?i89ek1#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?mjs0h1');
+  src:  url('fonts/h5p-theme.eot?mjs0h1#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?mjs0h1') format('truetype'),
+    url('fonts/h5p-theme.woff?mjs0h1') format('woff'),
+    url('fonts/h5p-theme.svg?mjs0h1#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -36,4 +36,13 @@
 }
 .icon-feedback-correct:before {
   content: "\e903";
+}
+.icon-report-icon:before {
+  content: "\e904";
+}
+.icon-show-solutiuons:before {
+  content: "\e905";
+}
+.icon-retry:before {
+  content: "\e906";
 }
