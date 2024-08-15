@@ -184,6 +184,9 @@ button.h5p-confirmation-dialog-exit:hover {
 
 @media (prefers-reduced-motion) {
   .h5p-confirmation-dialog-background {
+    -webkit-transition: none;
+    transition: none;
+
     .h5p-confirmation-dialog-popup {
       -webkit-transition: none;
       transition: none;

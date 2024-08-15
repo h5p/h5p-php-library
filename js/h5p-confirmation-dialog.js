@@ -53,12 +53,23 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     /**
-     * Flow focus to element
-     * @param {HTMLElement} element Next element to be focused
+     * Flow focus to button
+     * @param {number} index 0 to focus first button, -1 for last
      * @param {Event} e Original tab event
      */
-    function flowTo(element, e) {
-      element.focus();
+    function flowTo(index, e) {
+      if (index === 0) {
+        buttons.firstChild.focus();
+      }
+      else if (index === -1) {
+        if (!options.hideExit) {
+          exitButton.focus();
+        }
+        else {
+          buttons.lastChild.focus();
+        }
+      }
+
       e.preventDefault();
     }
 
@@ -125,81 +136,58 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     body.appendChild(buttons);
 
     // Cancel button
-    var cancelButton = document.createElement('button');
-    cancelButton.classList.add('h5p-core-cancel-button');
-    cancelButton.textContent = options.cancelText;
+    if (!options.hideCancel) {
+      var cancelButton = document.createElement('button');
+      cancelButton.classList.add('h5p-core-cancel-button');
+      cancelButton.textContent = options.cancelText;
+      cancelButton.addEventListener('click', dialogCanceled);
+      buttons.appendChild(cancelButton);
+    }
+    else {
+      // Center remaining buttons
+      buttons.classList.add('center');
+    }
 
     // Confirm button
     var confirmButton = document.createElement('button');
     confirmButton.classList.add('h5p-core-button');
     confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
     confirmButton.textContent = options.confirmText;
-
-    // Exit button
-    var exitButton = document.createElement('button');
-    exitButton.classList.add('h5p-confirmation-dialog-exit');
-    exitButton.tabIndex = -1;
-    exitButton.setAttribute('aria-label', options.cancelText);
-
-    // Cancel handler
-    cancelButton.addEventListener('click', dialogCanceled);
-    cancelButton.addEventListener('keydown', function (e) {
-      if (e.key === ' ') { // Space
-        dialogCanceled(e);
-      }
-      else if (e.key === 'Tab' && e.shiftKey) { // Shift-tab
-        const nextbutton = options.hideExit ? confirmButton : exitButton;
-        flowTo(nextbutton, e);
-      }
-    });
-
-    if (!options.hideCancel) {
-      buttons.appendChild(cancelButton);
-    }
-    else {
-      // Center buttons
-      buttons.classList.add('center');
-    }
-
-    // Confirm handler
     confirmButton.addEventListener('click', dialogConfirmed);
-    confirmButton.addEventListener('keydown', function (e) {
-      if (e.key === ' ') { // Space
-        dialogConfirmed(e);
-      }
-      else if (e.key === 'Tab' && !e.shiftKey) { // Tab        
-        let nextButton = confirmButton;
-        if (!options.hideExit) {
-          nextButton = exitButton;
-        }
-        else if (!options.hideCancel) {
-          nextButton = cancelButton;
-        }
-        flowTo(nextButton, e);
-      }
-    });
     buttons.appendChild(confirmButton);
 
-    // Exit handler
-    exitButton.addEventListener('click', dialogCanceled);
-    exitButton.addEventListener('keydown', function (e) {
-      if (e.key === ' ') { // Space
-        dialogCanceled(e);
-      }
-      else if (e.key === 'Tab' && !e.shiftKey) { // Tab        
-        const nextButton = options.hideCancel ? confirmButton : cancelButton;
-        flowTo(nextButton, e);
-      }
-    });
+    // Exit button
     if (!options.hideExit) {
+      var exitButton = document.createElement('button');
+      exitButton.classList.add('h5p-confirmation-dialog-exit');
+      exitButton.setAttribute('aria-label', options.cancelText);
+      exitButton.addEventListener('click', dialogCanceled);
+      exitButton.addEventListener('keydown', (event) => {
+        // Forwards tab
+        if (event.key === 'Tab' && !event.shiftKey) {
+          flowTo(0, event);
+        }
+      });
       popup.appendChild(exitButton);
     }
+    else {
+      // Last child should set focus on first (forwards tab)
+      buttons.lastChild.addEventListener('keydown', (event) => {
+        if (event.key === 'Tab' && !event.shiftKey) {
+          flowTo(0, event);
+        }
+      });
+    }
+
+    // First child should set focus on last (backwards tab)
+    buttons.firstChild.addEventListener('keydown', (event) => {
+      if (event.key === 'Tab' && event.shiftKey) {
+        flowTo(-1, event);
+      }
+    });
 
     // Wrapper element
     var wrapperElement;
-
-    // Focus capturing
-    var focusPredator;
 
     // Maintains hidden state of elements
     var wrapperSiblingsHidden = [];
@@ -216,16 +204,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     this.appendTo = function (wrapper) {
       wrapperElement = wrapper;
       return this;
-    };
-
-    /**
-     * Capture the focus element, send it to confirmation button
-     * @param {Event} e Original focus event
-     */
-    var captureFocus = function (e) {
-      if (!popupBackground.contains(e.target)) {
-        e.preventDefault();
-      }
     };
 
     /**
@@ -274,22 +252,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
           }
         }
       }
-    };
-
-    /**
-     * Start capturing focus of parent and send it to dialog
-     */
-    var startCapturingFocus = function () {
-      focusPredator = wrapperElement.parentNode || wrapperElement;
-      focusPredator.addEventListener('focus', captureFocus, true);
-    };
-
-    /**
-     * Clean up event listener for capturing focus
-     */
-    var stopCapturingFocus = function () {
-      focusPredator.removeAttribute('aria-hidden');
-      focusPredator.removeEventListener('focus', captureFocus, true);
     };
 
     /**
@@ -345,7 +307,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       // Capture focused item
       previouslyFocused = document.activeElement;
       wrapperElement.appendChild(popupBackground);
-      startCapturingFocus();
       popupBackground.classList.remove('hidden');
       fitToContainer(offsetTop);
       popup.classList.remove('hidden');
@@ -377,7 +338,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       popup.classList.add('hidden');
 
       // Restore focus
-      stopCapturingFocus();
       if (!options.skipRestoreFocus) {
         previouslyFocused.focus();
       }
