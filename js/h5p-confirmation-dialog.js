@@ -244,7 +244,12 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
           true : false;
 
         if (siblings[i] !== element) {
-          siblings[i].setAttribute('aria-hidden', true);
+          if (siblings[i].getAttribute('aria-live')) {
+            siblings[i].setAttribute('aria-busy', true);
+          }
+          else {
+            siblings[i].setAttribute('aria-hidden', true);
+          }
         }
       }
       return hiddenSiblings;
@@ -261,7 +266,12 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       var i;
       for (i = 0; i < siblings.length; i += 1) {
         if (siblings[i] !== element && !hiddenSiblings[i]) {
-          siblings[i].removeAttribute('aria-hidden');
+          if (siblings[i].getAttribute('aria-live')) {
+            siblings[i].setAttribute('aria-busy', false);
+          }
+          else {
+            siblings[i].removeAttribute('aria-hidden');
+          }
         }
       }
     };
@@ -336,27 +346,23 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       previouslyFocused = document.activeElement;
       wrapperElement.appendChild(popupBackground);
       startCapturingFocus();
-      disableUnderlay();
       popupBackground.classList.remove('hidden');
       fitToContainer(offsetTop);
-      setTimeout(function () {
-        popup.classList.remove('hidden');
-        popupBackground.classList.remove('hiding');
+      popup.classList.remove('hidden');
+      popupBackground.classList.remove('hiding');
 
-        setTimeout(function () {
-          // Focus confirm button
-          cancelButton.focus();
+      // Focus cancel button
+      cancelButton.focus();
+      disableUnderlay();
 
-          // Resize iFrame if necessary
-          if (resizeIFrame && options.instance) {
-            var minHeight = parseInt(popup.offsetHeight, 10) +
-              exitButtonOffset + (2 * shadowOffset);
-            self.setViewPortMinimumHeight(minHeight);
-            options.instance.trigger('resize');
-            resizeIFrame = false;
-          }
-        }, 100);
-      }, 0);
+      // Resize iFrame if necessary
+      if (resizeIFrame && options.instance) {
+        var minHeight = parseInt(popup.offsetHeight, 10) +
+          exitButtonOffset + (2 * shadowOffset);
+        self.setViewPortMinimumHeight(minHeight);
+        options.instance.trigger('resize');
+        resizeIFrame = false;
+      }
 
       return this;
     };
@@ -366,6 +372,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * @returns {H5P.ConfirmationDialog}
      */
     this.hide = function () {
+      restoreUnderlay();
       popupBackground.classList.add('hiding');
       popup.classList.add('hidden');
 
@@ -374,12 +381,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       if (!options.skipRestoreFocus) {
         previouslyFocused.focus();
       }
-      restoreUnderlay();
-      setTimeout(function () {
-        popupBackground.classList.add('hidden');
-        wrapperElement.removeChild(popupBackground);
-        self.setViewPortMinimumHeight(null);
-      }, 100);
+      popupBackground.classList.add('hidden');
+      wrapperElement.removeChild(popupBackground);
+      self.setViewPortMinimumHeight(null);
 
       return this;
     };
