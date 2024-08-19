@@ -47,8 +47,8 @@
   --border-radius-small: 0.25rem;
 	
   --font-size-large: 1.125rem;	
-	--font-size-medium: 1rem;
-	--font-size-small: 0.85rem;
+  --font-size-medium: 1rem;
+  --font-size-small: 0.85rem;
 
   /* SPACING */
   /* Small (default) */
@@ -64,6 +64,7 @@
   --spacing-fourth-medium: 0.25rem;
 
   /* Large */
+	
   --spacing-primary-large: 2rem;
   --spacing-secondary-large: 1.5rem;
   --spacing-third-large: 1rem;
@@ -72,28 +73,28 @@
 }
 
 .h5p-content {
-  --spacing-primary: var(--spacing-primary-small);
-  --spacing-secondary: var(--spacing-secondary-small);
-  --spacing-third: var(--spacing-third-small);
-  --spacing-fourth: var(--spacing-fourth-small);
+  --spacing-l: var(--spacing-primary-small);
+  --spacing-m: var(--spacing-secondary-small);
+  --spacing-s: var(--spacing-third-small);
+  --spacing-xs: var(--spacing-fourth-small);
 }
 
 .h5p-content.h5p-medium {
-  --spacing-primary: var(--spacing-primary-medium);
-  --spacing-secondary: var(--spacing-secondary-medium);
-  --spacing-third: var(--spacing-third-medium);
-  --spacing-fourth: var(--spacing-fourth-medium);
+  --spacing-l: var(--spacing-primary-medium);
+  --spacing-m: var(--spacing-secondary-medium);
+  --spacing-s: var(--spacing-third-medium);
+  --spacing-xs: var(--spacing-fourth-medium);
 }
 
 .h5p-content.h5p-large {
-  --spacing-primary: var(--spacing-primary-large);
-  --spacing-secondary: var(--spacing-secondary-large);
-  --spacing-third: var(--spacing-third-large);
-  --spacing-fourth: var(--spacing-fourth-large);
+  --spacing-l: var(--spacing-primary-large);
+  --spacing-m: var(--spacing-secondary-large);
+  --spacing-s: var(--spacing-third-large);
+  --spacing-xs: var(--spacing-fourth-large);
 	
 
   /* Small screens */
   @media (max-width: 576px) {
-    --spacing-primary: var(--spacing-primary-large-small-screen);
+    --spacing-l: var(--spacing-primary-large-small-screen);
   }
 }

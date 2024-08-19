@@ -18,7 +18,7 @@
   display: flex;
   background-color: var(--main-cta-base);
   color: var(--contrast-cta);
-  padding: var(--spacing-primary);
+  padding: var(--spacing-l);
 }
 
 .h5p-theme-pattern {
@@ -40,7 +40,7 @@
   box-shadow: inset 0px 0px 4px 4px rgba(117, 128, 147, 0.10);
   border-radius: var(--border-radius-medium);
   border: 2px solid var(--stroke-1);
-  padding: var(--spacing-third) var(--spacing-secondary);
+  padding: var(--spacing-s) var(--spacing-m);
   color: var(--text-primary);
 }
 
@@ -63,7 +63,7 @@
   font-weight: bold;
   border-radius: var(--border-radius-medium);
   display: inline-block;
-   padding: var(--spacing-fourth) var(--spacing-third);
+   padding: var(--spacing-xs) var(--spacing-s);
   border: none;
 	transition: all 0.1s linear 0s;
 }
@@ -77,11 +77,11 @@
 }
 
 .h5p-theme-next:before {
-  padding-right: var(--spacing-third);
+  padding-right: var(--spacing-s);
 }
 
 .h5p-theme-previous:before {
-  padding-left: var(--spacing-third);
+  padding-left: var(--spacing-s);
 }
 
 .h5p-theme-label {
@@ -94,10 +94,10 @@
   color: var(--contrast-cta) !important;
   border-radius: var(--border-radius-medium);
   font-weight: bold;
-  padding: var(--spacing-third) var(--spacing-secondary);
+  padding: var(--spacing-s) var(--spacing-m);
   cursor: pointer;
   font-size: var(--font-size-large);
-  transition: all 0.2s linear 0s;
+  transition: all 0.1s linear 0s;
   transition-property: text-indent, padding;
 }
 
@@ -109,6 +109,10 @@
   background-color: var(--main-cta-dark) !important;
 }
 
+.h5p-theme-primary-cta .reduced{
+		
+}
+
 button.h5p-theme-primary-cta.h5p-theme-check:before {
 	display: inline-block;
   position: absolute;
@@ -117,13 +121,13 @@ button.h5p-theme-primary-cta.h5p-theme-check:before {
   text-indent: -30px;
 	opacity: 0;
   transform: translate(10px, 10px);
-	transition: all 0.2s linear 0s;
+	transition: all 0.1s linear 0s;
   transition-property: transform, opacity;
 }
 
 button.h5p-theme-primary-cta.h5p-theme-check:hover {
 	text-indent: 20px;
-  padding: var(--spacing-third) calc(var(--spacing-secondary) - 10px);
+  padding: var(--spacing-s) calc(var(--spacing-m) - 10px);
 }
 
 button.h5p-theme-primary-cta.h5p-theme-check:hover:before {
@@ -133,12 +137,12 @@ button.h5p-theme-primary-cta.h5p-theme-check:hover:before {
 
 /* SECONDARY CTA (USED FOR SHOW SOLTUIONS, RETRY AND SIMILAR BUTTONS) */
 .h5p-theme-secondary-cta {
-  background-color: var(--base-ui) !important;
+  background-color: var(--ui-base) !important;
   color: var(--main-cta-base) !important;
   border-radius: var(--border-radius-medium);
   font-weight: bold;
   border: solid 2px var(--main-cta-base) !important;
-  padding: var(--spacing-third) var(--spacing-secondary);
+  padding: var(--spacing-s) var(--spacing-m);
   font-size: var(--font-size-large);
   display: inline-block;
 	transition: all 0.1s linear 0s;
