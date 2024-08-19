@@ -46,25 +46,28 @@
   --border-radius-medium: 0.375rem;
   --border-radius-small: 0.25rem;
 	
+  --font-size-xlarge: 1.25rem;	
   --font-size-large: 1.125rem;	
   --font-size-medium: 1rem;
   --font-size-small: 0.85rem;
 
   /* SPACING */
   /* Small (default) */
+  --spacing-xl-primary-small: 1.5rem;
   --spacing-primary-small: 1rem;
   --spacing-secondary-small: 0.85rem;
   --spacing-third-small: 0.5rem;
   --spacing-fourth-small: 0.65rem;
 
   /* Medium */
+  --spacing-xl-primary-medium: 2rem;
   --spacing-primary-medium: 1.5rem;
   --spacing-secondary-medium: 1rem;
   --spacing-third-medium: 0.5rem;
   --spacing-fourth-medium: 0.25rem;
 
   /* Large */
-	
+  --spacing-xl-primary-large: 3rem;
   --spacing-primary-large: 2rem;
   --spacing-secondary-large: 1.5rem;
   --spacing-third-large: 1rem;
@@ -73,6 +76,7 @@
 }
 
 .h5p-content {
+  --spacing-xl: var(--spacing-xl-primary-small);
   --spacing-l: var(--spacing-primary-small);
   --spacing-m: var(--spacing-secondary-small);
   --spacing-s: var(--spacing-third-small);
@@ -80,6 +84,7 @@
 }
 
 .h5p-content.h5p-medium {
+  --spacing-xl: var(--spacing-xl-primary-medium);
   --spacing-l: var(--spacing-primary-medium);
   --spacing-m: var(--spacing-secondary-medium);
   --spacing-s: var(--spacing-third-medium);
@@ -87,6 +92,7 @@
 }
 
 .h5p-content.h5p-large {
+  --spacing-xl: var(--spacing-xl-primary-large);
   --spacing-l: var(--spacing-primary-large);
   --spacing-m: var(--spacing-secondary-large);
   --spacing-s: var(--spacing-third-large);

@@ -1,9 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
 * {
   font-family: var(--font-name) !important;
 }
-
 @font-face {
   font-family: 'h5p-theme';
   src: url('../fonts/h5p-theme-v1.1/fonts/h5p-theme.eot?h1atjl');
@@ -11,16 +9,14 @@
   font-weight: normal;
   font-style: normal;
 }
-
 /* PATTERN (used in bacgrounds of certain elements like results/summary screens, welcome screen, feedback section etc. */
 .h5p-theme-results-banner {
   position: relative;
   display: flex;
   background-color: var(--main-cta-base);
   color: var(--contrast-cta);
-  padding: var(--spacing-l);
+  padding: var(--spacing-xl);
 }
-
 .h5p-theme-pattern {
   position: absolute;
   width: 100%;
@@ -33,7 +29,6 @@
   background-size: 30%;
   background-repeat: repeat;
 }
-
 /* INPUT FIELD */
 .h5p-theme-input {
   background-color: var(--ui-base);
@@ -43,18 +38,15 @@
   padding: var(--spacing-s) var(--spacing-m);
   color: var(--text-primary);
 }
-
 .h5p-theme-input::placeholder {
   color: var(--text-third);
   opacity: 1; /* Firefox */
 }
-
 .h5p-theme-input:focus {
   outline: none;
   box-shadow: 0 0 0.5em 0 var(--focus);
   border-color: var(--focus);
 }
-
 /* NAVIGATION BUTTONS */
 .h5p-theme-nav-button {
   background-color: var(--secondary-cta-base) !important;
@@ -63,76 +55,70 @@
   font-weight: bold;
   border-radius: var(--border-radius-medium);
   display: inline-block;
-   padding: var(--spacing-xs) var(--spacing-s);
+  padding: var(--spacing-xs) var(--spacing-s);
   border: none;
-	transition: all 0.1s linear 0s;
+  transition: all 0.1s linear 0s;
 }
-
 .h5p-theme-nav-button:hover {
   background-color: var(--secondary-cta-light) !important;
 }
-
 .h5p-theme-nav-button:active {
   background-color: var(--secondary-cta-dark) !important;
 }
-
 .h5p-theme-next:before {
   padding-right: var(--spacing-s);
 }
-
 .h5p-theme-previous:before {
   padding-left: var(--spacing-s);
 }
-
 .h5p-theme-label {
   display: inline-block;
 }
-
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
 .h5p-theme-primary-cta {
   background-color: var(--main-cta-base) !important;
   color: var(--contrast-cta) !important;
   border-radius: var(--border-radius-medium);
   font-weight: bold;
-  padding: var(--spacing-s) var(--spacing-m);
+  padding: var(--spacing-s) var(--spacing-l);
   cursor: pointer;
-  font-size: var(--font-size-large);
+  font-size: var(--font-size-xlarge);
   transition: all 0.1s linear 0s;
   transition-property: text-indent, padding;
 }
-
 .h5p-theme-primary-cta:hover {
   background-color: var(--main-cta-light) !important;
 }
-
 .h5p-theme-primary-cta:active {
   background-color: var(--main-cta-dark) !important;
 }
-
-.h5p-theme-primary-cta .reduced{
-		
-}
-
-button.h5p-theme-primary-cta.h5p-theme-check:before {
-	display: inline-block;
+.h5p-theme-primary-cta:before {
+  display: inline-block;
   position: absolute;
-  content: "\e908";
   font-family: 'h5p-theme';
   text-indent: -30px;
-	opacity: 0;
+  opacity: 0;
   transform: translate(10px, 10px);
-	transition: all 0.1s linear 0s;
+  transition: all 0.1s linear 0s;
   transition-property: transform, opacity;
+  font-weight: normal;
 }
-
-button.h5p-theme-primary-cta.h5p-theme-check:hover {
-	text-indent: 20px;
+.h5p-theme-primary-cta:hover {
+  text-indent: 20px;
   padding: var(--spacing-s) calc(var(--spacing-m) - 10px);
 }
-
-button.h5p-theme-primary-cta.h5p-theme-check:hover:before {
-	opacity: 1;
+.h5p-theme-primary-cta:hover:before {
+  opacity: 1;
   transform: translate(0, 0);
+}
+.h5p-theme-primary-cta.h5p-theme-check:before {
+  content: "\e908";
+}
+.h5p-theme-primary-cta.h5p-theme-book:before {
+  content: "\e909";
+}
+.h5p-theme-primary-cta.h5p-theme-flip:before {
+  content: "\e907";
 }
 
 /* SECONDARY CTA (USED FOR SHOW SOLTUIONS, RETRY AND SIMILAR BUTTONS) */
@@ -145,22 +131,19 @@ button.h5p-theme-primary-cta.h5p-theme-check:hover:before {
   padding: var(--spacing-s) var(--spacing-m);
   font-size: var(--font-size-large);
   display: inline-block;
-	transition: all 0.1s linear 0s;
+  transition: all 0.1s linear 0s;
 }
-
 .h5p-theme-secondary-cta:hover {
   background-color: var(--main-cta-light) !important;
-  border-color:  var(--main-cta-light) !important;
+  border-color: var(--main-cta-light) !important;
   color: var(--contrast-cta) !important;
   cursor: pointer;
 }
-
 .h5p-theme-secondary-cta:active {
   background-color: var(--main-cta-dark) !important;
-  border-color:  var(--main-cta-dark) !important;
+  border-color: var(--main-cta-dark) !important;
   color: var(--contrast-cta) !important;
 }
-
 /* USED FOR QUESTION DESCRIPTIONS */
 .h5p-theme-question-description {
   font-size: 1.25rem;
