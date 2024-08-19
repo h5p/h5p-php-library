@@ -92,6 +92,7 @@ H5P.init = function (target) {
   // H5Ps added in normal DIV.
   H5P.jQuery('.h5p-content:not(.h5p-initialized)', target).each(function () {
     var $element = H5P.jQuery(this).addClass('h5p-initialized');
+	$element.addClass('h5p-large'); // TODO: remove
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
     var contentData = H5PIntegration.contents['cid-' + contentId];
