@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?mjs0h1');
-  src:  url('fonts/h5p-theme.eot?mjs0h1#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?mjs0h1') format('truetype'),
-    url('fonts/h5p-theme.woff?mjs0h1') format('woff'),
-    url('fonts/h5p-theme.svg?mjs0h1#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?jlwo7r');
+  src:  url('fonts/h5p-theme.eot?jlwo7r#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?jlwo7r') format('truetype'),
+    url('fonts/h5p-theme.woff?jlwo7r') format('woff'),
+    url('fonts/h5p-theme.svg?jlwo7r#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -45,4 +45,13 @@
 }
 .icon-retry:before {
   content: "\e906";
+}
+.icon-flip:before {
+  content: "\e907";
+}
+.icon-check-circle:before {
+  content: "\e908";
+}
+.icon-book:before {
+  content: "\e909";
 }
