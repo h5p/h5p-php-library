@@ -105,7 +105,7 @@
 }
 .h5p-theme-primary-cta:hover {
   text-indent: 20px;
-  padding: var(--spacing-s) calc(var(--spacing-m) - 10px);
+  padding: var(--spacing-s) calc(var(--spacing-l) - 10px);
 }
 .h5p-theme-primary-cta:hover:before {
   opacity: 1;
