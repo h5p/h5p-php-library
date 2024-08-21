@@ -26,7 +26,7 @@
   background-color: var(--main-cta-light);
   -webkit-mask-image: url(./../images/pattern.svg);
   mask-image: url(./../images/pattern.svg);
-  background-size: 30%;
+  mask-size: 30%;
   background-repeat: repeat;
 }
 /* INPUT FIELD */
@@ -35,7 +35,7 @@
   box-shadow: inset 0px 0px 4px 4px rgba(117, 128, 147, 0.10);
   border-radius: var(--border-radius-medium);
   border: 2px solid var(--stroke-1);
-  padding: var(--spacing-s) var(--spacing-m);
+  padding: var(--spacing-xs) var(--spacing-xs);
   color: var(--text-primary);
 }
 .h5p-theme-input::placeholder {
@@ -76,8 +76,8 @@
 }
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
 .h5p-theme-primary-cta {
-  background-color: var(--main-cta-base) !important;
-  color: var(--contrast-cta) !important;
+  background-color: var(--main-cta-base);
+  color: var(--contrast-cta);
   border-radius: var(--border-radius-medium);
   font-weight: bold;
   padding: var(--spacing-s) var(--spacing-l);
@@ -87,10 +87,12 @@
   transition-property: text-indent, padding;
 }
 .h5p-theme-primary-cta:hover {
-  background-color: var(--main-cta-light) !important;
+  background-color: var(--main-cta-light);
+  text-indent: 20px;
+  padding: var(--spacing-s) calc(var(--spacing-l) - 10px);
 }
 .h5p-theme-primary-cta:active {
-  background-color: var(--main-cta-dark) !important;
+  background-color: var(--main-cta-dark);
 }
 .h5p-theme-primary-cta:before {
   display: inline-block;
@@ -102,10 +104,6 @@
   transition: all 0.1s linear 0s;
   transition-property: transform, opacity;
   font-weight: normal;
-}
-.h5p-theme-primary-cta:hover {
-  text-indent: 20px;
-  padding: var(--spacing-s) calc(var(--spacing-l) - 10px);
 }
 .h5p-theme-primary-cta:hover:before {
   opacity: 1;
@@ -119,6 +117,29 @@
 }
 .h5p-theme-primary-cta.h5p-theme-flip:before {
   content: "\e907";
+}
+
+/* If the container is smaller than 280px */
+@container (max-width: 280px) {
+  .h5p-theme-primary-cta:hover {
+    text-indent: 0;
+    padding: var(--spacing-s) var(--spacing-l);
+  }
+
+  .h5p-theme-primary-cta span {
+    display: none;
+  }
+
+  .h5p-theme-primary-cta:before {
+    position: unset;
+    width: 100%;
+    opacity: 1;
+    transform: translate(var(--spacing-s), 0);
+  }
+
+  .h5p-theme-primary-cta:hover:before {
+    transform: translate(var(--spacing-s), 0);
+  }
 }
 
 /* SECONDARY CTA (USED FOR SHOW SOLTUIONS, RETRY AND SIMILAR BUTTONS) */
