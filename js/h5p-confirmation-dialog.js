@@ -70,7 +70,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         }
       }
 
-      e.preventDefault();
+      e?.preventDefault();
     }
 
     // Offset of exit button
@@ -152,8 +152,11 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     var confirmButton = document.createElement('button');
     confirmButton.classList.add('h5p-core-button');
     confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
-    confirmButton.textContent = options.confirmText;
+    confirmButton.setAttribute('aria-label', options.confirmText);
     confirmButton.addEventListener('click', dialogConfirmed);
+    const confirmText = document.createElement('span');
+    confirmText.textContent = options.confirmText;
+    confirmButton.appendChild(confirmText);
     buttons.appendChild(confirmButton);
 
     // Exit button
@@ -189,6 +192,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Wrapper element
     var wrapperElement;
 
+    // Focus capturing
+    var focusPredator;
+
     // Maintains hidden state of elements
     var wrapperSiblingsHidden = [];
     var popupSiblingsHidden = [];
@@ -204,6 +210,32 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     this.appendTo = function (wrapper) {
       wrapperElement = wrapper;
       return this;
+    };
+
+    /**
+     * Capture the focus element, send it to confirmation button
+     * @param {Event} e Original focus event
+     */
+    var captureFocus = function (e) {
+      if (!popupBackground.contains(e.target)) {
+        e.preventDefault();
+        flowTo(0);
+      }
+    };
+
+    /**
+     * Start capturing focus of parent and send it to dialog
+     */
+    var startCapturingFocus = function () {
+      focusPredator = wrapperElement.parentNode || wrapperElement;
+      focusPredator.addEventListener('focus', captureFocus, true);
+    };
+
+    /**
+     * Clean up event listener for capturing focus
+     */
+    var stopCapturingFocus = function () {
+      focusPredator.removeEventListener('focus', captureFocus, true);
     };
 
     /**
@@ -307,13 +339,14 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       // Capture focused item
       previouslyFocused = document.activeElement;
       wrapperElement.appendChild(popupBackground);
+      startCapturingFocus();
       popupBackground.classList.remove('hidden');
       fitToContainer(offsetTop);
       popup.classList.remove('hidden');
       popupBackground.classList.remove('hiding');
 
-      // Focus cancel button
-      cancelButton.focus();
+      // Focus first button
+      flowTo(0);
       disableUnderlay();
 
       // Resize iFrame if necessary
@@ -338,6 +371,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       popup.classList.add('hidden');
 
       // Restore focus
+      stopCapturingFocus();
       if (!options.skipRestoreFocus) {
         previouslyFocused.focus();
       }

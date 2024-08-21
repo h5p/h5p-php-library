@@ -107,6 +107,14 @@ button.h5p-confirmation-dialog-exit:hover {
 }
 
 .h5p-core-button.h5p-confirmation-dialog-confirm-button {
+  @media screen and (max-width: 576px) {
+    padding-left: 1.5rem;
+
+    span {
+      display: none;
+    }
+  }
+
   padding-left: 0.75em;
   margin-bottom: 0;
 }
