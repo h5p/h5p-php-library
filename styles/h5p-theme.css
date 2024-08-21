@@ -51,7 +51,7 @@
 .h5p-theme-nav-button {
   background-color: var(--secondary-cta-base) !important;
   color: var(--contrast-cta) !important;
-  font-size: var(--font-size-medium);
+  font-size: var(--font-size-m);
   font-weight: bold;
   border-radius: var(--border-radius-medium);
   display: inline-block;
@@ -82,7 +82,7 @@
   font-weight: bold;
   padding: var(--spacing-s) var(--spacing-l);
   cursor: pointer;
-  font-size: var(--font-size-xlarge);
+  font-size: var(--font-size-xl);
   transition: all 0.1s linear 0s;
   transition-property: text-indent, padding;
 }
@@ -146,7 +146,16 @@
 }
 /* USED FOR QUESTION DESCRIPTIONS */
 .h5p-theme-question-description {
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl-large);
   color: var(--text-primary);
   font-weight: 600;
+}
+/* PAGE COUNTER */
+.h5p-flashcards .h5p-progress {
+  display: table;
+  padding:  var(--spacing-xs)  var(--spacing-s);
+  color: var(--main-cta-base);
+  font-weight: bold;
+  background-color: var(--contrast-cta);
+  border-radius: var(--border-radius-large);
 }

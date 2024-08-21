@@ -45,26 +45,51 @@
   --border-radius-large: 0.5rem;
   --border-radius-medium: 0.375rem;
   --border-radius-small: 0.25rem;
-	
-  --font-size-xlarge: 1.25rem;	
-  --font-size-large: 1.125rem;	
-  --font-size-medium: 1rem;
-  --font-size-small: 0.85rem;
 
   /* SPACING */
   /* Small (default) */
-  --spacing-xl-primary-small: 1.5rem;
+/*  --spacing-xl-primary-small: 1.5rem;
   --spacing-primary-small: 1rem;
   --spacing-secondary-small: 0.85rem;
   --spacing-third-small: 0.5rem;
   --spacing-fourth-small: 0.65rem;
+  --font-size-xl-small: 1rem;	
+  --font-size-l-small: 0.85rem;	
+  --font-size-m-small: 0.75rem;
+  --font-size-s-small: 0.65rem;
 
   /* Medium */
-  --spacing-xl-primary-medium: 2rem;
+ /* --spacing-xl-primary-medium: 2rem;
   --spacing-primary-medium: 1.5rem;
   --spacing-secondary-medium: 1rem;
   --spacing-third-medium: 0.5rem;
   --spacing-fourth-medium: 0.25rem;
+  --font-size-xl-medium: 1.1rem;	
+  --font-size-l-medium: 1rem;	
+  --font-size-m-medium: 0.85rem;
+  --font-size-s-medium: 0.75rem;
+  
+   /* Small (default) */
+  --spacing-xl-primary-small: calc(var(--spacing-xl-primary-medium)*0.8);
+  --spacing-primary-small: calc(var(--spacing-primary-medium)*0.8);
+  --spacing-secondary-small: calc(var(--spacing-secondary-medium)*0.8);
+  --spacing-third-small: calc(var(--spacing-third-medium)*0.8);
+  --spacing-fourth-small: calc(var(--spacing-fourth-medium)*0.8);
+  --font-size-xl-small: calc(var(--font-size-xl-medium)*0.8);
+  --font-size-l-small: calc(var(--font-size-l-medium)*0.8);
+  --font-size-m-small: calc(var(--font-size-m-medium)*0.8);
+  --font-size-s-small: calc(var(--font-size-s-medium)*0.8);
+
+  /* Medium */
+  --spacing-xl-primary-medium: calc(var(--spacing-xl-primary-large)*0.8);
+  --spacing-primary-medium: calc(var(--spacing-primary-large)*0.8);
+  --spacing-secondary-medium: calc(var(--spacing-secondary-large)*0.8);
+  --spacing-third-medium: calc(var(--spacing-third-large)*0.8);
+  --spacing-fourth-medium: calc(var(--spacing-fourth-large)*0.8);
+  --font-size-xl-medium: calc(var(--font-size-xl-large)*0.8);
+  --font-size-l-medium: calc(var(--font-size-l-large)*0.8);
+  --font-size-m-medium: calc(var(--font-size-m-large)*0.8);
+  --font-size-s-medium: calc(var(--font-size-s-large)*0.8);
 
   /* Large */
   --spacing-xl-primary-large: 3rem;
@@ -73,6 +98,10 @@
   --spacing-third-large: 1rem;
   --spacing-fourth-large: 0.65rem;
   --spacing-primary-large-small-screen: 2rem;
+  --font-size-xl-large: 1.25rem;	
+  --font-size-l-large: 1.125rem;	
+  --font-size-m-large: 1rem;
+  --font-size-s-large: 0.85rem;
 }
 
 .h5p-content {
@@ -81,6 +110,10 @@
   --spacing-m: var(--spacing-secondary-small);
   --spacing-s: var(--spacing-third-small);
   --spacing-xs: var(--spacing-fourth-small);
+  --font-size-xl: var(--font-size-xl-small);
+  --font-size-l: var(--font-size-l-small);	
+  --font-size-m: var(--font-size-m-small);	
+  --font-size-s: var(--font-size-s-small);	
 }
 
 .h5p-content.h5p-medium {
@@ -89,6 +122,10 @@
   --spacing-m: var(--spacing-secondary-medium);
   --spacing-s: var(--spacing-third-medium);
   --spacing-xs: var(--spacing-fourth-medium);
+  --font-size-xl: var(--font-size-xl-medium);
+  --font-size-l: var(--font-size-l-medium);	
+  --font-size-m: var(--font-size-m-medium);	
+  --font-size-s: var(--font-size-s-medium);
 }
 
 .h5p-content.h5p-large {
@@ -97,6 +134,10 @@
   --spacing-m: var(--spacing-secondary-large);
   --spacing-s: var(--spacing-third-large);
   --spacing-xs: var(--spacing-fourth-large);
+  --font-size-xl: var(--font-size-xl-large);
+  --font-size-l: var(--font-size-l-large);	
+  --font-size-m: var(--font-size-m-large);	
+  --font-size-s: var(--font-size-s-large);
 	
 
   /* Small screens */
