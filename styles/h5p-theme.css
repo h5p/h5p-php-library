@@ -16,6 +16,7 @@
   background-color: var(--main-cta-base);
   color: var(--contrast-cta);
   padding: var(--spacing-xl);
+  justify-content: space-between;
 }
 .h5p-theme-pattern {
   position: absolute;
@@ -23,7 +24,8 @@
   height: 100%;
   top: 0;
   left: 0;
-  background-color: var(--main-cta-light);
+  background-color: var(--main-cta-dark);
+  opacity: 25%;
   -webkit-mask-image: url(./../images/pattern.svg);
   mask-image: url(./../images/pattern.svg);
   mask-size: 30%;
@@ -85,6 +87,7 @@
   font-size: var(--font-size-xl);
   transition: all 0.1s linear 0s;
   transition-property: text-indent, padding;
+  border: none;
 }
 .h5p-theme-primary-cta:hover {
   background-color: var(--main-cta-light);
@@ -92,7 +95,7 @@
   padding: var(--spacing-s) calc(var(--spacing-l) - 10px);
 }
 .h5p-theme-primary-cta:active {
-  background-color: var(--main-cta-dark);
+  background-color: var(--main-cta-dark) !important;
 }
 .h5p-theme-primary-cta:before {
   display: inline-block;
@@ -117,6 +120,9 @@
 }
 .h5p-theme-primary-cta.h5p-theme-flip:before {
   content: "\e907";
+}
+.h5p-theme-primary-cta.h5p-theme-show-results:before {
+  content: "\e90a";
 }
 
 /* If the container is smaller than 280px */
@@ -148,11 +154,11 @@
   color: var(--main-cta-base) !important;
   border-radius: var(--border-radius-medium);
   font-weight: bold;
-  border: solid 2px var(--main-cta-base) !important;
+  border: solid 3px var(--main-cta-base) !important;
   padding: var(--spacing-s) var(--spacing-m);
   font-size: var(--font-size-large);
-  display: inline-block;
   transition: all 0.1s linear 0s;
+  width: fit-content;
 }
 .h5p-theme-secondary-cta:hover {
   background-color: var(--main-cta-light) !important;
@@ -165,6 +171,25 @@
   border-color: var(--main-cta-dark) !important;
   color: var(--contrast-cta) !important;
 }
+.h5p-theme-secondary-cta:before {
+  display: inline-block;
+  font-family: 'h5p-theme';
+  margin-right: 0.5em;
+  font-weight: normal;
+}
+.h5p-theme-secondary-cta.h5p-theme-retry:before {
+  content: "\e906";
+}
+
+
+
+
+
+
+
+
+
+
 /* USED FOR QUESTION DESCRIPTIONS */
 .h5p-theme-question-description {
   font-size: var(--font-size-xl-large);

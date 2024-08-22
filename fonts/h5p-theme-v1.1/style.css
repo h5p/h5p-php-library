@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?jlwo7r');
-  src:  url('fonts/h5p-theme.eot?jlwo7r#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?jlwo7r') format('truetype'),
-    url('fonts/h5p-theme.woff?jlwo7r') format('woff'),
-    url('fonts/h5p-theme.svg?jlwo7r#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?32qtrd');
+  src:  url('fonts/h5p-theme.eot?32qtrd#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?32qtrd') format('truetype'),
+    url('fonts/h5p-theme.woff?32qtrd') format('woff'),
+    url('fonts/h5p-theme.svg?32qtrd#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -54,4 +54,7 @@
 }
 .icon-book:before {
   content: "\e909";
+}
+.icon-report:before {
+  content: "\e90a";
 }
