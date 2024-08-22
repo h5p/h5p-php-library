@@ -70,6 +70,7 @@
   outline: none;
   box-shadow: 0 0 0.5em 0 var(--focus);
   border-color: var(--focus);
+  
 }
 
 .h5p-theme-input input {
@@ -119,9 +120,11 @@
   padding: var(--spacing-xs) var(--spacing-s);
   border: none;
   transition: all 0.1s linear 0s;
+
 }
 .h5p-theme-nav-button:hover {
   background-color: var(--secondary-cta-light) !important;
+    cursor: pointer;
 }
 .h5p-theme-nav-button:active {
   background-color: var(--secondary-cta-dark) !important;

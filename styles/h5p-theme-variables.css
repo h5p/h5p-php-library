@@ -22,8 +22,11 @@
   --alternative-light: #F7F8FD;
   --alternative-dark: #E7E9F8;
   --alternative-darker: #DFE1F6;
-
+  
+  
+  
   /* Fixed */
+
   --text-primary: #101729;
   --text-secondary: #354054;
   --text-third: #737373;
@@ -33,6 +36,7 @@
   --stroke-3: #E5E5E5;
   --focus: #3b54a5;
   --font-name: "Inter", sans-serif;
+ 
 	
   --feedback-correct-main: #256D1D;
   --feedback-correct-secondary: #f3fcf0;
