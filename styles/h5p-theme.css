@@ -32,7 +32,7 @@
   display: flex;
   background-color: var(--main-cta-base);
   color: var(--contrast-cta);
-  padding: var(--spacing-xl);
+  padding: calc(2* var(--spacing-l)) var(--spacing-xl) calc(3* var(--spacing-m)) var(--spacing-xl);
   justify-content: space-between;
 }
 .h5p-theme-pattern {
@@ -82,6 +82,7 @@
   word-wrap: break-word;
   border: none;
   background: none;
+  color: var(--text-primary);
 }
 
 .h5p-theme-input input:focus {
@@ -112,7 +113,7 @@
 /* NAVIGATION BUTTONS */
 .h5p-theme-nav-button {
   background-color: var(--secondary-cta-base) !important;
-  color: var(--contrast-cta) !important;
+  color: var(--secondary-contrast-cta) !important;
   font-size: var(--font-size-m);
   font-weight: bold;
   border-radius: var(--border-radius-medium);
@@ -262,8 +263,8 @@
 .h5p-flashcards .h5p-progress {
   display: table;
   padding:  var(--spacing-xs)  var(--spacing-s);
-  color: var(--main-cta-base);
+  color: var(--text-primary);
   font-weight: bold;
-  background-color: var(--contrast-cta);
+  background-color: var(--ui-base);
   border-radius: var(--border-radius-large);
 }

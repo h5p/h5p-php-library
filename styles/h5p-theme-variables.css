@@ -1,14 +1,14 @@
 :root {
   /* TODO: Set dynamically */
 
+  
   /* COLORS */
-  /* User picked */
   --main-cta-base: #00509E;
   --secondary-cta-base: #482776;
   --alternative-base: #EEEFFA;
-  --background: #CFDAF1; /*#CFDAF1*/
-
-  /* User generated */
+  --background: #CFDAF1; 
+  --focus: #3b54a5;
+ 
   --main-cta-light: #006AD1;
   --main-cta-dark: #00366B;
   --contrast-cta: #E0F1FF;
@@ -17,16 +17,13 @@
 
   --secondary-cta-light: #60349D;
   --secondary-cta-dark: #311B50;
-  --contrast-cta: #F3F1F5;
+  --secondary-contrast-cta: #F3F1F5;
 
   --alternative-light: #F7F8FD;
   --alternative-dark: #E7E9F8;
   --alternative-darker: #DFE1F6;
   
-  
-  
-  /* Fixed */
-
+  /*DEFAULT UI*/
   --text-primary: #101729;
   --text-secondary: #354054;
   --text-third: #737373;
@@ -34,10 +31,12 @@
   --stroke-1: #CDD1F6;
   --stroke-2: #EDEEFB;
   --stroke-3: #E5E5E5;
-  --focus: #3b54a5;
+  --border-radius-large: 0.5rem;
+  --border-radius-medium: 0.375rem;
+  --border-radius-small: 0.25rem;
   --font-name: "Inter", sans-serif;
  
-	
+   /*FEEDBACK*/
   --feedback-correct-main: #256D1D;
   --feedback-correct-secondary: #f3fcf0;
   --feedback-correct-third: #dbf5d0;
@@ -46,32 +45,54 @@
   --feedback-incorrect-secondary: #faf0f4;
   --feedback-incorrect-third: #efcfdd;
 	
+
+  /* DARK EXAMPLE 
+  --main-cta-base: #1765E3;
+  --secondary-cta-base: #f6bf1b;
+  --alternative-base: #EEEFFA;
+  --background: #000000; 
+  --focus: #1765E3;
+
+
+  --main-cta-light: #2F7CFA;
+  --main-cta-dark: #266AD9;
+  --contrast-cta: #ffffff;
+  --contrast-cta-white: #00509E;
+  --contrast-cta-light: rgba(0, 80, 158, 0.1);
+
+  --secondary-cta-light: #ffc926;
+  --secondary-cta-dark: #FFC107;
+  --secondary-contrast-cta: #000000;
+  
+  --alternative-light: #F7F8FD;
+  --alternative-dark: #E7E9F8;
+  --alternative-darker: #DFE1F6;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #BEC1C5;
+  --text-third: #BEC1C5;
+  --ui-base: #1C1C1C;
+  --stroke-1: #33313B;
+  --stroke-2: #3b3b3b;
+  --stroke-3: #33313B;
+ 
+  --font-name: "Inter", sans-serif;
+ 
+  --feedback-correct-main: #256D1D;
+  --feedback-correct-secondary: #f3fcf0;
+  --feedback-correct-third: #dbf5d0;
+	
+  --feedback-incorrect-main: #fbd7d8;
+  --feedback-incorrect-secondary: #470a22 ;
+  --feedback-incorrect-third: #80214b;
+	
   --border-radius-large: 0.5rem;
   --border-radius-medium: 0.375rem;
   --border-radius-small: 0.25rem;
+  
+  */
 
   /* SPACING */
-  /* Small (default) */
-/*  --spacing-xl-primary-small: 1.5rem;
-  --spacing-primary-small: 1rem;
-  --spacing-secondary-small: 0.85rem;
-  --spacing-third-small: 0.5rem;
-  --spacing-fourth-small: 0.65rem;
-  --font-size-xl-small: 1rem;	
-  --font-size-l-small: 0.85rem;	
-  --font-size-m-small: 0.75rem;
-  --font-size-s-small: 0.65rem;
-
-  /* Medium */
- /* --spacing-xl-primary-medium: 2rem;
-  --spacing-primary-medium: 1.5rem;
-  --spacing-secondary-medium: 1rem;
-  --spacing-third-medium: 0.5rem;
-  --spacing-fourth-medium: 0.25rem;
-  --font-size-xl-medium: 1.1rem;	
-  --font-size-l-medium: 1rem;	
-  --font-size-m-medium: 0.85rem;
-  --font-size-s-medium: 0.75rem;
   
    /* Small (default) */
   --spacing-xl-primary-small: calc(var(--spacing-xl-primary-medium)*0.8);
