@@ -2,28 +2,54 @@
   /* TODO: Set dynamically */
 
   
-  /* COLORS */
+  /* LIGHT EXAMPLE COLORS */
+  
+  /*BLUE THEME */
   --main-cta-base: #00509E;
   --secondary-cta-base: #482776;
   --alternative-base: #EEEFFA;
   --background: #CFDAF1; 
   --focus: #3b54a5;
- 
+  
   --main-cta-light: #006AD1;
   --main-cta-dark: #00366B;
   --contrast-cta: #E0F1FF;
   --contrast-cta-white: #00509E;
+
   --contrast-cta-light: rgba(0, 80, 158, 0.1);
 
   --secondary-cta-light: #60349D;
   --secondary-cta-dark: #311B50;
   --secondary-contrast-cta: #F3F1F5;
+ 
+ /* END BLUE THEME*/
+ 
+  /* PURPLE THEME
+  --main-cta-base: #834DD5;
+  --secondary-cta-base: #000000;
+  --alternative-base: #F1EBFA;
+  --background: #F1EBFA; 
+  --focus: #F1EBFA;
 
+  --main-cta-light: #8347DD;
+  --main-cta-dark: #692EC2;
+  --contrast-cta: #ffffff;
+  --contrast-cta-white: #834DD5;
+
+  --contrast-cta-light: rgba(0, 80, 158, 0.1);
+
+  --secondary-cta-light: #333333;
+  --secondary-cta-dark: #311B50;
+  --secondary-contrast-cta: #F3F1F5;
+
+    END PURPLE THEME*/
+  
+  
   --alternative-light: #F7F8FD;
   --alternative-dark: #E7E9F8;
   --alternative-darker: #DFE1F6;
   
-  /*DEFAULT UI*/
+  
   --text-primary: #101729;
   --text-secondary: #354054;
   --text-third: #737373;
@@ -36,17 +62,17 @@
   --border-radius-small: 0.25rem;
   --font-name: "Inter", sans-serif;
  
-   /*FEEDBACK*/
+ 
   --feedback-correct-main: #256D1D;
   --feedback-correct-secondary: #f3fcf0;
-  --feedback-correct-third: #dbf5d0;
+  --feedback-correct-third: #88d269;
 	
   --feedback-incorrect-main: #a13236;
   --feedback-incorrect-secondary: #faf0f4;
-  --feedback-incorrect-third: #efcfdd;
+  --feedback-incorrect-third: #d2a2b7;
 	
 
-  /* DARK EXAMPLE 
+   /* DARK EXAMPLE COLORS 
   --main-cta-base: #1765E3;
   --secondary-cta-base: #f6bf1b;
   --alternative-base: #EEEFFA;
@@ -55,7 +81,7 @@
 
 
   --main-cta-light: #2F7CFA;
-  --main-cta-dark: #266AD9;
+  --main-cta-dark: #25539d;
   --contrast-cta: #ffffff;
   --contrast-cta-white: #00509E;
   --contrast-cta-light: rgba(0, 80, 158, 0.1);
@@ -70,7 +96,7 @@
 
   --text-primary: #FFFFFF;
   --text-secondary: #BEC1C5;
-  --text-third: #BEC1C5;
+  --text-third: #919191;
   --ui-base: #1C1C1C;
   --stroke-1: #33313B;
   --stroke-2: #3b3b3b;
@@ -78,9 +104,9 @@
  
   --font-name: "Inter", sans-serif;
  
-  --feedback-correct-main: #256D1D;
-  --feedback-correct-secondary: #f3fcf0;
-  --feedback-correct-third: #dbf5d0;
+  --feedback-correct-main: #dbf5d0;
+  --feedback-correct-secondary: #293227;
+  --feedback-correct-third: #53624d;
 	
   --feedback-incorrect-main: #fbd7d8;
   --feedback-incorrect-secondary: #470a22 ;
