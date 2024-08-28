@@ -174,8 +174,7 @@
 
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
 .h5p-theme-primary-cta {
-  padding: var(--spacing-xs) var(--spacing-xs);
-  min-width: calc(var(--spacing-l)*4);
+  padding: var(--spacing-s) calc(var(--spacing-l));
   background-color: var(--main-cta-base);
   color: var(--contrast-cta);
   border-radius: var(--border-radius-medium);
@@ -188,6 +187,7 @@
 }
 
 .h5p-theme-primary-cta:hover {
+  padding: var(--spacing-s) calc(var(--spacing-l) - 10px);
   background-color: var(--main-cta-light);
   text-indent: 20px;
 }
@@ -209,6 +209,7 @@
   opacity: 1;
   transform: translate(0, 0);
 }
+
 .h5p-theme-primary-cta.h5p-theme-check:before {
   content: "\e908";
 }
@@ -224,12 +225,9 @@
 
 /* If the container is smaller than 280px */
 @container (max-width: 280px) {
-  .h5p-theme-primary-cta {
-    min-width: calc(var(--spacing-s)* 4);
-  }
-
   .h5p-theme-primary-cta:hover {
     text-indent: 0;
+    padding: var(--spacing-s) var(--spacing-l);
   }
 
   .h5p-theme-primary-cta span {
