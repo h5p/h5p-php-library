@@ -119,8 +119,8 @@
 
 /* NAVIGATION BUTTONS */
 .h5p-theme-nav-button {
-  background-color: var(--secondary-cta-base) !important;
-  color: var(--secondary-contrast-cta) !important;
+  background-color: var(--secondary-cta-base);
+  color: var(--secondary-contrast-cta);
   font-size: var(--font-size-m);
   font-weight: bold;
   border-radius: var(--border-radius-medium);
@@ -128,24 +128,50 @@
   padding: var(--spacing-xs) var(--spacing-s);
   border: none;
   transition: all 0.1s linear 0s;
-
 }
 .h5p-theme-nav-button:hover {
-  background-color: var(--secondary-cta-light) !important;
-    cursor: pointer;
+  background-color: var(--secondary-cta-light);
+  cursor: pointer;
 }
 .h5p-theme-nav-button:active {
-  background-color: var(--secondary-cta-dark) !important;
+  background-color: var(--secondary-cta-dark);
 }
-.h5p-theme-next:before {
-  padding-right: var(--spacing-s);
+
+.h5p-theme-next:after {
+  font-family: 'h5p-theme';
+  content: "\e901";
+  margin-left: 0.5rem;
+  display: inline-block;
 }
+
 .h5p-theme-previous:before {
-  padding-left: var(--spacing-s);
+  font-family: 'h5p-theme';
+  content: "\e900";
+  margin-right: 0.5rem;
+  display: inline-block;
 }
 .h5p-theme-label {
   display: inline-block;
 }
+
+@container h5p-navigation (max-width: 700px) {
+  .h5p-theme-label {
+    display: none;
+  }
+
+	.h5p-theme-nav-button{
+    border-radius: 25rem;
+    height: var(--spacing-xl);
+    width: var(--spacing-xl);
+    padding: 0;
+	}
+
+  .h5p-theme-next:after,
+  .h5p-theme-previous:before{
+	  margin: 0;
+	}
+}
+
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
 .h5p-theme-primary-cta {
   padding: var(--spacing-xs) var(--spacing-xs);
