@@ -148,21 +148,22 @@
 }
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
 .h5p-theme-primary-cta {
+  padding: var(--spacing-xs) var(--spacing-xs);
+  min-width: calc(var(--spacing-l)*4);
   background-color: var(--main-cta-base);
   color: var(--contrast-cta);
   border-radius: var(--border-radius-medium);
   font-weight: bold;
-  padding: var(--spacing-s) var(--spacing-l);
   cursor: pointer;
   font-size: var(--font-size-xl);
   transition: all 0.1s linear 0s;
   transition-property: text-indent, padding;
   border: none;
 }
+
 .h5p-theme-primary-cta:hover {
   background-color: var(--main-cta-light);
   text-indent: 20px;
-  padding: var(--spacing-s) calc(var(--spacing-l) - 10px);
 }
 .h5p-theme-primary-cta:active {
   background-color: var(--main-cta-dark) !important;
@@ -197,9 +198,12 @@
 
 /* If the container is smaller than 280px */
 @container (max-width: 280px) {
+  .h5p-theme-primary-cta {
+    min-width: calc(var(--spacing-s)* 4);
+  }
+
   .h5p-theme-primary-cta:hover {
     text-indent: 0;
-    padding: var(--spacing-s) var(--spacing-l);
   }
 
   .h5p-theme-primary-cta span {
@@ -250,15 +254,6 @@
 .h5p-theme-secondary-cta.h5p-theme-retry:before {
   content: "\e906";
 }
-
-
-
-
-
-
-
-
-
 
 /* USED FOR QUESTION DESCRIPTIONS */
 .h5p-theme-question-description {

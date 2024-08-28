@@ -189,10 +189,10 @@
   --font-size-l: var(--font-size-l-large);	
   --font-size-m: var(--font-size-m-large);	
   --font-size-s: var(--font-size-s-large);
-	
 
+  /* EXAMPLE: Conditional responsiveness */
   /* Small screens */
-  @media (max-width: 576px) {
+  /* @media (max-width: 576px) {
     --spacing-l: var(--spacing-primary-large-small-screen);
-  }
+  } */
 }
