@@ -124,6 +124,7 @@
   --spacing-secondary-small: calc(var(--spacing-secondary-medium)*0.8);
   --spacing-third-small: calc(var(--spacing-third-medium)*0.8);
   --spacing-fourth-small: calc(var(--spacing-fourth-medium)*0.8);
+  --font-size-xxl-small: calc(var(--font-size-xxl-medium)*0.8);
   --font-size-xl-small: calc(var(--font-size-xl-medium)*0.8);
   --font-size-l-small: calc(var(--font-size-l-medium)*0.8);
   --font-size-m-small: calc(var(--font-size-m-medium)*0.8);
@@ -135,6 +136,7 @@
   --spacing-secondary-medium: calc(var(--spacing-secondary-large)*0.8);
   --spacing-third-medium: calc(var(--spacing-third-large)*0.8);
   --spacing-fourth-medium: calc(var(--spacing-fourth-large)*0.8);
+  --font-size-xxl-medium: calc(var(--font-size-xxl-large)*0.8);
   --font-size-xl-medium: calc(var(--font-size-xl-large)*0.8);
   --font-size-l-medium: calc(var(--font-size-l-large)*0.8);
   --font-size-m-medium: calc(var(--font-size-m-large)*0.8);
@@ -147,6 +149,7 @@
   --spacing-third-large: 1rem;
   --spacing-fourth-large: 0.65rem;
   --spacing-primary-large-small-screen: 2rem;
+  --font-size-xxl-large: 1.65rem;
   --font-size-xl-large: 1.25rem;	
   --font-size-l-large: 1.125rem;	
   --font-size-m-large: 1rem;
@@ -159,6 +162,7 @@
   --spacing-m: var(--spacing-secondary-small);
   --spacing-s: var(--spacing-third-small);
   --spacing-xs: var(--spacing-fourth-small);
+  --font-size-xxl: var(--font-size-xxl-small);
   --font-size-xl: var(--font-size-xl-small);
   --font-size-l: var(--font-size-l-small);	
   --font-size-m: var(--font-size-m-small);	
@@ -171,6 +175,7 @@
   --spacing-m: var(--spacing-secondary-medium);
   --spacing-s: var(--spacing-third-medium);
   --spacing-xs: var(--spacing-fourth-medium);
+  --font-size-xxl: var(--font-size-xxl-medium);
   --font-size-xl: var(--font-size-xl-medium);
   --font-size-l: var(--font-size-l-medium);	
   --font-size-m: var(--font-size-m-medium);	
@@ -183,6 +188,7 @@
   --spacing-m: var(--spacing-secondary-large);
   --spacing-s: var(--spacing-third-large);
   --spacing-xs: var(--spacing-fourth-large);
+  --font-size-xxl: var(--font-size-xxl-large);
   --font-size-xl: var(--font-size-xl-large);
   --font-size-l: var(--font-size-l-large);	
   --font-size-m: var(--font-size-m-large);	

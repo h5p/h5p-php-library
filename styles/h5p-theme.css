@@ -32,7 +32,7 @@
   display: flex;
   background-color: var(--main-cta-base);
   color: var(--contrast-cta);
-  padding: calc(2* var(--spacing-l)) var(--spacing-xl) calc(3* var(--spacing-m)) var(--spacing-xl);
+  padding: var(--spacing-xl) var(--spacing-xl) calc(2*var(--spacing-l)) var(--spacing-xl);
   justify-content: space-between;
 }
 .h5p-theme-pattern {
@@ -291,3 +291,9 @@
   box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.08) !important;
 }
 
+/*SUMMARY*/
+.h5p-results-points{
+  color: var(--text-primary);
+  font-weight: bold;
+  font-size: var(--font-size-m);
+}
