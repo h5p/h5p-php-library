@@ -279,7 +279,7 @@
   padding: calc(var(--spacing-xs)/2) var(--spacing-xs);
   border: solid 2px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: var(--font-size-m);
 }
 
 .h5p-theme-results-answer .h5p-theme-results-correct,
@@ -301,8 +301,8 @@
 }
 
 .h5p-theme-results-answer .h5p-theme-results-solution .h5p-theme-results-solution-label {
-  color: var(--text-primary);
-  font-weight: bold;
+  color: var(--feedback-correct-main);
+  font-weight: italic;
 }
 
 .h5p-theme-results-answer .h5p-theme-results-box-small {
@@ -312,7 +312,6 @@
 .h5p-theme-results-answer .h5p-theme-results-box-small:before {
   font-family: 'h5p-theme';
   content: "\e903";
-  font-size: 1rem;
   padding-right: 0.5rem;
 }
 
