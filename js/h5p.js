@@ -1040,11 +1040,12 @@ H5P.t = function (key, vars, ns) {
  * @param {H5P.jQuery} $element
  *   Which DOM element the dialog should be inserted after.
  * @param {H5P.jQuery} $returnElement
- *   Which DOM element the focus should be moved to on close   
+ *   Which DOM element the focus should be moved to on close
  */
 H5P.Dialog = function (name, title, content, $element, $returnElement) {
   /** @alias H5P.Dialog# */
   var self = this;
+  this.activeElement = document.activeElement;
   var $dialog = H5P.jQuery('<div class="h5p-popup-dialog h5p-' + name + '-dialog" aria-labelledby="' + name + '-dialog-header" aria-modal="true" role="dialog" tabindex="-1">\
                               <div class="h5p-inner">\
                                 <h2 id="' + name + '-dialog-header">' + title + '</h2>\
@@ -1108,6 +1109,9 @@ H5P.Dialog = function (name, title, content, $element, $returnElement) {
       $element.attr('tabindex', '-1');
       if ($returnElement) {
         $returnElement.focus();
+      }
+      else if(self.activeElement) {
+        self.activeElement.focus();
       }
       else {
         $element.focus();
@@ -1894,7 +1898,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
  * @param {string} source
  * @param {number} width
  * @param {number} height
- * @param {string} alt 
+ * @param {string} alt
  *  alternative text for the thumbnail
  */
 H5P.Thumbnail = function (source, width, height, alt) {
@@ -2716,7 +2720,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
         return path.substr(0, prefix.length) === prefix ? path : prefix + path;
       }
-      
+
       return path; // Will automatically be looked for in tmp folder
     });
 

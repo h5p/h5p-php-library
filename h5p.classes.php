@@ -2072,13 +2072,14 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 26
+    'minorVersion' => 27
   );
   public static $styles = array(
     'styles/h5p.css',
     'styles/h5p-confirmation-dialog.css',
     'styles/h5p-core-button.css',
     'styles/h5p-tooltip.css',
+    'styles/h5p-table.css',
   );
   public static $scripts = array(
     'js/jquery.js',
@@ -2097,7 +2098,7 @@ class H5PCore {
     'js/h5p-utils.js',
   );
 
-  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff eot ttf woff woff2 otf webm mp4 ogg mp3 m4a wav txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp csv diff patch swf md textile vtt webvtt';
+  public static $defaultContentWhitelist = 'json png jpg jpeg gif bmp tif tiff eot ttf woff woff2 otf webm mp4 ogg mp3 m4a wav txt pdf rtf doc docx xls xlsx ppt pptx odt ods odp csv diff patch swf md textile vtt webvtt gltf glb';
   public static $defaultLibraryWhitelistExtras = 'js css svg xml';
 
   public $librariesJsonData, $contentJsonData, $mainJsonData, $h5pF, $fs, $h5pD, $disableFileCheck;
@@ -3963,7 +3964,6 @@ class H5PCore {
     }
 
     if (empty($siteUuid) || empty($secret)) {
-      $this->h5pF->setErrorMessage($this->h5pF->t('Missing Site UUID or Hub Secret. Please check your Hub registration.'));
       return false;
     }
 
@@ -4167,7 +4167,23 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
-  private static $allowed_styleable_tags = array('span', 'p', 'div','h1','h2','h3', 'td');
+  private static $allowed_styleable_tags = [
+    'span',
+    'p',
+    'div',
+    'h1',
+    'h2',
+    'h3',
+    'table',
+    'col',
+    'figure',
+    'td',
+    'th',
+    'li'
+  ];
+
+  /** @var bool Allowed styles status. */
+  protected $allowedStyles;
 
   /** @var bool Allowed styles status. */
   protected $allowedStyles;
@@ -4267,7 +4283,7 @@ class H5PContentValidator {
 
       // Add related tags for table etc.
       if (in_array('table', $tags)) {
-        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'thead', 'tbody', 'tfoot'));
+        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'col', 'thead', 'tbody', 'tfoot', 'figure', 'figcaption'));
       }
       if (in_array('b', $tags) && ! in_array('strong', $tags)) {
         $tags[] = 'strong';
@@ -4290,13 +4306,13 @@ class H5PContentValidator {
           $stylePatterns[] = '/^font-size: *[0-9.]+(em|px|%) *;?$/i';
         }
         if (isset($semantics->font->family) && $semantics->font->family) {
-          $stylePatterns[] = '/^font-family: *[-a-z0-9," ]+;?$/i';
+          $stylePatterns[] = '/^font-family: *[-a-z0-9,\'&; ]+;?$/i';
         }
         if (isset($semantics->font->color) && $semantics->font->color) {
-          $stylePatterns[] = '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+          $stylePatterns[] = '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
         }
         if (isset($semantics->font->background) && $semantics->font->background) {
-          $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+          $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
         }
         if (isset($semantics->font->spacing) && $semantics->font->spacing) {
           $stylePatterns[] = '/^letter-spacing: *[0-9.]+(em|px|%) *;?$/i';
@@ -4304,6 +4320,28 @@ class H5PContentValidator {
         if (isset($semantics->font->height) && $semantics->font->height) {
           $stylePatterns[] = '/^line-height: *[0-9.]+(em|px|%|) *;?$/i';
         }
+      }
+
+      // Allow styling of tables if they are allowed
+      if (isset($semantics->tags) && in_array('table', $semantics->tags)) {
+        // CKEditor outputs border as width style color
+        $stylePatterns[] = '/^border: *[0-9.]+(em|px|%|) *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
+        $stylePatterns[] = '/^border-style: *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *;?$/i';
+        $stylePatterns[] = '/^border-width: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^border-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
+
+        $stylePatterns[] = '/^vertical-align: *(middle|top|bottom);?$/i';
+        $stylePatterns[] = '/^padding: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^width: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^height: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^float: *(right|left|none) *;?$/i';
+
+        // Needed for backwards compatibility
+        $stylePatterns[] = '/^border-collapse: *collapse *;?$/i';
+
+        // Table can have background color when font bgcolor is disabled
+        // Double entry of bgcolor in stylePatterns shouldn't matter
+        $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
       }
 
       // Alignment is allowed for all wysiwyg texts
@@ -5002,13 +5040,25 @@ class H5PContentValidator {
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
             if ($allowedStyles && $attrName === 'style') {
               // Allow certain styles
+
+              // Prevent font family from getting split wrong because of the ; in &quot;
+              if (str_contains($match[1], 'font-family')) {
+                $match[1] = str_replace('&quot;', "'", $match[1]);
+              }
+
+              $validatedStyles = [];
+              $styles = explode(';', $match[1]);
+
               foreach ($allowedStyles as $pattern) {
-                if (preg_match($pattern, $match[1])) {
-                  // All patterns are start to end patterns, and CKEditor adds one span per style
-                  $attrArr[] = 'style="' . $match[1] . '"';
-                  break;
+                foreach ($styles as $style) {
+                  $style = trim($style);
+                  if (preg_match($pattern, $style)) {
+                    $validatedStyles[] = $style;
+                  }
                 }
               }
+
+              $attrArr[] = 'style="' . implode(';', $validatedStyles) . ';"';
               break;
             }
 
