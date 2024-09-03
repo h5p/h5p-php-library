@@ -302,7 +302,8 @@
 
 .h5p-theme-results-answer .h5p-theme-results-solution .h5p-theme-results-solution-label {
   color: var(--feedback-correct-main);
-  font-weight: italic;
+  font-style: italic;
+  font-weight: normal;
 }
 
 .h5p-theme-results-answer .h5p-theme-results-box-small {
