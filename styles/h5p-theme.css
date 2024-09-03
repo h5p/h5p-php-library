@@ -171,9 +171,9 @@
   border: none;
 }
 .h5p-theme-primary-cta:hover {
-  padding: var(--spacing-s) calc(var(--spacing-l) - 10px);
+  padding: var(--spacing-s) calc(var(--spacing-l) - 15px);
   background-color: var(--main-cta-light);
-  text-indent: 20px;
+  text-indent: 30px;
 }
 .h5p-theme-primary-cta:active {
   background-color: var(--main-cta-dark) !important;
@@ -313,6 +313,9 @@
 .h5p-theme-results-answer .h5p-theme-results-box-small:before {
   font-family: 'h5p-theme';
   content: "\e903";
+}
+
+.h5p-theme-results-answer .h5p-theme-results-box-small:not(:empty)::before {
   padding-right: 0.5rem;
 }
 
