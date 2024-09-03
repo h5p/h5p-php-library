@@ -232,13 +232,13 @@
   font-weight: bold;
   border: solid 3px var(--main-cta-base) !important;
   padding: var(--spacing-s) var(--spacing-m);
-  font-size: var(--font-size-large);
+  font-size: var(--font-size-l);
   transition: all 0.1s linear 0s;
   width: fit-content;
 }
 .h5p-theme-secondary-cta:hover {
-  background-color: var(--main-cta-light) !important;
-  border-color: var(--main-cta-light) !important;
+  background-color: var(--main-cta-base) !important;
+  border-color: var(--main-cta-base) !important;
   color: var(--contrast-cta) !important;
   cursor: pointer;
 }
