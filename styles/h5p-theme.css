@@ -252,7 +252,7 @@
 .h5p-theme-secondary-cta:before {
   display: inline-block;
   font-family: 'h5p-theme';
-  margin-right: 0.5em;
+  margin-right: var(--spacing-xxs);
   font-weight: normal;
 }
 .h5p-theme-secondary-cta.h5p-theme-retry:before {
