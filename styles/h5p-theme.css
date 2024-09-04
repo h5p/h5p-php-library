@@ -339,26 +339,6 @@
   background-color: var(--contrast-cta-light);
   border-radius: var(--border-radius-large);
 }
-/* TIP */
-.joubel-icon-tip-normal .h5p-icon-speech-bubble:before {
-  color: var(--main-cta-base) !important;
-}
-.joubel-icon-tip-normal .h5p-icon-info:before {
-  color: var(--contrast-cta) !important;
-}
-.joubel-tip-container {
-  margin-left: 0.25rem !important;
-}
-.joubel-speech-bubble-inner {
-  background: var(--ui-base) !important;
-  border: solid 1px var(--stroke-1) !important;
-  border-radius: var(--border-radius-small) !important;
-  font-family: var(--font-name) !important;
-  box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.08) !important;
-}
-.joubel-speech-bubble-tail {
-  box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.08) !important;
-}
 
 /*SUMMARY*/
 .h5p-results-points{
