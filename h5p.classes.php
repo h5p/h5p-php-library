@@ -4185,9 +4185,6 @@ class H5PContentValidator {
   /** @var bool Allowed styles status. */
   protected $allowedStyles;
 
-  /** @var bool Allowed styles status. */
-  protected $allowedStyles;
-
   /**
    * Constructor for the H5PContentValidator
    *
