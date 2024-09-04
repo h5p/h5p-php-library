@@ -260,16 +260,15 @@
 }
 /* USED FOR QUESTION DESCRIPTIONS */
 .h5p-theme-question-description {
-  font-size: var(--font-size-xl-large);
+  font-size: var(--font-size-xl);
   color: var(--text-primary);
   font-weight: 600;
 }
 
 /* RESULT SCREEN ANSWERS */
 .h5p-theme-results-answer {
-  line-height: 2em;
   margin-right: 4.5em;
-  font-size: 1rem;
+  font-size: var(--font-size-m);
   overflow-wrap: break-word;
   color: var(--text-third);
 }
@@ -335,9 +334,9 @@
 .h5p-flashcards .h5p-progress {
   display: table;
   padding: var(--spacing-xs) var(--spacing-s);
-  color: var(--text-primary);
+  color: var(--contrast-cta-white);
   font-weight: bold;
-  background-color: var(--ui-base);
+  background-color: var(--contrast-cta-light);
   border-radius: var(--border-radius-large);
 }
 /* TIP */

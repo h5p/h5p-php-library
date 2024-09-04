@@ -21,14 +21,13 @@
   --secondary-cta-light: #60349D;
   --secondary-cta-dark: #311B50;
   --secondary-contrast-cta: #F3F1F5;
+  /* END PURPLE THEME*/
  
-  /* END BLUE THEME*/
- 
-  /* PURPLE THEME 
+  /*PURPLE  THEME 
   --main-cta-base: #834DD5;
   --secondary-cta-base: #000000;
   --alternative-base: #F1EBFA;
-  --background: #624f81; 
+  --background: #d0bcee; 
   --focus: #F1EBFA;
 
   --main-cta-light: #8347DD;
@@ -63,11 +62,11 @@
  
   --feedback-correct-main: #256D1D;
   --feedback-correct-secondary: #f3fcf0;
-  --feedback-correct-third: #88d269;
+  --feedback-correct-third: #cff1c2;
 	
   --feedback-incorrect-main: #a13236;
   --feedback-incorrect-secondary: #faf0f4;
-  --feedback-incorrect-third: #d2a2b7;
+  --feedback-incorrect-third: #f6dce7;
 	
 
    /* DARK EXAMPLE COLORS 
@@ -114,7 +113,7 @@
   --border-radius-medium: 0.375rem;
   --border-radius-small: 0.25rem;
   
-  */
+ 
 
   /* SPACING */
   
@@ -124,6 +123,7 @@
   --spacing-secondary-small: calc(var(--spacing-secondary-medium)*0.8);
   --spacing-third-small: calc(var(--spacing-third-medium)*0.8);
   --spacing-fourth-small: calc(var(--spacing-fourth-medium)*0.8);
+  
   --font-size-xxl-small: calc(var(--font-size-xxl-medium)*0.8);
   --font-size-xl-small: calc(var(--font-size-xl-medium)*0.8);
   --font-size-l-small: calc(var(--font-size-l-medium)*0.8);
@@ -136,6 +136,7 @@
   --spacing-secondary-medium: calc(var(--spacing-secondary-large)*0.8);
   --spacing-third-medium: calc(var(--spacing-third-large)*0.8);
   --spacing-fourth-medium: calc(var(--spacing-fourth-large)*0.8);
+  
   --font-size-xxl-medium: calc(var(--font-size-xxl-large)*0.8);
   --font-size-xl-medium: calc(var(--font-size-xl-large)*0.8);
   --font-size-l-medium: calc(var(--font-size-l-large)*0.8);
