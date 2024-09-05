@@ -145,6 +145,8 @@
 .h5p-navigation .h5p-theme-show-results:hover {
   padding: var(--spacing-xs) calc(var(--spacing-l) - 0.75em);
 }
+
+/* If smaller than 700px */
 @container h5p-navigation (max-width: 700px) {
   .h5p-theme-label {
     display: none;
@@ -157,6 +159,37 @@
   }
   .h5p-theme-next:after, .h5p-theme-previous:before {
     margin: 0;
+  }
+
+  /* Primary CTA if inside navigation */
+  .h5p-navigation .h5p-theme-primary-cta {
+    border-radius: 25rem;
+    height: var(--spacing-xl);
+    width: var(--spacing-xl);
+    padding: 0;
+  }
+
+  .h5p-navigation .h5p-theme-primary-cta:hover {
+    text-indent: 0;
+    border-radius: 25rem;
+    height: var(--spacing-xl);
+    width: var(--spacing-xl);
+    padding: 0;
+  }
+
+  .h5p-navigation .h5p-theme-primary-cta span {
+    display: none;
+  }
+  .h5p-navigation .h5p-theme-primary-cta:before {
+    text-indent: 0;
+    position: unset;
+    width: 100%;
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  .h5p-navigation .h5p-theme-primary-cta:hover:before {
+    text-indent: 0;
+    transform: translate(0, 0);
   }
 }
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
@@ -331,7 +364,7 @@
 }
 
 /* PAGE COUNTER */
-.h5p-flashcards .h5p-progress {
+.h5p-theme-progress {
   display: table;
   padding: var(--spacing-xxs) var(--spacing-s);
   color: var(--contrast-cta-white);
@@ -341,7 +374,7 @@
 }
 
 /*SUMMARY*/
-.h5p-results-points{
+.h5p-theme-results-points {
   color: var(--text-primary);
   font-weight: bold;
   font-size: var(--font-size-m);
