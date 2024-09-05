@@ -143,7 +143,7 @@
   padding: var(--spacing-xs) var(--spacing-l);
 }
 .h5p-navigation .h5p-theme-show-results:hover {
-  padding: var(--spacing-xs) calc(var(--spacing-l) - 15px);
+  padding: var(--spacing-xs) calc(var(--spacing-l) - 0.75em);
 }
 @container h5p-navigation (max-width: 700px) {
   .h5p-theme-label {
@@ -173,9 +173,9 @@
   border: none;
 }
 .h5p-theme-primary-cta:hover {
-  padding: var(--spacing-s) calc(var(--spacing-l) - 15px);
+  padding: var(--spacing-s) calc(var(--spacing-l) - 0.75em);
   background-color: var(--main-cta-light);
-  text-indent: 30px;
+  text-indent: 1.5em;
 }
 .h5p-theme-primary-cta:active {
   background-color: var(--main-cta-dark) !important;
@@ -184,7 +184,7 @@
   display: inline-block;
   position: absolute;
   font-family: 'h5p-theme';
-  text-indent: -30px;
+  text-indent: -1.5em;
   opacity: 0;
   transform: translate(10px, 10px);
   transition: all 0.1s linear 0s;
@@ -207,8 +207,8 @@
 .h5p-theme-primary-cta.h5p-theme-show-results:before {
   content: "\e90a";
 }
-/* If the container is smaller than 280px */
-@container (max-width: 280px) {
+/* If the container is smaller than 200px */
+@container (max-width: 200px) {
   .h5p-theme-primary-cta:hover {
     text-indent: 0;
     padding: var(--spacing-s) var(--spacing-l);
