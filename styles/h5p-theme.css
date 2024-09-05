@@ -45,7 +45,7 @@
   opacity: 25%;
   -webkit-mask-image: url(./../images/pattern.svg);
   mask-image: url(./../images/pattern.svg);
-  mask-size: 60%;
+  mask-size: 40%;
   background-repeat: repeat;
 }
 /* INPUT FIELD */
@@ -296,7 +296,7 @@
   background-color: var(--feedback-incorrect-secondary);
   color: var(--feedback-incorrect-main);
   border-color: var(--feedback-incorrect-third);
-  margin-right: 1rem;
+  margin-right: 0.5rem;
 }
 
 .h5p-theme-results-answer .h5p-theme-results-solution {
@@ -333,11 +333,11 @@
 /* PAGE COUNTER */
 .h5p-flashcards .h5p-progress {
   display: table;
-  padding: var(--spacing-xs) var(--spacing-s);
+  padding: var(--spacing-xxs) var(--spacing-s);
   color: var(--contrast-cta-white);
   font-weight: bold;
   background-color: var(--contrast-cta-light);
-  border-radius: var(--border-radius-large);
+  border-radius: var(--border-radius-medium);
 }
 
 /*SUMMARY*/

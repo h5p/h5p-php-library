@@ -125,11 +125,11 @@
   --spacing-fourth-small: calc(var(--spacing-fourth-medium)*0.8);
   --spacing-fifth-small: calc(var(--spacing-fifth-medium)*0.8);
   
-  --font-size-xxl-small: calc(var(--font-size-xxl-medium)*0.8);
-  --font-size-xl-small: calc(var(--font-size-xl-medium)*0.8);
-  --font-size-l-small: calc(var(--font-size-l-medium)*0.8);
-  --font-size-m-small: calc(var(--font-size-m-medium)*0.8);
-  --font-size-s-small: calc(var(--font-size-s-medium)*0.8);
+  --font-size-xxl-small: calc(var(--font-size-xxl-medium)*0.9);
+  --font-size-xl-small: calc(var(--font-size-xl-medium)*0.9);
+  --font-size-l-small: calc(var(--font-size-l-medium)*0.9);
+  --font-size-m-small: calc(var(--font-size-m-medium)*0.9);
+  --font-size-s-small: calc(var(--font-size-s-medium)*0.9);
 
   /* Medium */
   --spacing-xl-primary-medium: calc(var(--spacing-xl-primary-large)*0.8);
@@ -139,11 +139,11 @@
   --spacing-fourth-medium: calc(var(--spacing-fourth-large)*0.8);
   --spacing-fifth-medium: calc(var(--spacing-fifth-large)*0.8);
   
-  --font-size-xxl-medium: calc(var(--font-size-xxl-large)*0.8);
-  --font-size-xl-medium: calc(var(--font-size-xl-large)*0.8);
-  --font-size-l-medium: calc(var(--font-size-l-large)*0.8);
-  --font-size-m-medium: calc(var(--font-size-m-large)*0.8);
-  --font-size-s-medium: calc(var(--font-size-s-large)*0.8);
+  --font-size-xxl-medium: calc(var(--font-size-xxl-large)*0.9);
+  --font-size-xl-medium: calc(var(--font-size-xl-large)*0.9);
+  --font-size-l-medium: calc(var(--font-size-l-large)*0.9);
+  --font-size-m-medium: calc(var(--font-size-m-large)*0.9);
+  --font-size-s-medium: calc(var(--font-size-s-large)*0.9);
 
   /* Large */
   --spacing-xl-primary-large: 3rem;
