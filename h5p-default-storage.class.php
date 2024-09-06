@@ -137,10 +137,14 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  Folder that library resides in
    */
   public function exportLibrary($library, $target, $developmentPath=NULL) {
-    $folder = \H5PCore::libraryToFolderName($library);
+    $srcFolder = \H5PCore::libraryToFolderName($library);
+    $srcPath = ($developmentPath === NULL ? "/libraries/{$srcFolder}" : $developmentPath);
 
-    $srcPath = ($developmentPath === NULL ? "/libraries/{$folder}" : $developmentPath);
-    self::copyFileTree("{$this->path}{$srcPath}", "{$target}/{$folder}");
+    // Library folders inside the H5P zip file shall not contain patch version in the folder name
+    $library['patchVersionInFolderName'] = false;
+    $destinationFolder = \H5PCore::libraryToFolderName($library);
+
+    self::copyFileTree("{$this->path}{$srcPath}", "{$target}/{$destinationFolder}");
   }
 
   /**
