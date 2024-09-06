@@ -298,6 +298,20 @@
   font-weight: 600;
 }
 
+/* ALTERNATIVE */
+.h5p-theme .h5p-alternative-container{
+ background: var(--alternative-dark) !important; 
+ padding: var(--spacing-s) !important; 
+    border-radius: var(--border-radius-medium) !important; 
+    border: none  !important; 
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    box-shadow: none !important;
+    line-height: normal !important;
+    text-indent: -2rem !important;
+  font-weight: 600 !important;
+}
+
 /* RESULT SCREEN ANSWERS */
 .h5p-theme-results-answer {
   margin-right: 4.5em;
