@@ -19,6 +19,7 @@
   font-weight: normal;
   font-style: normal;
 }
+
 .h5p-content {
   font-family: var(--font-name);
 }
@@ -194,51 +195,51 @@
 }
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
 .h5p-theme-primary-cta {
-  padding: var(--spacing-s) calc(var(--spacing-l));
-  background-color: var(--main-cta-base);
-  color: var(--contrast-cta);
-  border-radius: var(--border-radius-medium);
-  font-weight: bold;
-  cursor: pointer;
-  font-size: var(--font-size-xl);
-  transition: all 0.1s linear 0s;
-  transition-property: text-indent, padding;
-  border: none;
+  padding: var(--spacing-s) calc(var(--spacing-l)) !important;
+  background-color: var(--main-cta-base) !important;
+  color: var(--contrast-cta) !important;
+  border-radius: var(--border-radius-medium) !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  font-size: var(--font-size-l) !important;
+  transition: all 0.1s linear 0s !important;
+  transition-property: text-indent, padding !important;
+  border: none !important;
 }
 .h5p-theme-primary-cta:hover {
-  padding: var(--spacing-s) calc(var(--spacing-l) - 0.75em);
-  background-color: var(--main-cta-light);
-  text-indent: 1.5em;
+  padding: var(--spacing-s) calc(var(--spacing-l) - 0.75em) !important;
+  background-color: var(--main-cta-light) !important;
+  text-indent: 1.5em !important;
 }
 .h5p-theme-primary-cta:active {
   background-color: var(--main-cta-dark) !important;
 }
 .h5p-theme-primary-cta:before {
-  display: inline-block;
-  position: absolute;
-  font-family: 'h5p-theme';
-  text-indent: -1.5em;
-  opacity: 0;
-  transform: translate(10px, 10px);
-  transition: all 0.1s linear 0s;
-  transition-property: transform, opacity;
-  font-weight: normal;
+  display: inline-block !important;
+  position: absolute !important;
+  font-family: 'h5p-theme' !important;
+  text-indent: -1.5em !important;
+  opacity: 0 !important;
+  transform: translate(10px, 10px) !important;
+  transition: all 0.1s linear 0s !important;
+  transition-property: transform, opacity !important;
+  font-weight: normal !important;
 }
 .h5p-theme-primary-cta:hover:before {
-  opacity: 1;
-  transform: translate(0, 0);
+  opacity: 1 !important;
+  transform: translate(0, 0) !important;
 }
 .h5p-theme-primary-cta.h5p-theme-check:before {
-  content: "\e908";
+  content: "\e908" !important;
 }
 .h5p-theme-primary-cta.h5p-theme-book:before {
-  content: "\e909";
+  content: "\e909" !important;
 }
 .h5p-theme-primary-cta.h5p-theme-flip:before {
-  content: "\e907";
+  content: "\e907" !important;
 }
 .h5p-theme-primary-cta.h5p-theme-show-results:before {
-  content: "\e90a";
+  content: "\e90a" !important;
 }
 /* If the container is smaller than 200px */
 @container (max-width: 200px) {
@@ -263,19 +264,19 @@
 .h5p-theme-secondary-cta {
   background-color: var(--ui-base) !important;
   color: var(--main-cta-base) !important;
-  border-radius: var(--border-radius-medium);
-  font-weight: bold;
+  border-radius: var(--border-radius-medium) !important;
+  font-weight: bold !important;
   border: solid 3px var(--main-cta-base) !important;
-  padding: var(--spacing-s) var(--spacing-m);
-  font-size: var(--font-size-l);
-  transition: all 0.1s linear 0s;
-  width: fit-content;
+  padding: var(--spacing-s) var(--spacing-m) !important;
+  font-size: var(--font-size-l) !important;
+  transition: all 0.1s linear 0s !important;
+  width: fit-content !important;
 }
 .h5p-theme-secondary-cta:hover {
   background-color: var(--main-cta-base) !important;
   border-color: var(--main-cta-base) !important;
   color: var(--contrast-cta) !important;
-  cursor: pointer;
+  cursor: pointer !important;
 }
 .h5p-theme-secondary-cta:active {
   background-color: var(--main-cta-dark) !important;
@@ -297,20 +298,13 @@
   color: var(--text-primary);
   font-weight: 600;
 }
-
-/* ALTERNATIVE */
-.h5p-theme .h5p-alternative-container{
- background: var(--alternative-dark) !important; 
- padding: var(--spacing-s) !important; 
-    border-radius: var(--border-radius-medium) !important; 
-    border: none  !important; 
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-    box-shadow: none !important;
-    line-height: normal !important;
-    text-indent: -2rem !important;
-  font-weight: 600 !important;
+/*DUPLICATE used in MC*/
+.h5p-theme .h5p-question-introduction {
+  font-size: var(--font-size-xl);
+  color: var(--text-primary);
+  font-weight: 600;
 }
+
 
 /* RESULT SCREEN ANSWERS */
 .h5p-theme-results-answer {

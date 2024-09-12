@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?7q3x6o');
-  src:  url('fonts/h5p-theme.eot?7q3x6o#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?7q3x6o') format('truetype'),
-    url('fonts/h5p-theme.woff?7q3x6o') format('woff'),
-    url('fonts/h5p-theme.svg?7q3x6o#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?4xjg48');
+  src:  url('fonts/h5p-theme.eot?4xjg48#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?4xjg48') format('truetype'),
+    url('fonts/h5p-theme.woff?4xjg48') format('woff'),
+    url('fonts/h5p-theme.svg?4xjg48#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -57,4 +57,16 @@
 }
 .icon-report:before {
   content: "\e90a";
+}
+.icon-square:before {
+  content: "\e90b";
+}
+.icon-check-square:before {
+  content: "\e90c";
+}
+.icon-radio-checked:before {
+  content: "\e90d";
+}
+.icon-radio:before {
+  content: "\e90e";
 }
