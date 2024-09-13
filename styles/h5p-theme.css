@@ -267,7 +267,7 @@
   border-radius: var(--border-radius-medium) !important;
   font-weight: bold !important;
   border: solid 3px var(--main-cta-base) !important;
-  padding: var(--spacing-s) var(--spacing-m) !important;
+  padding: var(--spacing-xs) var(--spacing-s) !important;
   font-size: var(--font-size-l) !important;
   transition: all 0.1s linear 0s !important;
   width: fit-content !important;
