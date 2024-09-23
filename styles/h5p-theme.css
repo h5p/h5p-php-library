@@ -88,23 +88,23 @@
   outline: none;
 }
 .h5p-theme-input.h5p-correct {
-  color: var(--feedback-correct-main) !important;
-  background-color: var(--feedback-correct-secondary) !important;
-  border-color: var(--feedback-correct-third) !important;
+  color: var(--feedback-correct-main);
+  background-color: var(--feedback-correct-secondary);
+  border-color: var(--feedback-correct-third);
   box-shadow: none;
 }
 .h5p-theme-input.h5p-correct input {
-  color: var(--feedback-correct-main) !important;
+  color: var(--feedback-correct-main);
   padding: var(--spacing-xs) 0;
 }
 .h5p-theme-input.h5p-wrong {
-  color: var(--feedback-incorrect-main) !important;
-  background-color: var(--feedback-incorrect-secondary) !important;
-  border-color: var(--feedback-incorrect-third) !important;
+  color: var(--feedback-incorrect-main);
+  background-color: var(--feedback-incorrect-secondary);
+  border-color: var(--feedback-incorrect-third);
   box-shadow: none;
 }
 .h5p-theme-input.h5p-wrong input {
-  color: var(--feedback-incorrect-main) !important;
+  color: var(--feedback-incorrect-main);
   padding: var(--spacing-xs) 0;
 }
 
@@ -198,51 +198,51 @@
 }
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
 .h5p-theme-primary-cta {
-  padding: var(--spacing-xs) var(--spacing-l) !important;
-  background-color: var(--main-cta-base) !important;
-  color: var(--contrast-cta) !important;
-  border-radius: var(--border-radius-medium) !important;
-  font-weight: bold !important;
-  cursor: pointer !important;
-  font-size: var(--font-size-l) !important;
-  transition: all 0.1s linear 0s !important;
-  transition-property: text-indent, padding !important;
-  border: none !important;
+  padding: var(--spacing-xs) calc(var(--spacing-l));
+  background-color: var(--main-cta-base);
+  color: var(--contrast-cta);
+  border-radius: var(--border-radius-medium);
+  font-weight: bold;
+  cursor: pointer;
+  font-size: var(--font-size-l);
+  transition: all 0.1s linear 0s;
+  transition-property: text-indent, padding;
+  border: none;
 }
 .h5p-theme-primary-cta:hover {
-  padding: var(--spacing-xs) calc(var(--spacing-l) - 0.75em) !important;
-  background-color: var(--main-cta-light) !important;
-  text-indent: 1.5em !important;
+  padding: var(--spacing-xs) calc(var(--spacing-l) - 0.75em);
+  background-color: var(--main-cta-light);
+  text-indent: 1.5em;
 }
 .h5p-theme-primary-cta:active {
-  background-color: var(--main-cta-dark) !important;
+  background-color: var(--main-cta-dark);
 }
 .h5p-theme-primary-cta:before {
-  display: inline-block !important;
-  position: absolute !important;
-  font-family: 'h5p-theme' !important;
-  text-indent: -1.5em !important;
-  opacity: 0 !important;
-  transform: translate(10px, 10px) !important;
-  transition: all 0.1s linear 0s !important;
-  transition-property: transform, opacity !important;
-  font-weight: normal !important;
+  display: inline-block;
+  position: absolute;
+  font-family: 'h5p-theme';
+  text-indent: -1.5em;
+  opacity: 0;
+  transform: translate(10px, 10px);
+  transition: all 0.1s linear 0s;
+  transition-property: transform, opacity;
+  font-weight: normal;
 }
 .h5p-theme-primary-cta:hover:before {
-  opacity: 1 !important;
-  transform: translate(0, 0) !important;
+  opacity: 1;
+  transform: translate(0, 0);
 }
 .h5p-theme-primary-cta.h5p-theme-check:before {
-  content: "\e908" !important;
+  content: "\e908";
 }
 .h5p-theme-primary-cta.h5p-theme-book:before {
-  content: "\e909" !important;
+  content: "\e909";
 }
 .h5p-theme-primary-cta.h5p-theme-flip:before {
-  content: "\e907" !important;
+  content: "\e907";
 }
 .h5p-theme-primary-cta.h5p-theme-show-results:before {
-  content: "\e90a" !important;
+  content: "\e90a";
 }
 /* If the container is smaller than 200px */
 @container (max-width: 200px) {
@@ -265,26 +265,26 @@
 }
 /* SECONDARY CTA (USED FOR SHOW SOLTUIONS, RETRY AND SIMILAR BUTTONS) */
 .h5p-theme-secondary-cta {
-  background-color: var(--ui-base) !important;
-  color: var(--main-cta-base) !important;
-  border-radius: var(--border-radius-medium) !important;
-  font-weight: bold !important;
-  border: solid 3px var(--main-cta-base) !important;
-  padding: var(--spacing-xs) var(--spacing-s) !important;
-  font-size: var(--font-size-l) !important;
-  transition: all 0.1s linear 0s !important;
-  width: fit-content !important;
+  background-color: var(--ui-base);
+  color: var(--main-cta-base);
+  border-radius: var(--border-radius-medium);
+  font-weight: bold;
+  border: solid 3px var(--main-cta-base);
+  padding: var(--spacing-xs) var(--spacing-s);
+  font-size: var(--font-size-l);
+  transition: all 0.1s linear 0s;
+  width: fit-content;
 }
 .h5p-theme-secondary-cta:hover {
-  background-color: var(--main-cta-base) !important;
-  border-color: var(--main-cta-base) !important;
-  color: var(--contrast-cta) !important;
-  cursor: pointer !important;
+  background-color: var(--main-cta-base);
+  border-color: var(--main-cta-base);
+  color: var(--contrast-cta);
+  cursor: pointer;
 }
 .h5p-theme-secondary-cta:active {
-  background-color: var(--main-cta-dark) !important;
-  border-color: var(--main-cta-dark) !important;
-  color: var(--contrast-cta) !important;
+  background-color: var(--main-cta-dark);
+  border-color: var(--main-cta-dark);
+  color: var(--contrast-cta);
 }
 .h5p-theme-secondary-cta:before {
   display: inline-block;
@@ -294,6 +294,27 @@
 }
 .h5p-theme-secondary-cta.h5p-theme-retry:before {
   content: "\e906";
+}
+
+/* If the container is smaller than 350px */
+@container (max-width: 350px) {
+  .h5p-theme-secondary-cta:hover {
+    text-indent: 0;
+    padding: var(--spacing-s) var(--spacing-l);
+  }
+  .h5p-theme-secondary-cta span {
+    display: none;
+  }
+  .h5p-theme-secondary-cta:before {
+    position: unset;
+    width: 100%;
+    margin-right: unset;
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  .h5p-theme-secondary-cta:hover:before {
+    transform: translate(0, 0);
+  }
 }
 /* USED FOR QUESTION DESCRIPTIONS */
 .h5p-theme-question-description {
@@ -344,7 +365,7 @@
 }
 
 .h5p-theme-results-answer .h5p-theme-results-solution {
-  border-style:  dotted !important;
+  border-style:  dotted;
 }
 
 .h5p-theme-results-answer .h5p-theme-results-solution .h5p-theme-results-solution-label {
