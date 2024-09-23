@@ -5,21 +5,21 @@
   /* LIGHT EXAMPLE COLORS */
   
   /*BLUE THEME */
-  --main-cta-base: #00509E;
-  --secondary-cta-base: #482776;
+  --main-cta-base: #505DDD;
+  --secondary-cta-base: #9E44DA;
   --alternative-base: #EEEFFA;
   --background: #CFDAF1;
   --focus: #3b54a5;
 
-  --main-cta-light: #006AD1;
-  --main-cta-dark: #00366B;
+  --main-cta-light: #5764E7;
+  --main-cta-dark: #2938D1;
   --contrast-cta: #E0F1FF;
-  --contrast-cta-white: #00509E;
+  --contrast-cta-white: #505ddd;
 
-  --contrast-cta-light: rgba(0, 80, 158, 0.1);
+  --contrast-cta-light: color-mix(in srgb, var(--main-cta-base), transparent 90%);
 
-  --secondary-cta-light: #60349D;
-  --secondary-cta-dark: #311B50;
+  --secondary-cta-light: #B46EE2;
+  --secondary-cta-dark: #8527C4;
   --secondary-contrast-cta: #F3F1F5;
   
   /* END blue  THEME*/
@@ -44,9 +44,9 @@
 
    /* END PURPLE THEME*/
   
-  --alternative-light: #F7F8FD;
-  --alternative-dark: #E7E9F8;
-  --alternative-darker: #DFE1F6;
+  --alternative-light: #F8F9FE;
+  --alternative-dark: #DCDFFA;
+  --alternative-darker: #ced1ee;
   
   --text-primary: #101729;
   --text-secondary: #354054;
@@ -70,10 +70,10 @@
   --feedback-incorrect-third: #f6dce7;
 	
 
-   /* DARK EXAMPLE COLORS 
+   /* DARK EXAMPLE COLORS
   --main-cta-base: #1765E3;
   --secondary-cta-base: #f6bf1b;
-  --alternative-base: #EEEFFA;
+  --alternative-base: #33313B;
   --background: #000000; 
   --focus: #1765E3;
 
@@ -88,9 +88,9 @@
   --secondary-cta-dark: #FFC107;
   --secondary-contrast-cta: #000000;
   
-  --alternative-light: #F7F8FD;
-  --alternative-dark: #E7E9F8;
-  --alternative-darker: #DFE1F6;
+  --alternative-light: #3e3b48;
+  --alternative-dark: #2e2c36;
+  --alternative-darker: #1d1c23;
 
   --text-primary: #FFFFFF;
   --text-secondary: #BEC1C5;

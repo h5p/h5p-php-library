@@ -23,6 +23,9 @@
 .h5p-content {
   font-family: var(--font-name);
 }
+.h5p-theme *:before{
+  font-weight: normal;
+}
 /* Form elements don't naturally inherit font-family */
 .h5p-content input, .h5p-content textarea, .h5p-content button {
   font-family: inherit;
@@ -195,7 +198,7 @@
 }
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
 .h5p-theme-primary-cta {
-  padding: var(--spacing-s) calc(var(--spacing-l)) !important;
+  padding: var(--spacing-xs) var(--spacing-l) !important;
   background-color: var(--main-cta-base) !important;
   color: var(--contrast-cta) !important;
   border-radius: var(--border-radius-medium) !important;
@@ -207,7 +210,7 @@
   border: none !important;
 }
 .h5p-theme-primary-cta:hover {
-  padding: var(--spacing-s) calc(var(--spacing-l) - 0.75em) !important;
+  padding: var(--spacing-xs) calc(var(--spacing-l) - 0.75em) !important;
   background-color: var(--main-cta-light) !important;
   text-indent: 1.5em !important;
 }
