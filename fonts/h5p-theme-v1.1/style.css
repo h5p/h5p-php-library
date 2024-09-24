@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?l0zo8h');
-  src:  url('fonts/h5p-theme.eot?l0zo8h#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?l0zo8h') format('truetype'),
-    url('fonts/h5p-theme.woff?l0zo8h') format('woff'),
-    url('fonts/h5p-theme.svg?l0zo8h#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?qrk0os');
+  src:  url('fonts/h5p-theme.eot?qrk0os#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?qrk0os') format('truetype'),
+    url('fonts/h5p-theme.woff?qrk0os') format('woff'),
+    url('fonts/h5p-theme.svg?qrk0os#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -69,4 +69,7 @@
 }
 .icon-radio:before {
   content: "\e90e";
+}
+.icon-move:before {
+  content: "\e90f";
 }
