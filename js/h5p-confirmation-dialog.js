@@ -15,6 +15,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
    * @param [options.hideExit] Hide exit button
    * @param [options.skipRestoreFocus] Skip restoring focus when hiding the dialog
    * @param [options.classes] Extra classes for popup
+   * @param [options.theme] Whether to use the new theme (true) or the old design (false)
    * @constructor
    */
   function ConfirmationDialog(options) {
@@ -171,7 +172,12 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
           flowTo(0, event);
         }
       });
-      popup.appendChild(exitButton);
+      if (options.theme) {
+        header.appendChild(exitButton);
+      }
+      else {
+        popup.appendChild(exitButton);
+      }
     }
     else {
       // Last child should set focus on first (forwards tab)

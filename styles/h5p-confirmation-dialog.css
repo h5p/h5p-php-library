@@ -207,3 +207,29 @@ button.h5p-confirmation-dialog-exit:hover {
     }
   }
 }
+
+/* H5P Theme */
+
+.h5p-theme .h5p-confirmation-dialog-header {
+  display: flex;
+  align-items: center;
+}
+
+.h5p-theme button.h5p-confirmation-dialog-exit:visited,
+.h5p-theme button.h5p-confirmation-dialog-exit:link,
+.h5p-theme button.h5p-confirmation-dialog-exit {
+  position: unset;
+  height: 0.5em;
+  margin-left: auto;
+  color: var(--secondary-cta-base);
+}
+
+.h5p-theme button.h5p-confirmation-dialog-exit:focus,
+.h5p-theme button.h5p-confirmation-dialog-exit:hover {
+  color: var(--secondary-cta-dark);
+}
+
+.h5p-theme .h5p-confirmation-dialog-exit::before {
+  display: inline-block;
+  transform: translateY(-0.48em);
+}
