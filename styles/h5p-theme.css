@@ -20,14 +20,14 @@
   font-style: normal;
 }
 
-.h5p-content {
+.h5p-theme .h5p-content {
   font-family: var(--font-name);
 }
 .h5p-theme *:before{
   font-weight: normal;
 }
 /* Form elements don't naturally inherit font-family */
-.h5p-content input, .h5p-content textarea, .h5p-content button {
+.h5p-theme .h5p-content input, .h5p-theme .h5p-content textarea, .h5p-theme .h5p-content button {
   font-family: inherit;
 }
 /* PATTERN (used in backgrounds of certain elements like results/summary screens, welcome screen, feedback section etc. */
