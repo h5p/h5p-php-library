@@ -4549,7 +4549,7 @@ class H5PContentValidator {
 
     // Remove attributes that should not exist, they may contain JSON escape
     // code.
-    $validKeys = array_merge(array('path', 'mime', 'copyright'), $typeValidKeys);
+    $validKeys = array_merge(array('path', 'mime', 'copyright', 'title'), $typeValidKeys);
     if (isset($semantics->extraAttributes)) {
       $validKeys = array_merge($validKeys, $semantics->extraAttributes); // TODO: Validate extraAttributes
     }
