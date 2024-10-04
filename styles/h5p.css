@@ -32,9 +32,6 @@ html.h5p-iframe, html.h5p-iframe > body {
   margin: 0;
   padding: 0;
 }
-.h5p-semi-fullscreen, .h5p-fullscreen, html.h5p-iframe .h5p-container {
-  overflow: hidden;
-}
 .h5p-content {
   position: relative;
   background: #fefefe;
