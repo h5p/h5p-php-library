@@ -143,6 +143,10 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       cancelButton.textContent = options.cancelText;
       cancelButton.addEventListener('click', dialogCanceled);
       buttons.appendChild(cancelButton);
+      
+      if (options.theme) {
+        cancelButton.classList.add('h5p-theme-secondary-cta');
+      }
     }
     else {
       // Center remaining buttons
@@ -154,6 +158,11 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     confirmButton.classList.add('h5p-core-button');
     confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
     confirmButton.setAttribute('aria-label', options.confirmText);
+
+    if (options.theme) {
+      confirmButton.classList.add('h5p-theme-primary-cta');
+    }
+
     confirmButton.addEventListener('click', dialogConfirmed);
     const confirmText = document.createElement('span');
     confirmText.textContent = options.confirmText;

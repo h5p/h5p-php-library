@@ -341,6 +341,12 @@ div.h5p-fullscreen {
   top: 50%;
   transform: translateX(-50%);
 }
+.h5p-theme .h5p-embed-dialog .h5p-inner,
+.h5p-theme .h5p-reuse-dialog .h5p-inner,
+.h5p-theme .h5p-content-user-data-reset-dialog .h5p-inner {
+  max-width: 45rem !important;
+  min-width: 35rem !important;
+}
 .h5p-embed-dialog .h5p-embed-code-container,
 .h5p-embed-size {
   resize: none;
