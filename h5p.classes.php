@@ -5039,7 +5039,7 @@ class H5PContentValidator {
               // Allow certain styles
 
               // Prevent font family from getting split wrong because of the ; in &quot;
-              if (str_contains($match[1], 'font-family')) {
+              if (strpos($match[1], 'font-family') !== false) {
                 $match[1] = str_replace('&quot;', "'", $match[1]);
               }
 
