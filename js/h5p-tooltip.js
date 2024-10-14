@@ -190,14 +190,27 @@ H5P.Tooltip = (function () {
     }
 
     /**
+     * Escape HTML characters to prevent XSS attacks
+     *
+     * @param {String} text The text to be escaped
+     * @returns {String} The escaped text
+     */
+    const escapeHTML = function (text) {
+      const div = document.createElement('div');
+      div.appendChild(document.createTextNode(text));
+      return div.innerHTML;
+    }
+
+    /**
      * Change the text displayed by the tooltip
      *
      * @param {String} text The new text to be displayed
-     *  Set to null to use aria-label of triggeringElement instead
+     *  Set to null to use options.tooltipSource of triggeringElement instead
      */
     this.setText = function (text) {
       options.text = text;
-      tooltip.innerHTML = options.text || triggeringElement.getAttribute('aria-label') || '';
+      const safeText = escapeHTML(options.text || triggeringElement.getAttribute(options.tooltipSource) || '');
+      tooltip.innerHTML = safeText;
     };
 
     /**
