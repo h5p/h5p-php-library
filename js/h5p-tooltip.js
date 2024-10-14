@@ -13,7 +13,7 @@ H5P.Tooltip = (function () {
    * @param {Boolean} options.ariaHidden Whether the hover should be read by screen readers or not (default: true)
    * @param {String} options.position Where the tooltip should appear in relation to the
    *  triggeringElement. Accepted positions are "top" (default), "left", "right" and "bottom"
-   *
+   * @param {String} options.tooltipSource
    * @constructor
    */
   function Tooltip(triggeringElement, options) {
@@ -26,6 +26,7 @@ H5P.Tooltip = (function () {
     options = options || {};
     options.classes = options.classes || [];
     options.ariaHidden = options.ariaHidden || true;
+    options.tooltipSource = options.tooltipSource || 'aria-label';
 
     // Initiate state
     let hover = false;
