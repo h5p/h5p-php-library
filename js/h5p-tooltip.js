@@ -3,18 +3,6 @@ H5P.Tooltip = (function () {
   'use strict';
 
   /**
-   * Escape HTML characters to prevent XSS attacks
-   *
-   * @param {String} text The text to be escaped
-   * @returns {String} The escaped text
-   */
-  const escapeHTML = function (text) {
-    const div = document.createElement('div');
-    div.appendChild(document.createTextNode(text));
-    return div.innerHTML;
-  }
-
-  /**
    * Create an accessible tooltip
    *
    * @param {HTMLElement} triggeringElement The element that should trigger the tooltip
@@ -56,7 +44,7 @@ H5P.Tooltip = (function () {
     tooltip.classList.add('h5p-tooltip');
     tooltip.id = tooltipId;
     tooltip.role = 'tooltip';
-    tooltip.innerHTML = escapeHTML(options.text || triggeringElement.getAttribute('aria-label') || '');
+    tooltip.innerHTML = options.text || triggeringElement.getAttribute('aria-label') || '';
     tooltip.setAttribute('aria-hidden', options.ariaHidden);
     tooltip.classList.add(...options.classes);
 
@@ -108,7 +96,7 @@ H5P.Tooltip = (function () {
     new MutationObserver(function (mutations) {
       const ariaLabel = mutations[0].target.getAttribute('aria-label');
       if (ariaLabel) {
-        tooltip.innerHTML = escapeHTML(options.text || ariaLabel);
+        tooltip.innerHTML = options.text || ariaLabel;
       }
     }).observe(triggeringElement, {
       attributes: true,
@@ -208,8 +196,8 @@ H5P.Tooltip = (function () {
      *  Set to null to use aria-label of triggeringElement instead
      */
     this.setText = function (text) {
-      options.text = escapeHTML(text);
-      tooltip.innerHTML = options.text || escapeHTML(triggeringElement.getAttribute('aria-label')) || '';
+      options.text = text;
+      tooltip.innerHTML = options.text || triggeringElement.getAttribute('aria-label') || '';
     };
 
     /**
