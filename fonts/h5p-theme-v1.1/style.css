@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?7mid43');
-  src:  url('fonts/h5p-theme.eot?7mid43#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?7mid43') format('truetype'),
-    url('fonts/h5p-theme.woff?7mid43') format('woff'),
-    url('fonts/h5p-theme.svg?7mid43#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?6s123y');
+  src:  url('fonts/h5p-theme.eot?6s123y#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?6s123y') format('truetype'),
+    url('fonts/h5p-theme.woff?6s123y') format('woff'),
+    url('fonts/h5p-theme.svg?6s123y#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -75,4 +75,10 @@
 }
 .icon-close:before {
   content: "\e910";
+}
+.icon-download:before {
+  content: "\e911";
+}
+.icon-copy:before {
+  content: "\e912";
 }

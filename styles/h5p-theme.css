@@ -197,7 +197,8 @@
   }
 }
 /* PRIMARY CTA (USED FOR VALIDATION BUTTONS) */
-.h5p-theme-primary-cta {
+.h5p-theme-primary-cta, 
+.h5p-content:has(.h5p-theme) .h5p-dialog-ok-button {
   padding: var(--spacing-xs) calc(var(--spacing-l));
   background-color: var(--main-cta-base);
   color: var(--contrast-cta);
@@ -215,7 +216,9 @@
   border-color: var(--main-cta-light);
   text-indent: 1.5em;
 }
-.h5p-theme-primary-cta:active {
+
+.h5p-theme-primary-cta:active, 
+.h5p-content:has(.h5p-theme) .h5p-dialog-ok-button:active {
   background-color: var(--main-cta-dark);
   border-color: var(--main-cta-dark);
 }
@@ -420,11 +423,119 @@
 /*TODO: move to column css*/
 .h5p-column-content.h5p-question.h5p-theme{
   margin: var(--spacing-xs) var(--spacing-xs);
-  /*box-shadow: 0px 8px 19.9px 0px rgba(0, 0, 0, 0.05);*/
+  box-shadow: 0px 8px 19.9px 0px rgba(0, 0, 0, 0.05);
   border: solid 1px var(--stroke-1);
   border-radius: var(--border-radius-medium);
- /* padding: var(--spacing-m);*/
+  padding: var(--spacing-s);
 }
 .h5p-container.h5p-standalone.h5p-column{
   padding: var(--spacing-m);
 }
+
+
+/* TODO: move "Data reset" stylings to cli when we can do that */
+
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-inner > h2{
+    background-color: var(--ui-base);
+    display: flex;
+    align-items: center;
+    color: var(--text-primary);
+    padding: var(--spacing-m) var(--spacing-l);
+    font-weight: bold;
+  border-bottom: 0;
+    background-color: var(--ui-base);
+   border-radius: var(--border-radius-large) var(--border-radius-large) 0 0 ;
+}
+.h5p-content:has(.h5p-theme) .h5p-inner{
+    min-width: 35rem;
+    color: var(--text-primary);
+   border-radius: var(--border-radius-large);
+
+}
+
+.h5p-content:has(.h5p-theme) .h5p-reuse-dialog .h5p-inner{
+      max-width: 45rem;
+}
+
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog {
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog.h5p-open .h5p-scroll-content{
+  padding: var(--spacing-xl) var(--spacing-l) var(--spacing-l) var(--spacing-l);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--ui-base);
+  border-radius: var(--border-radius-large);
+  grid-gap: var(--spacing-s);
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog.h5p-embed-dialog.h5p-open .h5p-scroll-content, .h5p-expander-content,
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog.h5p-content-user-data-reset-dialog.h5p-open .h5p-scroll-content{
+  display: block;
+}
+
+
+.h5p-content:has(.h5p-theme) .h5p-dialog-ok-button:hover {
+  background-color: var(--main-cta-light);
+  border-color: var(--main-cta-light);
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-close{
+font-size: var(--font-size-xl);
+  margin: var(--spacing-xs) var(--spacing-s);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-close {
+display: inline-block;
+    padding: var(--spacing-s);
+    border-radius: 50%;
+}
+
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-close:after {
+    font-family: "h5p-theme";
+    content: "\e910";
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-close:hover {
+    color: var(--text-primary);
+    background-color: var(--alternative-base);
+} 
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-horizontal-line-text{
+  display: none;
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:before{
+  position: unset;
+  font-family: 'h5p-theme';
+  color: var(--main-cta-base);
+  display: block;
+  margin-bottom: var(--spacing-s); 
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-button-title{
+  color: var(--main-cta-base);
+  font-size: var(--font-size-l);
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-button-description{
+  color: var(--text-third);
+  font-size: var(--font-size-s);
+}
+
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button{
+  padding: var(--spacing-m);
+  background: var(--ui-base);
+  border: solid 2px var(--stroke-2);
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-copy-button:before {
+  content: "\e912";
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-download-button:before{
+  content: "\e911";
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:hover{
+  background-color: var(--main-cta-base);
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:hover.h5p-big-button:before, 
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:hover .h5p-button-title,
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:hover .h5p-button-description{
+  color: var(--contrast-cta);
+}
+

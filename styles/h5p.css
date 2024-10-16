@@ -335,6 +335,10 @@ div.h5p-fullscreen {
   font-size: 12px;
   margin-left: 1em;
 }
+/* TODO: Fix the color of the link */
+.h5p-theme .h5p-popup-dialog .h5p-inner > h2 > a{
+  color: var(--main-cta-base);
+}
 .h5p-embed-dialog .h5p-inner,
 .h5p-reuse-dialog .h5p-inner,
 .h5p-content-user-data-reset-dialog .h5p-inner {
@@ -349,6 +353,18 @@ div.h5p-fullscreen {
 .h5p-theme .h5p-content-user-data-reset-dialog .h5p-inner {
   max-width: 45rem !important;
   min-width: 35rem !important;
+}
+.h5p-content:has(.h5p-theme) .h5p-embed-dialog .h5p-embed-code-container,
+.h5p-content:has(.h5p-theme) .h5p-embed-size{
+  border: 1px solid var(--stroke-1);
+  background-color: var(--ui-base);
+  padding: var(--spacing-xs);
+  font-size: var(--font-size-m);
+  line-height: 1;
+  min-height: var(--spacing-l);
+  letter-spacing: normal;
+  color: var(--text-third);
+  border-radius: var(--border-radius-medium);
 }
 .h5p-embed-dialog .h5p-embed-code-container,
 .h5p-embed-size {
@@ -370,6 +386,10 @@ div.h5p-fullscreen {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
 }
+.h5p-content:has(.h5p-theme) .h5p-embed-dialog .h5p-embed-code-container{
+  display: block;
+  
+}
 .h5p-embed-dialog .h5p-embed-code-container:focus {
   height: 5em;
 }
@@ -386,6 +406,9 @@ div.h5p-fullscreen {
   -moz-box-sizing: border-box;
   color: #555555;
   z-index: 1;
+}
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-scroll-content {
+  color: var(--text-secondary);
 }
 .h5p-popup-dialog.h5p-open .h5p-scroll-content {
   overflow: auto;
@@ -452,6 +475,13 @@ div.h5p-fullscreen {
   font-size: 1.125em;
   margin: 0.5em 0 0;
   display: inline-block;
+}
+.h5p-content:has(.h5p-theme) .h5p-expander{
+  border: solid 1px var(--stroke-1);
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-medium);
+  font-size: var(--font-size-m);
+  background-color: var(--alternative-base);
 }
 .h5p-expander:before {
   content: "+";

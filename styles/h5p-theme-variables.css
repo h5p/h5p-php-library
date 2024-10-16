@@ -8,7 +8,7 @@
   --main-cta-base: #505DDD;
   --secondary-cta-base: #9E44DA;
   --alternative-base: #EEEFFA;
-  --background: #CFDAF1;
+  --background: #F0F0FC;
   --focus: #3b54a5;
 
   --main-cta-light: #5764E7;
@@ -42,7 +42,8 @@
   --secondary-cta-dark: #311B50;
   --secondary-contrast-cta: #F3F1F5;
 
-   /* END PURPLE THEME*/
+    END PURPLE THEME*/
+  
   
   --alternative-light: #F8F9FE;
   --alternative-dark: #DCDFFA;
@@ -52,7 +53,7 @@
   --text-secondary: #354054;
   --text-third: #737373;
   --ui-base: #FFFFFF;
-  --stroke-1: #CDD1F6;
+  --stroke-1: #DCDFFA;
   --stroke-2: #EDEEFB;
   --stroke-3: #E5E5E5;
   --border-radius-large: 0.5rem;
@@ -113,7 +114,7 @@
   --border-radius-large: 0.5rem;
   --border-radius-medium: 0.375rem;
   --border-radius-small: 0.25rem;
-  
+  */
  
 
   /* SPACING */

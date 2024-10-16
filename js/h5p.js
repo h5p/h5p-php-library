@@ -92,7 +92,130 @@ H5P.init = function (target) {
   // H5Ps added in normal DIV.
   H5P.jQuery('.h5p-content:not(.h5p-initialized)', target).each(function () {
     var $element = H5P.jQuery(this).addClass('h5p-initialized');
-	  $element.addClass('h5p-large'); // TODO: remove
+ 
+    // TODO: remove from here
+    $element.addClass('h5p-large');
+    // TODO: remove data reset dialog
+    /*$element.append('<div class="h5p-popup-dialog h5p-content-user-data-reset-dialog h5p-open" aria-labelledby="content-user-data-reset-dialog-header" aria-modal="true" role="dialog" tabindex="-1"><div class="h5p-inner"><h2 id="content-user-data-reset-dialog-header">Data Reset</h2><div class="h5p-scroll-content"><p>This content has changed since you last used it.</p><p>You\'ll be starting over.</p><div class="h5p-dialog-ok-button" tabindex="0" role="button">OK</div></div><div class="h5p-close" role="button" tabindex="0" aria-label="Close" title="Close"></div></div></div>');*/
+        // TODO: stop date
+    
+    // TODO: remove embed dialog
+   // $element.append('<div class="h5p-popup-dialog h5p-embed-dialog h5p-open" aria-labelledby="embed-dialog-header" aria-modal="true" role="dialog" tabindex="-1">                              <div class="h5p-inner">                                <h2 id="embed-dialog-header">Embed</h2>                                <div class="h5p-scroll-content"><div class="h5p-trial-warning"><b>WARNING:</b> H5P.org is only for trying out H5P. The embed option will be limited soon. Do not use H5P.org to host real content. <a href="https://h5p.org/h5p-org-only-for-testing-h5p" target="_blank">Learn more</a></div><textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false" style="height: 30px;"></textarea>Size: <input aria-label="width" type="text" value="1091" class="h5p-embed-size"> × <input aria-label="width" type="text" value="675" class="h5p-embed-size"> px<br><div role="button" tabindex="0" class="h5p-expander h5p-open" aria-expanded="false">Hide advanced</div><div class="h5p-expander-content" style="display: block;"><p>Include this script on your website if you want dynamic sizing of the embedded content:</p><textarea class="h5p-embed-code-container" autocorrect="off" autocapitalize="off" spellcheck="false" style="height: 30px;">&lt;script src="https://h5p.org/sites/all/modules/h5p/library/js/h5p-resizer.js" charset="UTF-8"&gt;&lt;/script&gt;</textarea></div></div>                                <div class="h5p-close" role="button" tabindex="0" aria-label="Close" title="Close"></div>                              </div>                            </div>');
+    
+
+    var r = document.querySelector(':root');
+    function changeThemeBlue() {
+      r.style.setProperty('--main-cta-base', '#505DDD');
+      r.style.setProperty('--secondary-cta-base', '#9E44DA');
+      r.style.setProperty('--alternative-base', '#EEEFFA');
+      r.style.setProperty('--background', '#F0F0FC');
+      r.style.setProperty('--focus', '#3b54a5');
+      r.style.setProperty('--main-cta-light', '#5764E7');
+      r.style.setProperty('--main-cta-dark', '#2938D1');
+      r.style.setProperty('--contrast-cta', '#E0F1FF');
+      r.style.setProperty('--contrast-cta-white', '#505ddd');
+      r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
+      r.style.setProperty('--secondary-cta-light', '#B46EE2');
+      r.style.setProperty('--secondary-cta-dark', '#8527C4');
+      r.style.setProperty('--secondary-contrast-cta', '#F3F1F5');
+      r.style.setProperty('--alternative-light', '#F8F9FE');
+      r.style.setProperty('--alternative-dark', '#DCDFFA');
+      r.style.setProperty('--alternative-darker', '#ced1ee');
+      r.style.setProperty('--text-primary', '#101729');
+      r.style.setProperty('--text-secondary', '#354054');
+      r.style.setProperty('--text-third', '#737373');
+      r.style.setProperty('--ui-base', '#FFFFFF');
+      r.style.setProperty('--stroke-1', '#DCDFFA');
+      r.style.setProperty('--stroke-2', '#EDEEFB');
+      r.style.setProperty('--stroke-3', '#E5E5E5');
+      r.style.setProperty('--feedback-correct-main', '#256D1D');
+      r.style.setProperty('--feedback-correct-secondary', '#f3fcf0');
+      r.style.setProperty('--feedback-correct-third', '#cff1c2'); 
+      r.style.setProperty('--feedback-incorrect-main', '#a13236');
+      r.style.setProperty('--feedback-incorrect-secondary', '#faf0f4');
+      r.style.setProperty('--feedback-incorrect-third', '#f6dce7'); 
+    }
+    function changeThemePurple() {
+      r.style.setProperty('--main-cta-base', '#834DD5');
+      r.style.setProperty('--secondary-cta-base', '#000000');
+      r.style.setProperty('--alternative-base', '#f3edff');
+      r.style.setProperty('--background', '#d0bcee');
+      r.style.setProperty('--focus', '#F1EBFA');
+      r.style.setProperty('--main-cta-light', '#8347DD');
+      r.style.setProperty('--main-cta-dark', '#692EC2');
+      r.style.setProperty('--contrast-cta', '#ffffff');
+      r.style.setProperty('--contrast-cta-white', '#834DD5');
+      r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
+      r.style.setProperty('--secondary-cta-light', '#333333');
+      r.style.setProperty('--secondary-cta-dark', '#311B50');
+      r.style.setProperty('--secondary-contrast-cta', '#F3F1F5');
+      r.style.setProperty('--alternative-light', '#f8f5ff');
+      r.style.setProperty('--alternative-dark', '#e8d9ff');
+      r.style.setProperty('--alternative-darker', '#ddc7ff');
+      r.style.setProperty('--text-primary', '#101729');
+      r.style.setProperty('--text-secondary', '#354054');
+      r.style.setProperty('--text-third', '#737373');
+      r.style.setProperty('--ui-base', '#FFFFFF');
+      r.style.setProperty('--stroke-1', '#CDD1F6');
+      r.style.setProperty('--stroke-2', '#EDEEFB');
+      r.style.setProperty('--stroke-3', '#E5E5E5');
+      r.style.setProperty('--feedback-correct-main', '#256D1D');
+      r.style.setProperty('--feedback-correct-secondary', '#f3fcf0');
+      r.style.setProperty('--feedback-correct-third', '#cff1c2'); 
+      r.style.setProperty('--feedback-incorrect-main', '#a13236');
+      r.style.setProperty('--feedback-incorrect-secondary', '#faf0f4');
+      r.style.setProperty('--feedback-incorrect-third', '#f6dce7'); 
+    }
+    function changeThemeDark() {
+      r.style.setProperty('--main-cta-base', '#1765E3');
+      r.style.setProperty('--secondary-cta-base', '#f6bf1b');
+      r.style.setProperty('--alternative-base', '#33313B');
+      r.style.setProperty('--background', '#000000');
+      r.style.setProperty('--focus', '#1765E3');
+      r.style.setProperty('--main-cta-light', '#2F7CFA');
+      r.style.setProperty('--main-cta-dark', '#25539d');
+      r.style.setProperty('--contrast-cta', '#ffffff');
+      r.style.setProperty('--contrast-cta-white', '#00509E');
+      r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
+      r.style.setProperty('--secondary-cta-light', '#ffc926');
+      r.style.setProperty('--secondary-cta-dark', '#FFC107');
+      r.style.setProperty('--secondary-contrast-cta', '#000000');
+      r.style.setProperty('--alternative-light', '#3e3b48');
+      r.style.setProperty('--alternative-dark', '#2e2c36');
+      r.style.setProperty('--alternative-darker', '#000000');
+      r.style.setProperty('--text-primary', '#FFFFFF');
+      r.style.setProperty('--text-secondary', '#BEC1C5');
+      r.style.setProperty('--text-third', '#919191');
+      r.style.setProperty('--ui-base', '#1C1C1C');
+      r.style.setProperty('--stroke-1', '#33313B');
+      r.style.setProperty('--stroke-2', '#3b3b3b');
+      r.style.setProperty('--stroke-3', '#33313B');
+      r.style.setProperty('--feedback-correct-main', '#dbf5d0');
+      r.style.setProperty('--feedback-correct-secondary', '#293227');
+      r.style.setProperty('--feedback-correct-third', '#53624d'); 
+      r.style.setProperty('--feedback-incorrect-main', '#fbd7d8');
+      r.style.setProperty('--feedback-incorrect-secondary', '#470a22');
+      r.style.setProperty('--feedback-incorrect-third', '#80214b'); 
+    }
+    
+    var $Themecontainer = H5P.jQuery('<div style="padding: 1rem; text-align:center; margin: 1rem;"></div>').appendTo($element);
+    
+    const $button1 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #588ee1 0%, #588ee1 50%, #f0f0fc 50%, #f0f0fc 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    $button1.on('click', () => changeThemeBlue());
+    
+    const $button2 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #9458e1 0%, #9458e1 50%, #e9d3f3 50%, #e9d3f3 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    $button2.on('click', () => changeThemePurple());
+    
+    const $button3 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #1c1c1c 0%, #1c1c1c 50%, #33313b 50%, #33313b 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    $button3.on('click', () => changeThemeDark());
+    
+    $button1.appendTo($Themecontainer);
+    $button2.appendTo($Themecontainer);
+    $button3.appendTo($Themecontainer);
+    
+    // TODO: stop removing 
+    
+
     var $container = H5P.jQuery('<div class="h5p-container"></div>').appendTo($element);
     var contentId = $element.data('content-id');
     var contentData = H5PIntegration.contents['cid-' + contentId];
