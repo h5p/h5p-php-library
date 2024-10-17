@@ -3,6 +3,18 @@ H5P.Tooltip = (function () {
   'use strict';
 
   /**
+   * Escape HTML characters to prevent XSS attacks
+   *
+   * @param {String} text The text to be escaped
+   * @returns {String} The escaped text
+   */
+  function escapeHTML(text) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+  }
+
+  /**
    * Create an accessible tooltip
    *
    * @param {HTMLElement} triggeringElement The element that should trigger the tooltip
@@ -13,6 +25,7 @@ H5P.Tooltip = (function () {
    * @param {Boolean} options.ariaHidden Whether the hover should be read by screen readers or not (default: true)
    * @param {String} options.position Where the tooltip should appear in relation to the
    *  triggeringElement. Accepted positions are "top" (default), "left", "right" and "bottom"
+   * @param {String} options.tooltipSource
    *
    * @constructor
    */
@@ -26,6 +39,7 @@ H5P.Tooltip = (function () {
     options = options || {};
     options.classes = options.classes || [];
     options.ariaHidden = options.ariaHidden || true;
+    options.tooltipSource = options.tooltipSource || 'aria-label';
 
     // Initiate state
     let hover = false;
@@ -44,7 +58,7 @@ H5P.Tooltip = (function () {
     tooltip.classList.add('h5p-tooltip');
     tooltip.id = tooltipId;
     tooltip.role = 'tooltip';
-    tooltip.innerHTML = options.text || triggeringElement.getAttribute('aria-label') || '';
+    tooltip.innerHTML = escapeHTML(options.text || triggeringElement.getAttribute(options.tooltipSource) || '');
     tooltip.setAttribute('aria-hidden', options.ariaHidden);
     tooltip.classList.add(...options.classes);
 
@@ -96,7 +110,7 @@ H5P.Tooltip = (function () {
     new MutationObserver(function (mutations) {
       const ariaLabel = mutations[0].target.getAttribute('aria-label');
       if (ariaLabel) {
-        tooltip.innerHTML = options.text || ariaLabel;
+        tooltip.innerHTML = escapeHTML(options.text || ariaLabel);
       }
     }).observe(triggeringElement, {
       attributes: true,
@@ -193,11 +207,11 @@ H5P.Tooltip = (function () {
      * Change the text displayed by the tooltip
      *
      * @param {String} text The new text to be displayed
-     *  Set to null to use aria-label of triggeringElement instead
+     *  Set to null to use options.tooltipSource of triggeringElement instead
      */
     this.setText = function (text) {
       options.text = text;
-      tooltip.innerHTML = options.text || triggeringElement.getAttribute('aria-label') || '';
+      tooltip.innerHTML = options.text || escapeHTML(triggeringElement.getAttribute(options.tooltipSource)) || '';
     };
 
     /**
