@@ -139,7 +139,69 @@ H5P.init = function (target) {
       r.style.setProperty('--main-cta-base', '#834DD5');
       r.style.setProperty('--secondary-cta-base', '#000000');
       r.style.setProperty('--alternative-base', '#f3edff');
-      r.style.setProperty('--background', '#d0bcee');
+      r.style.setProperty('--background', '#F3EEFA');
+      r.style.setProperty('--focus', '#F1EBFA');
+      r.style.setProperty('--main-cta-light', '#8347DD');
+      r.style.setProperty('--main-cta-dark', '#692EC2');
+      r.style.setProperty('--contrast-cta', '#ffffff');
+      r.style.setProperty('--contrast-cta-white', '#834DD5');
+      r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
+      r.style.setProperty('--secondary-cta-light', '#333333');
+      r.style.setProperty('--secondary-cta-dark', '#311B50');
+      r.style.setProperty('--secondary-contrast-cta', '#F3F1F5');
+      r.style.setProperty('--alternative-light', '#f8f5ff');
+      r.style.setProperty('--alternative-dark', '#e8d9ff');
+      r.style.setProperty('--alternative-darker', '#ddc7ff');
+      r.style.setProperty('--text-primary', '#101729');
+      r.style.setProperty('--text-secondary', '#354054');
+      r.style.setProperty('--text-third', '#737373');
+      r.style.setProperty('--ui-base', '#FFFFFF');
+      r.style.setProperty('--stroke-1', '#CDD1F6');
+      r.style.setProperty('--stroke-2', '#EDEEFB');
+      r.style.setProperty('--stroke-3', '#E5E5E5');
+      r.style.setProperty('--feedback-correct-main', '#256D1D');
+      r.style.setProperty('--feedback-correct-secondary', '#f3fcf0');
+      r.style.setProperty('--feedback-correct-third', '#cff1c2'); 
+      r.style.setProperty('--feedback-incorrect-main', '#a13236');
+      r.style.setProperty('--feedback-incorrect-secondary', '#faf0f4');
+      r.style.setProperty('--feedback-incorrect-third', '#f6dce7'); 
+    }
+    function changeThemeGreen() {
+      r.style.setProperty('--main-cta-base', '#17948b');
+      r.style.setProperty('--secondary-cta-base', '#000000');
+      r.style.setProperty('--alternative-base', '#e5f7f6');
+      r.style.setProperty('--background', '#e9f5f4');
+      r.style.setProperty('--focus', '#F1EBFA');
+      r.style.setProperty('--main-cta-light', '#8347DD');
+      r.style.setProperty('--main-cta-dark', '#692EC2');
+      r.style.setProperty('--contrast-cta', '#ffffff');
+      r.style.setProperty('--contrast-cta-white', '#834DD5');
+      r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
+      r.style.setProperty('--secondary-cta-light', '#333333');
+      r.style.setProperty('--secondary-cta-dark', '#311B50');
+      r.style.setProperty('--secondary-contrast-cta', '#F3F1F5');
+      r.style.setProperty('--alternative-light', '#f0faf9');
+      r.style.setProperty('--alternative-dark', '#c8eeeb');
+      r.style.setProperty('--alternative-darker', '#c8eeeb');
+      r.style.setProperty('--text-primary', '#101729');
+      r.style.setProperty('--text-secondary', '#354054');
+      r.style.setProperty('--text-third', '#737373');
+      r.style.setProperty('--ui-base', '#FFFFFF');
+      r.style.setProperty('--stroke-1', '#CDD1F6');
+      r.style.setProperty('--stroke-2', '#EDEEFB');
+      r.style.setProperty('--stroke-3', '#E5E5E5');
+      r.style.setProperty('--feedback-correct-main', '#256D1D');
+      r.style.setProperty('--feedback-correct-secondary', '#f3fcf0');
+      r.style.setProperty('--feedback-correct-third', '#cff1c2'); 
+      r.style.setProperty('--feedback-incorrect-main', '#a13236');
+      r.style.setProperty('--feedback-incorrect-secondary', '#faf0f4');
+      r.style.setProperty('--feedback-incorrect-third', '#f6dce7'); 
+    }
+    function changeThemeOrange() {
+      r.style.setProperty('--main-cta-base', '#834DD5');
+      r.style.setProperty('--secondary-cta-base', '#000000');
+      r.style.setProperty('--alternative-base', '#f3edff');
+      r.style.setProperty('--background', '#F3EEFA');
       r.style.setProperty('--focus', '#F1EBFA');
       r.style.setProperty('--main-cta-light', '#8347DD');
       r.style.setProperty('--main-cta-dark', '#692EC2');
@@ -206,12 +268,20 @@ H5P.init = function (target) {
     const $button2 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #9458e1 0%, #9458e1 50%, #e9d3f3 50%, #e9d3f3 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
     $button2.on('click', () => changeThemePurple());
     
-    const $button3 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #1c1c1c 0%, #1c1c1c 50%, #33313b 50%, #33313b 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
-    $button3.on('click', () => changeThemeDark());
+    const $button3 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #008073 0%, #008073 50%, #faf4e6 50%, #faf4e6 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    $button3.on('click', () => changeThemeGreen());
+    
+    const $button4 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #d63a0a 0%, #d63a0a 50%, #fee3d8 50%, #fee3d8 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    $button4.on('click', () => changeThemeOrange());
+    
+    const $button5 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #1c1c1c 0%, #1c1c1c 50%, #33313b 50%, #33313b 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    $button5.on('click', () => changeThemeDark());
     
     $button1.appendTo($Themecontainer);
     $button2.appendTo($Themecontainer);
     $button3.appendTo($Themecontainer);
+    $button4.appendTo($Themecontainer);
+    $button5.appendTo($Themecontainer);
     
     // TODO: stop removing 
     
