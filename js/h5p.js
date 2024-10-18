@@ -104,6 +104,7 @@ H5P.init = function (target) {
     
 
     var r = document.querySelector(':root');
+    var c = document.getElementsByClassName("h5p-content")[0];  
     function changeThemeBlue() {
       r.style.setProperty('--main-cta-base', '#505DDD');
       r.style.setProperty('--secondary-cta-base', '#9E44DA');
@@ -169,20 +170,20 @@ H5P.init = function (target) {
     function changeThemeGreen() {
       r.style.setProperty('--main-cta-base', '#17948b');
       r.style.setProperty('--secondary-cta-base', '#000000');
-      r.style.setProperty('--alternative-base', '#e5f7f6');
-      r.style.setProperty('--background', '#e9f5f4');
+      r.style.setProperty('--alternative-base', '#FAF4E6');
+      r.style.setProperty('--background', '#FCF9F2');
       r.style.setProperty('--focus', '#F1EBFA');
-      r.style.setProperty('--main-cta-light', '#8347DD');
-      r.style.setProperty('--main-cta-dark', '#692EC2');
+      r.style.setProperty('--main-cta-light', '#00B2A0');
+      r.style.setProperty('--main-cta-dark', '#004D45');
       r.style.setProperty('--contrast-cta', '#ffffff');
       r.style.setProperty('--contrast-cta-white', '#834DD5');
       r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
       r.style.setProperty('--secondary-cta-light', '#333333');
       r.style.setProperty('--secondary-cta-dark', '#311B50');
       r.style.setProperty('--secondary-contrast-cta', '#F3F1F5');
-      r.style.setProperty('--alternative-light', '#f0faf9');
-      r.style.setProperty('--alternative-dark', '#c8eeeb');
-      r.style.setProperty('--alternative-darker', '#c8eeeb');
+      r.style.setProperty('--alternative-light', '#FCF9F2');
+      r.style.setProperty('--alternative-dark', '#F2E3BF');
+      r.style.setProperty('--alternative-darker', '#EEDAAA');
       r.style.setProperty('--text-primary', '#101729');
       r.style.setProperty('--text-secondary', '#354054');
       r.style.setProperty('--text-third', '#737373');
@@ -198,22 +199,22 @@ H5P.init = function (target) {
       r.style.setProperty('--feedback-incorrect-third', '#f6dce7'); 
     }
     function changeThemeOrange() {
-      r.style.setProperty('--main-cta-base', '#834DD5');
-      r.style.setProperty('--secondary-cta-base', '#000000');
-      r.style.setProperty('--alternative-base', '#f3edff');
+      r.style.setProperty('--main-cta-base', '#D63A0A');
+      r.style.setProperty('--secondary-cta-base', '#172326');
+      r.style.setProperty('--alternative-base', '#FFF2ED');
       r.style.setProperty('--background', '#F3EEFA');
       r.style.setProperty('--focus', '#F1EBFA');
-      r.style.setProperty('--main-cta-light', '#8347DD');
-      r.style.setProperty('--main-cta-dark', '#692EC2');
+      r.style.setProperty('--main-cta-light', '#F5511F');
+      r.style.setProperty('--main-cta-dark', '#AF320B');
       r.style.setProperty('--contrast-cta', '#ffffff');
-      r.style.setProperty('--contrast-cta-white', '#834DD5');
+      r.style.setProperty('--contrast-cta-white', '#FFFFFF');
       r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
-      r.style.setProperty('--secondary-cta-light', '#333333');
-      r.style.setProperty('--secondary-cta-dark', '#311B50');
+      r.style.setProperty('--secondary-cta-light', '#263A3F');
+      r.style.setProperty('--secondary-cta-dark', '#121A1D');
       r.style.setProperty('--secondary-contrast-cta', '#F3F1F5');
-      r.style.setProperty('--alternative-light', '#f8f5ff');
-      r.style.setProperty('--alternative-dark', '#e8d9ff');
-      r.style.setProperty('--alternative-darker', '#ddc7ff');
+      r.style.setProperty('--alternative-light', '#FDF8F7');
+      r.style.setProperty('--alternative-dark', '#F2DBD4');
+      r.style.setProperty('--alternative-darker', '#FFCFBA');
       r.style.setProperty('--text-primary', '#101729');
       r.style.setProperty('--text-secondary', '#354054');
       r.style.setProperty('--text-third', '#737373');
@@ -260,28 +261,67 @@ H5P.init = function (target) {
       r.style.setProperty('--feedback-incorrect-third', '#80214b'); 
     }
     
-    var $Themecontainer = H5P.jQuery('<div style="padding: 1rem; text-align:center; margin: 1rem;"></div>').appendTo($element);
+    function changeThemeSmall(){
+      c.classList.remove("h5p-large"); 
+      c.classList.remove("h5p-medium"); 
+      c.classList.add("h5p-small"); 
+    }
     
-    const $button1 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #588ee1 0%, #588ee1 50%, #f0f0fc 50%, #f0f0fc 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    function changeThemeMedium(){
+      c.classList.remove("h5p-small"); 
+      c.classList.remove("h5p-large"); 
+      c.classList.add("h5p-medium"); 
+    }
+    
+     function changeThemeLarge(){
+      c.classList.remove("h5p-small"); 
+      c.classList.remove("h5p-medium"); 
+      c.classList.add("h5p-large"); 
+    }
+    
+    var $Themecontainer = H5P.jQuery('<div style="padding: 0.5rem 1rem; text-align:center; margin: 0.5rem 1rem; display: grid; grid-template-columns: 1fr 1fr;"></div>').appendTo($element);
+    var $Colorcontainer = H5P.jQuery('<div style="align-content: center; text-align:left;"></div>').appendTo($Themecontainer);
+    var $Sizecontainer = H5P.jQuery('<div style="align-content: center; text-align:right;"></div>').appendTo($Themecontainer);
+    
+    const $button1 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #588ee1 0%, #588ee1 50%, #f0f0fc 50%, #f0f0fc 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button1.on('click', () => changeThemeBlue());
     
-    const $button2 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #9458e1 0%, #9458e1 50%, #e9d3f3 50%, #e9d3f3 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    const $button2 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #9458e1 0%, #9458e1 50%, #e9d3f3 50%, #e9d3f3 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button2.on('click', () => changeThemePurple());
     
-    const $button3 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #008073 0%, #008073 50%, #faf4e6 50%, #faf4e6 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    const $button3 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #008073 0%, #008073 50%, #faf4e6 50%, #faf4e6 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button3.on('click', () => changeThemeGreen());
     
-    const $button4 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #d63a0a 0%, #d63a0a 50%, #fee3d8 50%, #fee3d8 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    const $button4 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #d63a0a 0%, #d63a0a 50%, #fee3d8 50%, #fee3d8 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button4.on('click', () => changeThemeOrange());
     
-    const $button5 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #1c1c1c 0%, #1c1c1c 50%, #33313b 50%, #33313b 100%);    box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 1);"></button>');
+    const $button5 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #1c1c1c 0%, #1c1c1c 50%, #33313b 50%, #33313b 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button5.on('click', () => changeThemeDark());
     
-    $button1.appendTo($Themecontainer);
-    $button2.appendTo($Themecontainer);
-    $button3.appendTo($Themecontainer);
-    $button4.appendTo($Themecontainer);
-    $button5.appendTo($Themecontainer);
+    const $button6 = H5P.jQuery('<button style="background-color: white; border-radius: 4px; border: solid 1px #cccccc; margin-right: 0.5rem;" type="button">Large</button>');
+    $button6.on('click', () => changeThemeLarge());
+    
+    const $button7 = H5P.jQuery('<button style="background-color: white; border-radius: 4px; border: solid 1px #cccccc; margin-right: 0.5rem;" type="button">Medium</button>');
+    $button7.on('click', () => changeThemeMedium());
+    
+    const $button8 = H5P.jQuery('<button style="background-color: white; border-radius: 4px; border: solid 1px #cccccc;" type="button">Small</button>');
+    $button8.on('click', () => changeThemeSmall());
+    
+    
+    
+    
+     
+    $button1.appendTo($Colorcontainer);
+    $button2.appendTo($Colorcontainer);
+    $button3.appendTo($Colorcontainer);
+    $button4.appendTo($Colorcontainer);
+    $button5.appendTo($Colorcontainer);
+     
+    $button6.appendTo($Sizecontainer);
+    $button7.appendTo($Sizecontainer);
+    $button8.appendTo($Sizecontainer);
+    
+    
     
     // TODO: stop removing 
     
