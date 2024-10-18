@@ -211,7 +211,7 @@ H5P.Tooltip = (function () {
      */
     this.setText = function (text) {
       options.text = text;
-      tooltip.innerHTML = options.text || escapeHTML(triggeringElement.getAttribute(options.tooltipSource)) || '';
+      tooltip.innerHTML = escapeHTML(options.text || triggeringElement.getAttribute(options.tooltipSource) || '');
     };
 
     /**
