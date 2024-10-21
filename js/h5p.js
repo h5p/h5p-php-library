@@ -243,7 +243,7 @@ H5P.init = function (target) {
       r.style.setProperty('--secondary-cta-light', '#ffc926');
       r.style.setProperty('--secondary-cta-dark', '#FFC107');
       r.style.setProperty('--secondary-contrast-cta', '#000000');
-      r.style.setProperty('--alternative-light', '#3e3b48');
+      r.style.setProperty('--alternative-light', '#1C1C1C');
       r.style.setProperty('--alternative-dark', '#2e2c36');
       r.style.setProperty('--alternative-darker', '#000000');
       r.style.setProperty('--text-primary', '#FFFFFF');
