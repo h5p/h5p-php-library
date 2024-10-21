@@ -157,7 +157,7 @@ H5P.init = function (target) {
       r.style.setProperty('--text-secondary', '#354054');
       r.style.setProperty('--text-third', '#737373');
       r.style.setProperty('--ui-base', '#FFFFFF');
-      r.style.setProperty('--stroke-1', '#CDD1F6');
+      r.style.setProperty('--stroke-1', '#ead8f6');
       r.style.setProperty('--stroke-2', '#EDEEFB');
       r.style.setProperty('--stroke-3', '#E5E5E5');
       r.style.setProperty('--feedback-correct-main', '#256D1D');
@@ -176,7 +176,7 @@ H5P.init = function (target) {
       r.style.setProperty('--main-cta-light', '#00B2A0');
       r.style.setProperty('--main-cta-dark', '#004D45');
       r.style.setProperty('--contrast-cta', '#ffffff');
-      r.style.setProperty('--contrast-cta-white', '#834DD5');
+      r.style.setProperty('--contrast-cta-white', '#17948b');
       r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
       r.style.setProperty('--secondary-cta-light', '#333333');
       r.style.setProperty('--secondary-cta-dark', '#311B50');
@@ -188,7 +188,7 @@ H5P.init = function (target) {
       r.style.setProperty('--text-secondary', '#354054');
       r.style.setProperty('--text-third', '#737373');
       r.style.setProperty('--ui-base', '#FFFFFF');
-      r.style.setProperty('--stroke-1', '#CDD1F6');
+      r.style.setProperty('--stroke-1', '#cceae8');
       r.style.setProperty('--stroke-2', '#EDEEFB');
       r.style.setProperty('--stroke-3', '#E5E5E5');
       r.style.setProperty('--feedback-correct-main', '#256D1D');
@@ -207,7 +207,7 @@ H5P.init = function (target) {
       r.style.setProperty('--main-cta-light', '#F5511F');
       r.style.setProperty('--main-cta-dark', '#AF320B');
       r.style.setProperty('--contrast-cta', '#ffffff');
-      r.style.setProperty('--contrast-cta-white', '#FFFFFF');
+      r.style.setProperty('--contrast-cta-white', '#D63A0A');
       r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
       r.style.setProperty('--secondary-cta-light', '#263A3F');
       r.style.setProperty('--secondary-cta-dark', '#121A1D');
@@ -219,7 +219,7 @@ H5P.init = function (target) {
       r.style.setProperty('--text-secondary', '#354054');
       r.style.setProperty('--text-third', '#737373');
       r.style.setProperty('--ui-base', '#FFFFFF');
-      r.style.setProperty('--stroke-1', '#CDD1F6');
+      r.style.setProperty('--stroke-1', '#f2dbd4');
       r.style.setProperty('--stroke-2', '#EDEEFB');
       r.style.setProperty('--stroke-3', '#E5E5E5');
       r.style.setProperty('--feedback-correct-main', '#256D1D');
