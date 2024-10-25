@@ -186,7 +186,7 @@ H5P.init = function (target) {
         instance.triggerXAPI('accessed-reuse');
       });
       actionBar.on('copyrights', function () {
-        var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container, $actions.find('.h5p-copyrights')[0]);
+        var dialog = new H5P.Dialog('copyrights', H5P.t('copyrightInformation'), copyrights, $container);
         dialog.open(true);
         instance.triggerXAPI('accessed-copyright');
       });
@@ -1040,11 +1040,12 @@ H5P.t = function (key, vars, ns) {
  * @param {H5P.jQuery} $element
  *   Which DOM element the dialog should be inserted after.
  * @param {H5P.jQuery} $returnElement
- *   Which DOM element the focus should be moved to on close   
+ *   Which DOM element the focus should be moved to on close
  */
 H5P.Dialog = function (name, title, content, $element, $returnElement) {
   /** @alias H5P.Dialog# */
   var self = this;
+  this.activeElement = document.activeElement;
   var $dialog = H5P.jQuery('<div class="h5p-popup-dialog h5p-' + name + '-dialog" aria-labelledby="' + name + '-dialog-header" aria-modal="true" role="dialog" tabindex="-1">\
                               <div class="h5p-inner">\
                                 <h2 id="' + name + '-dialog-header">' + title + '</h2>\
@@ -1108,6 +1109,9 @@ H5P.Dialog = function (name, title, content, $element, $returnElement) {
       $element.attr('tabindex', '-1');
       if ($returnElement) {
         $returnElement.focus();
+      }
+      else if(self.activeElement) {
+        self.activeElement.focus();
       }
       else {
         $element.focus();
@@ -2121,6 +2125,35 @@ H5P.trim = function (value) {
   // TODO: Only include this or String.trim(). What is best?
   // I'm leaning towards implementing the missing ones: http://kangax.github.io/compat-table/es5/
   // So should we make this function deprecated?
+};
+
+/**
+ * Recursive function that detects deep empty structures.
+ *
+ * @param {*} value
+ * @returns {bool}
+ */
+H5P.isEmpty = value => {
+  if (!value && value !== 0 && value !== false) {
+    return true; // undefined, null, NaN and empty strings.
+  }
+  else if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      if (!H5P.isEmpty(value[i])) {
+        return false; // Array contains a non-empty value
+      }
+    }
+    return true; // Empty array
+  }
+  else if (typeof value === 'object') {
+    for (let prop in value) {
+      if (value.hasOwnProperty(prop) && !H5P.isEmpty(value[prop])) {
+        return false; // Object contains a non-empty value
+      }
+    }
+    return true; // Empty object
+  }
+  return false;
 };
 
 /**
