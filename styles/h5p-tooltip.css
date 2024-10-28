@@ -24,3 +24,14 @@
 .h5p-tooltip-visible {
   display: block;
 }
+
+.h5p-iframe:has(.h5p-theme) .h5p-tooltip  {
+  background-color: var(--ui-base);
+  color: var(--text-primary);
+  font-size: var(--font-size-m);
+  max-width: min(400px, 90%);
+  line-height: 1;
+  border: solid 1px var(--stroke-1);
+  box-shadow: 0 0 0.5em #2c2c2c;
+  border-radius: var(--border-radius-medium);
+} 

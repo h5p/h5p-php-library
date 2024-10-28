@@ -202,7 +202,7 @@ H5P.init = function (target) {
       r.style.setProperty('--main-cta-base', '#D63A0A');
       r.style.setProperty('--secondary-cta-base', '#172326');
       r.style.setProperty('--alternative-base', '#FFF2ED');
-      r.style.setProperty('--background', '#F3EEFA');
+      r.style.setProperty('--background', '#FFF2ED');
       r.style.setProperty('--focus', '#F1EBFA');
       r.style.setProperty('--main-cta-light', '#F5511F');
       r.style.setProperty('--main-cta-dark', '#AF320B');
@@ -279,32 +279,32 @@ H5P.init = function (target) {
       c.classList.add("h5p-large"); 
     }
     
-    var $Themecontainer = H5P.jQuery('<div style="padding: 0.5rem 1rem; text-align:center; margin: 0.5rem 1rem; display: grid; grid-template-columns: 1fr 1fr;"></div>').appendTo($element);
+    var $Themecontainer = H5P.jQuery('<div style="padding: 0.5rem 1rem; text-align:center; margin: 0.5rem 1rem; display: grid; grid-template-columns: 1fr 1fr; "></div>').appendTo($element);
     var $Colorcontainer = H5P.jQuery('<div style="align-content: center; text-align:left;"></div>').appendTo($Themecontainer);
     var $Sizecontainer = H5P.jQuery('<div style="align-content: center; text-align:right;"></div>').appendTo($Themecontainer);
     
-    const $button1 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #588ee1 0%, #588ee1 50%, #f0f0fc 50%, #f0f0fc 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
+    const $button1 = H5P.jQuery('<button type="button" style="cursor: pointer; background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #588ee1 0%, #588ee1 50%, #f0f0fc 50%, #f0f0fc 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button1.on('click', () => changeThemeBlue());
     
-    const $button2 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #9458e1 0%, #9458e1 50%, #e9d3f3 50%, #e9d3f3 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
+    const $button2 = H5P.jQuery('<button type="button" style="cursor: pointer; background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #9458e1 0%, #9458e1 50%, #e9d3f3 50%, #e9d3f3 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button2.on('click', () => changeThemePurple());
     
-    const $button3 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #008073 0%, #008073 50%, #faf4e6 50%, #faf4e6 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
+    const $button3 = H5P.jQuery('<button type="button" style="cursor: pointer; background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #008073 0%, #008073 50%, #faf4e6 50%, #faf4e6 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button3.on('click', () => changeThemeGreen());
     
-    const $button4 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #d63a0a 0%, #d63a0a 50%, #fee3d8 50%, #fee3d8 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
+    const $button4 = H5P.jQuery('<button type="button" style="cursor: pointer; background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #d63a0a 0%, #d63a0a 50%, #fee3d8 50%, #fee3d8 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button4.on('click', () => changeThemeOrange());
     
-    const $button5 = H5P.jQuery('<button type="button" style="background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #1c1c1c 0%, #1c1c1c 50%, #33313b 50%, #33313b 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
+    const $button5 = H5P.jQuery('<button type="button" style="cursor: pointer; background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #1c1c1c 0%, #1c1c1c 50%, #33313b 50%, #33313b 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button5.on('click', () => changeThemeDark());
     
-    const $button6 = H5P.jQuery('<button style="background-color: white; border-radius: 4px; border: solid 1px #cccccc; margin-right: 0.5rem;" type="button">Large</button>');
+    const $button6 = H5P.jQuery('<button style="cursor: pointer; background-color: white; border-radius: 4px; border: solid 1px #cccccc; margin-right: 0.5rem;" type="button">Large</button>');
     $button6.on('click', () => changeThemeLarge());
     
-    const $button7 = H5P.jQuery('<button style="background-color: white; border-radius: 4px; border: solid 1px #cccccc; margin-right: 0.5rem;" type="button">Medium</button>');
+    const $button7 = H5P.jQuery('<button style="cursor: pointer; background-color: white; border-radius: 4px; border: solid 1px #cccccc; margin-right: 0.5rem;" type="button">Medium</button>');
     $button7.on('click', () => changeThemeMedium());
     
-    const $button8 = H5P.jQuery('<button style="background-color: white; border-radius: 4px; border: solid 1px #cccccc;" type="button">Small</button>');
+    const $button8 = H5P.jQuery('<button style="cursor: pointer; background-color: white; border-radius: 4px; border: solid 1px #cccccc;" type="button">Small</button>');
     $button8.on('click', () => changeThemeSmall());
     
     
