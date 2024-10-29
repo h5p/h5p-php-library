@@ -4285,6 +4285,8 @@ class H5PContentValidator {
       $stylePatterns = array();
       // All styles must be start to end patterns (^...$)
       if (isset($semantics->font)) {
+        $stylePatterns[] = '/^font-style: *(italic|normal|oblique);?$/i'; // allow font-style property
+        $stylePatterns[] = '/^font-weight: *[0-9.]+;?$/i'; // allow font-weight property
         if (isset($semantics->font->size) && $semantics->font->size) {
           $stylePatterns[] = '/^font-size: *[0-9.]+(em|px|%) *;?$/i';
         }
@@ -4307,6 +4309,14 @@ class H5PContentValidator {
 
       // Alignment is allowed for all wysiwyg texts
       $stylePatterns[] = '/^text-align: *(center|left|right);?$/i';
+      // other necessary style tags - allowing additional tags
+      $stylePatterns[] = "/^width: *[0-9.]+(px|%) *;?$/i";
+      $stylePatterns[] = "/^height: *[0-9.]+(px|%) *;?$/i";
+      $stylePatterns[] = "/^margin: *[0-9.]+(em|px|%)+(\s(#?)([a-z0-9]{3,6})){0,3} *;?$/i";
+      $stylePatterns[] = "/^padding: *[0-9.]+(em|px|%)+(\s(#?)([a-z0-9]{3,6})){0,3} *;?$/i";
+      $stylePatterns[] = "/^padding(-(top|bottom|right|left)): *[0-9.]+(em|px|%) *;?$/i";
+      $stylePatterns[] = "/^margin(-(top|bottom|right|left)): *[0-9.]+(em|px|%) *;?$/i";
+      $stylePatterns[] = "/^border(-(top|bottom|right|left)|):(\s?)(([0-9.]*)+(em|px|%))+(\s(#?)[a-z0-9]{3,6}){0,2} *;?$/i";
 
       // Strip invalid HTML tags.
       $text = $this->filter_xss($text, $tags, $stylePatterns);
@@ -5000,13 +5010,22 @@ class H5PContentValidator {
           // Attribute value, a URL after href= for instance.
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
             if ($allowedStyles && $attrName === 'style') {
+              $matches = explode(";", $match[1]); // get all the style properties
               // Allow certain styles
+              $styleArr = [];
               foreach ($allowedStyles as $pattern) {
-                if (preg_match($pattern, $match[1])) {
-                  // All patterns are start to end patterns, and CKEditor adds one span per style
-                  $attrArr[] = 'style="' . $match[1] . '"';
-                  break;
+                foreach ($matches as $match) { // loop through each style property of an element
+                  if (preg_match($pattern, trim($match))) { // add the property in styleArr if exist in allowed style array
+                    // All patterns are start to end patterns, and CKEditor adds one span per style
+                    // overriding the CKEditor one style per span logic - as some addon might add multiple style attributes per element
+                    $styleArr[] = $match;
+                    // break; this break not needed anymore for allowing multiple style properties per element
+                  }
                 }
+              }
+              // if style array has some style properties then prepare final style attribute for element
+              if (!empty($styleArr)) {
+                  $attrArr[] = 'style="' . implode(";", $styleArr) . '"';
               }
               break;
             }
