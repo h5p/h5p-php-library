@@ -4371,6 +4371,9 @@ class H5PContentValidator {
       // Alignment is allowed for all wysiwyg texts
       $stylePatterns[] = '/^text-align: *(center|left|right);?$/i';
 
+      // Remove duplicates
+      $stylePatterns = array_unique($stylePatterns);
+
       // Strip invalid HTML tags.
       $text = $this->filter_xss($text, $tags, $stylePatterns);
     }
@@ -5091,6 +5094,8 @@ class H5PContentValidator {
                   }
                 }
               }
+              // Remove duplicates
+              $validatedStyles = array_unique($validatedStyles);
 
               $attrArr[] = 'style="' . implode(';', $validatedStyles) . ';"';
               break;
