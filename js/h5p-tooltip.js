@@ -9,8 +9,11 @@ H5P.Tooltip = (function () {
    * @returns {String} The escaped text
    */
   function escapeHTML(text) {
+    if (text === null || text === undefined) {
+      return '';
+    }
     const div = document.createElement('div');
-    div.appendChild(document.createTextNode(text));
+    div.textContent = text;
     return div.innerHTML;
   }
 
