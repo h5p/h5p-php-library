@@ -36,7 +36,7 @@
   display: flex;
   background-color: var(--main-cta-base);
   color: var(--contrast-cta);
-  padding: var(--spacing-xl) var(--spacing-xl) calc(2*var(--spacing-l)) var(--spacing-xl);
+  padding: calc(var(--spacing-xl) / 2) calc(var(--spacing-xl) / 2) var(--spacing-xl) calc(var(--spacing-xl) / 2);
   justify-content: space-between;
 }
 .h5p-theme-pattern {
@@ -51,6 +51,27 @@
   mask-image: url(./../images/pattern.svg);
   mask-size: 40%;
   background-repeat: repeat;
+}
+.h5p-results-list-container{
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  clear: both;
+  margin: calc(-1 * var(--spacing-l)) var(--spacing-xl) var(--spacing-l) var(--spacing-xl);
+  box-shadow: 10px 10px 20px 5px rgba(0, 0, 0, 0.08);
+  background-color: var(--ui-base);
+  border-radius: var(--border-radius-small);
+  position: relative;
+  z-index: 1000;
+  height: 67%;
+}
+.h5p-results-list {
+  list-style-type: none;
+  overflow: hidden;
+  overflow-y: auto;
+  padding-inline-start: 0;
+  padding: var(--spacing-xs) var(--spacing-m);
+  flex: 1;
 }
 /* INPUT FIELD */
 .h5p-theme-input {

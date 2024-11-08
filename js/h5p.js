@@ -107,7 +107,7 @@ H5P.init = function (target) {
     var c = document.getElementsByClassName("h5p-content")[0];  
     function changeThemeBlue() {
       r.style.setProperty('--main-cta-base', '#505DDD');
-      r.style.setProperty('--secondary-cta-base', '#9E44DA');
+      r.style.setProperty('--secondary-cta-base', '#0c1547');
       r.style.setProperty('--alternative-base', '#EEEFFA');
       r.style.setProperty('--background', '#F0F0FC');
       r.style.setProperty('--focus', '#3b54a5');
@@ -116,9 +116,9 @@ H5P.init = function (target) {
       r.style.setProperty('--contrast-cta', '#E0F1FF');
       r.style.setProperty('--contrast-cta-white', '#505ddd');
       r.style.setProperty('--contrast-cta-light', 'color-mix(in srgb, var(--main-cta-base), transparent 90%)');
-      r.style.setProperty('--secondary-cta-light', '#B46EE2');
-      r.style.setProperty('--secondary-cta-dark', '#8527C4');
-      r.style.setProperty('--secondary-contrast-cta', '#F3F1F5');
+      r.style.setProperty('--secondary-cta-light', '#101b59');
+      r.style.setProperty('--secondary-cta-dark', '#090f34');
+      r.style.setProperty('--secondary-contrast-cta', '#e7eafa');
       r.style.setProperty('--alternative-light', '#F8F9FE');
       r.style.setProperty('--alternative-dark', '#DCDFFA');
       r.style.setProperty('--alternative-darker', '#ced1ee');
@@ -278,7 +278,7 @@ H5P.init = function (target) {
       c.classList.remove("h5p-medium"); 
       c.classList.add("h5p-large"); 
     }
-    
+   
     var $Themecontainer = H5P.jQuery('<div style="padding: 0.5rem 1rem; text-align:center; margin: 0.5rem 1rem; display: grid; grid-template-columns: 1fr 1fr; "></div>').appendTo($element);
     var $Colorcontainer = H5P.jQuery('<div style="align-content: center; text-align:left;"></div>').appendTo($Themecontainer);
     var $Sizecontainer = H5P.jQuery('<div style="align-content: center; text-align:right;"></div>').appendTo($Themecontainer);

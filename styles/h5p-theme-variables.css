@@ -6,7 +6,7 @@
   
   /*BLUE THEME */
   --main-cta-base: #505DDD;
-  --secondary-cta-base: #9E44DA;
+  --secondary-cta-base: #0c1547;
   --alternative-base: #EEEFFA;
   --background: #F0F0FC;
   --focus: #3b54a5;
@@ -18,13 +18,12 @@
 
   --contrast-cta-light: color-mix(in srgb, var(--main-cta-base), transparent 90%);
 
-  --secondary-cta-light: #B46EE2;
-  --secondary-cta-dark: #8527C4;
-  --secondary-contrast-cta: #F3F1F5;
+  --secondary-cta-light: #101b59;
+  --secondary-cta-dark: #090f34;
+  --secondary-contrast-cta: #e7eafa;
   
   /* END blue  THEME*/
- 
-  /*PURPLE  THEME 
+  /* PURPLE THEME 
   --main-cta-base: #834DD5;
   --secondary-cta-base: #000000;
   --alternative-base: #F1EBFA;
