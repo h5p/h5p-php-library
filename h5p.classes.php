@@ -4588,6 +4588,16 @@ class H5PContentValidator {
     if (isset($semantics->extraAttributes)) {
       $validKeys = array_merge($validKeys, $semantics->extraAttributes); // TODO: Validate extraAttributes
     }
+    
+    // Hack to sanitize quality name. Ideally we should not allow extraAttributes, or we must build
+    // functionality for generically sanitize it.
+    if (in_array('metadata', $validKeys) && isset($file->metadata)) {
+      $fileMetadata = $file->metadata;
+      if (isset($fileMetadata->qualityName)) {
+        $fileMetadata->qualityName = htmlspecialchars($fileMetadata->qualityName, ENT_QUOTES, 'UTF-8', FALSE);
+      }
+    }
+    
     $this->filterParams($file, $validKeys);
 
     if (isset($file->width)) {
