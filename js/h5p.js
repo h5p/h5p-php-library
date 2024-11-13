@@ -278,7 +278,7 @@ H5P.init = function (target) {
       c.classList.remove("h5p-medium"); 
       c.classList.add("h5p-large"); 
     }
-   
+
     var $Themecontainer = H5P.jQuery('<div style="padding: 0.5rem 1rem; text-align:center; margin: 0.5rem 1rem; display: grid; grid-template-columns: 1fr 1fr; "></div>').appendTo($element);
     var $Colorcontainer = H5P.jQuery('<div style="align-content: center; text-align:left;"></div>').appendTo($Themecontainer);
     var $Sizecontainer = H5P.jQuery('<div style="align-content: center; text-align:right;"></div>').appendTo($Themecontainer);
@@ -321,7 +321,7 @@ H5P.init = function (target) {
     $button7.appendTo($Sizecontainer);
     $button8.appendTo($Sizecontainer);
     
-    
+   
     
     // TODO: stop removing 
     
