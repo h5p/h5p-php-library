@@ -1898,7 +1898,7 @@ H5P.MediaCopyright = function (copyright, labels, order, extraFields) {
  * @param {string} source
  * @param {number} width
  * @param {number} height
- * @param {string} alt 
+ * @param {string} alt
  *  alternative text for the thumbnail
  */
 H5P.Thumbnail = function (source, width, height, alt) {
@@ -2077,6 +2077,13 @@ H5P.libraryFromString = function (library) {
  *   The full path to the library.
  */
 H5P.getLibraryPath = function (library) {
+  if (H5PIntegration &&
+      H5PIntegration.libraryDirectories &&
+      library in H5PIntegration.libraryDirectories) {
+    // Use H5PIntegration.libraryDirectories if it exists for this library
+    library = H5PIntegration.libraryDirectories[library];
+  }
+
   if (H5PIntegration.urlLibraries !== undefined) {
     // This is an override for those implementations that has a different libraries URL, e.g. Moodle
     return H5PIntegration.urlLibraries + '/' + library;
@@ -2720,7 +2727,7 @@ H5P.createTitle = function (rawTitle, maxLength) {
         }
         return path.substr(0, prefix.length) === prefix ? path : prefix + path;
       }
-      
+
       return path; // Will automatically be looked for in tmp folder
     });
 
