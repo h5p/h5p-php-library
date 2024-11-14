@@ -3733,7 +3733,7 @@ class H5PCore {
       'helpChoosingLicense' => $this->h5pF->t('Help me choose a license'),
       'shareFailed' => $this->h5pF->t('Share failed.'),
       'editingFailed' => $this->h5pF->t('Editing failed.'),
-      'shareTryAgain' => $this->h5pF->t('Something went wrong, please try to share again.'),
+      'shareTryAgain' => $this->h5pF->t('Couldn\'t communicate with the H5P Hub. Please try again later.'),
       'pleaseWait' => $this->h5pF->t('Please wait...'),
       'language' => $this->h5pF->t('Language'),
       'level' => $this->h5pF->t('Level'),
