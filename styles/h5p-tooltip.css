@@ -26,12 +26,12 @@
 }
 
 .h5p-iframe:has(.h5p-theme) .h5p-tooltip  {
-  background-color: var(--text-secondary);
-  color: var(--ui-base);
-  font-size: var(--font-size-m);
+  background-color: var(--h5p-theme-text-secondary);
+  color: var(--h5p-theme-ui-base);
+  font-size: var(--h5p-theme-font-size-m);
   max-width: min(400px, 90%);
   line-height: 1;
-  /*border: solid 1px var(--stroke-1);
+  /*border: solid 1px var(--h5p-theme-stroke-1);
   box-shadow: 0 0 0.5em #2c2c2c;*/
-  border-radius: var(--border-radius-medium);
+  border-radius: var(--h5p-theme-border-radius-medium);
 } 

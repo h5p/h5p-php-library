@@ -60,13 +60,13 @@ button.h5p-core-cancel-button:focus {
 }
 
 .h5p-theme button.h5p-core-cancel-button:focus{
-  color: var(--main-cta-base);
+  color: var(--h5p-theme-main-cta-base);
 }
 
 .h5p-theme button.h5p-core-cancel-button:hover{
-  background-color: var(--main-cta-base);
-    border-color: var(--main-cta-base);
-    color: var(--contrast-cta);
+  background-color: var(--h5p-theme-main-cta-base);
+    border-color: var(--h5p-theme-main-cta-base);
+    color: var(--h5p-theme-contrast-cta);
     cursor: pointer;
 }
 

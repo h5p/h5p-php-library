@@ -33,7 +33,7 @@ html.h5p-iframe, html.h5p-iframe > body {
   padding: 0;
 }
 html.h5p-iframe .h5p-theme, html.h5p-iframe > body .h5p-theme {
-  font-family: var(--font-name); /* Use the browser's default sans-serif font. (Since Heletica doesn't look nice on Windows, and Arial on OS X.) */
+  font-family: var(--h5p-theme-font-name); /* Use the browser's default sans-serif font. (Since Heletica doesn't look nice on Windows, and Arial on OS X.) */
 }
 .h5p-semi-fullscreen, .h5p-fullscreen, html.h5p-iframe .h5p-container {
   overflow: hidden;
@@ -337,7 +337,7 @@ div.h5p-fullscreen {
 }
 /* TODO: Fix the color of the link */
 .h5p-theme .h5p-popup-dialog .h5p-inner > h2 > a{
-  color: var(--main-cta-base);
+  color: var(--h5p-theme-main-cta-base);
 }
 .h5p-embed-dialog .h5p-inner,
 .h5p-reuse-dialog .h5p-inner,
@@ -356,15 +356,15 @@ div.h5p-fullscreen {
 }
 .h5p-content:has(.h5p-theme) .h5p-embed-dialog .h5p-embed-code-container,
 .h5p-content:has(.h5p-theme) .h5p-embed-size{
-  border: 1px solid var(--stroke-1);
-  background-color: var(--ui-base);
-  padding: var(--spacing-xs);
-  font-size: var(--font-size-m);
+  border: 1px solid var(--h5p-theme-stroke-1);
+  background-color: var(--h5p-theme-ui-base);
+  padding: var(--h5p-theme-spacing-xs);
+  font-size: var(--h5p-theme-font-size-m);
   line-height: 1;
-  min-height: var(--spacing-l);
+  min-height: var(--h5p-theme-spacing-l);
   letter-spacing: normal;
-  color: var(--text-third);
-  border-radius: var(--border-radius-medium);
+  color: var(--h5p-theme-text-third);
+  border-radius: var(--h5p-theme-border-radius-medium);
 }
 .h5p-embed-dialog .h5p-embed-code-container,
 .h5p-embed-size {
@@ -408,7 +408,7 @@ div.h5p-fullscreen {
   z-index: 1;
 }
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-scroll-content {
-  color: var(--text-secondary);
+  color: var(--h5p-theme-text-secondary);
 }
 .h5p-popup-dialog.h5p-open .h5p-scroll-content {
   overflow: auto;
@@ -477,11 +477,11 @@ div.h5p-fullscreen {
   display: inline-block;
 }
 .h5p-content:has(.h5p-theme) .h5p-expander{
-  border: solid 1px var(--stroke-1);
-  padding: var(--spacing-xs);
-  border-radius: var(--border-radius-medium);
-  font-size: var(--font-size-m);
-  background-color: var(--alternative-base);
+  border: solid 1px var(--h5p-theme-stroke-1);
+  padding: var(--h5p-theme-spacing-xs);
+  border-radius: var(--h5p-theme-border-radius-medium);
+  font-size: var(--h5p-theme-font-size-m);
+  background-color: var(--h5p-theme-alternative-base);
 }
 .h5p-expander:before {
   content: "+";

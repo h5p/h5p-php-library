@@ -179,28 +179,28 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 .h5p-theme .h5p-confirmation-dialog-popup {
   max-width: 45rem;
   min-width: 35rem;
-  color: var(--text-primary);
+  color: var(--h5p-theme-text-primary);
 }
 
 .h5p-theme .h5p-confirmation-dialog-header {
   display: flex;
   align-items: center;
-  color: var(--text-primary);
-  padding: var(--spacing-m) var(--spacing-l);
+  color: var(--h5p-theme-text-primary);
+  padding: var(--h5p-theme-spacing-m) var(--h5p-theme-spacing-l);
   font-weight: bold;
-  background-color: var(--ui-base);
-  border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+  background-color: var(--h5p-theme-ui-base);
+  border-radius: var(--h5p-theme-border-radius-large) var(--h5p-theme-border-radius-large) 0 0;
 }
 
 .h5p-theme .h5p-confirmation-dialog-header-text{
-  font-size: var(--font-size-xl);
+  font-size: var(--h5p-theme-font-size-xl);
 }
 
 .h5p-theme .h5p-confirmation-dialog-body {
-  background: var(--ui-base);
+  background: var(--h5p-theme-ui-base);
   border-top: 0px;
-  padding: 0 var(--spacing-l) var(--spacing-l) var(--spacing-l);
-  border-radius: 0 0 var(--border-radius-large) var(--border-radius-large);
+  padding: 0 var(--h5p-theme-spacing-l) var(--h5p-theme-spacing-l) var(--h5p-theme-spacing-l);
+  border-radius: 0 0 var(--h5p-theme-border-radius-large) var(--h5p-theme-border-radius-large);
 }
 
 .h5p-theme button.h5p-confirmation-dialog-exit:visited,
@@ -214,8 +214,8 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   margin-left: auto;
   background: none;
   border: none;
-  font-size: var(--font-size-xl);
-  color: var(--text-primary);
+  font-size: var(--h5p-theme-font-size-xl);
+  color: var(--h5p-theme-text-primary);
   cursor: pointer;
   text-decoration: none;
 }
@@ -223,7 +223,7 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 /* TODO: here */
 .h5p-theme button.h5p-confirmation-dialog-exit:focus,
 .h5p-theme button.h5p-confirmation-dialog-exit:hover {
-  color: var(--secondary-cta-dark);
+  color: var(--h5p-theme-secondary-cta-dark);
 }
 
 .h5p-theme .h5p-confirmation-dialog-exit:before {
@@ -231,18 +231,18 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   transform: translateY(-0.48em);
   font-family: "h5p-theme";
   content: "\e910";
-  padding: var(--spacing-s);
+  padding: var(--h5p-theme-spacing-s);
   border-radius: 50%;
 }
 
 .h5p-theme .h5p-confirmation-dialog-exit:hover:before {
-  color: var(--text-primary);
-  background-color: var(--alternative-base);
+  color: var(--h5p-theme-text-primary);
+  background-color: var(--h5p-theme-alternative-base);
 }
 
 /* TODO: check if code above makes this redundant */
 .h5p-theme .h5p-core-button:focus{
-  background-color: var(--main-cta-base);
+  background-color: var(--h5p-theme-main-cta-base);
 }
 .h5p-theme .h5p-confirmation-dialog-background {
   background-color: rgba(0,0,0,0.85);
@@ -252,7 +252,7 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   text-align: end;
 }
 .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta{
-  padding: var(--spacing-xs) calc(var(--spacing-l));
+  padding: var(--h5p-theme-spacing-xs) calc(var(--h5p-theme-spacing-l));
 } 
 
 .h5p-theme .h5p-core-button.h5p-confirmation-dialog-confirm-button:before{
