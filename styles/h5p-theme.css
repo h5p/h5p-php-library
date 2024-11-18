@@ -269,8 +269,9 @@
 .h5p-theme-primary-cta.h5p-theme-flip:before {
   content: "\e907";
 }
-.h5p-theme-primary-cta.h5p-theme-show-results:before {
+.h5p-theme-show-results:before {
   content: "\e90a";
+  font-family: "h5p-theme";
 }
 /* If the container is smaller than 200px */
 @container (max-width: 200px) {
@@ -446,24 +447,24 @@
 
 /*nav buttons*/
 .h5p-theme .h5p-theme-next {
-    justify-self: flex-end !important;
-    grid-column: 3 !important;
-    min-width: max-content !important;
+    justify-self: flex-end ;
+    grid-column: 3 ;
+    min-width: max-content ;
 }
 .h5p-theme  .h5p-theme-previous {
-  justify-self: flex-start !important;
-  min-width: max-content !important;
+  justify-self: flex-start ;
+  min-width: max-content ;
 }
 .h5p-theme .h5p-theme-nav-button  {
-    background-color: var(--secondary-cta-base) !important;
-    color: var(--secondary-contrast-cta) !important;
-    font-size: var(--font-size-m) !important;
-    font-weight: bold !important;
-    border-radius: var(--border-radius-medium) !important;
-    display: inline-block !important;
-    padding: var(--spacing-xs) var(--spacing-s) !important;
-    border: none !important;
-    transition: all 0.1s linear 0s !important;
+    background-color: var(--secondary-cta-base) ;
+    color: var(--secondary-contrast-cta) ;
+    font-size: var(--font-size-m) ;
+    font-weight: bold;
+    border-radius: var(--border-radius-medium) ;
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-s) ;
+    border: none ;
+    transition: all 0.1s linear 0s ;
 }
 
 
