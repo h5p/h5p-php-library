@@ -133,12 +133,12 @@
   --h5p-theme-font-size-s-small: calc(var(--h5p-theme-font-size-s-medium)*1);
 
   /* Medium */
-  --spacing-xl-primary-medium: calc(var(--h5p-theme-spacing-xl-primary-large)*0.8);
-  --spacing-primary-medium: calc(var(--h5p-theme-spacing-primary-large)*0.8);
-  --spacing-secondary-medium: calc(var(--h5p-theme-spacing-secondary-large)*0.8);
-  --spacing-third-medium: calc(var(--h5p-theme-spacing-third-large)*0.8);
-  --spacing-fourth-medium: calc(var(--h5p-theme-spacing-fourth-large)*0.8);
-  --spacing-fifth-medium: calc(var(--h5p-theme-spacing-fifth-large)*0.8);
+  --h5p-theme-spacing-xl-primary-medium: calc(var(--h5p-theme-spacing-xl-primary-large)*0.8);
+  --h5p-theme-spacing-primary-medium: calc(var(--h5p-theme-spacing-primary-large)*0.8);
+  --h5p-theme-spacing-secondary-medium: calc(var(--h5p-theme-spacing-secondary-large)*0.8);
+  --h5p-theme-spacing-third-medium: calc(var(--h5p-theme-spacing-third-large)*0.8);
+  --h5p-theme-spacing-fourth-medium: calc(var(--h5p-theme-spacing-fourth-large)*0.8);
+  --h5p-theme-spacing-fifth-medium: calc(var(--h5p-theme-spacing-fifth-large)*0.8);
   
   --h5p-theme-font-size-xxl-medium: calc(var(--h5p-theme-font-size-xxl-large)*0.9);
   --h5p-theme-font-size-xl-medium: calc(var(--h5p-theme-font-size-xl-large)*0.9);
