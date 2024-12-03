@@ -135,6 +135,9 @@ H5P.init = function (target) {
       r.style.setProperty('--h5p-theme-feedback-incorrect-main', '#a13236');
       r.style.setProperty('--h5p-theme-feedback-incorrect-secondary', '#faf0f4');
       r.style.setProperty('--h5p-theme-feedback-incorrect-third', '#f6dce7'); 
+      r.style.setProperty('--h5p-theme-feedback-neutral-main', '#E6C81D');
+      r.style.setProperty('--h5p-theme-feedback-neutral-secondary', '#5E4817');
+      r.style.setProperty('--h5p-theme-feedback-neutral-third', '#F0EBCB'); 
     }
     function changeThemePurple() {
       r.style.setProperty('--h5p-theme-main-cta-base', '#834DD5');
@@ -166,6 +169,9 @@ H5P.init = function (target) {
       r.style.setProperty('--h5p-theme-feedback-incorrect-main', '#a13236');
       r.style.setProperty('--h5p-theme-feedback-incorrect-secondary', '#faf0f4');
       r.style.setProperty('--h5p-theme-feedback-incorrect-third', '#f6dce7'); 
+      r.style.setProperty('--h5p-theme-feedback-neutral-main', '#E6C81D');
+      r.style.setProperty('--h5p-theme-feedback-neutral-secondary', '#5E4817');
+      r.style.setProperty('--h5p-theme-feedback-neutral-third', '#F0EBCB'); 
     }
     function changeThemeGreen() {
       r.style.setProperty('--h5p-theme-main-cta-base', '#17948b');
@@ -197,6 +203,9 @@ H5P.init = function (target) {
       r.style.setProperty('--h5p-theme-feedback-incorrect-main', '#a13236');
       r.style.setProperty('--h5p-theme-feedback-incorrect-secondary', '#faf0f4');
       r.style.setProperty('--h5p-theme-feedback-incorrect-third', '#f6dce7'); 
+      r.style.setProperty('--h5p-theme-feedback-neutral-main', '#E6C81D');
+      r.style.setProperty('--h5p-theme-feedback-neutral-secondary', '#5E4817');
+      r.style.setProperty('--h5p-theme-feedback-neutral-third', '#F0EBCB'); 
     }
     function changeThemeOrange() {
       r.style.setProperty('--h5p-theme-main-cta-base', '#D63A0A');
@@ -228,6 +237,9 @@ H5P.init = function (target) {
       r.style.setProperty('--h5p-theme-feedback-incorrect-main', '#a13236');
       r.style.setProperty('--h5p-theme-feedback-incorrect-secondary', '#faf0f4');
       r.style.setProperty('--h5p-theme-feedback-incorrect-third', '#f6dce7'); 
+      r.style.setProperty('--h5p-theme-feedback-neutral-main', '#E6C81D');
+      r.style.setProperty('--h5p-theme-feedback-neutral-secondary', '#5E4817');
+      r.style.setProperty('--h5p-theme-feedback-neutral-third', '#F0EBCB'); 
     }
     function changeThemeDark() {
       r.style.setProperty('--h5p-theme-main-cta-base', '#1765E3');
@@ -259,6 +271,9 @@ H5P.init = function (target) {
       r.style.setProperty('--h5p-theme-feedback-incorrect-main', '#fbd7d8');
       r.style.setProperty('--h5p-theme-feedback-incorrect-secondary', '#470a22');
       r.style.setProperty('--h5p-theme-feedback-incorrect-third', '#80214b'); 
+      r.style.setProperty('--h5p-theme-feedback-neutral-main', '#E6C81D');
+      r.style.setProperty('--h5p-theme-feedback-neutral-secondary', '#5E4817');
+      r.style.setProperty('--h5p-theme-feedback-neutral-third', '#F0EBCB'); 
     }
     
     function changeThemeSmall(){

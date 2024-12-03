@@ -9,7 +9,7 @@
   --h5p-theme-secondary-cta-base: #0c1547;
   --h5p-theme-alternative-base: #EEEFFA;
   --h5p-theme-background: #F0F0FC;
-  --h5p-theme-focus: #3b54a5;
+  --h5p-theme-focus: #3b54a5; /*TODO: not yet in use */ 
 
   --h5p-theme-main-cta-light: #5764E7;
   --h5p-theme-main-cta-dark: #2938D1;
@@ -68,8 +68,11 @@
   --h5p-theme-feedback-incorrect-main: #a13236;
   --h5p-theme-feedback-incorrect-secondary: #faf0f4;
   --h5p-theme-feedback-incorrect-third: #f6dce7;
+  
+  --h5p-theme-feedback-neutral-main: #E6C81D;
+  --h5p-theme-feedback-neutral-secondary: #5E4817;
+  --h5p-theme-feedback-neutral-third: #F0EBCB;
 	
-
    /* DARK EXAMPLE COLORS
   --h5p-theme-main-cta-base: #1765E3;
   --h5p-theme-secondary-cta-base: #f6bf1b;
