@@ -51,7 +51,7 @@
   display: flex;
   background-color: var(--h5p-theme-main-cta-base);
   color: var(--h5p-theme-contrast-cta);
-  padding: calc(var(--h5p-theme-spacing-xl) / 2) calc(var(--h5p-theme-spacing-xl) / 2) var(--h5p-theme-spacing-xl) calc(var(--h5p-theme-spacing-xl) / 2);
+  padding: var(--h5p-theme-spacing-xl)  var(--h5p-theme-spacing-xl) calc(var(--h5p-theme-spacing-xl)*1.2) var(--h5p-theme-spacing-xl);
   justify-content: space-between;
 }
 
