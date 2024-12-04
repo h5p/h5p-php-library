@@ -463,6 +463,13 @@
   font-weight: 600;
 }
 
+.h5p-theme-lines {
+  line-height: var(--h5p-theme-spacing-xl);
+  -webkit-background-size: 100% var(--h5p-theme-spacing-xl);
+  background-size: 100% var(--h5p-theme-spacing-xl);
+  background-image: -moz-linear-gradient(transparent calc(var(--h5p-theme-spacing-xl) - 1px), var(--h5p-theme-alternative-base) 0px);
+  background-image: -webkit-linear-gradient(transparent calc(var(--h5p-theme-spacing-xl) - 1px), var(--h5p-theme-alternative-base) 0);
+}
 
 /* RESULT SCREEN ANSWERS */
 .h5p-theme-results-answer {
