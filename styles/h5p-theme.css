@@ -246,6 +246,9 @@
   border: none;
   transition: all 0.1s linear 0s;
 }
+.h5p-theme-nav-button[aria-disabled="true"]{
+  opacity: 0.4;
+}
 .h5p-theme-nav-button:hover {
   background-color: var(--h5p-theme-secondary-cta-light);
   cursor: pointer;

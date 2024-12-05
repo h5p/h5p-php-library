@@ -271,7 +271,7 @@ H5P.init = function (target) {
       r.style.setProperty('--h5p-theme-feedback-incorrect-main', '#fbd7d8');
       r.style.setProperty('--h5p-theme-feedback-incorrect-secondary', '#470a22');
       r.style.setProperty('--h5p-theme-feedback-incorrect-third', '#80214b'); 
-      r.style.setProperty('--h5p-theme-feedback-neutral-main', '#E6C81D');
+      r.style.setProperty('--h5p-theme-feedback-neutral-main', '#fff3b2');
       r.style.setProperty('--h5p-theme-feedback-neutral-secondary', '#5E4817');
       r.style.setProperty('--h5p-theme-feedback-neutral-third', '#F0EBCB'); 
     }
