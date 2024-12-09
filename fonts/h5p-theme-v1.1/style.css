@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?km5l13');
-  src:  url('fonts/h5p-theme.eot?km5l13#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?km5l13') format('truetype'),
-    url('fonts/h5p-theme.woff?km5l13') format('woff'),
-    url('fonts/h5p-theme.svg?km5l13#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?jq1g14');
+  src:  url('fonts/h5p-theme.eot?jq1g14#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?jq1g14') format('truetype'),
+    url('fonts/h5p-theme.woff?jq1g14') format('woff'),
+    url('fonts/h5p-theme.svg?jq1g14#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -105,4 +105,10 @@
 }
 .icon-minus:before {
   content: "\e91a";
+}
+.icon-volume-up:before {
+  content: "\e91b";
+}
+.icon-volume-mute:before {
+  content: "\e91c";
 }

@@ -156,11 +156,12 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Confirm button
     var confirmButton = document.createElement('button');
     confirmButton.classList.add('h5p-core-button');
-    confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
+   // confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
     confirmButton.setAttribute('aria-label', options.confirmText);
 
     if (options.theme) {
       confirmButton.classList.add('h5p-theme-primary-cta');
+      confirmButton.classList.add('h5p-theme-check');
     }
 
     confirmButton.addEventListener('click', dialogConfirmed);

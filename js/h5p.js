@@ -111,7 +111,7 @@ H5P.init = function (target) {
       r.style.setProperty('--h5p-theme-alternative-base', '#EEEFFA');
       r.style.setProperty('--h5p-theme-background', '#F0F0FC');
       r.style.setProperty('--h5p-theme-focus', '#3b54a5');
-      r.style.setProperty('--h5p-theme-main-cta-light', '#5764E7');
+      r.style.setProperty('--h5p-theme-main-cta-light', '#6571E1');
       r.style.setProperty('--h5p-theme-main-cta-dark', '#2938D1');
       r.style.setProperty('--h5p-theme-contrast-cta', '#E0F1FF');
       r.style.setProperty('--h5p-theme-contrast-cta-white', '#505ddd');

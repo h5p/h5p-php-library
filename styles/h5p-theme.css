@@ -382,6 +382,9 @@
 }
 /* If the container is smaller than 200px */
 @container (max-width: 200px) {
+  .h5p-theme-primary-cta{
+ 
+  }
   .h5p-theme-primary-cta:hover {
     text-indent: 0;
     padding: var(--h5p-theme-spacing-s) var(--h5p-theme-spacing-l);

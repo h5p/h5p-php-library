@@ -69,4 +69,11 @@ button.h5p-core-cancel-button:focus {
     color: var(--h5p-theme-contrast-cta);
     cursor: pointer;
 }
+.h5p-theme button.h5p-core-button:before {
+  font-family: 'h5p-theme';
+  padding-right: unset;
+  font-size: unset;
+  vertical-align: unset;
+  line-height: unset;
+}
 

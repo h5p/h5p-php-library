@@ -178,7 +178,8 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 
 .h5p-theme .h5p-confirmation-dialog-popup {
   max-width: 45rem;
-  min-width: 35rem;
+  width: calc(80% - 2*var(--h5p-theme-spacing-l));
+  min-width: unset;
   color: var(--h5p-theme-text-primary);
 }
 
@@ -264,3 +265,16 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   line-height: unset;
   padding-right: unset;
 }
+
+
+  @media only screen and (max-width: 640px) {
+    .h5p-theme .h5p-confirmation-dialog-popup  .h5p-core-cancel-button,
+    .h5p-theme .h5p-confirmation-dialog-popup  .h5p-core-button {
+    width: 100%;
+    }
+    .h5p-theme .h5p-confirmation-dialog-popup  .h5p-core-button {
+    width: 100%;
+    margin-top: var(--h5p-theme-spacing-xs);
+    }
+   }
+
