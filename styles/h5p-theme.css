@@ -359,8 +359,8 @@
 .h5p-theme-primary-cta:active,
 .h5p-theme .h5p-theme-primary-cta:active,
 .h5p-content:has(.h5p-theme) .h5p-dialog-ok-button:active {
-  background-color: var(--h5p-theme-main-cta-dark);
-  border-color: var(--h5p-theme-main-cta-dark);
+  background-color: var(--h5p-theme-main-cta-dark) !important;
+  border-color: var(--h5p-theme-main-cta-dark) !important;
 }
 
 .h5p-theme-primary-cta:before {
@@ -623,14 +623,14 @@
   transition: all 0.1s linear 0s;
 }
 .h5p-theme .h5p-theme-nav-button:hover {
-  background-color: var(--h5p-theme-secondary-cta-light);
-  color: var(--h5p-theme-secondary-contrast-cta);
-  border-color: var(--h5p-theme-secondary-cta-light);;
+  background-color: var(--h5p-theme-secondary-cta-light) !important;
+  color: var(--h5p-theme-secondary-contrast-cta) !important;
+  border-color: var(--h5p-theme-secondary-cta-light) !important;
 }
 .h5p-theme .h5p-theme-nav-button:active {
-  background-color: var(--h5p-theme-secondary-cta-dark);
-  color: var(--h5p-theme-secondary-contrast-cta);
-  border-color: var(--h5p-theme-secondary-cta-dark);
+  background-color: var(--h5p-theme-secondary-cta-dark) !important;
+  color: var(--h5p-theme-secondary-contrast-cta) !important;
+  border-color: var(--h5p-theme-secondary-cta-dark) !important;
 }
 
 /* FOCUS EFFECTS */
