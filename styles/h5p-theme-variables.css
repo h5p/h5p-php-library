@@ -177,6 +177,7 @@
   --h5p-theme-font-size-l: var(--h5p-theme-font-size-l-small);	
   --h5p-theme-font-size-m: var(--h5p-theme-font-size-m-small);	
   --h5p-theme-font-size-s: var(--h5p-theme-font-size-s-small);	
+  --h5p-theme-scaling: 0.6;
 }
 
 .h5p-content.h5p-medium {
@@ -191,6 +192,7 @@
   --h5p-theme-font-size-l: var(--h5p-theme-font-size-l-medium);	
   --h5p-theme-font-size-m: var(--h5p-theme-font-size-m-medium);	
   --h5p-theme-font-size-s: var(--h5p-theme-font-size-s-medium);
+  --h5p-theme-scaling: 0.8;
 }
 
 .h5p-content.h5p-large {
@@ -205,6 +207,7 @@
   --h5p-theme-font-size-l: var(--h5p-theme-font-size-l-large);	
   --h5p-theme-font-size-m: var(--h5p-theme-font-size-m-large);	
   --h5p-theme-font-size-s: var(--h5p-theme-font-size-s-large);
+  --h5p-theme-scaling: 1;
 
   /* EXAMPLE: Conditional responsiveness */
   /* Small screens */
