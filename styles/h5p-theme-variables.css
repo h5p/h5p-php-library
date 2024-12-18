@@ -156,7 +156,6 @@
   --h5p-theme-spacing-third-large: 1rem;
   --h5p-theme-spacing-fourth-large: 0.65rem;
   --h5p-theme-spacing-fifth-large: 0.5rem;
-  --h5p-theme-spacing-primary-large-small-screen: 2rem;
   
   --h5p-theme-font-size-xxl-large: 1.65rem;
   --h5p-theme-font-size-xl-large: 1.25rem;
@@ -211,7 +210,12 @@
 
   /* EXAMPLE: Conditional responsiveness */
   /* Small screens */
-  /* @media (max-width: 576px) {
-    --h5p-theme-spacing-l: var(--h5p-theme-spacing-primary-large-small-screen);
-  } */
+   @media (max-width: 576px) {
+  --h5p-theme-spacing-xl: calc(var(--h5p-theme-spacing-xl-primary-large)/1.6);
+  --h5p-theme-spacing-l: calc(var(--h5p-theme-spacing-primary-large)/1.6);
+  --h5p-theme-spacing-m: calc(var(--h5p-theme-spacing-secondary-large)/1.6);
+  --h5p-theme-spacing-s: calc(var(--h5p-theme-spacing-third-large)/1.6);
+  --h5p-theme-spacing-xs: calc(var(--h5p-theme-spacing-fourth-large)/1.6);
+  --h5p-theme-spacing-xxs: calc(var(--h5p-theme-spacing-fifth-large)/1.6);
+  } 
 }

@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?wxovav');
-  src:  url('fonts/h5p-theme.eot?wxovav#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?wxovav') format('truetype'),
-    url('fonts/h5p-theme.woff?wxovav') format('woff'),
-    url('fonts/h5p-theme.svg?wxovav#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?flfpcu');
+  src:  url('fonts/h5p-theme.eot?flfpcu#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?flfpcu') format('truetype'),
+    url('fonts/h5p-theme.woff?flfpcu') format('woff'),
+    url('fonts/h5p-theme.svg?flfpcu#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -37,7 +37,7 @@
 .icon-feedback-correct:before {
   content: "\e903";
 }
-.icon-report-icon:before {
+.icon-reporticon:before {
   content: "\e904";
 }
 .icon-show-solutiuons:before {
@@ -79,17 +79,17 @@
 .icon-download:before {
   content: "\e911";
 }
-.icon-copy:before {
+.icon-copy-03:before {
   content: "\e912";
+}
+.icon-menu:before {
+  content: "\e913";
 }
 .icon-fullscreen-exit:before {
   content: "\e914";
 }
 .icon-fullscreen-enter:before {
   content: "\e915";
-}
-.icon-menu:before {
-  content: "\e913";
 }
 .icon-close-menu:before {
   content: "\e916";
@@ -114,4 +114,12 @@
 }
 .icon-copy-text:before {
   content: "\e91d";
+}
+.icon-pause:before {
+  content: "\e91e";
+  color: #505050;
+}
+.icon-play:before {
+  content: "\e91f";
+  color: #505050;
 }
