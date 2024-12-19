@@ -631,7 +631,6 @@
 .h5p-theme .h5p-theme-secondary-cta:focus, 
 .h5p-theme .h5p-theme-primary-cta:focus,
 .h5p-theme .h5p-theme-nav-button:focus{
-  z-index: 3000;
   outline: 2px ridge var(--h5p-theme-main-cta-base);
   border-radius: 4px;
   outline-offset: 2px;
@@ -639,7 +638,7 @@
 
 /*TODO: move to column css*/
 .h5p-column-content.h5p-question.h5p-theme,
-.question-container.h5p-theme,
+.h5p-column-content.h5p-question-set.h5p-theme,
 .h5p-column-content.h5p-accordion.h5p-theme,
 .h5p-column-content.h5p-documentation-tool.h5p-theme,
 .h5p-column-content.h5p-dialogcards.h5p-theme,
