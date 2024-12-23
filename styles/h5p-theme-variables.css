@@ -141,7 +141,7 @@
   --h5p-theme-scaling: 1;
 
   /* EXAMPLE: Conditional responsiveness */
-  /* Small screens */
+  /* Small screens 
    @media (max-width: 576px) {
   --h5p-theme-spacing-xl: calc(var(--h5p-theme-spacing-xl-primary-large)/1.6);
   --h5p-theme-spacing-l: calc(var(--h5p-theme-spacing-primary-large)/1.6);
@@ -149,5 +149,5 @@
   --h5p-theme-spacing-s: calc(var(--h5p-theme-spacing-third-large)/1.6);
   --h5p-theme-spacing-xs: calc(var(--h5p-theme-spacing-fourth-large)/1.6);
   --h5p-theme-spacing-xxs: calc(var(--h5p-theme-spacing-fifth-large)/1.6);
-  } 
+  } */
 }

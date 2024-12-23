@@ -280,7 +280,7 @@
 .h5p-theme-next:after {
   font-family: 'h5p-theme';
   content: "\e901";
-  margin-left: 0.5rem;
+  margin-left: var(--h5p-theme-spacing-xxs);
   display: inline-block;
 }
 
@@ -292,7 +292,7 @@
 .h5p-theme-previous:before {
   font-family: 'h5p-theme';
   content: "\e900";
-  margin-right: 0.5rem;
+  margin-right: var(--h5p-theme-spacing-xxs);
   display: inline-block;
 }
 
@@ -307,6 +307,24 @@
 .h5p-navigation .h5p-theme-show-results:hover {
   padding: var(--h5p-theme-spacing-xs) calc(var(--h5p-theme-spacing-l) - 0.75em);
 }
+.h5p-theme .h5p-navigation{
+  display: grid;
+  grid-gap: var(--h5p-theme-spacing-l);
+  grid-template-columns: min-content 1fr min-content;
+  align-items: center;
+  justify-items: center;
+  container-type: inline-size;
+  container-name: h5p-navigation;
+  overflow: hidden;
+  padding: var(--h5p-theme-spacing-m);
+  clear: both;
+  max-width: 100%;
+  background-color: var(--h5p-theme-ui-base);
+  border-top: 1px solid var(--h5p-theme-stroke-1);
+  box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.05);
+}
+
+
 
 /* If smaller than 700px */
 @container h5p-navigation (max-width: 700px) {
@@ -344,7 +362,7 @@
   .h5p-navigation .h5p-theme-primary-cta span {
     display: none;
   }
-
+  
   .h5p-navigation .h5p-theme-primary-cta:before {
     text-indent: 0;
     position: unset;
@@ -566,7 +584,7 @@
   background-color: var(--h5p-theme-feedback-incorrect-secondary);
   color: var(--h5p-theme-feedback-incorrect-main);
   border-color: var(--h5p-theme-feedback-incorrect-third);
-  margin-right: 0.5rem;
+  margin-right: var(--h5p-theme-spacing-xxs);
 }
 
 .h5p-theme-results-answer .h5p-theme-results-solution {
@@ -589,7 +607,7 @@
 }
 
 .h5p-theme-results-answer .h5p-theme-results-box-small:not(:empty)::before {
-  padding-right: 0.5rem;
+  padding-right: var(--h5p-theme-spacing-xxs);
 }
 
 .h5p-theme-results-answer .h5p-theme-results-incorrect.h5p-theme-results-box-small {
@@ -647,13 +665,13 @@
   margin: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-xs);
   box-shadow: 0px 8px 19.9px 0px rgba(0, 0, 0, 0.05);
   border: solid 1px var(--h5p-theme-stroke-1);
-  border-radius: var(--h5p-theme-border-radius-medium);
-  padding: var(--h5p-theme-spacing-s);
+  border-radius: var(--h5p-theme-border-radius-large);
+  padding: var(--h5p-theme-spacing-xs);
   background-color: var(--h5p-theme-ui-base);
 }
 
 .h5p-container.h5p-standalone.h5p-column{
-  padding: var(--h5p-theme-spacing-m);
+  padding: var(--h5p-theme-spacing-s);
   
     @media (max-width: 576px) {
       padding: 0;
