@@ -654,7 +654,13 @@
 
 .h5p-container.h5p-standalone.h5p-column{
   padding: var(--h5p-theme-spacing-m);
+  
+    @media (max-width: 576px) {
+      padding: 0;
+    } 
+  
 }
+
 
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-inner > h2 {
   background-color: var(--h5p-theme-ui-base);
