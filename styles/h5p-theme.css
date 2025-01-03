@@ -686,7 +686,8 @@
 .h5p-column-content.h5p-accordion.h5p-theme,
 .h5p-column-content.h5p-documentation-tool.h5p-theme,
 .h5p-column-content.h5p-dialogcards.h5p-theme,
-.h5p-column-content.h5p-audio-wrapper.h5p-theme
+.h5p-column-content.h5p-audio-wrapper.h5p-theme,
+.h5p-column-content.h5p-image-hotspots.h5p-theme
 {
   margin: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-xs);
   box-shadow: 0px 8px 19.9px 0px rgba(0, 0, 0, 0.05);

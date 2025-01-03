@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?flfpcu');
-  src:  url('fonts/h5p-theme.eot?flfpcu#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?flfpcu') format('truetype'),
-    url('fonts/h5p-theme.woff?flfpcu') format('woff'),
-    url('fonts/h5p-theme.svg?flfpcu#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?kpt8qv');
+  src:  url('fonts/h5p-theme.eot?kpt8qv#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?kpt8qv') format('truetype'),
+    url('fonts/h5p-theme.woff?kpt8qv') format('woff'),
+    url('fonts/h5p-theme.svg?kpt8qv#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -117,9 +117,28 @@
 }
 .icon-pause:before {
   content: "\e91e";
-  color: #505050;
 }
 .icon-play:before {
   content: "\e91f";
-  color: #505050;
+}
+.icon-plus-full-color:before {
+  content: "\e920";
+}
+.icon-close-full-color:before {
+  content: "\e921";
+}
+.icon-info-full-color:before {
+  content: "\e922";
+}
+.icon-minus-full-color:before {
+  content: "\e923";
+}
+.icon-question-full-color:before {
+  content: "\e924";
+}
+.icon-exclamation-full-color:before {
+  content: "\e925";
+}
+.icon-check-full-color:before {
+  content: "\e926";
 }
