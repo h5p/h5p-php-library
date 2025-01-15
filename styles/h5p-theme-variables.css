@@ -1,10 +1,4 @@
 :root {
-  /* TODO: Set dynamically */
-
-  
-  /* LIGHT EXAMPLE COLORS */
-  
-  /*BLUE THEME */
   --h5p-theme-main-cta-base: #505DDD;
   --h5p-theme-secondary-cta-base: #0c1547;
   --h5p-theme-alternative-base: #EEEFFA;
@@ -96,7 +90,8 @@
   --h5p-theme-font-size-s-large: 0.85rem;
 }
 
-.h5p-content {
+.h5p-content,
+.h5peditor {
   --h5p-theme-spacing-xl: var(--h5p-theme-spacing-xl-primary-small);
   --h5p-theme-spacing-l: var(--h5p-theme-spacing-primary-small);
   --h5p-theme-spacing-m: var(--h5p-theme-spacing-secondary-small);
@@ -111,7 +106,8 @@
   --h5p-theme-scaling: 0.6;
 }
 
-.h5p-content.h5p-medium {
+.h5p-content.h5p-medium,
+.h5peditor.h5p-medium {
   --h5p-theme-spacing-xl: var(--h5p-theme-spacing-xl-primary-medium);
   --h5p-theme-spacing-l: var(--h5p-theme-spacing-primary-medium);
   --h5p-theme-spacing-m: var(--h5p-theme-spacing-secondary-medium);
@@ -126,7 +122,8 @@
   --h5p-theme-scaling: 0.8;
 }
 
-.h5p-content.h5p-large {
+.h5p-content.h5p-large,
+.h5peditor.h5p-large {
   --h5p-theme-spacing-xl: var(--h5p-theme-spacing-xl-primary-large);
   --h5p-theme-spacing-l: var(--h5p-theme-spacing-primary-large);
   --h5p-theme-spacing-m: var(--h5p-theme-spacing-secondary-large);
@@ -139,15 +136,4 @@
   --h5p-theme-font-size-m: var(--h5p-theme-font-size-m-large);	
   --h5p-theme-font-size-s: var(--h5p-theme-font-size-s-large);
   --h5p-theme-scaling: 1;
-
-  /* EXAMPLE: Conditional responsiveness */
-  /* Small screens 
-   @media (max-width: 576px) {
-  --h5p-theme-spacing-xl: calc(var(--h5p-theme-spacing-xl-primary-large)/1.6);
-  --h5p-theme-spacing-l: calc(var(--h5p-theme-spacing-primary-large)/1.6);
-  --h5p-theme-spacing-m: calc(var(--h5p-theme-spacing-secondary-large)/1.6);
-  --h5p-theme-spacing-s: calc(var(--h5p-theme-spacing-third-large)/1.6);
-  --h5p-theme-spacing-xs: calc(var(--h5p-theme-spacing-fourth-large)/1.6);
-  --h5p-theme-spacing-xxs: calc(var(--h5p-theme-spacing-fifth-large)/1.6);
-  } */
 }
