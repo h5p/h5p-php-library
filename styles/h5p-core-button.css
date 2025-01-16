@@ -71,7 +71,7 @@ button.h5p-core-cancel-button:focus {
 
 .h5p-theme button.h5p-core-cancel-button:hover {
   background-color: var(--h5p-theme-main-cta-base);
-  border-color: var(--h5p-theme-main-cta-base);
+  border: solid 3px var(--h5p-theme-main-cta-base);
   color: var(--h5p-theme-contrast-cta);
   cursor: pointer;
 }
