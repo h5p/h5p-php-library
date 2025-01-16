@@ -690,7 +690,20 @@
 .h5p-column-content.h5p-audio-wrapper.h5p-theme,
 .h5p-column-content.h5p-image-hotspots.h5p-theme,
 .h5p-column-content.h5p-chart.h5p-theme, 
-.h5p-column-content.h5p-collage
+.h5p-column-content.h5p-collage,
+.h5p-column-content.h5p-dragquestion,
+.h5p-column-content.h5p-agamotto,
+.h5p-column-content.h5p-essay,
+.h5p-column-content .h5p-guess-answer,
+.h5p-column-content.h5p-advanced-text,
+.h5p-column-content.h5p-image,
+.h5p-column-content.h5p-image-slider,
+.h5p-column-content.h5p-link,
+.h5p-column-content.h5p-memory-game,
+.h5p-column-content.h5p-questionnaire-wrapper,
+.h5p-column-content.h5p-timeline,
+.h5p-column-content.h5p-multi-media-choice,
+.h5p-column-content.h5p-video
 {
   margin: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-xs);
   box-shadow: 0px 8px 19.9px 0px rgba(0, 0, 0, 0.05);
