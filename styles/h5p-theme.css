@@ -151,7 +151,7 @@
   grid-template-columns: 9fr 1fr;
 }
 
-.h5p-theme-results-list-item:last-child{
+.h5p-theme-results-list-item:last-child {
   border-bottom: none;
 }
 
@@ -673,9 +673,9 @@
 }
 
 /* FOCUS EFFECTS */
-.h5p-theme .h5p-theme-secondary-cta:focus, 
-.h5p-theme .h5p-theme-primary-cta:focus,
-.h5p-theme .h5p-theme-nav-button:focus{
+.h5p-theme .h5p-theme-secondary-cta:focus-visible, 
+.h5p-theme .h5p-theme-primary-cta:focus-visible,
+.h5p-theme .h5p-theme-nav-button:focus-visible {
   outline: 2px ridge var(--h5p-theme-main-cta-base);
   border-radius: 4px;
   outline-offset: 2px;
