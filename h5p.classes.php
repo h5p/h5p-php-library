@@ -3920,6 +3920,13 @@ class H5PCore {
 
       return true;
     }
+
+    if ($response['status'] === 403) {
+      // Unauthenticated, cannot find hub secret and site uuid combination
+      $this->h5pF->resetHubOrganizationData();
+      return false;
+    }
+
     $msg = $this->h5pF->t('Content unpublish failed');
     $this->h5pF->setErrorMessage($msg);
 
