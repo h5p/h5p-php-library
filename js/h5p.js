@@ -270,14 +270,17 @@ H5P.init = function (target) {
           //        @see https://github.com/h5p/h5p-moodle-plugin/issues/237
           iframe.getBoundingClientRect();
 
-          // Reset iframe height, in case content has shrinked.
-          iframe.style.height = '1px';
 
-          // Resize iframe so all content is visible.
-          iframe.style.height = (iframe.contentDocument.body.scrollHeight) + 'px';
+          var currentHeight = parseInt(iframe.style.height, 10) || 0;
+          var newHeight = iframe.contentDocument.body.scrollHeight;
 
-          // Free parent
-          iframe.parentElement.style.height = parentHeight;
+          var thresholdPercent = 0.01;
+          // Only resize if the height difference is significant
+          if (Math.abs(currentHeight - newHeight) >= (currentHeight * thresholdPercent)) {
+            iframe.style.height = '1px'; // Reset height
+            iframe.style.height = newHeight + 'px'; // Set new height
+            iframe.parentElement.style.height = parentHeight; // Restore parent height
+          }
         };
 
         H5P.on(instance, 'resize', function () {
