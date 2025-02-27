@@ -575,13 +575,6 @@
   font-weight: 600;
 }
 
-/*DUPLICATE used in MC*/
-.h5p-theme .h5p-question-introduction {
-  font-size: var(--h5p-theme-font-size-xl);
-  color: var(--h5p-theme-text-primary);
-  font-weight: 600;
-}
-
 .h5p-theme-lines {
   line-height: var(--h5p-theme-spacing-xl);
   -webkit-background-size: 100% var(--h5p-theme-spacing-xl);
@@ -663,9 +656,10 @@
   font-weight: bold;
   background-color: var(--h5p-theme-contrast-cta-light);
   border-radius: var(--h5p-theme-border-radius-medium);
-      @media (max-width: 576px) {
-      scale: 0.8;
-    } 
+
+  @media (max-width: 576px) {
+    scale: 0.8;
+  } 
 }
 
 /* SUMMARY */
@@ -717,8 +711,7 @@
 .h5p-column-content.h5p-timeline,
 .h5p-column-content.h5p-multi-media-choice,
 .h5p-column-content.h5p-video,
-.h5p-column-content .h5p-audio-recorder
-{
+.h5p-column-content .h5p-audio-recorder {
   margin: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-xs);
   box-shadow: 0px 8px 19.9px 0px rgba(0, 0, 0, 0.05);
   border: solid 1px var(--h5p-theme-stroke-1);
