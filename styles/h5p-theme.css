@@ -344,7 +344,7 @@
 .h5p-navigation .h5p-theme-show-results:hover {
   padding: var(--h5p-theme-spacing-xs) calc(var(--h5p-theme-spacing-l) - 0.75em);
 }
-.h5p-theme .h5p-navigation{
+.h5p-theme .h5p-navigation {
   display: grid;
   grid-gap: var(--h5p-theme-spacing-l);
   grid-template-columns: min-content 1fr min-content;
@@ -361,7 +361,14 @@
   box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.05);
 }
 
-
+.h5p-theme .h5p-navigation .h5p-joubelui-progressbar {
+  grid-column: 2;
+  width: 100%;
+  background-color: var(--h5p-theme-contrast-cta-light);
+  border: 1px solid var(--h5p-theme-contrast-cta-white);
+  border-radius: 8px;
+  padding: 5px;
+}
 
 /* If smaller than 700px */
 @container h5p-navigation (max-width: 700px) {
