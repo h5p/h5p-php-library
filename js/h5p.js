@@ -105,6 +105,40 @@ H5P.init = function (target) {
 
     var r = document.querySelector(':root');
     var c = document.getElementsByClassName("h5p-content")[0];  
+    function changeThemeDaylight() {
+      r.style.setProperty('--h5p-theme-main-cta-base', '#006FBF');
+      r.style.setProperty('--h5p-theme-secondary-cta-base', '#E3E9F1');
+      r.style.setProperty('--h5p-theme-alternative-base', '#F1F5FB');
+      r.style.setProperty('--h5p-theme-background', '#F9FBFF');
+      r.style.setProperty('--h5p-theme-focus', '#006FBF');
+      r.style.setProperty('--h5p-theme-main-cta-light', '#007CD6');
+      r.style.setProperty('--h5p-theme-main-cta-dark', '#005FA3');
+      r.style.setProperty('--h5p-theme-contrast-cta', '#EBF7FF');
+      r.style.setProperty('--h5p-theme-contrast-cta-white', '#006FBF');
+      r.style.setProperty('--h5p-theme-contrast-cta-light', 'color-mix(in srgb, var(--h5p-theme-main-cta-base), transparent 90%)');
+      r.style.setProperty('--h5p-theme-secondary-cta-light', '#F5F7FA');
+      r.style.setProperty('--h5p-theme-secondary-cta-dark', '#D3DCE9');
+      r.style.setProperty('--h5p-theme-secondary-contrast-cta', '#586793');
+      r.style.setProperty('--h5p-theme-alternative-light', '#F7F9FD');
+      r.style.setProperty('--h5p-theme-alternative-dark', '#DBE5F5');
+      r.style.setProperty('--h5p-theme-alternative-darker', '#C7D7EF');
+      r.style.setProperty('--h5p-theme-text-primary', '#101729');
+      r.style.setProperty('--h5p-theme-text-secondary', '#354054');
+      r.style.setProperty('--h5p-theme-text-third', '#737373');
+      r.style.setProperty('--h5p-theme-ui-base', '#FFFFFF');
+      r.style.setProperty('--h5p-theme-stroke-1', '#C7D7EF');
+      r.style.setProperty('--h5p-theme-stroke-2', '#E7EDF6');
+      r.style.setProperty('--h5p-theme-stroke-3', '#F6F7FA');
+      r.style.setProperty('--h5p-theme-feedback-correct-main', '#256D1D');
+      r.style.setProperty('--h5p-theme-feedback-correct-secondary', '#f3fcf0');
+      r.style.setProperty('--h5p-theme-feedback-correct-third', '#cff1c2'); 
+      r.style.setProperty('--h5p-theme-feedback-incorrect-main', '#a13236');
+      r.style.setProperty('--h5p-theme-feedback-incorrect-secondary', '#faf0f4');
+      r.style.setProperty('--h5p-theme-feedback-incorrect-third', '#f6dce7'); 
+      r.style.setProperty('--h5p-theme-feedback-neutral-main', '#E6C81D');
+      r.style.setProperty('--h5p-theme-feedback-neutral-secondary', '#5E4817');
+      r.style.setProperty('--h5p-theme-feedback-neutral-third', '#F0EBCB'); 
+    }
     function changeThemeBlue() {
       r.style.setProperty('--h5p-theme-main-cta-base', '#505DDD');
       r.style.setProperty('--h5p-theme-secondary-cta-base', '#0c1547');
@@ -298,7 +332,10 @@ H5P.init = function (target) {
     var $Colorcontainer = H5P.jQuery('<div style="align-content: center; text-align:left;"></div>').appendTo($Themecontainer);
     var $Sizecontainer = H5P.jQuery('<div style="align-content: center; text-align:right;"></div>').appendTo($Themecontainer);
     
-    const $button1 = H5P.jQuery('<button type="button" style="cursor: pointer; background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #588ee1 0%, #588ee1 50%, #f0f0fc 50%, #f0f0fc 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
+    const $button0 = H5P.jQuery('<button type="button" style="cursor: pointer; background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #588ee1 0%, #588ee1 50%, #f0f0fc 50%, #f0f0fc 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
+    $button0.on('click', () => changeThemeDaylight());
+    
+    const $button1 = H5P.jQuery('<button type="button" style="cursor: pointer; background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #505DDD 0%, #505DDD 50%, #f0f0fc 50%, #f0f0fc 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
     $button1.on('click', () => changeThemeBlue());
     
     const $button2 = H5P.jQuery('<button type="button" style="cursor: pointer; background-color: white; padding: 0.5rem; margin-right: 0.5rem; border-radius: 40px; border: solid 5px #ffffff; cursor: pointer; width: 40px; height: 40px; background: linear-gradient(to right, #9458e1 0%, #9458e1 50%, #e9d3f3 50%, #e9d3f3 100%);    box-shadow: 0px 0px 0px 1px rgba(220, 223, 250, 1);"></button>');
@@ -325,7 +362,7 @@ H5P.init = function (target) {
     
     
     
-     
+    $button0.appendTo($Colorcontainer);
     $button1.appendTo($Colorcontainer);
     $button2.appendTo($Colorcontainer);
     $button3.appendTo($Colorcontainer);
