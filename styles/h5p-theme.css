@@ -550,6 +550,12 @@
 .h5p-theme-secondary-cta.h5p-theme-retry:before {
   content: "\e906";
 }
+.h5p-theme-secondary-cta.h5p-theme-done:before {
+  content: "\e908";
+}
+.h5p-theme-secondary-cta.h5p-theme-done:download {
+  content: "\e911";
+}
 
 /* If the container is smaller than 350px */
 @container (max-width: 350px) {

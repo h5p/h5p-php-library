@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?bs8egi');
-  src:  url('fonts/h5p-theme.eot?bs8egi#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?bs8egi') format('truetype'),
-    url('fonts/h5p-theme.woff?bs8egi') format('woff'),
-    url('fonts/h5p-theme.svg?bs8egi#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?eucnb');
+  src:  url('fonts/h5p-theme.eot?eucnb#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?eucnb') format('truetype'),
+    url('fonts/h5p-theme.woff?eucnb') format('woff'),
+    url('fonts/h5p-theme.svg?eucnb#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -141,4 +141,13 @@
 }
 .icon-check-full-color:before {
   content: "\e926";
+}
+.icon-microphone:before {
+  content: "\e927";
+}
+.icon-download-03:before {
+  content: "\e928";
+}
+.icon-pause-circle:before {
+  content: "\e929";
 }
