@@ -86,6 +86,10 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     popupBackground.classList
       .add('h5p-confirmation-dialog-background', 'hidden', 'hiding');
 
+    if (options.theme) {
+      popupBackground.classList.add('h5p-theme');
+    }
+
     // Create outer popup
     var popup = document.createElement('div');
     popup.classList.add('h5p-confirmation-dialog-popup', 'hidden');
