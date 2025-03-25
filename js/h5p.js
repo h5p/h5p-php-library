@@ -933,10 +933,10 @@ H5P.newRunnable = function (library, contentId, $attachTo, skipResize, extras) {
   // Make sure we don't send them the extras.
   // (they will interpret it as something else)
   if (H5P.jQuery.inArray(library.library, ['H5P.CoursePresentation 1.0', 'H5P.CoursePresentation 1.1', 'H5P.CoursePresentation 1.2', 'H5P.CoursePresentation 1.3']) > -1) {
-    instance = new constructor(library.params, contentId);
+    instance = new constructor(structuredClone(library.params), contentId);
   }
   else {
-    instance = new constructor(library.params, contentId, extras);
+    instance = new constructor(structuredClone(library.params), contentId, extras);
   }
 
   if (instance.$ === undefined) {
