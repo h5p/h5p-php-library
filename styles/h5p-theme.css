@@ -100,7 +100,7 @@
   border-radius: var(--h5p-theme-border-radius-small);
   position: relative;
   z-index: 1000;
-  height: 67%;
+  max-height: 33rem;
   @media (max-width: 576px) {
     margin: calc(-1 * var(--h5p-theme-spacing-xs)) var(--h5p-theme-spacing-s) var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-s);
   }
@@ -149,7 +149,6 @@
 .h5p-theme-results-list-heading {
   display: grid;
   grid-template-columns: 1fr 8fr 1fr;
-  overflow: hidden;
   color: var(--h5p-theme-text-primary);
   justify-items: center;
   border-bottom: solid 1px var(--h5p-theme-stroke-1);
