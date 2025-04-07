@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?eucnb');
-  src:  url('fonts/h5p-theme.eot?eucnb#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?eucnb') format('truetype'),
-    url('fonts/h5p-theme.woff?eucnb') format('woff'),
-    url('fonts/h5p-theme.svg?eucnb#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?s35bnd');
+  src:  url('fonts/h5p-theme.eot?s35bnd#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?s35bnd') format('truetype'),
+    url('fonts/h5p-theme.woff?s35bnd') format('woff'),
+    url('fonts/h5p-theme.svg?s35bnd#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -150,4 +150,34 @@
 }
 .icon-pause-circle:before {
   content: "\e929";
+}
+.icon-arrow-up:before {
+  content: "\e92a";
+}
+.icon-report-icon-v2-full-1:before {
+  content: "\e92b";
+}
+.icon-chapter-blank:before {
+  content: "\e92c";
+}
+.icon-chapter-done:before {
+  content: "\e92d";
+}
+.icon-chapter-started:before {
+  content: "\e92e";
+}
+.icon-question-answered:before {
+  content: "\e92f";
+}
+.icon-up:before {
+  content: "\e930";
+}
+.icon-down:before {
+  content: "\e931";
+}
+.icon-feedback-incorrect-inverted:before {
+  content: "\e932";
+}
+.icon-feedback-correct-inverted:before {
+  content: "\e933";
 }
