@@ -2397,6 +2397,10 @@ H5P.createTitle = function (rawTitle, maxLength) {
       done('Not signed in.');
       return;
     }
+    if (data && data.length > 65535) {
+      console.error('Unable to store content user data, exceeds 65535 bytes.');
+      return;
+    }
 
     const url = H5PIntegration.ajax.contentUserData
       .replace(':contentId', contentId)
