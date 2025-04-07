@@ -890,6 +890,20 @@
   font-weight: 600;
   z-index: 1;
 }
+.h5p-theme .h5p-link a{
+  color: #505DDD;
+}
+.h5p-theme .h5p-link a:hover{
+  color: #6571E1;
+}
+.h5p-theme .h5p-link a:active{
+  color: #2938D1;
+}
+.h5p-theme .h5p-link a:focus{
+  outline: 2px ridge var(--h5p-theme-main-cta-base);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
 
 .h5p-results-list-item, .h5p-results-list-heading {
   display: grid;
