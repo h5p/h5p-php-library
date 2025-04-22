@@ -122,6 +122,7 @@
   border: none;
   transition: all 0.1s linear 0s;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .h5p-theme-nav-button[aria-disabled="true"],
