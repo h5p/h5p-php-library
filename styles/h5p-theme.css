@@ -316,6 +316,12 @@
 .h5p-theme-primary-cta.h5p-theme-reveal-answer:before {
   content: "\e905";
 }
+.h5p-theme-primary-cta.h5p-theme-continue:before {
+  content: "\e901";
+}
+.h5p-theme-primary-cta.h5p-theme-go-to-start:before {
+  content: "\e916";
+}
 
 .h5p-theme-show-results:before {
   content: "\e90a";
