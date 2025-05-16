@@ -287,7 +287,7 @@
   display: inline-block;
   position: absolute;
   font-family: 'h5p-theme';
-  text-indent: -1.5em;
+  text-indent: -1.8em;
   opacity: 0;
   transform: translate(10px, 10px);
   transition: all 0.1s linear 0s;
@@ -483,7 +483,6 @@
 .h5p-column-content .h5p-guess-answer,
 .h5p-column-content.h5p-advanced-text,
 .h5p-column-content.h5p-image,
-.h5p-column-content.h5p-image-slider,
 .h5p-column-content.h5p-link,
 .h5p-column-content.h5p-memory-game,
 .h5p-column-content.h5p-questionnaire-wrapper,
@@ -500,6 +499,14 @@
   padding: var(--h5p-theme-spacing-xs);
   background-color: var(--h5p-theme-ui-base);
 }
+.h5p-column-content.h5p-image-slider{
+  margin: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-xs);
+  box-shadow: 0px 8px 19.9px 0px rgba(0, 0, 0, 0.05);
+  border: solid 1px var(--h5p-theme-stroke-1);
+  border-radius: var(--h5p-theme-border-radius-large);
+  background-color: var(--h5p-theme-ui-base);
+}
+
 
 .h5p-container.h5p-standalone.h5p-column{
   padding: var(--h5p-theme-spacing-s);
