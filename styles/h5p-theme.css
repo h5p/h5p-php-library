@@ -111,6 +111,12 @@
   padding: var(--h5p-theme-spacing-xs) 0;
 }
 
+/* BUTTONS DEFAULT ALIGNMENT */
+.h5p-theme-secondary-cta, .h5p-theme-primary-cta {
+  display: flex;
+  align-items: center;
+}
+
 /* NAVIGATION BUTTONS */
 .h5p-theme-nav-button,
 .h5p-theme .h5p-theme-nav-button {
