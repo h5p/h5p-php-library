@@ -23,9 +23,11 @@
 .h5p-theme .h5p-content {
   font-family: var(--h5p-theme-font-name);
 }
-.h5p-theme *:before, .h5p-theme *:after{
+
+.h5p-theme *:before, .h5p-theme *:after {
   font-weight: normal;
 }
+
 /* Form elements don't naturally inherit font-family */
 .h5p-theme .h5p-content input, .h5p-theme .h5p-content textarea, .h5p-theme .h5p-content button {
   font-family: inherit;
@@ -487,7 +489,7 @@
 .h5p-column-content.h5p-video,
 .h5p-column-content .h5p-audio-recorder,
 .h5p-column-content.h5p-course-presentation,
-.h5p-column-content.h5p-table{
+.h5p-column-content.h5p-table {
   margin: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-xs);
   box-shadow: 0px 8px 19.9px 0px rgba(0, 0, 0, 0.05);
   border: solid 1px var(--h5p-theme-stroke-1);
@@ -495,7 +497,8 @@
   padding: var(--h5p-theme-spacing-xs);
   background-color: var(--h5p-theme-ui-base);
 }
-.h5p-column-content.h5p-image-slider{
+
+.h5p-column-content.h5p-image-slider {
   margin: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-xs);
   box-shadow: 0px 8px 19.9px 0px rgba(0, 0, 0, 0.05);
   border: solid 1px var(--h5p-theme-stroke-1);
@@ -503,16 +506,13 @@
   background-color: var(--h5p-theme-ui-base);
 }
 
-
-.h5p-container.h5p-standalone.h5p-column{
+.h5p-container.h5p-standalone.h5p-column {
   padding: var(--h5p-theme-spacing-s);
-  
-    @media (max-width: 576px) {
-      padding: 0;
-    } 
-  
-}
 
+  @media (max-width: 576px) {
+    padding: 0;
+  }
+}
 
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-inner > h2 {
   background-color: var(--h5p-theme-ui-base);
