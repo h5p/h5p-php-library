@@ -422,6 +422,10 @@ H5P.getHeadTags = function (contentId) {
   };
 
   var createScriptTags = function (scripts) {
+    if (!scripts || !Array.isArray(scripts)) {
+      return '';
+    }
+
     var tags = '';
     for (var i = 0; i < scripts.length; i++) {
       tags += '<script src="' + scripts[i] + '"></script>';
