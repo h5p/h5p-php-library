@@ -35,10 +35,13 @@
   --h5p-theme-feedback-correct-main: #256D1D;
   --h5p-theme-feedback-correct-secondary: #f3fcf0;
   --h5p-theme-feedback-correct-third: #cff1c2;
-	
+
   --h5p-theme-feedback-incorrect-main: #a13236;
   --h5p-theme-feedback-incorrect-secondary: #faf0f4;
   --h5p-theme-feedback-incorrect-third: #f6dce7;
+
+  --h5p-theme-feedback-incorrect-main-light: #c44246;
+  --h5p-theme-feedback-incorrect-main-dark: #7a2629;
 
   --h5p-theme-feedback-neutral-main: #E6C81D;
   --h5p-theme-feedback-neutral-secondary: #5E4817;
