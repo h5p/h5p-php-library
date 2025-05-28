@@ -298,32 +298,6 @@
   transform: translate(0, 0);
 }
 
-.h5p-theme-primary-cta.h5p-theme-check:before {
-  content: "\e908";
-}
-
-.h5p-theme-primary-cta.h5p-theme-book:before {
-  content: "\e909";
-}
-
-.h5p-theme-primary-cta.h5p-theme-flip:before {
-  content: "\e907";
-}
-.h5p-theme-primary-cta.h5p-theme-reveal-answer:before {
-  content: "\e905";
-}
-.h5p-theme-primary-cta.h5p-theme-continue:before {
-  content: "\e901";
-}
-.h5p-theme-primary-cta.h5p-theme-go-to-start:before {
-  content: "\e916";
-}
-
-.h5p-theme-show-results:before {
-  content: "\e90a";
-  font-family: "h5p-theme";
-}
-
 /* If the container is smaller than 200px */
 @container (max-width: 200px) {
   .h5p-theme-primary-cta:hover {
@@ -631,4 +605,45 @@
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:hover .h5p-button-title,
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:hover .h5p-button-description {
   color: var(--h5p-theme-contrast-cta);
+}
+
+/* ICONS */
+.h5p-theme-check:before {
+  content: "\e908";
+  font-family: "h5p-theme";
+}
+
+.h5p-theme-book:before {
+  content: "\e909";
+  font-family: "h5p-theme";
+}
+
+.h5p-theme-flip:before {
+  content: "\e907";
+  font-family: "h5p-theme";
+}
+
+.h5p-theme-reveal-answer:before {
+  content: "\e905";
+  font-family: "h5p-theme";
+}
+
+.h5p-theme-continue:before {
+  content: "\e901";
+  font-family: "h5p-theme";
+}
+
+.h5p-theme-go-to-start:before {
+  content: "\e916";
+  font-family: "h5p-theme";
+}
+
+.h5p-theme-quiz:before {
+  content: "\e935";
+  font-family: "h5p-theme";
+}
+
+.h5p-theme-show-results:before {
+  content: "\e90a";
+  font-family: "h5p-theme";
 }

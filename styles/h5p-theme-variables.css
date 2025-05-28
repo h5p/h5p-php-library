@@ -15,11 +15,11 @@
   --h5p-theme-secondary-cta-light: #101b59;
   --h5p-theme-secondary-cta-dark: #090f34;
   --h5p-theme-secondary-contrast-cta: #e7eafa;
-  
+
   --h5p-theme-alternative-light: #F8F9FE;
   --h5p-theme-alternative-dark: #DCDFFA;
   --h5p-theme-alternative-darker: #ced1ee;
-  
+
   --h5p-theme-text-primary: #101729;
   --h5p-theme-text-secondary: #354054;
   --h5p-theme-text-third: #737373;
@@ -31,8 +31,7 @@
   --h5p-theme-border-radius-medium: 0.375rem;
   --h5p-theme-border-radius-small: 0.25rem;
   --h5p-theme-font-name: "Inter", sans-serif;
- 
- 
+
   --h5p-theme-feedback-correct-main: #256D1D;
   --h5p-theme-feedback-correct-secondary: #f3fcf0;
   --h5p-theme-feedback-correct-third: #cff1c2;
@@ -40,14 +39,14 @@
   --h5p-theme-feedback-incorrect-main: #a13236;
   --h5p-theme-feedback-incorrect-secondary: #faf0f4;
   --h5p-theme-feedback-incorrect-third: #f6dce7;
-  
+
   --h5p-theme-feedback-neutral-main: #E6C81D;
   --h5p-theme-feedback-neutral-secondary: #5E4817;
   --h5p-theme-feedback-neutral-third: #F0EBCB;
 
   /* SPACING */
-  
-   /* Small (default) */
+
+  /* Small (default) */
   --h5p-theme-spacing-xl-primary-small: calc(var(--h5p-theme-spacing-xl-primary-medium)*0.8);
   --h5p-theme-spacing-primary-small: calc(var(--h5p-theme-spacing-primary-medium)*0.8);
   --h5p-theme-spacing-secondary-small: calc(var(--h5p-theme-spacing-secondary-medium)*0.8);
