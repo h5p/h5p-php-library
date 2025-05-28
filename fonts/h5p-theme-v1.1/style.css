@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'h5p-theme';
-  src:  url('fonts/h5p-theme.eot?s35bnd');
-  src:  url('fonts/h5p-theme.eot?s35bnd#iefix') format('embedded-opentype'),
-    url('fonts/h5p-theme.ttf?s35bnd') format('truetype'),
-    url('fonts/h5p-theme.woff?s35bnd') format('woff'),
-    url('fonts/h5p-theme.svg?s35bnd#h5p-theme') format('svg');
+  src:  url('fonts/h5p-theme.eot?f5dxo1');
+  src:  url('fonts/h5p-theme.eot?f5dxo1#iefix') format('embedded-opentype'),
+    url('fonts/h5p-theme.ttf?f5dxo1') format('truetype'),
+    url('fonts/h5p-theme.woff?f5dxo1') format('woff'),
+    url('fonts/h5p-theme.svg?f5dxo1#h5p-theme') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -154,7 +154,7 @@
 .icon-arrow-up:before {
   content: "\e92a";
 }
-.icon-report-icon-v2-full-1:before {
+.icon-reporticon-v2-full1:before {
   content: "\e92b";
 }
 .icon-chapter-blank:before {
@@ -180,4 +180,52 @@
 }
 .icon-feedback-correct-inverted:before {
   content: "\e933";
+}
+.icon-timer:before {
+  content: "\e934";
+}
+.icon-question-set:before {
+  content: "\e935";
+}
+.icon-branching-scenario:before {
+  content: "\e936";
+}
+.icon-audio:before {
+  content: "\e937";
+}
+.icon-image-slider-circle-inactive:before {
+  content: "\e938";
+}
+.icon-image-slider-circle-active:before {
+  content: "\e939";
+}
+.icon-fullscreen-enter-video:before {
+  content: "\e93a";
+}
+.icon-fullscreen-exit-video:before {
+  content: "\e93b";
+}
+.icon-playback-rate:before {
+  content: "\e93c";
+}
+.icon-bookmarks:before {
+  content: "\e93d";
+}
+.icon-closed-captions:before {
+  content: "\e93e";
+}
+.icon-settings:before {
+  content: "\e93f";
+}
+.icon-video-player-handle:before {
+  content: "\e940";
+}
+.icon-volume-mute-video:before {
+  content: "\e941";
+}
+.icon-volume-up-video:before {
+  content: "\e942";
+}
+.icon-video-player-rewind-10-sec:before {
+  content: "\e943";
 }
