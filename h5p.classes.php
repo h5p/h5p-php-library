@@ -2075,6 +2075,7 @@ class H5PCore {
     'minorVersion' => 27
   );
   public static $styles = array(
+    'styles/h5p-fonts.css',
     'styles/h5p.css',
     'styles/h5p-confirmation-dialog.css',
     'styles/h5p-core-button.css',
