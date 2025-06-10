@@ -193,7 +193,7 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   border-radius: var(--h5p-theme-border-radius-large) var(--h5p-theme-border-radius-large) 0 0;
 }
 
-.h5p-theme .h5p-confirmation-dialog-header-text{
+.h5p-theme .h5p-confirmation-dialog-header-text {
   font-size: var(--h5p-theme-font-size-xl);
 }
 
