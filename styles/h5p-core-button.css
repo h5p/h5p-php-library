@@ -77,6 +77,10 @@ button.h5p-core-cancel-button:focus {
   cursor: pointer;
 }
 
+.h5p-theme .h5p-core-button {
+  display: flex;
+}
+
 .h5p-theme .h5p-core-button:before {
   font-family: 'h5p-theme';
   padding-right: unset;
