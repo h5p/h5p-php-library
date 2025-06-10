@@ -71,6 +71,11 @@
   border-color: var(--h5p-theme-main-cta-light);
 }
 
+.h5p-content:has(.h5p-theme) .h5p-dialog-ok-button:active {
+  background-color: var(--h5p-theme-main-cta-dark);
+  border-color: var(--h5p-theme-main-cta-dark);
+}
+
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-close {
   font-size: var(--h5p-theme-font-size-xl);
   margin: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-s);
