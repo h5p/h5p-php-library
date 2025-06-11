@@ -195,6 +195,7 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 
 .h5p-theme .h5p-confirmation-dialog-header-text {
   font-size: var(--h5p-theme-font-size-xl);
+  margin-right: 3em;
 }
 
 .h5p-theme .h5p-confirmation-dialog-body {
