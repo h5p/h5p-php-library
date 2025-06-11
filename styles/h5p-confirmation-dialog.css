@@ -280,7 +280,10 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   }
 
   .h5p-theme .h5p-confirmation-dialog-popup .h5p-core-button {
-    width: 100%;
     margin-top: var(--h5p-theme-spacing-xs);
+  }
+
+  .h5p-theme .h5p-confirmation-dialog-popup .h5p-core-button::before {
+    text-indent: -2rem;
   }
 }
