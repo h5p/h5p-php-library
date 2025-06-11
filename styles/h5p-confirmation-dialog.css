@@ -207,9 +207,6 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 .h5p-theme button.h5p-confirmation-dialog-exit:visited,
 .h5p-theme button.h5p-confirmation-dialog-exit:link,
 .h5p-theme button.h5p-confirmation-dialog-exit {
-  /*position: absolute;
-  top: 1.3rem;
-  right: 0rem;*/
   position: unset;
   height: 0.5em;
   margin-left: auto;
@@ -249,15 +246,18 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 .h5p-theme .h5p-confirmation-dialog-background {
   background-color: rgba(0,0,0,0.85);
 }
-.h5p-theme .h5p-confirmation-dialog-buttons{
+
+.h5p-theme .h5p-confirmation-dialog-buttons {
+  display: flex;
+  justify-content: end;
   width: 100%;
-  text-align: end;
 }
-.h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta{
+
+.h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta {
   padding: var(--h5p-theme-spacing-xs) calc(var(--h5p-theme-spacing-l));
 } 
 
-.h5p-theme .h5p-core-button.h5p-confirmation-dialog-confirm-button:before{
+.h5p-theme .h5p-core-button.h5p-confirmation-dialog-confirm-button:before {
   content: "\e908";
   margin-top: unset;
   font-size: unset;
@@ -268,13 +268,18 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 }
 
 @media only screen and (max-width: 640px) {
-  .h5p-theme .h5p-confirmation-dialog-popup  .h5p-core-cancel-button,
-  .h5p-theme .h5p-confirmation-dialog-popup  .h5p-core-button {
+  .h5p-theme .h5p-confirmation-dialog-buttons {
+    flex-direction: column;
+  }
+
+  .h5p-theme .h5p-confirmation-dialog-popup .h5p-core-cancel-button,
+  .h5p-theme .h5p-confirmation-dialog-popup .h5p-core-button {
+    display: block;
     box-sizing: border-box;
     width: 100%;
   }
 
-  .h5p-theme .h5p-confirmation-dialog-popup  .h5p-core-button {
+  .h5p-theme .h5p-confirmation-dialog-popup .h5p-core-button {
     width: 100%;
     margin-top: var(--h5p-theme-spacing-xs);
   }
