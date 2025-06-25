@@ -9,28 +9,6 @@ H5P.Tooltip = (function () {
   };
 
   /**
-   * Keep track of whether the user is using their mouse or keyboard to
-   * navigate. Will determine whether tooltip should be shown on focus.
-   */
-  let usingMouse;
-
-  function debounce(callback, delay) {
-    let timeout = null;
-
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        callback(...args);
-      }, delay);
-    };
-  }
-
-  // The mousemove listener is debounced for performance reasons
-  document.addEventListener('mousemove', debounce(() => usingMouse = true, 100));
-  document.addEventListener('mousedown', () => usingMouse = true);
-  document.addEventListener('keydown', () => usingMouse = false);
-
-  /**
    * Create an accessible tooltip
    *
    * @param {HTMLElement} triggeringElement The element that should trigger the tooltip
@@ -267,11 +245,7 @@ H5P.Tooltip = (function () {
         hideTooltip(event);
       }, 1);
     });
-    triggeringElement.addEventListener('focusin', (event) => {
-      if (!usingMouse) {
-        showTooltip(event);
-      }
-    });
+    triggeringElement.addEventListener('focusin', showTooltip);
     triggeringElement.addEventListener('focusout', hideTooltip);
     triggeringElement.addEventListener('click', hideTooltip);
     tooltip.addEventListener('mouseenter', () => {
