@@ -133,6 +133,7 @@
 
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-download-button:before {
   content: "\e911";
+  width: max-content;
 }
 
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:hover {
