@@ -81,6 +81,26 @@ body.h5p-semi-fullscreen {
   color: #e5eef6;
 }
 
+.h5p-content-controls.themed .h5p-enable-fullscreen:before {
+  font-family: 'h5p-theme';
+  font-weight: bold;
+  content: "\e915";
+}
+.h5p-content-controls.themed .h5p-disable-fullscreen:before {
+  font-family: 'h5p-theme';
+  font-weight: bold;
+  content: "\e914";
+}
+.h5p-content-controls.themed .h5p-enable-fullscreen, .h5p-content-controls.themed .h5p-disable-fullscreen {
+  cursor: pointer;
+  color: #EEE;
+  background: rgb(0,0,0);
+  background: rgba(0,0,0,0.3);
+  font-size: var(--h5p-theme-font-size-m);
+  text-indent: 0.04em;
+  padding: var(--h5p-theme-spacing-xs);
+}
+
 .h5p-enable-fullscreen:before {
   font-family: 'H5P';
   content: "\e88c";
@@ -114,6 +134,9 @@ body.h5p-semi-fullscreen {
 }
 
 .h5p-enable-fullscreen:hover, .h5p-disable-fullscreen:hover {
+  background: rgba(0,0,0,0.5);
+}
+.h5p-content-controls.themed .h5p-enable-fullscreen:hover, .h5p-content-controls.themed .h5p-disable-fullscreen:hover {
   background: rgba(0,0,0,0.5);
 }
 .h5p-semi-fullscreen .h5p-enable-fullscreen {
