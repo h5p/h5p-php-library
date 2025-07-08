@@ -210,8 +210,8 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 .h5p-theme button.h5p-confirmation-dialog-exit {
   font-size: var(--h5p-theme-font-size-xl);
   color: var(--h5p-theme-text-primary);
-  top: 1.15em;
-  right: 1.9em;
+  top: var(--h5p-theme-spacing-s);
+  right: var(--h5p-theme-spacing-s);
   line-height: calc(var(--h5p-theme-spacing-s) * 3.0836);
   padding: 0;
 }
