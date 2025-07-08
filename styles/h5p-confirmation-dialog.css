@@ -292,7 +292,7 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
     transform: translate(0, 0);
   }
 
-  .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta {
+  .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta:before {
     margin-right: 0;
   }
 
