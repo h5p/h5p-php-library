@@ -81,17 +81,17 @@ body.h5p-semi-fullscreen {
   color: #e5eef6;
 }
 
-.h5p-content-controls.themed .h5p-enable-fullscreen:before {
+.h5p-theme .h5p-content-controls .h5p-enable-fullscreen:before {
   font-family: 'h5p-theme';
   font-weight: bold;
   content: "\e915";
 }
-.h5p-content-controls.themed .h5p-disable-fullscreen:before {
+.h5p-theme .h5p-content-controls .h5p-disable-fullscreen:before {
   font-family: 'h5p-theme';
   font-weight: bold;
   content: "\e914";
 }
-.h5p-content-controls.themed .h5p-enable-fullscreen, .h5p-content-controls.themed .h5p-disable-fullscreen {
+.h5p-theme .h5p-content-controls .h5p-enable-fullscreen, .h5p-theme .h5p-content-controls .h5p-disable-fullscreen {
   cursor: pointer;
   color: #EEE;
   background: rgb(0,0,0);
