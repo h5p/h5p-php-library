@@ -143,14 +143,18 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     // Cancel button
     if (!options.hideCancel) {
       var cancelButton = document.createElement('button');
-      cancelButton.classList.add('h5p-core-cancel-button');
-      cancelButton.textContent = options.cancelText;
+      if (!options.theme) {
+        cancelButton.classList.add('h5p-core-cancel-button');
+      }
+      else {
+        cancelButton.classList.add('h5p-theme-secondary-cta');
+        cancelButton.classList.add('h5p-theme-cancel');
+      }
+      const cancelText = document.createElement('span');
+      cancelText.textContent = options.cancelText;
+      cancelButton.appendChild(cancelText);
       cancelButton.addEventListener('click', dialogCanceled);
       buttons.appendChild(cancelButton);
-      
-      if (options.theme) {
-        cancelButton.classList.add('h5p-theme-secondary-cta');
-      }
     }
     else {
       // Center remaining buttons
@@ -159,7 +163,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     // Confirm button
     var confirmButton = document.createElement('button');
-    confirmButton.classList.add('h5p-core-button');
+    if (!options.theme) {
+      confirmButton.classList.add('h5p-core-button');
+    }
    // confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
     confirmButton.setAttribute('aria-label', options.confirmText);
 
