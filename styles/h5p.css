@@ -369,9 +369,6 @@ div.h5p-fullscreen {
   border-left: solid 2px var(--h5p-theme-alternative-dark);
   padding: 5px;
 }
-.h5p-content:has(.h5p-theme) .h5p-popup-dialog dd{
-
-}
 .h5p-content:has(.h5p-theme) .h5p-media-copyright{
   border: solid 1px var(--h5p-theme-alternative-dark);
   padding: var(--h5p-theme-spacing-s);

@@ -133,6 +133,12 @@
 
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-download-button:before {
   content: "\e911";
+  width: max-content;
+}
+
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-download-button:disabled:before {
+  content: "\e90d";
+  font-family: "h5p";
 }
 
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:hover {
