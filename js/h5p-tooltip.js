@@ -31,12 +31,12 @@ H5P.Tooltip = (function () {
     let hover = false;
     let focus = false;
 
-    // Function used by the escape listener
-    const escapeFunction = function (e) {
-      if (e.key === 'Escape') {
-        tooltip.classList.remove('h5p-tooltip-visible');
-      }
-    }
+    // Function used by the key listener
+    const hideOnAnyKey = function () {
+      tooltip.classList.remove('h5p-tooltip-visible');
+      hover = false;
+      focus = false;
+    };
 
     // Create element
     const tooltip = document.createElement('div');
@@ -163,8 +163,8 @@ H5P.Tooltip = (function () {
 
       tooltip.classList.add('h5p-tooltip-visible');
 
-      // Add listener to iframe body, as esc keypress would not be detected otherwise
-      document.body.addEventListener('keydown', escapeFunction, true);
+      // Add listener to iframe body, as keypress would not be detected otherwise
+      document.body.addEventListener('keydown', hideOnAnyKey, true);
     }
 
     /**
@@ -185,7 +185,7 @@ H5P.Tooltip = (function () {
         tooltip.classList.remove('h5p-tooltip-visible');
 
         // Remove iframe body listener
-        document.body.removeEventListener('keydown', escapeFunction, true);
+        document.body.removeEventListener('keydown', hideOnAnyKey, true);
       }
     }
 
