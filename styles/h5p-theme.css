@@ -16,6 +16,12 @@
   background-color: rgba(0, 0, 0, 0.85);
 }
 
+.h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-inner {
+  min-width: 35rem;
+  color: var(--h5p-theme-text-primary);
+  border-radius: var(--h5p-theme-border-radius-large);
+}
+
 .h5p-content:has(.h5p-theme) .h5p-reuse-dialog .h5p-inner {
   max-width: 45rem;
 }
