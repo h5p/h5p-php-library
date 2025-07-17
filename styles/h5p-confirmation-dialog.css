@@ -216,6 +216,12 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   padding: 0;
 }
 
+.h5p-theme button.h5p-confirmation-dialog-exit:focus-visible {
+  outline: 2px ridge var(--h5p-theme-main-cta-base);
+  border-radius: 100%;
+  outline-offset: 2px;
+}
+
 /* TODO: here */
 .h5p-theme button.h5p-confirmation-dialog-exit:focus,
 .h5p-theme button.h5p-confirmation-dialog-exit:hover {
