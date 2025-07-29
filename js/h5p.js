@@ -182,7 +182,11 @@ H5P.init = function (target) {
       var $actions = actionBar.getDOMElement();
 
       actionBar.on('reuse', function () {
-        H5P.openReuseDialog($actions, contentData, library, instance, contentId);
+        H5P.openReuseDialog($actions, contentData, {
+          library: contentData.library,
+          params: JSON.parse(contentData.jsonContent),
+          metadata: contentData.metadata
+        }, instance, contentId);
         instance.triggerXAPI('accessed-reuse');
       });
       actionBar.on('copyrights', function () {
