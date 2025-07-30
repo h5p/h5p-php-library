@@ -8,6 +8,9 @@ H5P.Tooltip = (function () {
     default: 'top'
   };
 
+  // Delay in ms before tooltip is shown
+  const delayMs = 500;
+
   /**
    * Create an accessible tooltip
    *
@@ -115,10 +118,9 @@ H5P.Tooltip = (function () {
     const showTooltip = function (event, wait = true) {
       if (wait === true) {
         // We don't want to show the tooltip right away.
-        // Adding a 300 ms waiting period here.
         showTooltipTimer = setTimeout(() => {
           showTooltip(event, false);
-        }, 300);
+        }, delayMs);
         return;
       }
 
