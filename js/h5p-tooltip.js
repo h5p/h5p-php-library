@@ -9,6 +9,21 @@ H5P.Tooltip = (function () {
   };
 
   /**
+   * Strips html tags and converts special characters.
+   * Example: "<div>Me &amp; you</div>" is converted to "Me & you".
+   *
+   * @param {String} text The text to be parsed
+   * @returns {String} The parsed text
+   */
+  function parseString(text) {
+    if (text === null || text === undefined) {
+      return '';
+    }
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    return doc.documentElement.textContent;
+  }
+
+  /**
    * Create an accessible tooltip
    *
    * @param {HTMLElement} triggeringElement The element that should trigger the tooltip
@@ -61,7 +76,7 @@ H5P.Tooltip = (function () {
     const tooltip = document.createElement('div');
     tooltip.id = tooltipId;
     tooltip.role = 'tooltip';
-    tooltip.innerHTML = options.text || triggeringElement.getAttribute(options.tooltipSource) || '';
+    tooltip.textContent = parseString(options.text || triggeringElement.getAttribute(options.tooltipSource) || '');
     tooltip.setAttribute('aria-hidden', options.ariaHidden);
     tooltip.classList.add(...options.classes);
 
@@ -83,9 +98,9 @@ H5P.Tooltip = (function () {
         triggeringElement.appendChild(tooltip);
       }
       
-      tooltip.innerHTML = options.text || updatedText;
+      tooltip.textContent = parseString(options.text || updatedText);
 
-      if (tooltip.innerHTML.trim().length === 0 && tooltip.classList.contains('h5p-tooltip-visible')) {
+      if (tooltip.textContent.trim().length === 0 && tooltip.classList.contains('h5p-tooltip-visible')) {
         tooltip.classList.remove('h5p-tooltip-visible');
       }
       
@@ -123,7 +138,7 @@ H5P.Tooltip = (function () {
       }
 
       // Don't show tooltip if it is empty
-      if (tooltip.innerHTML.trim().length === 0) {
+      if (tooltip.textContent.trim().length === 0) {
         return;
       }
 
@@ -272,7 +287,7 @@ H5P.Tooltip = (function () {
      */
     this.setText = function (text) {
       options.text = text;
-      tooltip.innerHTML = options.text || triggeringElement.getAttribute(options.tooltipSource) || '';
+      tooltip.textContent = parseString(options.text || triggeringElement.getAttribute(options.tooltipSource) || '');
     };
 
     /**
