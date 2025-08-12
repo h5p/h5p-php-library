@@ -19,8 +19,9 @@ H5P.Tooltip = (function () {
     if (text === null || text === undefined) {
       return '';
     }
-    const doc = new DOMParser().parseFromString(text, 'text/html');
-    return doc.documentElement.textContent;
+    const div = document.createElement('div');
+    div.innerHTML = text;
+    return div.textContent;
   }
 
   /**
