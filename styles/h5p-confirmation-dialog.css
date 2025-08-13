@@ -222,12 +222,6 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   outline-offset: 2px;
 }
 
-/* TODO: here */
-.h5p-theme button.h5p-confirmation-dialog-exit:focus,
-.h5p-theme button.h5p-confirmation-dialog-exit:hover {
-  color: var(--h5p-theme-secondary-cta-dark);
-}
-
 .h5p-theme .h5p-confirmation-dialog-exit:before {
   transform: translateY(-0.48em);
   font-family: "h5p-theme";
