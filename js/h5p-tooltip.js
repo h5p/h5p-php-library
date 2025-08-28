@@ -25,6 +25,28 @@ H5P.Tooltip = (function () {
   }
 
   /**
+   * Keep track of whether the user is using their mouse or keyboard to
+   * navigate. Will determine whether tooltip should be shown on focus.
+   */
+  let usingMouse;
+
+  function debounce(callback, delay) {
+    let timeout = null;
+
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        callback(...args);
+      }, delay);
+    };
+  }
+
+  // The mousemove listener is debounced for performance reasons
+  document.addEventListener('mousemove', debounce(() => usingMouse = true, 100));
+  document.addEventListener('mousedown', () => usingMouse = true);
+  document.addEventListener('keydown', () => usingMouse = false);
+
+  /**
    * Create an accessible tooltip
    *
    * @param {HTMLElement} triggeringElement The element that should trigger the tooltip
@@ -52,7 +74,7 @@ H5P.Tooltip = (function () {
     options.classes = options.classes || [];
     options.ariaHidden = options.ariaHidden || true;
     options.tooltipSource = options.tooltipSource || 'aria-label';
-    options.position = (options.position && Position.allowed.includes(options.position)) 
+    options.position = (options.position && Position.allowed.includes(options.position))
       ? options.position
       : Position.default;
 
@@ -98,13 +120,13 @@ H5P.Tooltip = (function () {
       if (tooltip.parentNode === null) {
         triggeringElement.appendChild(tooltip);
       }
-      
+
       tooltip.textContent = parseString(options.text || updatedText);
 
       if (tooltip.textContent.trim().length === 0 && tooltip.classList.contains('h5p-tooltip-visible')) {
         tooltip.classList.remove('h5p-tooltip-visible');
       }
-      
+
     })
     this.observer.observe(triggeringElement, {
       attributes: true,
@@ -132,6 +154,7 @@ H5P.Tooltip = (function () {
       if (wait === true) {
         // We don't want to show the tooltip right away.
         // Adding a 300 ms waiting period here.
+        clearTimeout(showTooltipTimer);
         showTooltipTimer = setTimeout(() => {
           showTooltip(event, false);
         }, 300);
@@ -196,7 +219,7 @@ H5P.Tooltip = (function () {
         // We trust this option makes the tooltip being shown
         return;
       }
-     
+
       tooltipRect = tooltip.getBoundingClientRect();
       const isVisible = tooltipRect.left >= 0 &&
         tooltipRect.top >= 0 &&
@@ -217,7 +240,6 @@ H5P.Tooltip = (function () {
       }
     };
 
-    
     /**
      * Hides the tooltip and removes listeners
      *
@@ -261,14 +283,17 @@ H5P.Tooltip = (function () {
         hideTooltip(event);
       }, 1);
     });
-    triggeringElement.addEventListener('focusin', showTooltip);
+    triggeringElement.addEventListener('focusin', (event) => {
+      if (!usingMouse) {
+        showTooltip(event);
+      }
+    });
     triggeringElement.addEventListener('focusout', hideTooltip);
     triggeringElement.addEventListener('click', hideTooltip);
     tooltip.addEventListener('mouseenter', () => {
       clearTimeout(triggerMouseLeaveTimer);
     });
     tooltip.addEventListener('mouseleave', hideTooltip);
-
 
     tooltip.addEventListener('click', function (event) {
       // Prevent clicks on the tooltip from triggering click
