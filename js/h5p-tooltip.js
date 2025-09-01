@@ -8,8 +8,11 @@ H5P.Tooltip = (function () {
     default: 'top'
   };
 
-  // Delay in ms before tooltip is shown
-  const delayMs = 500;
+  // Delay in ms before tooltip is shown for the first time
+  const DELAY_FIRST_MS = 500;
+
+  // Delay in ms before tooltip is shown for subsequent times, quicker than before
+  const DELAY_SUBSEQUENT_MS = 300;
 
   /**
    * Create an accessible tooltip
@@ -120,7 +123,7 @@ H5P.Tooltip = (function () {
         // We don't want to show the tooltip right away.
         showTooltipTimer = setTimeout(() => {
           showTooltip(event, false);
-        }, delayMs);
+        }, H5P.Tooltip.shownForElements.has(triggeringElement) ? DELAY_SUBSEQUENT_MS : DELAY_FIRST_MS);
         return;
       }
 
@@ -128,6 +131,8 @@ H5P.Tooltip = (function () {
       if (tooltip.innerHTML.trim().length === 0) {
         return;
       }
+
+      H5P.Tooltip.shownForElements.add(triggeringElement);
 
       if (event.type === 'mouseenter') {
         hover = true;
@@ -316,3 +321,4 @@ H5P.Tooltip = (function () {
 })();
 
 H5P.Tooltip.uniqueId = -1;
+H5P.Tooltip.shownForElements = new Set();
