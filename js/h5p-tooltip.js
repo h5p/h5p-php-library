@@ -8,6 +8,12 @@ H5P.Tooltip = (function () {
     default: 'top'
   };
 
+  /** {number} DELAY_SHOW_MS Delay before tooltip is shown */
+  const DELAY_SHOW_MS = 500;
+
+  /** {number} DELAY_HIDE_MS Delay before tooltip is hidden */
+  const DELAY_HIDE_MS = 500;
+
   /**
    * Strips html tags and converts special characters.
    * Example: "<div>Me &amp; you</div>" is converted to "Me & you".
@@ -141,6 +147,9 @@ H5P.Tooltip = (function () {
     // triggered (either by mouseenter or focusin)
     let showTooltipTimer;
 
+    // Timer responsible for hiding the tooltip x ms after it has been untriggered
+    let hideTooltipTimer;
+
     // This timer makes sure the tooltip is not hidden when the mouse
     // moves from the trigger to the tooltip.
     let triggerMouseLeaveTimer;
@@ -151,13 +160,15 @@ H5P.Tooltip = (function () {
      * @param {UIEvent} event The triggering event
      */
     const showTooltip = function (event, wait = true) {
+      clearTimeout(hideTooltipTimer); // Prevent from hiding while supposed to show
+
       if (wait === true) {
         // We don't want to show the tooltip right away.
         // Adding a 300 ms waiting period here.
         clearTimeout(showTooltipTimer);
         showTooltipTimer = setTimeout(() => {
           showTooltip(event, false);
-        }, 300);
+        }, DELAY_SHOW_MS);
         return;
       }
 
@@ -247,12 +258,14 @@ H5P.Tooltip = (function () {
      */
     const hideTooltip = function (event) {
       let hide = false;
+      let wait = false;
 
       if (event.type === 'click') {
         hide = true;
       }
       else {
         if (event.type === 'mouseleave') {
+          wait = true; // Tooltip should not disappear right away
           hover = false;
         }
         else {
@@ -264,15 +277,22 @@ H5P.Tooltip = (function () {
 
       // Only hide tooltip if neither hovered nor focused
       if (hide) {
+        clearTimeout(showTooltipTimer); // Prevent from showing while supposed to hide
 
-        // We're hiding the tooltip. If the showTooltipTimer is running
-        // we have to stop it.
-        clearTimeout(showTooltipTimer);
+        const cleanupTooltip = () => {
+          tooltip.classList.remove('h5p-tooltip-visible');
+          document.body.removeEventListener('keydown', hideOnEscape, true); // Remove iframe body listener
+        }
 
-        tooltip.classList.remove('h5p-tooltip-visible');
-
-        // Remove iframe body listener
-        document.body.removeEventListener('keydown', hideOnEscape, true);
+        if (wait) {
+          clearTimeout(hideTooltipTimer);
+          hideTooltipTimer = setTimeout(() => {
+            cleanupTooltip();
+          }, DELAY_HIDE_MS);
+        }
+        else {
+          cleanupTooltip();
+        }
       }
     };
 
