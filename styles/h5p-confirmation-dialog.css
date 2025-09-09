@@ -258,12 +258,6 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   max-width: fit-content;
 }
 
-.h5p-theme .h5p-confirmation-dialog-buttons button.h5p-theme-cancel::before {
-  content: "\e910";
-  font-family: "h5p-theme";
-  font-size: 90%;
-}
-
 .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta {
   padding: var(--h5p-theme-spacing-xs) calc(var(--h5p-theme-spacing-l));
 }
