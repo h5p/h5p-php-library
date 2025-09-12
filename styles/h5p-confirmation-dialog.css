@@ -217,7 +217,7 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 }
 
 .h5p-theme button.h5p-confirmation-dialog-exit:focus-visible {
-  outline: 2px ridge var(--h5p-theme-main-cta-base);
+  outline: 2px ridge var(--h5p-theme-contrast-cta-white);
   border-radius: 100%;
   outline-offset: 2px;
 }
@@ -236,8 +236,8 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 }
 
 /* TODO: check if code above makes this redundant */
-.h5p-theme .h5p-core-button:focus {
-  background-color: var(--h5p-theme-main-cta-base);
+.h5p-theme .h5p-core-button:focus-visible {
+  background-color: var(--h5p-theme-contrast-cta-white);
 }
 
 .h5p-theme .h5p-confirmation-dialog-background {
