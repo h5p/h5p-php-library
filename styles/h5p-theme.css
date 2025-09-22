@@ -121,7 +121,7 @@
 }
 
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-horizontal-line-text {
-  display: var(--h5p-horizontal-line-text-display, none);
+  display: none;
 }
 
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:before {
@@ -174,16 +174,8 @@
 }
 
 @container h5p-popup-dialog (width < 480px) {
-  .h5p-content:has(.h5p-theme) .h5p-reuse-dialog .h5p-inner {
-    --h5p-horizontal-line-text-display: block;
-  }
-
   .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button {
     max-width: 100%;
-  }
-
-  .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-horizontal-line-text {
-    display: block;
   }
 
   .h5p-content:has(.h5p-theme) .h5p-popup-dialog.h5p-open .h5p-scroll-content {
