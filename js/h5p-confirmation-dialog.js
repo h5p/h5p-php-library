@@ -87,7 +87,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       popupBackground.classList.add('h5p-theme');
     }
 
-    if(document.querySelector('.h5peditor')){
+    if (document.querySelector('.h5peditor')) {
       popupBackground.classList.add('h5peditor', `h5p-${H5PIntegration.theme.density}`);
     }
 
