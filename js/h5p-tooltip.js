@@ -160,6 +160,10 @@ H5P.Tooltip = (function () {
      * @param {UIEvent} event The triggering event
      */
     const showTooltip = function (event, wait = true) {
+      if (!event.target || event.target.disabled) {
+        return;
+      }
+
       clearTimeout(hideTooltipTimer); // Prevent from hiding while supposed to show
 
       if (wait === true) {
