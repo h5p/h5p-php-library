@@ -160,7 +160,7 @@ H5P.Tooltip = (function () {
      * @param {UIEvent} event The triggering event
      */
     const showTooltip = function (event, wait = true) {
-      if (!event.target || event.target.disabled) {
+      if (!event.target || event.target.disabled || event.target.getAttribute('aria-disabled') === 'true') {
         return;
       }
 
