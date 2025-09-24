@@ -127,13 +127,13 @@
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-big-button:before {
   position: unset;
   font-family: 'h5p-theme';
-  color: var(--h5p-theme-main-cta-base);
+  color: var(--h5p-theme-contrast-cta-white);
   display: block;
   margin-bottom: var(--h5p-theme-spacing-s);
 }
 
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog .h5p-button-title {
-  color: var(--h5p-theme-main-cta-base);
+  color: var(--h5p-theme-contrast-cta-white);
   font-size: var(--h5p-theme-font-size-l);
 }
 
