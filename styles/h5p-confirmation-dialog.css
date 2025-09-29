@@ -283,6 +283,8 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
     padding: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-l);
   }
 
+  .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-primary-cta:disabled:before,
+  .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta:disabled:before,
   .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-primary-cta:before {
     margin-right: 0;
     opacity: 1;
