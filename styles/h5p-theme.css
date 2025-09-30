@@ -13,7 +13,8 @@
 
 /* DIALOGS */
 .h5p-content:has(.h5p-theme) .h5p-popup-dialog {
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(0,0,0,0.85); /* Fallback color */
+  background-color: hsl(from var(--h5p-theme-main-cta-base) h calc(s * 0.3) 18% / 40%);
   container-name: h5p-popup-dialog;
   container-type: inline-size;
 }

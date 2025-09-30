@@ -241,7 +241,8 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 }
 
 .h5p-theme .h5p-confirmation-dialog-background {
-  background-color: rgba(0,0,0,0.85);
+  background-color: rgba(0,0,0,0.85); /* Fallback color */
+  background-color: hsl(from var(--h5p-theme-main-cta-base) h calc(s * 0.3) 18% / 40%);
 }
 
 .h5p-theme .h5p-confirmation-dialog-buttons {
