@@ -32,7 +32,7 @@ html.h5p-iframe, html.h5p-iframe > body {
   margin: 0;
   padding: 0;
 }
-.h5p-semi-fullscreen, .h5p-fullscreen, html.h5p-iframe .h5p-container {
+.h5p-semi-fullscreen, .h5p-fullscreen {
   overflow: hidden;
 }
 .h5p-content {
@@ -71,6 +71,7 @@ html.h5p-iframe .h5p-semi-fullscreen .h5p-content {
 .h5p-container {
   position: relative;
   z-index: 1;
+  overflow: hidden;
 }
 .h5p-iframe-wrapper.h5p-fullscreen {
   background-color: #000;
