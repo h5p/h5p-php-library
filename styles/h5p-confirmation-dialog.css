@@ -5,6 +5,7 @@
   left: 0;
   top: 0;
   background: rgba(44, 44, 44, 0.9);
+  background-color: hsl(from var(--h5p-theme-main-cta-base) h calc(s * 0.3) 18% / 40%);
   opacity: 1;
   visibility: visible;
   -webkit-transition: opacity 0.1s, linear 0s, visibility 0s linear 0s;
@@ -123,6 +124,7 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   left: 0;
   z-index: 1;
   background: rgba(44, 44, 44, 0.9);
+  background-color: hsl(from var(--h5p-theme-main-cta-base) h calc(s * 0.3) 18% / 40%);
 }
 .throbber-wrapper.show {
   display: block;
