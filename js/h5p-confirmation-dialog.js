@@ -45,11 +45,13 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
     /**
      * Handle dialog canceled
-     * @param {Event} e
+     * @param {Event} e Event.
+     * @param {object} [options] Options.
+     * @param {boolean} [options.wasExplicitChoice] True if user chose cancel explicitly, otherwise (close, esc) false.
      */
-    function dialogCanceled(e) {
+    function dialogCanceled(e, options = {}) {
       self.hide();
-      self.trigger('canceled');
+      self.trigger('canceled', { wasExplicitChoice: options.wasExplicitChoice ?? false });
       e.preventDefault();
     }
 
@@ -161,7 +163,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       const cancelText = document.createElement('span');
       cancelText.textContent = options.cancelText;
       cancelButton.appendChild(cancelText);
-      cancelButton.addEventListener('click', dialogCanceled);
+      cancelButton.addEventListener('click', (event) => {
+        dialogCanceled(event, { wasExplicitChoice: true });
+      });
       buttons.appendChild(cancelButton);
     }
     else {
