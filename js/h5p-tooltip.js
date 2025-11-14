@@ -1,11 +1,9 @@
-/*global H5P*/
+/* global H5P */
 H5P.Tooltip = (function () {
-  'use strict';
-
   // Position (allowed and default)
   const Position = {
     allowed: ['top', 'bottom', 'left', 'right'],
-    default: 'top'
+    default: 'top',
   };
 
   /** {number} DELAY_SHOW_MS Delay before tooltip is shown */
@@ -73,7 +71,7 @@ H5P.Tooltip = (function () {
   function Tooltip(triggeringElement, options) {
     // Make sure tooltips have unique id
     H5P.Tooltip.uniqueId += 1;
-    const tooltipId = 'h5p-tooltip-' + H5P.Tooltip.uniqueId;
+    const tooltipId = `h5p-tooltip-${H5P.Tooltip.uniqueId}`;
 
     // Default options
     options = options || {};
@@ -86,7 +84,7 @@ H5P.Tooltip = (function () {
 
     // Add our internal classes
     options.classes.push('h5p-tooltip');
-    if (options.position === 'left' || options.position === 'right' ) {
+    if (options.position === 'left' || options.position === 'right') {
       options.classes.push('h5p-tooltip-narrow');
     }
 
@@ -120,7 +118,7 @@ H5P.Tooltip = (function () {
     // changed for the triggering element. If so, update the tooltip.
     // Mutation observer will be used even if the original elements
     // doesn't have any options.tooltipSource.
-    this.observer = new MutationObserver(function (mutations) {
+    this.observer = new MutationObserver((mutations) => {
       const updatedText = mutations[0].target.getAttribute(options.tooltipSource);
 
       if (tooltip.parentNode === null) {
@@ -132,8 +130,7 @@ H5P.Tooltip = (function () {
       if (tooltip.textContent.trim().length === 0 && tooltip.classList.contains('h5p-tooltip-visible')) {
         tooltip.classList.remove('h5p-tooltip-visible');
       }
-
-    })
+    });
     this.observer.observe(triggeringElement, {
       attributes: true,
       attributeFilter: [options.tooltipSource, 'class'],
@@ -214,32 +211,32 @@ H5P.Tooltip = (function () {
 
       if (options.position === 'top') {
         // Places it centered above
-        tooltip.style.left = (triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)) + 'px';
-        tooltip.style.top = (triggerRect.top - tooltipRect.height)  + 'px';
+        tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
+        tooltip.style.top = `${triggerRect.top - tooltipRect.height}px`;
       }
       else if (options.position === 'bottom') {
         // Places it centered below
-        tooltip.style.left = (triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)) + 'px';
-        tooltip.style.top = triggerRect.bottom + 'px';
+        tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
+        tooltip.style.top = `${triggerRect.bottom}px`;
       }
       else if (options.position === 'left') {
-        tooltip.style.left = (triggerRect.left - tooltipRect.width) + 'px';
-        tooltip.style.top = (triggerRect.top + (triggerRect.height - tooltipRect.height) / 2) + 'px';
+        tooltip.style.left = `${triggerRect.left - tooltipRect.width}px`;
+        tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
         // We trust this option makes the tooltip being shown
         return;
       }
       else if (options.position === 'right') {
-        tooltip.style.left = triggerRect.right + 'px';
-        tooltip.style.top = (triggerRect.top + (triggerRect.height - tooltipRect.height) / 2) + 'px';
+        tooltip.style.left = `${triggerRect.right}px`;
+        tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
         // We trust this option makes the tooltip being shown
         return;
       }
 
       tooltipRect = tooltip.getBoundingClientRect();
-      const isVisible = tooltipRect.left >= 0 &&
-        tooltipRect.top >= 0 &&
-        tooltipRect.right <= rootRect.width &&
-        tooltipRect.bottom <= rootRect.height;
+      const isVisible = tooltipRect.left >= 0
+        && tooltipRect.top >= 0
+        && tooltipRect.right <= rootRect.width
+        && tooltipRect.bottom <= rootRect.height;
 
       if (!isVisible) {
         // The tooltip placement needs to be adjusted. This logic will move the
@@ -286,7 +283,7 @@ H5P.Tooltip = (function () {
         const cleanupTooltip = () => {
           tooltip.classList.remove('h5p-tooltip-visible');
           document.body.removeEventListener('keydown', hideOnEscape, true); // Remove iframe body listener
-        }
+        };
 
         if (wait) {
           clearTimeout(hideTooltipTimer);
@@ -302,7 +299,7 @@ H5P.Tooltip = (function () {
 
     // Add event listeners to triggeringElement
     triggeringElement.addEventListener('mouseenter', showTooltip);
-    triggeringElement.addEventListener('mouseleave', event => {
+    triggeringElement.addEventListener('mouseleave', (event) => {
       triggerMouseLeaveTimer = setTimeout(() => {
         hideTooltip(event);
       }, 1);
@@ -319,7 +316,7 @@ H5P.Tooltip = (function () {
     });
     tooltip.addEventListener('mouseleave', hideTooltip);
 
-    tooltip.addEventListener('click', function (event) {
+    tooltip.addEventListener('click', (event) => {
       // Prevent clicks on the tooltip from triggering click
       // listeners on the triggering element
       event.stopPropagation();
@@ -375,7 +372,6 @@ H5P.Tooltip = (function () {
   }
 
   return Tooltip;
-
-})();
+}());
 
 H5P.Tooltip.uniqueId = -1;
