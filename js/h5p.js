@@ -107,7 +107,7 @@ H5P.init = function (target) {
     var c = document.getElementsByClassName("h5p-content")[0];  
     function changeThemeDaylight() {
       r.style.setProperty('--h5p-theme-main-cta-base', '#006FBF');
-      r.style.setProperty('--h5p-theme-secondary-cta-base', '#004489');
+      r.style.setProperty('--h5p-theme-secondary-cta-base', '#E3E9F1');
       r.style.setProperty('--h5p-theme-alternative-base', '#F1F5FB');
       r.style.setProperty('--h5p-theme-background', '#F9FBFF');
       r.style.setProperty('--h5p-theme-focus', '#006FBF');
@@ -116,9 +116,11 @@ H5P.init = function (target) {
       r.style.setProperty('--h5p-theme-contrast-cta', '#EBF7FF');
       r.style.setProperty('--h5p-theme-contrast-cta-white', '#006FBF');
       r.style.setProperty('--h5p-theme-contrast-cta-light', 'color-mix(in srgb, var(--h5p-theme-main-cta-base), transparent 90%)');
-      r.style.setProperty('--h5p-theme-secondary-cta-light', '#0051A3');
-      r.style.setProperty('--h5p-theme-secondary-cta-dark', '#003870');
-      r.style.setProperty('--h5p-theme-secondary-contrast-cta', '#ffffff');
+      r.style.setProperty('--h5p-theme-contrast-cta-dark', '#0597FF');
+      r.style.setProperty('--h5p-theme-secondary-cta-light', '#F5F7FA');
+      r.style.setProperty('--h5p-theme-secondary-cta-dark', '#D3DCE9');
+      r.style.setProperty('--h5p-theme-secondary-contrast-cta', '#202122');
+      r.style.setProperty('--h5p-theme-secondary-contrast-cta-hover', '#EBF7FF');
       r.style.setProperty('--h5p-theme-alternative-light', '#F7F9FD');
       r.style.setProperty('--h5p-theme-alternative-dark', '#DBE5F5');
       r.style.setProperty('--h5p-theme-alternative-darker', '#C7D7EF');
