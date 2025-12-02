@@ -1,25 +1,25 @@
 :root {
-  --h5p-theme-main-cta-base: #505DDD;
-  --h5p-theme-secondary-cta-base: #0c1547;
-  --h5p-theme-alternative-base: #EEEFFA;
-  --h5p-theme-background: #F0F0FC;
-  --h5p-theme-focus: #3b54a5; /*TODO: not yet in use */ 
+  --h5p-theme-main-cta-base: #006FBF;
+  --h5p-theme-secondary-cta-base: #E3E9F1;
+  --h5p-theme-alternative-base: #F1F5FB;
+  --h5p-theme-background: #F9FBFF;
+  --h5p-theme-focus: #006FBF; /*TODO: not yet in use */ 
 
-  --h5p-theme-main-cta-light: #5764E7;
-  --h5p-theme-main-cta-dark: #2938D1;
-  --h5p-theme-contrast-cta: #E0F1FF;
-  --h5p-theme-contrast-cta-white: #505ddd;
+  --h5p-theme-main-cta-light: #007CD6;
+  --h5p-theme-main-cta-dark: #005FA3;
+  --h5p-theme-contrast-cta: #EBF7FF;
+  --h5p-theme-contrast-cta-white: #006FBF;
 
   --h5p-theme-contrast-cta-light: color-mix(in srgb, var(--h5p-theme-main-cta-base), transparent 90%);
 
-  --h5p-theme-secondary-cta-light: #101b59;
-  --h5p-theme-secondary-cta-dark: #090f34;
-  --h5p-theme-secondary-contrast-cta: #e7eafa;
-  --h5p-theme-secondary-contrast-cta-hover: #e7eafa;
+  --h5p-theme-secondary-cta-light: #F5F7FA;
+  --h5p-theme-secondary-cta-dark: #D3DCE9;
+  --h5p-theme-secondary-contrast-cta: #202122;
+  --h5p-theme-secondary-contrast-cta-hover: #EBF7FF;
 
-  --h5p-theme-alternative-light: #F8F9FE;
-  --h5p-theme-alternative-dark: #DCDFFA;
-  --h5p-theme-alternative-darker: #ced1ee;
+  --h5p-theme-alternative-light: #F7F9FD;
+  --h5p-theme-alternative-dark: #DBE5F5;
+  --h5p-theme-alternative-darker: #C7D7EF;
 
   --h5p-theme-text-primary: #101729;
   --h5p-theme-text-secondary: #354054;
