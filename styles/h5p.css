@@ -5,8 +5,12 @@ html.h5p-iframe, html.h5p-iframe > body {
   margin: 0;
   padding: 0;
 }
-html.h5p-iframe .h5p-theme, html.h5p-iframe > body .h5p-theme {
-  font-family: var(--h5p-theme-font-name); /* Use the browser's default sans-serif font. (Since Heletica doesn't look nice on Windows, and Arial on OS X.) */
+html.h5p-iframe .h5p-theme,
+html.h5p-iframe > body .h5p-theme,
+.h5peditor .h5p-theme {
+  font-family: var(
+    --h5p-theme-font-name
+  ); /* Use the browser's default sans-serif font. (Since Heletica doesn't look nice on Windows, and Arial on OS X.) */
 }
 .h5p-semi-fullscreen, .h5p-fullscreen, html.h5p-iframe .h5p-container {
   overflow: hidden;
