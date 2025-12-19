@@ -1,7 +1,5 @@
-/*global H5P*/
+/* eslint-disable no-param-reassign */
 H5P.ConfirmationDialog = (function (EventDispatcher) {
-  "use strict";
-
   /**
    * Create a confirmation dialog
    *
@@ -20,11 +18,11 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
    */
   function ConfirmationDialog(options) {
     EventDispatcher.call(this);
-    var self = this;
+    const self = this;
 
     // Make sure confirmation dialogs have unique id
     H5P.ConfirmationDialog.uniqueId += 1;
-    var uniqueId = H5P.ConfirmationDialog.uniqueId;
+    const { uniqueId } = H5P.ConfirmationDialog;
 
     // Default options
     options = options || {};
@@ -47,7 +45,8 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * Handle dialog canceled
      * @param {Event} e Event.
      * @param {object} [options] Options.
-     * @param {boolean} [options.wasExplicitChoice] True if user chose cancel explicitly, otherwise (close, esc) false.
+     * @param {boolean} [options.wasExplicitChoice] 
+     * True if user chose cancel explicitly, otherwise (close, esc) false.
      */
     function dialogCanceled(e, options = {}) {
       self.hide();
@@ -74,14 +73,14 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     // Offset of exit button
-    var exitButtonOffset = 2 * 16;
-    var shadowOffset = 8;
+    const exitButtonOffset = 2 * 16;
+    const shadowOffset = 8;
 
     // Determine if we are too large for our container and must resize
-    var resizeIFrame = false;
+    let resizeIFrame = false;
 
     // Create background
-    var popupBackground = document.createElement('div');
+    const popupBackground = document.createElement('div');
     popupBackground.classList
       .add('h5p-confirmation-dialog-background', 'hidden', 'hiding');
 
@@ -98,21 +97,21 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     // Create outer popup
-    var popup = document.createElement('div');
+    const popup = document.createElement('div');
     popup.classList.add('h5p-confirmation-dialog-popup', 'hidden');
     if (options.classes) {
-      options.classes.forEach(function (popupClass) {
+      options.classes.forEach((popupClass) => {
         popup.classList.add(popupClass);
       });
     }
 
     popup.setAttribute('role', 'alertdialog');
     popup.setAttribute('aria-modal', 'true');
-    popup.setAttribute('aria-labelledby', 'h5p-confirmation-dialog-header-text-' + uniqueId);
-    popup.setAttribute('aria-describedby', 'h5p-confirmation-dialog-text-' + uniqueId);
+    popup.setAttribute('aria-labelledby', `h5p-confirmation-dialog-header-text-${uniqueId}`);
+    popup.setAttribute('aria-describedby', `h5p-confirmation-dialog-text-${uniqueId}`);
     popupBackground.appendChild(popup);
-    popup.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') {// Esc key
+    popup.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { // Esc key
         // Exit dialog
         dialogCanceled(e);
       }
@@ -122,42 +121,42 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     });
 
     // Popup header
-    var header = document.createElement('div');
+    const header = document.createElement('div');
     header.classList.add('h5p-confirmation-dialog-header');
     popup.appendChild(header);
 
     // Header text
-    var headerText = document.createElement('div');
+    const headerText = document.createElement('div');
     headerText.classList.add('h5p-confirmation-dialog-header-text');
-    headerText.id = 'h5p-confirmation-dialog-dialog-header-text-' + uniqueId;
+    headerText.id = `h5p-confirmation-dialog-dialog-header-text-${uniqueId}`;
     headerText.innerHTML = options.headerText;
     header.appendChild(headerText);
 
     // Popup body
-    var body = document.createElement('div');
+    const body = document.createElement('div');
     body.classList.add('h5p-confirmation-dialog-body');
     popup.appendChild(body);
 
     // Popup text
-    var text = document.createElement('div');
+    const text = document.createElement('div');
     text.classList.add('h5p-confirmation-dialog-text');
     text.innerHTML = options.dialogText;
-    text.id = 'h5p-confirmation-dialog-dialog-text-' + uniqueId;
+    text.id = `h5p-confirmation-dialog-dialog-text-${uniqueId}`;
     body.appendChild(text);
 
     // Popup buttons
-    var buttons = document.createElement('div');
+    const buttons = document.createElement('div');
     buttons.classList.add('h5p-confirmation-dialog-buttons');
     body.appendChild(buttons);
 
     // Cancel button
     if (!options.hideCancel) {
-      var cancelButton = document.createElement('button');
+      const cancelButton = document.createElement('button');
       if (!options.theme) {
         cancelButton.classList.add('h5p-core-cancel-button');
       }
       else {
-        cancelButton.classList.add('h5p-theme-secondary-cta');
+        cancelButton.classList.add('h5p-theme-button', 'h5p-theme-secondary-cta');
         cancelButton.classList.add('h5p-theme-cancel');
       }
       const cancelText = document.createElement('span');
@@ -174,15 +173,15 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     // Confirm button
-    var confirmButton = document.createElement('button');
+    const confirmButton = document.createElement('button');
     if (!options.theme) {
       confirmButton.classList.add('h5p-core-button');
     }
-   // confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
+    // confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
     confirmButton.setAttribute('aria-label', options.confirmText);
 
     if (options.theme) {
-      confirmButton.classList.add('h5p-theme-primary-cta');
+      confirmButton.classList.add('h5p-theme-button', 'h5p-theme-primary-cta');
       confirmButton.classList.add('h5p-theme-check');
     }
 
@@ -192,11 +191,11 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     confirmButton.appendChild(confirmText);
     buttons.appendChild(confirmButton);
 
-    var focusableButtons = [...buttons.childNodes];
+    let focusableButtons = [...buttons.childNodes];
 
     // Exit button
     if (!options.hideExit) {
-      var exitButton = document.createElement('button');
+      const exitButton = document.createElement('button');
       exitButton.classList.add('h5p-confirmation-dialog-exit');
       exitButton.setAttribute('aria-label', options.cancelText);
       exitButton.addEventListener('click', dialogCanceled);
@@ -210,17 +209,14 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     // Wrapper element
-    var wrapperElement;
-
-    // Focus capturing
-    var focusPredator;
+    let wrapperElement;
 
     // Maintains hidden state of elements
-    var wrapperSiblingsHidden = [];
-    var popupSiblingsHidden = [];
+    let wrapperSiblingsHidden = [];
+    let popupSiblingsHidden = [];
 
     // Element with focus before dialog
-    var previouslyFocused;
+    let previouslyFocused;
 
     /**
      * Set parent of confirmation dialog
@@ -238,14 +234,13 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * @param {HTMLElement} element
      * @returns {Array} The previous hidden state of all siblings
      */
-    var hideSiblings = function (element) {
-      var hiddenSiblings = [];
-      var siblings = element.parentNode.children;
-      var i;
+    const hideSiblings = function (element) {
+      const hiddenSiblings = [];
+      const siblings = element.parentNode.children;
+      let i;
       for (i = 0; i < siblings.length; i += 1) {
         // Preserve hidden state
-        hiddenSiblings[i] = siblings[i].getAttribute('aria-hidden') ?
-          true : false;
+        hiddenSiblings[i] = !!siblings[i].getAttribute('aria-hidden');
 
         if (siblings[i] !== element) {
           if (siblings[i].getAttribute('aria-live')) {
@@ -265,9 +260,9 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * @param {HTMLElement} element
      * @param {Array} hiddenSiblings Hidden state of all siblings
      */
-    var restoreSiblings = function (element, hiddenSiblings) {
-      var siblings = element.parentNode.children;
-      var i;
+    const restoreSiblings = function (element, hiddenSiblings) {
+      const siblings = element.parentNode.children;
+      let i;
       for (i = 0; i < siblings.length; i += 1) {
         if (siblings[i] !== element && !hiddenSiblings[i]) {
           if (siblings[i].getAttribute('aria-live')) {
@@ -283,7 +278,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     /**
      * Hide siblings in underlay from assistive technologies
      */
-    var disableUnderlay = function () {
+    const disableUnderlay = function () {
       wrapperSiblingsHidden = hideSiblings(wrapperElement);
       popupSiblingsHidden = hideSiblings(popupBackground);
     };
@@ -291,7 +286,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     /**
      * Restore state of underlay for assistive technologies
      */
-    var restoreUnderlay = function () {
+    const restoreUnderlay = function () {
       restoreSiblings(wrapperElement, wrapperSiblingsHidden);
       restoreSiblings(popupBackground, popupSiblingsHidden);
     };
@@ -300,8 +295,8 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * Fit popup to container. Makes sure it doesn't overflow.
      * @params {number} [offsetTop] Offset of popup
      */
-    var fitToContainer = function (offsetTop) {
-      var popupOffsetTop = parseInt(popup.style.top, 10);
+    const fitToContainer = function (offsetTop) {
+      let popupOffsetTop = parseInt(popup.style.top, 10);
       if (offsetTop !== undefined) {
         popupOffsetTop = offsetTop;
       }
@@ -321,7 +316,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         // We are too big and must resize
         resizeIFrame = true;
       }
-      popup.style.top = popupOffsetTop + 'px';
+      popup.style.top = `${popupOffsetTop}px`;
     };
 
     /**
@@ -344,8 +339,8 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
 
       // Resize iFrame if necessary
       if (resizeIFrame && options.instance) {
-        var minHeight = parseInt(popup.offsetHeight, 10) +
-          exitButtonOffset + (2 * shadowOffset);
+        const minHeight = parseInt(popup.offsetHeight, 10)
+          + exitButtonOffset + (2 * shadowOffset);
         self.setViewPortMinimumHeight(minHeight);
         options.instance.trigger('resize');
         resizeIFrame = false;
@@ -397,8 +392,8 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
      * @param {number|null} minHeight
      */
     this.setViewPortMinimumHeight = function (minHeight) {
-      var container = document.querySelector('.h5p-container') || document.body;
-      container.style.minHeight = (typeof minHeight === 'number') ? (minHeight + 'px') : minHeight;
+      const container = document.querySelector('.h5p-container') || document.body;
+      container.style.minHeight = (typeof minHeight === 'number') ? (`${minHeight}px`) : minHeight;
     };
   }
 
@@ -406,7 +401,6 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
   ConfirmationDialog.prototype.constructor = ConfirmationDialog;
 
   return ConfirmationDialog;
-
 }(H5P.EventDispatcher));
 
 H5P.ConfirmationDialog.uniqueId = -1;

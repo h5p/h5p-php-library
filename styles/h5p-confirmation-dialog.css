@@ -256,12 +256,8 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   width: 100%;
 }
 
-.h5p-theme .h5p-confirmation-dialog-buttons button.h5p-theme-primary-cta {
-  max-width: fit-content;
-}
-
 .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta {
-  padding: var(--h5p-theme-spacing-xs) calc(var(--h5p-theme-spacing-l));
+  padding-inline: calc(var(--h5p-theme-spacing-l));
 }
 
 .h5p-theme .h5p-core-button.h5p-confirmation-dialog-confirm-button:before {
@@ -282,7 +278,7 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   }
 
   .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-primary-cta:hover {
-    padding: var(--h5p-theme-spacing-xs) var(--h5p-theme-spacing-l);
+    padding-inline: var(--h5p-theme-spacing-l);
   }
 
   .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-primary-cta:disabled:before,
@@ -305,20 +301,11 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   }
 }
 
-@container (max-width: 200px) {
-  .h5p-theme .h5p-confirmation-dialog-buttons button.h5p-theme-cancel::before {
-    content: "\e910";
-    font-family: "h5p-theme";
-    font-size: 90%;
-  }
-
+@container (max-width: 250px) {
   .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-primary-cta:hover {
-    padding: 0;
+    padding-inline: var(--h5p-theme-spacing-s);
   }
-
   .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta {
-    height: var(--h5p-theme-spacing-xl);
-    min-width: var(--h5p-theme-spacing-xl);
-    padding: 0;
+    padding-inline: var(--h5p-theme-spacing-s);
   }
 }
