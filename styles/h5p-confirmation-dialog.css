@@ -256,10 +256,6 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
   width: 100%;
 }
 
-.h5p-theme .h5p-confirmation-dialog-buttons button.h5p-theme-primary-cta {
-  max-width: fit-content;
-}
-
 .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta {
   padding-inline: calc(var(--h5p-theme-spacing-l));
 }
