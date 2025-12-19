@@ -157,7 +157,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         cancelButton.classList.add('h5p-core-cancel-button');
       }
       else {
-        cancelButton.classList.add('h5p-theme-secondary-cta');
+        cancelButton.classList.add('h5p-theme-button', 'h5p-theme-secondary-cta');
         cancelButton.classList.add('h5p-theme-cancel');
       }
       const cancelText = document.createElement('span');
@@ -182,7 +182,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     confirmButton.setAttribute('aria-label', options.confirmText);
 
     if (options.theme) {
-      confirmButton.classList.add('h5p-theme-primary-cta');
+      confirmButton.classList.add('h5p-theme-button', 'h5p-theme-primary-cta');
       confirmButton.classList.add('h5p-theme-check');
     }
 
