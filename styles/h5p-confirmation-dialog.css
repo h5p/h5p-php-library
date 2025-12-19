@@ -302,6 +302,9 @@ button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:h
 }
 
 @container (max-width: 250px) {
+  .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-primary-cta:hover {
+    padding-inline: var(--h5p-theme-spacing-s);
+  }
   .h5p-theme .h5p-confirmation-dialog-buttons .h5p-theme-secondary-cta {
     padding-inline: var(--h5p-theme-spacing-s);
   }
