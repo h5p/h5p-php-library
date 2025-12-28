@@ -1950,7 +1950,7 @@ Class H5PExport {
     $zip->close();
     H5PCore::deleteFileTree($tmpPath);
 
-    $filename = $content['slug'] . '-' . $content['id'] . '.h5p';
+    $filename = self::buildExportFileName($content);
     try {
       // Save export
       $this->h5pC->fs->saveExport($tmpFile, $filename);
@@ -1996,12 +1996,20 @@ Class H5PExport {
   }
 
   /**
+   * @param array $content object
+   * @return string the export filename
+   */
+  public static function buildExportFileName($content) {
+    return ($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p';
+  }
+
+  /**
    * Delete .h5p file
    *
    * @param array $content object
    */
   public function deleteExport($content) {
-    $this->h5pC->fs->deleteExport(($content['slug'] ? $content['slug'] . '-' : '') . $content['id'] . '.h5p');
+    $this->h5pC->fs->deleteExport(self::buildExportFileName($content));
   }
 
   /**
@@ -2251,7 +2259,7 @@ class H5PCore {
     if (!empty($content['filtered']) &&
         (!$this->exportEnabled ||
          ($content['slug'] &&
-          $this->fs->hasExport($content['slug'] . '-' . $content['id'] . '.h5p')))) {
+          $this->fs->hasExport(H5PExport::buildExportFileName($content))))) {
       return $content['filtered'];
     }
 
@@ -2303,7 +2311,7 @@ class H5PCore {
         $content['slug'] = $this->generateContentSlug($content);
 
         // Remove old export file
-        $this->fs->deleteExport($content['id'] . '.h5p');
+        $this->fs->deleteExport(H5PExport::buildExportFileName($content));
       }
 
       if ($this->exportEnabled) {
