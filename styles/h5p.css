@@ -130,11 +130,11 @@ body.h5p-semi-fullscreen {
   height: 0.9em;
 }
 
-.h5p-enable-fullscreen:focus,
-.h5p-disable-fullscreen:focus {
-  outline-style: solid;
-  outline-width: 1px;
-  outline-offset: 0.25em;
+.h5p-enable-fullscreen:focus-visible,
+.h5p-disable-fullscreen:focus-visible {
+  outline: 2px ridge var(--h5p-theme-contrast-cta-white);
+  border-radius: 4px;
+  outline-offset: 2px;
 }
 
 .h5p-enable-fullscreen:hover, .h5p-disable-fullscreen:hover {
