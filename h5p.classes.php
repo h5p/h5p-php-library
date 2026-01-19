@@ -1029,8 +1029,8 @@ class H5PValidator {
         }
         while ($missingLibraries = $this->getMissingLibraries($upgrades)) {
           foreach ($missingLibraries as $libString => $missing) {
-            $library = $libraries[$libString];
-            if ($library) {
+            if (array_key_exists($libString, $libraries)){
+              $library = $libraries[$libString];
               $upgrades[$libString] = $library;
             }
           }
