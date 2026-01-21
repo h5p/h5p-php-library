@@ -2272,21 +2272,27 @@ class H5PCore {
 
     // Handle addons:
     $addons = $this->h5pF->loadAddons();
-    foreach ($addons as $addon) {
-      $add_to = json_decode($addon['addTo']);
 
-      if (isset($add_to->content->types)) {
-        foreach($add_to->content->types as $type) {
+    // Makes sure we don't loop through a null value and prevents errors
+    if ($addons) {
+      foreach ($addons as $addon) {
+        $add_to = json_decode($addon['addTo']);
 
-          if (isset($type->text->regex) &&
-              $this->textAddonMatches($params->params, $type->text->regex)) {
-            $validator->addon($addon);
+        if (isset($add_to->content->types)) {
+          foreach($add_to->content->types as $type) {
+            if (isset($type->text->regex) &&
+                $this->textAddonMatches($params->params, $type->text->regex)) {
+              $validator->addon($addon);
 
-            // An addon shall only be added once
-            break;
+              // An addon shall only be added once
+              break;
+            }
           }
         }
+
       }
+    } else {
+      return NULL;
     }
 
     $params = json_encode($params->params);
