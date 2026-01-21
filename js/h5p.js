@@ -243,7 +243,7 @@ H5P.init = function (target) {
       // xAPI events will schedule a save in three seconds.
       H5P.on(instance, 'xAPI', function (event) {
         var verb = event.getVerb();
-        if (verb === 'completed' || verb === 'progressed') {
+        if (verb === 'completed' || verb === 'progressed' || verb === 'answered') {
           clearTimeout(saveTimer);
           saveTimer = setTimeout(save, 3000);
         }
@@ -2909,11 +2909,11 @@ H5P.createTitle = function (rawTitle, maxLength) {
       // iPad does not support beforeunload, therefore using unload
       H5P.$window.one('beforeunload unload', function () {
         // Only want to do this once
-        H5P.$window.off('pagehide beforeunload unload');
+        H5P.$window.off('pagehide visibilitychange beforeunload unload');
         storeCurrentState();
       });
       // pagehide is used on iPad when tabs are switched
-      H5P.$window.on('pagehide', storeCurrentState);
+      H5P.$window.on('pagehide visibilitychange', storeCurrentState);
     }
   });
 
