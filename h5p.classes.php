@@ -2060,8 +2060,8 @@ abstract class H5PContentStatus {
 }
 
 abstract class H5PHubEndpoints {
-  const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
-  const SITES = 'api.h5p.org/v1/sites';
+  const CONTENT_TYPES = 'hub-api.h5p.org/v1/content-types/';
+  const SITES = 'hub-api.h5p.org/v1/sites';
   const METADATA = 'hub-api.h5p.org/v1/metadata';
   const CONTENT = 'hub-api.h5p.org/v1/contents';
   const REGISTER = 'hub-api.h5p.org/v1/accounts';
