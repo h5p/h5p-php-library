@@ -296,6 +296,7 @@ H5P.XAPIEvent.prototype.getVerifiedStatementValue = function (keys) {
  * @type Array
  */
 H5P.XAPIEvent.allowedXAPIVerbs = [
+  'reset',
   'answered',
   'asked',
   'attempted',
