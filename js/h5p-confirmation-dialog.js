@@ -351,7 +351,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       // focus the buttons. It should also be checked for each show, since a
       // user may change this setting at any time.
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-      if (prefersReducedMotion) {
+      if (prefersReducedMotion.matches) {
         buttons.firstChild.focus();
       }
 
