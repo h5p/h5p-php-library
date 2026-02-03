@@ -346,6 +346,15 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         resizeIFrame = false;
       }
 
+      // Detect if the user prefers reduced motion, because in that case
+      // we cannot rely on transitionend triggering and we need to manually
+      // focus the buttons. It should also be checked for each show, since a
+      // user may change this setting at any time.
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      if (prefersReducedMotion.matches) {
+        buttons.firstChild.focus();
+      }
+
       return this;
     };
 
