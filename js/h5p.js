@@ -380,7 +380,9 @@ H5P.init = function (target) {
       ? contentData.metadata.defaultLanguage : 'en';
 
     const writeDocument = function () {
-      iframe.srcdoc = '<!doctype html><html class="h5p-iframe" lang="' + contentLanguage + '"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>';
+      iframe.contentDocument.open();
+      iframe.contentDocument.write('<!doctype html><html class="h5p-iframe" lang="' + contentLanguage + '"><head>' + H5P.getHeadTags(contentId) + '</head><body><div class="h5p-content" data-content-id="' + contentId + '"/></body></html>');
+      iframe.contentDocument.close();
     };
 
     $iframe.addClass('h5p-initialized')
