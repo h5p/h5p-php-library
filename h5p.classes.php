@@ -1,4 +1,7 @@
 <?php
+
+namespace Moodle;
+
 /**
  * Interface defining functions the h5p library needs the framework to implement
  */
