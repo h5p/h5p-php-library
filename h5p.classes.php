@@ -666,6 +666,13 @@ interface H5PFrameworkInterface {
    * @return bool True if successful
    */
   public function setContentHubMetadataChecked($time, $lang = 'en');
+
+  /**
+   * Callback for reset hub data
+   *
+   * @return void
+   */
+  public function resetHubOrganizationData();
 }
 
 /**
@@ -2082,6 +2089,7 @@ class H5PCore {
     'styles/h5p-theme.css',
     'styles/h5p-theme-variables.css',
     'styles/h5p-tooltip.css',
+    'styles/h5p-table.css',
   );
   public static $scripts = array(
     'js/jquery.js',
@@ -3728,7 +3736,7 @@ class H5PCore {
       'helpChoosingLicense' => $this->h5pF->t('Help me choose a license'),
       'shareFailed' => $this->h5pF->t('Share failed.'),
       'editingFailed' => $this->h5pF->t('Editing failed.'),
-      'shareTryAgain' => $this->h5pF->t('Something went wrong, please try to share again.'),
+      'shareTryAgain' => $this->h5pF->t('Couldn\'t communicate with the H5P Hub. Please try again later.'),
       'pleaseWait' => $this->h5pF->t('Please wait...'),
       'language' => $this->h5pF->t('Language'),
       'level' => $this->h5pF->t('Level'),
@@ -3915,6 +3923,13 @@ class H5PCore {
 
       return true;
     }
+
+    if ($response['status'] === 403) {
+      // Unauthenticated, cannot find hub secret and site uuid combination
+      $this->h5pF->resetHubOrganizationData();
+      return false;
+    }
+
     $msg = $this->h5pF->t('Content unpublish failed');
     $this->h5pF->setErrorMessage($msg);
 
@@ -3984,6 +3999,12 @@ class H5PCore {
       return false;
     }
 
+    if ($accountInfo['status'] === 403) {
+      // Unauthenticated, cannot find hub secret and site uuid combination
+      $this->h5pF->resetHubOrganizationData();
+      return false;
+    }
+
     if ($accountInfo['status'] !== 200) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Unable to retrieve HUB account information. Please contact support.'));
       return false;
@@ -4022,7 +4043,7 @@ class H5PCore {
     $headers  = [];
     $endpoint = H5PHubEndpoints::REGISTER;
     // Update if already registered
-    $hasRegistered = $this->h5pF->getOption('hub_secret');
+    $hasRegistered = $this->hubAccountInfo() ? true : false;
     if ($hasRegistered) {
       $endpoint            .= "/{$uuid}";
       $formData['_method'] = 'PUT';
@@ -4114,8 +4135,7 @@ class H5PCore {
       null, true, null, true, $headers);
 
     if (isset($response['status']) && $response['status'] === 403) {
-      $msg = $this->h5pF->t('The request for content status was unauthorized. This could be because the content belongs to a different account, or your account is not setup properly.');
-      $this->h5pF->setErrorMessage($msg);
+      $this->h5pF->resetHubOrganizationData();
       return false;
     }
     if (empty($response) || $response['status'] !== 200) {
@@ -4169,7 +4189,20 @@ class H5PContentValidator {
   public $h5pF;
   public $h5pC;
   private $typeMap, $libraries, $dependencies, $nextWeight;
-  private static $allowed_styleable_tags = array('span', 'p', 'div','h1','h2','h3', 'td');
+  private static $allowed_styleable_tags = [
+    'span',
+    'p',
+    'div',
+    'h1',
+    'h2',
+    'h3',
+    'table',
+    'col',
+    'figure',
+    'td',
+    'th',
+    'li'
+  ];
 
   /** @var bool Allowed styles status. */
   protected $allowedStyles;
@@ -4269,7 +4302,7 @@ class H5PContentValidator {
 
       // Add related tags for table etc.
       if (in_array('table', $tags)) {
-        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'thead', 'tbody', 'tfoot'));
+        $tags = array_merge($tags, array('tr', 'td', 'th', 'colgroup', 'col', 'thead', 'tbody', 'tfoot', 'figure', 'figcaption'));
       }
       if (in_array('b', $tags) && ! in_array('strong', $tags)) {
         $tags[] = 'strong';
@@ -4292,13 +4325,13 @@ class H5PContentValidator {
           $stylePatterns[] = '/^font-size: *[0-9.]+(em|px|%) *;?$/i';
         }
         if (isset($semantics->font->family) && $semantics->font->family) {
-          $stylePatterns[] = '/^font-family: *[-a-z0-9," ]+;?$/i';
+          $stylePatterns[] = '/^font-family: *[-a-z0-9,\'&; ]+;?$/i';
         }
         if (isset($semantics->font->color) && $semantics->font->color) {
-          $stylePatterns[] = '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+          $stylePatterns[] = '/^color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
         }
         if (isset($semantics->font->background) && $semantics->font->background) {
-          $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)) *;?$/i';
+          $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
         }
         if (isset($semantics->font->spacing) && $semantics->font->spacing) {
           $stylePatterns[] = '/^letter-spacing: *[0-9.]+(em|px|%) *;?$/i';
@@ -4306,6 +4339,28 @@ class H5PContentValidator {
         if (isset($semantics->font->height) && $semantics->font->height) {
           $stylePatterns[] = '/^line-height: *[0-9.]+(em|px|%|) *;?$/i';
         }
+      }
+
+      // Allow styling of tables if they are allowed
+      if (isset($semantics->tags) && in_array('table', $semantics->tags)) {
+        // CKEditor outputs border as width style color
+        $stylePatterns[] = '/^border: *[0-9.]+(em|px|%|) *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
+        $stylePatterns[] = '/^border-style: *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *;?$/i';
+        $stylePatterns[] = '/^border-width: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^border-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
+
+        $stylePatterns[] = '/^vertical-align: *(middle|top|bottom);?$/i';
+        $stylePatterns[] = '/^padding: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^width: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^height: *[0-9.]+(em|px|%|) *;?$/i';
+        $stylePatterns[] = '/^float: *(right|left|none) *;?$/i';
+
+        // Needed for backwards compatibility
+        $stylePatterns[] = '/^border-collapse: *collapse *;?$/i';
+
+        // Table can have background color when font bgcolor is disabled
+        // Double entry of bgcolor in stylePatterns shouldn't matter
+        $stylePatterns[] = '/^background-color: *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
       }
 
       // Alignment is allowed for all wysiwyg texts
@@ -4555,6 +4610,16 @@ class H5PContentValidator {
     if (isset($semantics->extraAttributes)) {
       $validKeys = array_merge($validKeys, $semantics->extraAttributes); // TODO: Validate extraAttributes
     }
+
+    // Hack to sanitize quality name. Ideally we should not allow extraAttributes, or we must build
+    // functionality for generically sanitize it.
+    if (in_array('metadata', $validKeys) && isset($file->metadata)) {
+      $fileMetadata = $file->metadata;
+      if (isset($fileMetadata->qualityName)) {
+        $fileMetadata->qualityName = htmlspecialchars($fileMetadata->qualityName, ENT_QUOTES, 'UTF-8', FALSE);
+      }
+    }
+
     $this->filterParams($file, $validKeys);
 
     if (isset($file->width)) {
@@ -5004,13 +5069,25 @@ class H5PContentValidator {
           if (preg_match('/^"([^"]*)"(\s+|$)/', $attr, $match)) {
             if ($allowedStyles && $attrName === 'style') {
               // Allow certain styles
+
+              // Prevent font family from getting split wrong because of the ; in &quot;
+              if (stripos($match[1], 'font-family') !== false) {
+                $match[1] = str_replace('&quot;', "'", $match[1]);
+              }
+
+              $validatedStyles = [];
+              $styles = explode(';', $match[1]);
+
               foreach ($allowedStyles as $pattern) {
-                if (preg_match($pattern, $match[1])) {
-                  // All patterns are start to end patterns, and CKEditor adds one span per style
-                  $attrArr[] = 'style="' . $match[1] . '"';
-                  break;
+                foreach ($styles as $style) {
+                  $style = trim($style);
+                  if (preg_match($pattern, $style)) {
+                    $validatedStyles[] = $style;
+                  }
                 }
               }
+
+              $attrArr[] = 'style="' . implode(';', $validatedStyles) . ';"';
               break;
             }
 
