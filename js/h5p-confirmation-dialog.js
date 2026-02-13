@@ -29,6 +29,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     options.headerText = options.headerText || H5P.t('confirmDialogHeader');
     options.dialogText = options.dialogText || H5P.t('confirmDialogBody');
     options.cancelText = options.cancelText || H5P.t('cancelLabel');
+    options.closeText = options.closeText || H5P.t('close');
     options.confirmText = options.confirmText || H5P.t('confirmLabel');
 
     /**
@@ -197,7 +198,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     if (!options.hideExit) {
       const exitButton = document.createElement('button');
       exitButton.classList.add('h5p-confirmation-dialog-exit');
-      exitButton.setAttribute('aria-label', options.cancelText);
+      exitButton.setAttribute('aria-label', options.closeText);
       exitButton.addEventListener('click', dialogCanceled);
       if (options.theme) {
         header.appendChild(exitButton);

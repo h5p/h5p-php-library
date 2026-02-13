@@ -2086,6 +2086,13 @@ H5P.libraryFromString = function (library) {
  *   The full path to the library.
  */
 H5P.getLibraryPath = function (library) {
+  if (H5PIntegration &&
+      H5PIntegration.libraryDirectories &&
+      library in H5PIntegration.libraryDirectories) {
+    // Use H5PIntegration.libraryDirectories if it exists for this library
+    library = H5PIntegration.libraryDirectories[library];
+  }
+
   if (H5PIntegration.urlLibraries !== undefined) {
     // This is an override for those implementations that has a different libraries URL, e.g. Moodle
     return H5PIntegration.urlLibraries + '/' + library;
