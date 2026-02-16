@@ -670,9 +670,11 @@ interface H5PFrameworkInterface {
   /**
    * Callback for reset hub data
    *
+   * Currently unsupported for WP
+   * 
    * @return void
    */
-  public function resetHubOrganizationData();
+  // public function resetHubOrganizationData();
 }
 
 /**
@@ -3924,11 +3926,12 @@ class H5PCore {
       return true;
     }
 
-    if ($response['status'] === 403) {
-      // Unauthenticated, cannot find hub secret and site uuid combination
-      $this->h5pF->resetHubOrganizationData();
-      return false;
-    }
+    // Currently unsupported for WP
+    // if ($response['status'] === 403) {
+    //   // Unauthenticated, cannot find hub secret and site uuid combination
+    //   $this->h5pF->resetHubOrganizationData();
+    //   return false;
+    // }
 
     $msg = $this->h5pF->t('Content unpublish failed');
     $this->h5pF->setErrorMessage($msg);
@@ -3999,11 +4002,12 @@ class H5PCore {
       return false;
     }
 
-    if ($accountInfo['status'] === 403) {
-      // Unauthenticated, cannot find hub secret and site uuid combination
-      $this->h5pF->resetHubOrganizationData();
-      return false;
-    }
+    // Currently unsupported for WP
+    // if ($accountInfo['status'] === 403) {
+    //   // Unauthenticated, cannot find hub secret and site uuid combination
+    //   $this->h5pF->resetHubOrganizationData();
+    //   return false;
+    // }
 
     if ($accountInfo['status'] !== 200) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Unable to retrieve HUB account information. Please contact support.'));
@@ -4135,7 +4139,8 @@ class H5PCore {
       null, true, null, true, $headers);
 
     if (isset($response['status']) && $response['status'] === 403) {
-      $this->h5pF->resetHubOrganizationData();
+      // Currently unsupported for WP
+      // $this->h5pF->resetHubOrganizationData();
       return false;
     }
     if (empty($response) || $response['status'] !== 200) {
