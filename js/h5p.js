@@ -104,6 +104,10 @@ H5P.init = function (target) {
       metadata: contentData.metadata
     };
 
+    // Apply theme density
+    let density = H5PIntegration.theme?.density ?? 'large';
+    $element.addClass('h5p-' + density);
+
     H5P.getUserData(contentId, 'state', function (err, previousState) {
       if (previousState) {
         library.userDatas = {
