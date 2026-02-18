@@ -39,6 +39,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  Library properties
    */
   public function saveLibrary($library) {
+    $library['patchVersionInFolderName'] = true;
     $dest = $this->path . '/libraries/' . \H5PCore::libraryToFolderName($library);
 
     // Make sure destination dir doesn't exist
