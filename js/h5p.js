@@ -413,10 +413,11 @@ H5P.getHeadTags = function (contentId) {
     return tags;
   };
 
-  var createScriptTags = function (scripts) {
+  var createScriptTags = function (scripts, module=false) {
     var tags = '';
+    let scriptType = module? ' type="module"' : '';
     for (var i = 0; i < scripts.length; i++) {
-      tags += '<script src="' + scripts[i] + '"></script>';
+      tags += '<script src="' + scripts[i] + '"' + scriptType + '></script>';
     }
     return tags;
   };
@@ -426,6 +427,7 @@ H5P.getHeadTags = function (contentId) {
          createStyleTags(H5PIntegration.contents['cid-' + contentId].styles) +
          createScriptTags(H5PIntegration.core.scripts) +
          createScriptTags(H5PIntegration.contents['cid-' + contentId].scripts) +
+         createScriptTags(H5PIntegration.contents['cid-' + contentId].scriptsModules ?? [], true) +
          '<script>H5PIntegration = window.parent.H5PIntegration; var H5P = H5P || {}; H5P.externalEmbed = false;</script>';
 };
 
