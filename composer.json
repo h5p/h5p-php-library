@@ -27,7 +27,6 @@
     "autoload": {
         "files": [
           "h5p.classes.php",
-          "h5p-exception.class.php",
           "h5p-development.class.php",
           "h5p-file-storage.interface.php",
           "h5p-default-storage.class.php",
