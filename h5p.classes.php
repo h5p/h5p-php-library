@@ -669,6 +669,13 @@ interface H5PFrameworkInterface {
    * @return bool True if successful
    */
   public function setContentHubMetadataChecked($time, $lang = 'en');
+
+  /**
+   * Callback for reset hub data
+   *
+   * @return void
+   */
+  public function resetHubOrganizationData();
 }
 
 /**
@@ -2081,8 +2088,8 @@ abstract class H5PContentStatus {
 }
 
 abstract class H5PHubEndpoints {
-    public const CONTENT_TYPES = 'api.h5p.org/v1/content-types/';
-    public const SITES = 'api.h5p.org/v1/sites';
+    public const CONTENT_TYPES = 'hub-api.h5p.org/v1/content-types/';
+    public const SITES = 'hub-api.h5p.org/v1/sites';
     public const METADATA = 'hub-api.h5p.org/v1/metadata';
     public const CONTENT = 'hub-api.h5p.org/v1/contents';
     public const REGISTER = 'hub-api.h5p.org/v1/accounts';
@@ -2100,12 +2107,15 @@ class H5PCore {
 
   public static $coreApi = [
     'majorVersion' => 1,
-    'minorVersion' => 27
+    'minorVersion' => 28
   ];
   public static $styles = [
+    'styles/h5p-fonts.css',
     'styles/h5p.css',
     'styles/h5p-confirmation-dialog.css',
     'styles/h5p-core-button.css',
+    'styles/h5p-theme.css',
+    'styles/h5p-theme-variables.css',
     'styles/h5p-tooltip.css',
     'styles/h5p-table.css',
   ];
@@ -3748,7 +3758,7 @@ class H5PCore {
       'helpChoosingLicense' => $this->h5pF->t('Help me choose a license'),
       'shareFailed' => $this->h5pF->t('Share failed.'),
       'editingFailed' => $this->h5pF->t('Editing failed.'),
-      'shareTryAgain' => $this->h5pF->t('Something went wrong, please try to share again.'),
+      'shareTryAgain' => $this->h5pF->t('Couldn\'t communicate with the H5P Hub. Please try again later.'),
       'pleaseWait' => $this->h5pF->t('Please wait...'),
       'language' => $this->h5pF->t('Language'),
       'level' => $this->h5pF->t('Level'),
@@ -3934,6 +3944,13 @@ class H5PCore {
 
       return true;
     }
+
+    if ($response['status'] === 403) {
+      // Unauthenticated, cannot find hub secret and site uuid combination
+      $this->h5pF->resetHubOrganizationData();
+      return false;
+    }
+
     $msg = $this->h5pF->t('Content unpublish failed');
     $this->h5pF->setErrorMessage($msg);
 
@@ -4003,6 +4020,12 @@ class H5PCore {
       return false;
     }
 
+    if ($accountInfo['status'] === 403) {
+      // Unauthenticated, cannot find hub secret and site uuid combination
+      $this->h5pF->resetHubOrganizationData();
+      return false;
+    }
+
     if ($accountInfo['status'] !== 200) {
       $this->h5pF->setErrorMessage($this->h5pF->t('Unable to retrieve HUB account information. Please contact support.'));
       return false;
@@ -4041,7 +4064,7 @@ class H5PCore {
     $headers  = [];
     $endpoint = H5PHubEndpoints::REGISTER;
     // Update if already registered
-    $hasRegistered = $this->h5pF->getOption('hub_secret');
+    $hasRegistered = $this->hubAccountInfo() ? true : false;
     if ($hasRegistered) {
       $endpoint            .= "/{$uuid}";
       $formData['_method'] = 'PUT';
@@ -4133,8 +4156,7 @@ class H5PCore {
       null, true, null, true, $headers);
 
     if (isset($response['status']) && $response['status'] === 403) {
-      $msg = $this->h5pF->t('The request for content status was unauthorized. This could be because the content belongs to a different account, or your account is not setup properly.');
-      $this->h5pF->setErrorMessage($msg);
+      $this->h5pF->resetHubOrganizationData();
       return false;
     }
     if (empty($response) || $response['status'] !== 200) {
@@ -4611,6 +4633,16 @@ class H5PContentValidator {
     if (isset($semantics->extraAttributes)) {
       $validKeys = array_merge($validKeys, $semantics->extraAttributes); // TODO: Validate extraAttributes
     }
+
+    // Hack to sanitize quality name. Ideally we should not allow extraAttributes, or we must build
+    // functionality for generically sanitize it.
+    if (in_array('metadata', $validKeys) && isset($file->metadata)) {
+      $fileMetadata = $file->metadata;
+      if (isset($fileMetadata->qualityName)) {
+        $fileMetadata->qualityName = htmlspecialchars($fileMetadata->qualityName, ENT_QUOTES, 'UTF-8', FALSE);
+      }
+    }
+
     $this->filterParams($file, $validKeys);
 
     if (isset($file->width)) {
