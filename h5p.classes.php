@@ -1034,13 +1034,10 @@ class H5PValidator {
       if ($upgradeOnly) {
         // When upgrading, we only add the already installed libraries, and
         // the new dependent libraries
-        $upgrades = [];
-        foreach ($libraries as $libString => $library) {
+        $upgrades = array_filter($libraries, function ($library) {
           // Is this library already installed?
-          if ($this->h5pF->getLibraryId($library['machineName']) !== FALSE) {
-            $upgrades[$libString] = $library;
-          }
-        }
+          return $this->h5pF->getLibraryId($library['machineName']) !== false;
+        });
         while ($missingLibraries = $this->getMissingLibraries($upgrades)) {
           foreach ($missingLibraries as $libString => $missing) {
             $library = $libraries[$libString];
@@ -3608,8 +3605,10 @@ class H5PCore {
     $bytes = (int) $val;
 
     switch ($last) {
+      /** @noinspection PhpMissingBreakStatementInspection */
       case 'g':
         $bytes *= 1024;
+      /** @noinspection PhpMissingBreakStatementInspection */
       case 'm':
         $bytes *= 1024;
       case 'k':
@@ -4064,7 +4063,7 @@ class H5PCore {
     $headers  = [];
     $endpoint = H5PHubEndpoints::REGISTER;
     // Update if already registered
-    $hasRegistered = $this->hubAccountInfo() ? true : false;
+    $hasRegistered = (bool)$this->hubAccountInfo();
     if ($hasRegistered) {
       $endpoint            .= "/{$uuid}";
       $formData['_method'] = 'PUT';
@@ -4363,7 +4362,7 @@ class H5PContentValidator {
       }
 
       // Allow styling of tables if they are allowed
-      if (isset($semantics->tags) && in_array('table', $semantics->tags)) {
+      if (in_array('table', $semantics->tags)) {
         // CKEditor outputs border as width style color
         $stylePatterns[] = '/^border: *[0-9.]+(em|px|%|) *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *(#[a-f0-9]{3}[a-f0-9]{3}?|rgba?\([0-9, ]+\)|hsla?\([0-9,.% ]+\)) *;?$/i';
         $stylePatterns[] = '/^border-style: *(none|solid|dotted|dashed|double|groove|ridge|inset|outset) *;?$/i';
@@ -5188,14 +5187,14 @@ class H5PContentValidator {
    * @return string Cleaned up and HTML-escaped version of $string.
    * Cleaned up and HTML-escaped version of $string.
    */
-  private function filter_xss_bad_protocol($string, $decode = TRUE) {
+  private function filter_xss_bad_protocol($string, $decode = true) {
     // Get the plain text representation of the attribute value (i.e. its meaning).
     // @todo Remove the $decode parameter in Drupal 8, and always assume an HTML
     //   string that needs decoding.
     if ($decode) {
       $string = html_entity_decode($string, ENT_QUOTES, 'UTF-8');
     }
-    return htmlspecialchars($this->_strip_dangerous_protocols($string), ENT_QUOTES, 'UTF-8', FALSE);
+    return htmlspecialchars($this->_strip_dangerous_protocols($string), ENT_QUOTES, 'UTF-8', false);
   }
 
   /**

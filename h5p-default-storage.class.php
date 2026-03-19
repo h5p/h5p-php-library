@@ -153,7 +153,7 @@ class H5PDefaultStorage implements H5PFileStorage
 
       // Library folders inside the H5P zip file shall not contain patch version in the folder name
       $library['patchVersionInFolderName'] = false;
-      $destinationFolder = \H5PCore::libraryToFolderName($library);
+      $destinationFolder = H5PCore::libraryToFolderName($library);
 
       self::copyFileTree("{$this->path}{$srcPath}", "{$target}/{$destinationFolder}");
   }
@@ -325,8 +325,8 @@ class H5PDefaultStorage implements H5PFileStorage
      * Save files uploaded through the editor.
      * The files must be marked as temporary until the content form is saved.
      *
-     * @param \H5peditorFile $file
-     * @param int $contentid
+     * @param H5peditorFile $file
+     * @param int $contentId
      */
     public function saveFile($file, $contentId)
     {
@@ -354,8 +354,8 @@ class H5PDefaultStorage implements H5PFileStorage
      * Used when copy pasting content in H5P Editor.
      *
      * @param string $file path + name
-     * @param string|int $fromid Content ID or 'editor' string
-     * @param int $toid Target Content ID
+     * @param string|int $fromId Content ID or 'editor' string
+     * @param int $toId Target Content ID
      */
     public function cloneContentFile($file, $fromId, $toId)
     {
