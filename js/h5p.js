@@ -2408,7 +2408,8 @@ H5P.createTitle = function (rawTitle, maxLength) {
       options.data = {
         data: (data === null ? 0 : data),
         preload: (preload ? 1 : 0),
-        invalidate: (invalidate ? 1 : 0)
+        invalidate: (invalidate ? 1 : 0),
+        contentHash: (invalidate && H5PIntegration.contents['cid-' + contentId].jsonContentHash ? H5PIntegration.contents['cid-' + contentId].jsonContentHash : 0)
       };
     }
     else {
