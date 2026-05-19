@@ -475,7 +475,7 @@ interface H5PFrameworkInterface {
    *
    * @param int $id
    *   Content identifier
-   * @param int $type
+   * @param string|null $type
    *   Dependency types. Allowed values:
    *   - editor
    *   - preloaded
@@ -2451,7 +2451,7 @@ class H5PCore {
    * Find the files required for this content to work.
    *
    * @param int $id for content.
-   * @param int|null $type
+   * @param string|null $type
    * @return array
    */
   public function loadContentDependencies($id, $type = NULL) {
