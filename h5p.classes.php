@@ -1815,7 +1815,7 @@ class H5PStorage {
    *  The main id of the new content (used in frameworks that support revisioning)
    */
   public function copyPackage($contentId, $copyFromId, $contentMainId = NULL) {
-    $this->h5pC->fs->cloneContent($copyFromId, $contentId);
+    $this->h5pC->fs->cloneContent((string)$copyFromId, $contentId);
     $this->h5pF->copyLibraryUsage($contentId, $copyFromId, $contentMainId);
   }
 }
