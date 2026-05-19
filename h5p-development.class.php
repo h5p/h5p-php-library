@@ -1,20 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This is a data layer which uses the file system so it isn't specific to any framework.
  */
 class H5PDevelopment {
 
-  const MODE_NONE = 0;
-  const MODE_CONTENT = 1;
-  const MODE_LIBRARY = 2;
+    public const MODE_NONE = 0;
+    public const MODE_CONTENT = 1;
+    public const MODE_LIBRARY = 2;
 
-  private $h5pF, $libraries, $language, $filesPath;
+    private H5PFrameworkInterface $h5pF;
+
+    private $libraries, $language, $filesPath;
 
   /**
    * Constructor.
    *
-   * @param H5PFrameworkInterface|object $H5PFramework
+   * @param H5PFrameworkInterface $H5PFramework
    *  The frameworks implementation of the H5PFrameworkInterface
    * @param string $filesPath
    *  Path to where H5P should store its files
@@ -37,7 +41,7 @@ class H5PDevelopment {
    * Get contents of file.
    *
    * @param string $file File path.
-   * @return mixed String on success or NULL on failure.
+   * @return string|null String on success or NULL on failure.
    */
   private function getFileContents($file) {
     if (file_exists($file) === FALSE) {
@@ -58,7 +62,7 @@ class H5PDevelopment {
    * @param string $path Libraries development folder
    */
   private function findLibraries($path) {
-    $this->libraries = array();
+    $this->libraries = [];
 
     if (is_dir($path) === FALSE) {
       return;
@@ -111,7 +115,7 @@ class H5PDevelopment {
       $this->h5pF->deleteLibraryDependencies($library['libraryId']);
       // This isn't optimal, but without it we would get duplicate warnings.
       // TODO: You might get PDOExceptions if two or more requests does this at the same time!!
-      $types = array('preloaded', 'dynamic', 'editor');
+      $types = ['preloaded', 'dynamic', 'editor'];
       foreach ($types as $type) {
         if (isset($library[$type . 'Dependencies'])) {
           $this->h5pF->saveLibraryDependencies($library['libraryId'], $library[$type . 'Dependencies'], $type);
@@ -181,7 +185,7 @@ class H5PDevelopment {
    * Writes library as string on the form "name majorVersion.minorVersion"
    *
    * @param string $name Machine readable library name
-   * @param integer $majorVersion
+   * @param int $majorVersion
    * @param $minorVersion
    * @return string Library identifier.
    */

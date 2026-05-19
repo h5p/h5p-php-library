@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * File info?
  */
@@ -101,7 +103,7 @@ interface H5PFileStorage {
    * Check if the given export file exists
    *
    * @param string $filename
-   * @return boolean
+   * @return bool
    */
   public function hasExport($filename);
 
@@ -145,7 +147,7 @@ interface H5PFileStorage {
    * Save files uploaded through the editor.
    * The files must be marked as temporary until the content form is saved.
    *
-   * @param \H5peditorFile $file
+   * @param H5peditorFile $file
    * @param int $contentId
    */
   public function saveFile($file, $contentId);
@@ -201,11 +203,11 @@ interface H5PFileStorage {
   /**
    * Check if the library has a presave.js in the root folder
    *
-   * @param string $libraryName
+   * @param string $libraryFolder
    * @param string $developmentPath
    * @return bool
    */
-  public function hasPresave($libraryName, $developmentPath = null);
+  public function hasPresave($libraryFolder, $developmentPath = null);
 
   /**
    * Check if upgrades script exist for library.

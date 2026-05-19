@@ -1,55 +1,58 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Utility class for handling metadata
  */
 abstract class H5PMetadata {
 
-  private static $fields = array(
-    'title' => array(
+  private static array $fields = [
+    'title' => [
       'type' => 'text',
       'maxLength' => 255
-    ),
-    'a11yTitle' => array(
+    ],
+    'a11yTitle' => [
       'type' => 'text',
       'maxLength' => 255,
-    ),
-    'authors' => array(
+    ],
+    'authors' => [
       'type' => 'json'
-    ),
-    'changes' => array(
+    ],
+    'changes' => [
       'type' => 'json'
-    ),
-    'source' => array(
+    ],
+    'source' => [
       'type' => 'text',
       'maxLength' => 255
-    ),
-    'license' => array(
+    ],
+    'license' => [
       'type' => 'text',
       'maxLength' => 32
-    ),
-    'licenseVersion' => array(
+    ],
+    'licenseVersion' => [
       'type' => 'text',
       'maxLength' => 10
-    ),
-    'licenseExtras' => array(
+    ],
+    'licenseExtras' => [
       'type' => 'text',
       'maxLength' => 5000
-    ),
-    'authorComments' => array(
+    ],
+    'authorComments' => [
       'type' => 'text',
       'maxLength' => 5000
-    ),
-    'yearFrom' => array(
+    ],
+    'yearFrom' => [
       'type' => 'int'
-    ),
-    'yearTo' => array(
+    ],
+    'yearTo' => [
       'type' => 'int'
-    ),
-    'defaultLanguage' => array(
+    ],
+    'defaultLanguage' => [
       'type' => 'text',
       'maxLength' => 32,
-    )
-  );
+    ]
+  ];
 
   /**
    * JSON encode metadata
@@ -57,19 +60,20 @@ abstract class H5PMetadata {
    * @param object $content
    * @return string
    */
-  public static function toJSON($content) {
-    // Note: deliberatly creating JSON string "manually" to improve performance
+  public static function toJSON(object $content): string
+  {
+    // Note: deliberately creating JSON string "manually" to improve performance
     return
       '{"title":' . (isset($content->title) ? json_encode($content->title) : 'null') .
-      ',"a11yTitle":' . (isset($content->a11y_title) ? $content->a11y_title : 'null') .
-      ',"authors":' . (isset($content->authors) ? $content->authors : 'null') .
+      ',"a11yTitle":' . ($content->a11y_title ?? 'null') .
+      ',"authors":' . ($content->authors ?? 'null') .
       ',"source":' . (isset($content->source) ? '"' . $content->source . '"' : 'null') .
       ',"license":' . (isset($content->license) ? '"' . $content->license . '"' : 'null') .
       ',"licenseVersion":' . (isset($content->license_version) ? '"' . $content->license_version . '"' : 'null') .
       ',"licenseExtras":' . (isset($content->license_extras) ? json_encode($content->license_extras) : 'null') .
-      ',"yearFrom":' . (isset($content->year_from) ? $content->year_from : 'null') .
-      ',"yearTo":' .  (isset($content->year_to) ? $content->year_to : 'null') .
-      ',"changes":' . (isset($content->changes) ? $content->changes : 'null') .
+      ',"yearFrom":' . ($content->year_from ?? 'null') .
+      ',"yearTo":' .  ($content->year_to ?? 'null') .
+      ',"changes":' . ($content->changes ?? 'null') .
       ',"defaultLanguage":' . (isset($content->default_language) ? '"' . $content->default_language . '"' : 'null') .
       ',"authorComments":' . (isset($content->author_comments) ? json_encode($content->author_comments) : 'null') . '}';
   }
@@ -83,8 +87,9 @@ abstract class H5PMetadata {
    * @param array $types
    * @return array
    */
-  public static function toDBArray($metadata, $include_title = true, $include_missing = true, &$types = array()) {
-    $fields = array();
+  public static function toDBArray(mixed $metadata, bool $include_title = true, bool $include_missing = true, array &$types = []): array
+  {
+    $fields = [];
 
     if (!is_array($metadata)) {
       $metadata = (array) $metadata;
@@ -142,7 +147,8 @@ abstract class H5PMetadata {
    * @param array $metadataSettings
    * @return string
    */
-  public static function boolifyAndEncodeSettings($metadataSettings) {
+  public static function boolifyAndEncodeSettings(array $metadataSettings): string
+  {
     // Convert metadataSettings values to boolean
     if (isset($metadataSettings['disable'])) {
       $metadataSettings['disable'] = $metadataSettings['disable'] === 1;
