@@ -1580,7 +1580,7 @@ class H5PStorage {
   /**
    * Saves a H5P file
    *
-   * @param null $content
+   * @param string|array|null $content
    * @param int $contentMainId
    *  The main id for the content we are saving. This is used if the framework
    *  we're integrating with uses content id's and version id's
@@ -2451,7 +2451,7 @@ class H5PCore {
    * Find the files required for this content to work.
    *
    * @param int $id for content.
-   * @param null $type
+   * @param int|null $type
    * @return array
    */
   public function loadContentDependencies($id, $type = NULL) {
