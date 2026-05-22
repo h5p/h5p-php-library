@@ -334,6 +334,10 @@ class H5PDefaultStorage implements \H5PFileStorage {
    * @param int $toid Target Content ID
    */
   public function cloneContentFile($file, $fromId, $toId) {
+    if (str_contains($file, './')) {
+      return; // Skip file
+    }
+
     // Determine source path
     if ($fromId === 'editor') {
       $sourcepath = $this->getEditorPath();
