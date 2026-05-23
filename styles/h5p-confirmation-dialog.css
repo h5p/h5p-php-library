@@ -75,6 +75,7 @@ button.h5p-confirmation-dialog-exit:visited, button.h5p-confirmation-dialog-exit
   color: #fff;
   cursor: pointer;
   text-decoration: none;
+  padding: 1px 6px; /* Safari's user agent button style adds way too much padding */
 }
 button.h5p-confirmation-dialog-exit:focus, button.h5p-confirmation-dialog-exit:hover {
   color: #E4ECF5;
