@@ -191,6 +191,29 @@ H5P.XAPIEvent.prototype.setContext = function (instance) {
  * Set the actor. Email and name will be added automatically.
  */
 H5P.XAPIEvent.prototype.setActor = function () {
+
+  /*
+   * Check for doNotTrack setting by user. Could be placed in h5p.js.
+   * @param {boolean} [strict=true] If True, will assume "do no track" if unset.
+   * @return {boolean} True, if user should not be tracked.
+   */
+  const isDoNotTrackSet = function (strict) {
+    strict = (typeof strict === 'boolean') ? strict : true;
+
+    // User explicitly does not want to be tracked
+    if (window.doNotTrack === '1' || navigator.doNotTrack === 'yes' || navigator.doNotTrack === '1') {
+      return true;
+    }
+
+    // Strict and user/browser did not specify doNotTrack setting
+    if (strict && !(window.doNotTrack || navigator.doNotTrack)) {
+      return true;
+    }
+
+    // Not strict or user explicitly allowed tracking
+    return false;
+  }
+
   if (H5PIntegration.user !== undefined) {
     this.data.statement.actor = {
       'name': H5PIntegration.user.name,
@@ -200,19 +223,26 @@ H5P.XAPIEvent.prototype.setActor = function () {
   }
   else {
     var uuid;
-    try {
-      if (localStorage.H5PUserUUID) {
-        uuid = localStorage.H5PUserUUID;
-      }
-      else {
-        uuid = H5P.createUUID();
-        localStorage.H5PUserUUID = uuid;
-      }
-    }
-    catch (err) {
-      // LocalStorage and Cookies are probably disabled. Do not track the user.
+
+    if (isDoNotTrackSet()) {
       uuid = 'not-trackable-' + H5P.createUUID();
     }
+    else {
+      try {
+        if (localStorage.H5PUserUUID) {
+          uuid = localStorage.H5PUserUUID;
+        }
+        else {
+          uuid = H5P.createUUID();
+          localStorage.H5PUserUUID = uuid;
+        }
+      }
+      catch (err) {
+        // LocalStorage and Cookies are probably disabled. Do not track the user.
+        uuid = 'not-trackable-' + H5P.createUUID();
+      }
+    }
+
     this.data.statement.actor = {
       'account': {
         'name': uuid,
