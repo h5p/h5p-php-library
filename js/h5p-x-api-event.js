@@ -73,7 +73,7 @@ H5P.XAPIEvent.prototype.setVerb = function (verb) {
     this.data.statement.verb = {
       'id': 'http://adlnet.gov/expapi/verbs/' + verb,
       'display': {
-        'en-US': verb
+        'en': verb
       }
     };
   }
@@ -128,7 +128,7 @@ H5P.XAPIEvent.prototype.setObject = function (instance) {
       // Don't set titles on main content, title should come from publishing platform
       if (typeof instance.getTitle === 'function') {
         this.data.statement.object.definition.name = {
-          "en-US": instance.getTitle()
+          "en": instance.getTitle()
         };
       }
     }
@@ -136,7 +136,7 @@ H5P.XAPIEvent.prototype.setObject = function (instance) {
       var content = H5P.getContentForInstance(instance.contentId);
       if (content && content.metadata && content.metadata.title) {
         this.data.statement.object.definition.name = {
-          "en-US": H5P.createTitle(content.metadata.title)
+          "en": H5P.createTitle(content.metadata.title)
         };
       }
     }
