@@ -212,24 +212,20 @@ H5P.Tooltip = (function () {
       if (options.position === 'top') {
         // Places it centered above
         tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
-        tooltip.style.top = `${triggerRect.top - tooltipRect.height}px`;
+        tooltip.style.top = `${triggerRect.top - tooltipRect.height - 4}px`;
       }
       else if (options.position === 'bottom') {
         // Places it centered below
         tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
-        tooltip.style.top = `${triggerRect.bottom}px`;
+        tooltip.style.top = `${triggerRect.bottom + 4}px`;
       }
       else if (options.position === 'left') {
-        tooltip.style.left = `${triggerRect.left - tooltipRect.width}px`;
+        tooltip.style.left = `${triggerRect.left - tooltipRect.width - 4}px`;
         tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
-        // We trust this option makes the tooltip being shown
-        return;
       }
       else if (options.position === 'right') {
-        tooltip.style.left = `${triggerRect.right}px`;
+        tooltip.style.left = `${triggerRect.right + 4}px`;
         tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
-        // We trust this option makes the tooltip being shown
-        return;
       }
 
       tooltipRect = tooltip.getBoundingClientRect();
@@ -243,11 +239,11 @@ H5P.Tooltip = (function () {
         // tooltip either left or right if it's placed outside the root element
         tooltipRect = tooltip.getBoundingClientRect();
         if (tooltipRect.left < 0) {
-          tooltip.style.left = 0;
+          tooltip.style.left = '12px';
         }
         else if (tooltipRect.right > rootRect.width) {
           tooltip.style.left = '';
-          tooltip.style.right = 0;
+          tooltip.style.right = '12px';
         }
       }
     };
