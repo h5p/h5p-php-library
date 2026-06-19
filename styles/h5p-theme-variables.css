@@ -5,7 +5,7 @@
   --h5p-theme-background: #F9FBFF;
   --h5p-theme-focus: #006FBF; /*TODO: not yet in use */ 
 
-  --h5p-theme-main-cta-light: #007CD6;
+  --h5p-theme-main-cta-light: #0D74C0; /*Deviates from +/-5% lightness rule, but is needed for WCAG AA*/
   --h5p-theme-main-cta-dark: #005FA3;
   --h5p-theme-contrast-cta: #EBF7FF;
   --h5p-theme-contrast-cta-white: #006FBF;
