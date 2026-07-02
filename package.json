@@ -1,0 +1,33 @@
+{
+  "name": "h5p-js-library",
+  "version": "1.27.0",
+  "description": "H5P core client-side JS, made importable as a no-build package (curated surface). Published from the h5p-php-library repository.",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "sideEffects": false,
+  "files": [
+    "index.js",
+    "js/"
+  ],
+  "scripts": {
+    "test": "npm run test:unit",
+    "test:unit": "mocha",
+    "test:unit:watch": "mocha --watch",
+    "test:coverage": "c8 mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/h5p/h5p-php-library.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "c8": "^10.1.2",
+    "chai": "^4.4.1",
+    "jquery": "^3.7.1",
+    "jsdom": "^24.1.0",
+    "mocha": "^10.4.0"
+  }
+}
+
