@@ -1395,7 +1395,7 @@ class H5PValidator {
       else {
         // The requirement is a regexp, match it against the data
         if (is_string($h5pData) || is_int($h5pData)) {
-          if (preg_match($requirement, $h5pData) === 0) {
+          if (preg_match($requirement, $h5pData) !== 1) {
              $this->h5pF->setErrorMessage($this->h5pF->t("Invalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
              $valid = FALSE;
           }
