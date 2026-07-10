@@ -193,6 +193,7 @@ H5P.Tooltip = (function () {
 
       // Add listener to iframe body, as esc keypress would not be detected otherwise
       document.body.addEventListener('keydown', hideOnEscape, true);
+      document.addEventListener('scroll', hideOnScroll, true);
 
       // The section below makes sure the tooltip is completely visible
 
@@ -279,6 +280,7 @@ H5P.Tooltip = (function () {
         const cleanupTooltip = () => {
           tooltip.classList.remove('h5p-tooltip-visible');
           document.body.removeEventListener('keydown', hideOnEscape, true); // Remove iframe body listener
+          document.removeEventListener('scroll', hideOnScroll, true);
         };
 
         if (wait) {
@@ -291,6 +293,10 @@ H5P.Tooltip = (function () {
           cleanupTooltip();
         }
       }
+    };
+
+    const hideOnScroll = function () {
+      hideTooltip({ type: 'click' });
     };
 
     // Add event listeners to triggeringElement
