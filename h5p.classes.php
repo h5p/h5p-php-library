@@ -350,6 +350,14 @@ interface H5PFrameworkInterface {
    */
   public function getLibraryUsage($libraryId, $skipContent = FALSE);
 
+    /**
+     * Get the names of dependencies to other libraries
+     *
+     * @param int $id
+     * @return array The array contains the names of the dependet libraries
+     */
+    public function getLibraryUsageNames($id);
+
   /**
    * Loads a library
    *

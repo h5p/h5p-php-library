@@ -81,9 +81,7 @@ var H5PLibraryList = H5PLibraryList || {};
       if (libraries.notCached !== undefined ||
           hasContent ||
           (library.numContentDependencies !== '' &&
-           library.numContentDependencies !== 0) ||
-          (library.numLibraryDependencies !== '' &&
-           library.numLibraryDependencies !== 0)) {
+              library.numContentDependencies !== 0)) {
         // Disabled delete if content.
         $deleteButton.attr('disabled', true);
       }
