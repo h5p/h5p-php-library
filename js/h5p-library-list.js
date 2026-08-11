@@ -60,6 +60,9 @@ var H5PLibraryList = H5PLibraryList || {};
       H5PLibraryList.addRestricted($('.h5p-admin-restricted', $libraryRow), library.restrictedUrl, library.restricted);
 
       var hasContent = !(library.numContent === '' || library.numContent === 0);
+      const hasContentDependencies = (library.numContentDependencies !== '' && library.numContentDependencies !== 0);
+      const hasLibraryDependencies = (library.numLibraryDependencies !== '' && library.numLibraryDependencies !== 0);
+
       if (library.upgradeUrl === null) {
         $('.h5p-admin-upgrade-library', $libraryRow).remove();
       }
@@ -78,12 +81,13 @@ var H5PLibraryList = H5PLibraryList || {};
       });
 
       var $deleteButton = $('.h5p-admin-delete-library', $libraryRow);
-      if (libraries.notCached !== undefined ||
-          hasContent ||
-          (library.numContentDependencies !== '' &&
-           library.numContentDependencies !== 0) ||
-          (library.numLibraryDependencies !== '' &&
-           library.numLibraryDependencies !== 0)) {
+      if (
+        libraries.notCached !== undefined ||
+        hasContent ||
+        hasContentDependencies ||
+        hasLibraryDependencies &&
+        !(library.hasCircularEditorDepencendy && library.numLibraryDependencies === 1)
+      ) {
         // Disabled delete if content.
         $deleteButton.attr('disabled', true);
       }
