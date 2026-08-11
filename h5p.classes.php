@@ -2669,7 +2669,7 @@ class H5PCore {
       }
 
       foreach ($library[$property] as $dependency) {
-        $dependencyKey = $type . '-' . $dependency['machineName'];
+        $dependencyKey = $type . '-' . $dependency['machineName'] . '-' . $library['majorVersion'] . '-' . $library['minorVersion'];
         if (isset($dependencies[$dependencyKey]) === TRUE) {
           continue; // Skip, already have this.
         }
@@ -4245,7 +4245,7 @@ class H5PContentValidator {
    * Add Addon library.
    */
   public function addon($library) {
-    $depKey = 'preloaded-' . $library['machineName'];
+    $depKey = 'preloaded-' . $library['machineName']  . '-' . $library['majorVersion'] . '-' . $library['minorVersion'];
     $this->dependencies[$depKey] = array(
       'library' => $library,
       'type' => 'preloaded'
@@ -4847,7 +4847,7 @@ class H5PContentValidator {
     }
 
     // Find all dependencies for this library
-    $depKey = 'preloaded-' . $library['machineName'];
+    $depKey = 'preloaded-' . $library['machineName'] . '-' . $library['majorVersion'] . '-' . $library['minorVersion'];
     if (!isset($this->dependencies[$depKey])) {
       $this->dependencies[$depKey] = array(
         'library' => $library,
