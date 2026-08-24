@@ -39,7 +39,7 @@ var H5POldEmbed = H5POldEmbed || (function () {
     // Add iframe
     var iframe = document.createElement('iframe');
     iframe.src = script.getAttribute('data-h5p');
-    iframe.frameBorder = false;
+    iframe.style.border = 'none';
     iframe.allowFullscreen = true;
     var parent = script.parentNode;
     parent.insertBefore(iframe, script);
