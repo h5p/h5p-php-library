@@ -3028,7 +3028,7 @@ class H5PCore {
     if (isset($result->libraries)) {
       foreach ($result->libraries as $library) {
         if (isset($library->tutorialUrl) && isset($library->machineName)) {
-          $this->h5pF->setLibraryTutorialUrl($library->machineNamee, $library->tutorialUrl);
+          $this->h5pF->setLibraryTutorialUrl($library->machineName, $library->tutorialUrl);
         }
       }
     }
