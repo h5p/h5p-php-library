@@ -1331,7 +1331,7 @@ H5P.openReuseDialog = function ($element, contentData, library, instance, conten
       instance.triggerXAPI('copied');
       dialog.close();
       H5P.attachToastTo(
-        H5P.jQuery('.h5p-content:first')[0],
+        H5P.jQuery('.h5p-content').first()[0],
         H5P.t('contentCopied'),
         {
           position: {
@@ -1378,8 +1378,8 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size, instance)
     };
 
     // Handle changing of width/height
-    var $w = $dialog.find('.h5p-embed-size:eq(0)');
-    var $h = $dialog.find('.h5p-embed-size:eq(1)');
+    var $w = $dialog.find('.h5p-embed-size').eq(0);
+    var $h = $dialog.find('.h5p-embed-size').eq(1);
     var getNum = function ($e, d) {
       var num = parseFloat($e.val());
       if (isNaN(num)) {
@@ -1388,7 +1388,7 @@ H5P.openEmbedDialog = function ($element, embedCode, resizeCode, size, instance)
       return Math.ceil(num);
     };
     var updateEmbed = function () {
-      $dialog.find('.h5p-embed-code-container:first').val(fullEmbedCode.replace(':w', getNum($w, size.width)).replace(':h', getNum($h, size.height)));
+      $dialog.find('.h5p-embed-code-container').first().val(fullEmbedCode.replace(':w', getNum($w, size.width)).replace(':h', getNum($h, size.height)));
     };
 
     $w.change(updateEmbed);
