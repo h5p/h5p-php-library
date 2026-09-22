@@ -377,27 +377,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
       return NULL;
     }
 
-    // TODO: Remove $contentId and never copy temporary files into content folder. JI-366
-    if ($contentId === NULL || $contentId == 0) {
-      $target = $this->getEditorPath();
-    }
-    else {
-      // Use content folder
-      $target = "{$this->path}/content/{$contentId}";
-    }
-
-    $contentSource = $source . '/' . 'content';
-    $contentFiles = array_diff(scandir($contentSource), array('.','..', 'content.json'));
-    foreach ($contentFiles as $file) {
-      if (is_dir("{$contentSource}/{$file}")) {
-        self::copyFileTree("{$contentSource}/{$file}", "{$target}/{$file}");
-      }
-      else {
-        copy("{$contentSource}/{$file}", "{$target}/{$file}");
-      }
-    }
-
-    // TODO: Return list of all files so that they can be marked as temporary. JI-366
+    return self::copyFileTree($source . '/content', $this->getEditorPath(), ['content.json']);
   }
 
   /**
@@ -508,17 +488,17 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  From path
    * @param string $destination
    *  To path
-   * @return boolean
-   *  Indicates if the directory existed.
+   * @return array
+   *  List of files actually copied.
    *
    * @throws Exception Unable to copy the file
    */
-  private static function copyFileTree($source, $destination) {
+  private static function copyFileTree($source, $destination, $ignore = array()) {
     if (!self::dirReady($destination)) {
       throw new \Exception('unabletocopy');
     }
 
-    $ignoredFiles = self::getIgnoredFiles("{$source}/.h5pignore");
+    $ignoredFiles = array_merge($ignore, self::getIgnoredFiles("{$source}/.h5pignore"));
 
     $dir = opendir($source);
     if ($dir === FALSE) {
@@ -526,17 +506,20 @@ class H5PDefaultStorage implements \H5PFileStorage {
       throw new \Exception('unabletocopy');
     }
 
+    $copied = array();
     while (false !== ($file = readdir($dir))) {
       if (($file != '.') && ($file != '..') && $file != '.git' && $file != '.gitignore' && !in_array($file, $ignoredFiles)) {
         if (is_dir("{$source}/{$file}")) {
-          self::copyFileTree("{$source}/{$file}", "{$destination}/{$file}");
+          $copied = array_merge($copied, self::copyFileTree("{$source}/{$file}", "{$destination}/{$file}", $ignore));
         }
         else {
           copy("{$source}/{$file}", "{$destination}/{$file}");
+          $copied[] ="{$destination}/{$file}";
         }
       }
     }
     closedir($dir);
+    return $copied;
   }
 
   /**
