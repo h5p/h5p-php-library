@@ -215,23 +215,33 @@ var H5PDataView = (function ($) {
    * @param number col ID of column
    */
   H5PDataView.prototype.createFacets = function (input, col) {
-    var facets = '';
+    var facets = $();
+
+    var createFacet = function (facet) {
+      return $('<span/>', {
+        'class': 'h5p-facet',
+        role: 'button',
+        tabindex: 0
+      }).attr('data-id', facet.id)
+        .attr('data-col', col)
+        .text(facet.title);
+    };
 
     if (input instanceof Array) {
       // Facet can be filtered on multiple values at the same time
       for (var i = 0; i < input.length; i++) {
-        if (facets !== '') {
-          facets += ', ';
+        if (facets.length !== 0) {
+          facets = facets.add(document.createTextNode(', '));
         }
-        facets += '<span class="h5p-facet" role="button" tabindex="0" data-id="' + input[i].id + '" data-col="' + col + '">' + input[i].title + '</span>';
+        facets = facets.add(createFacet(input[i]));
       }
     }
     else {
       // Single value facet filtering
-      facets += '<span class="h5p-facet" role="button" tabindex="0" data-id="' + input.id + '" data-col="' + col + '">' + input.title + '</span>';
+      facets = facets.add(createFacet(input));
     }
 
-    return facets === '' ? '—' : facets;
+    return facets.length === 0 ? $('<span/>').text('—') : facets;
   };
 
   /**

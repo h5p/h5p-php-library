@@ -296,9 +296,13 @@ var H5PUtils = H5PUtils || {};
         var $tr = $('<tr/>').appendTo($newTbody);
 
         for (var j = 0; j < rows[i].length; j++) {
-          $('<td>', {
-            html: rows[i][j]
-          }).appendTo($tr);
+          var $td = $('<td/>').appendTo($tr);
+          if (rows[i][j] instanceof jQuery) {
+            $td.append(rows[i][j]);
+          }
+          else {
+            $td.html(rows[i][j]);
+          }
         }
       }
 
