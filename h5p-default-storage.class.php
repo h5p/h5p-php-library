@@ -201,6 +201,7 @@ class H5PDefaultStorage implements \H5PFileStorage {
    *  Hashed key for cached asset
    */
   public function cacheAssets(&$files, $key) {
+    $contents = array();
     foreach ($files as $type => $assets) {
       if (empty($assets)) {
         continue; // Skip no assets
@@ -210,6 +211,10 @@ class H5PDefaultStorage implements \H5PFileStorage {
       foreach ($assets as $asset) {
         // Get content from asset file
         $assetContent = file_get_contents($this->path . $asset->path);
+        if ($assetContent === FALSE) {
+          // Do not cache incomplete aggregates, use the single files instead
+          return;
+        }
         $cssRelPath = preg_replace('/[^\/]+$/', '', $asset->path);
 
         // Get file content and concatenate
@@ -229,7 +234,10 @@ class H5PDefaultStorage implements \H5PFileStorage {
               $assetContent) . "\n";
         }
       }
+      $contents[$type] = $content;
+    }
 
+    foreach ($contents as $type => $content) {
       self::dirReady("{$this->path}/cachedassets");
       $ext = ($type === 'scripts' ? 'js' : 'css');
       $outputfile = "/cachedassets/{$key}.{$ext}";
