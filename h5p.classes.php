@@ -1815,10 +1815,7 @@ Class H5PExport {
    * @return string
    */
   private static function revertH5PEditorTextEscape($value) {
-    if (empty($value)) {
-      return '';
-    }
-    return str_replace(['&quot;', '&#039;', '&gt;', '&lt;'], ['"', "'", '>', '<'], $value);
+    return str_replace(['&quot;', '&#039;', '&gt;', '&lt;'], ['"', "'", '>', '<'], $value ?? '');
   }
 
   /**
