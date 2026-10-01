@@ -1509,30 +1509,6 @@ class H5PValidator {
     }
     return $return_as_string ? $json : $jsonData;
   }
-
-  /**
-   * Helper function that copies an array
-   *
-   * @param array $array
-   *  The array to be copied
-   * @return array
-   *  Copy of $array. All objects are cloned
-   */
-  private function arrayCopy(array $array) {
-    $result = array();
-    foreach ($array as $key => $val) {
-      if (is_array($val)) {
-        $result[$key] = self::arrayCopy($val);
-      }
-      elseif (is_object($val)) {
-        $result[$key] = clone $val;
-      }
-      else {
-        $result[$key] = $val;
-      }
-    }
-    return $result;
-  }
 }
 
 /**
