@@ -2540,7 +2540,12 @@ class H5PCore {
         $dependency['preloadedJs'] = explode(',', $dependency['preloadedJs']);
         $dependency['preloadedCss'] = explode(',', $dependency['preloadedCss']);
       }
-      $dependency['version'] = "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}";
+      if ($this->h5pF->isInDevMode()) {
+        $dependency['version'] = "?ver={$dependency['updatedAt']}";
+      }
+      else {
+        $dependency['version'] = "?ver={$dependency['majorVersion']}.{$dependency['minorVersion']}.{$dependency['patchVersion']}";
+      }
       $this->getDependencyAssets($dependency, 'preloadedJs', $files['scripts'], $prefix);
       $this->getDependencyAssets($dependency, 'preloadedCss', $files['styles'], $prefix);
     }
