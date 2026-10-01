@@ -215,33 +215,35 @@ var H5PDataView = (function ($) {
    * @param number col ID of column
    */
   H5PDataView.prototype.createFacets = function (input, col) {
-    var facets = $();
+    var facets = '';
+
+    var escapeHtml = function (value) {
+      var element = document.createElement('div');
+      element.textContent = value === undefined || value === null ? '' : value;
+      return element.innerHTML;
+    };
 
     var createFacet = function (facet) {
-      return $('<span/>', {
-        'class': 'h5p-facet',
-        role: 'button',
-        tabindex: 0
-      }).attr('data-id', facet.id)
-        .attr('data-col', col)
-        .text(facet.title);
+      return '<span class="h5p-facet" role="button" tabindex="0" data-id="' +
+        escapeHtml(facet.id) + '" data-col="' + escapeHtml(col) + '">' +
+        facet.title + '</span>';
     };
 
     if (input instanceof Array) {
       // Facet can be filtered on multiple values at the same time
       for (var i = 0; i < input.length; i++) {
-        if (facets.length !== 0) {
-          facets = facets.add(document.createTextNode(', '));
+        if (facets !== '') {
+          facets += ', ';
         }
-        facets = facets.add(createFacet(input[i]));
+        facets += createFacet(input[i]);
       }
     }
     else {
       // Single value facet filtering
-      facets = facets.add(createFacet(input));
+      facets += createFacet(input);
     }
 
-    return facets.length === 0 ? $('<span/>').text('—') : facets;
+    return facets === '' ? '—' : facets;
   };
 
   /**
