@@ -219,7 +219,7 @@ var H5PDataView = (function ($) {
 
     var escapeHtml = function (value) {
       var element = document.createElement('div');
-      element.textContent = value === undefined || value === null ? '' : value;
+      element.textContent = value ?? '';
       return element.innerHTML;
     };
 
