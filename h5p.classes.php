@@ -2944,7 +2944,7 @@ class H5PCore {
    * @param bool $fetchingDisabled
    * @param bool $onlyRegister Only register site with H5P.org
    *
-   * @return bool|object Returns endpoint data if found, otherwise FALSE
+   * @return bool|string Returns endpoint data (raw JSON) if found, otherwise FALSE
    */
   public function fetchLibrariesMetadata($fetchingDisabled = FALSE, $onlyRegister = false) {
     // Gather data
@@ -3022,15 +3022,6 @@ class H5PCore {
     // No data received
     if (!$result || empty($result)) {
       return FALSE;
-    }
-
-    // Handle libraries metadata
-    if (isset($result->libraries)) {
-      foreach ($result->libraries as $library) {
-        if (isset($library->tutorialUrl) && isset($library->machineName)) {
-          $this->h5pF->setLibraryTutorialUrl($library->machineName, $library->tutorialUrl);
-        }
-      }
     }
 
     return $result;
@@ -3373,7 +3364,7 @@ class H5PCore {
    *
    * @param object $postData Data sent to the hub
    *
-   * @return bool|object Returns endpoint data if found, otherwise FALSE
+   * @return bool|string Returns endpoint data (raw JSON) if found, otherwise FALSE
    */
   public function updateContentTypeCache($postData = NULL) {
     $interface = $this->h5pF;
