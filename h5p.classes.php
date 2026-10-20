@@ -3304,6 +3304,9 @@ class H5PCore {
    * @param null|int $status_code Http response code
    */
   private static function printJson($data, $status_code = NULL) {
+    if ($status_code !== NULL) {
+      status_header($status_code);
+    }
     header('Cache-Control: no-cache');
     header('Content-Type: application/json; charset=utf-8');
     print json_encode($data);
