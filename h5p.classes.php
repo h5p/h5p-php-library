@@ -593,8 +593,12 @@ interface H5PFrameworkInterface {
   public function deleteCachedAssets($library_id);
 
   /**
-   * Get the amount of content items associated to a library
-   * return int
+   * Get a key value list of library version and count of content created
+   * using that library.
+   *
+   * @return array
+   *  Array containing content count indexed by library name and version,
+   *  e.g. "H5P.CoursePresentation 1.6" => "14"
    */
   public function getLibraryContentCount();
 
@@ -2930,6 +2934,9 @@ class H5PCore {
   public function combineArrayValues($inputs) {
     $results = array();
     foreach ($inputs as $index => $values) {
+      if (!is_array($values)) {
+        continue;
+      }
       foreach ($values as $key => $value) {
         $results[$key][$index] = $value;
       }
