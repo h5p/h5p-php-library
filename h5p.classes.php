@@ -2965,9 +2965,11 @@ class H5PCore {
     // Register site if it is not registered
     if (empty($uuid)) {
       $registration = $this->h5pF->fetchExternalData(H5PHubEndpoints::createURL(H5PHubEndpoints::SITES), $registrationData);
+      $json = $registration ? json_decode($registration) : NULL;
 
-      // Failed retrieving uuid
-      if (!$registration) {
+      // Failed retrieving uuid. A response without one, e.g. a maintenance page, counts as a failure too:
+      // updateContentTypeCache() calls back into this method until a uuid is set.
+      if (empty($json->uuid)) {
         $errorMessage = $this->h5pF->t('Site could not be registered with the hub. Please contact your site administrator.');
         $this->h5pF->setErrorMessage($errorMessage);
         $this->h5pF->setErrorMessage(
@@ -2978,7 +2980,6 @@ class H5PCore {
       }
 
       // Successfully retrieved new uuid
-      $json = json_decode($registration);
       $registrationData['uuid'] = $json->uuid;
       $this->h5pF->setOption('site_uuid', $json->uuid);
       $this->h5pF->setInfoMessage(
