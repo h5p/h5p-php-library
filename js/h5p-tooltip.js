@@ -196,17 +196,9 @@ H5P.Tooltip = (function () {
 
       // The section below makes sure the tooltip is completely visible
 
-      // H5P.Tooltip can be used both from within an H5P and elsewhere.
-      // The below code is for figuring out the containing element.
-      // h5pContainer has to be looked up the first time we show the tooltip,
-      // since it might not be added to the DOM when H5P.Tooltip is invoked.
-      if (h5pContainer === undefined) {
-        // After the below, h5pContainer is either null or a reference to the
-        // DOM element
-        h5pContainer = triggeringElement.closest('.h5p-container');
-      }
-      const rootRect = h5pContainer ? h5pContainer.getBoundingClientRect() : document.documentElement.getBoundingClientRect();
       const triggerRect = triggeringElement.getBoundingClientRect();
+      const viewportWidth = document.documentElement.clientWidth;
+      const viewportHeight = document.documentElement.clientHeight;
       let tooltipRect = tooltip.getBoundingClientRect();
 
       if (options.position === 'top') {
@@ -235,8 +227,8 @@ H5P.Tooltip = (function () {
       tooltipRect = tooltip.getBoundingClientRect();
       const isVisible = tooltipRect.left >= 0
         && tooltipRect.top >= 0
-        && tooltipRect.right <= rootRect.width
-        && tooltipRect.bottom <= rootRect.height;
+        && tooltipRect.right <= viewportWidth
+        && tooltipRect.bottom <= viewportHeight;
 
       if (!isVisible) {
         // The tooltip placement needs to be adjusted. This logic will move the
@@ -245,7 +237,7 @@ H5P.Tooltip = (function () {
         if (tooltipRect.left < 0) {
           tooltip.style.left = 0;
         }
-        else if (tooltipRect.right > rootRect.width) {
+        else if (tooltipRect.right > viewportWidth) {
           tooltip.style.left = '';
           tooltip.style.right = 0;
         }

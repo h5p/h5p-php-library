@@ -1,6 +1,6 @@
 .h5p-tooltip {
   display: none;
-  position: absolute;
+  position: fixed;
 
   z-index: 110;
 
