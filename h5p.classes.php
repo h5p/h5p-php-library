@@ -685,7 +685,7 @@ class H5PValidator {
 
   // Schemas used to validate the h5p files
   private $h5pRequired = array(
-    'title' => '/^.{1,255}$/',
+    'title' => '/^.{1,255}$/u',
     'language' => '/^[-a-zA-Z]{1,10}$/',
     'preloadedDependencies' => array(
       'machineName' => '/^[\w0-9\-\.]{1,255}$/i',
@@ -731,7 +731,7 @@ class H5PValidator {
 
   // Schemas used to validate the library files
   private $libraryRequired = array(
-    'title' => '/^.{1,255}$/',
+    'title' => '/^.{1,255}$/u',
     'majorVersion' => '/^[0-9]{1,5}$/',
     'minorVersion' => '/^[0-9]{1,5}$/',
     'patchVersion' => '/^[0-9]{1,5}$/',
@@ -1395,7 +1395,7 @@ class H5PValidator {
       else {
         // The requirement is a regexp, match it against the data
         if (is_string($h5pData) || is_int($h5pData)) {
-          if (preg_match($requirement, $h5pData) === 0) {
+          if (preg_match($requirement, $h5pData) !== 1) {
              $this->h5pF->setErrorMessage($this->h5pF->t("Invalid data provided for %property in %library", array('%property' => $property_name, '%library' => $library_name)));
              $valid = FALSE;
           }
