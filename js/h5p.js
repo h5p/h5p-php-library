@@ -2913,15 +2913,18 @@ H5P.createTitle = function (rawTitle, maxLength) {
     // The approach below will make sure all externalDispatcher events will be relayed to parent
     // window if the browser allows it.
     try {
-      // The line below will throw an exception if the parent window is not served by h5p.com 
+      // The line below will throw an exception if the parent window is not served by h5p.com
       // (e.g for iframe embeds)
-      const trigger = window.parent.H5P.externalDispatcher.trigger;
+      const parentDispatcher = window.parent.H5P.externalDispatcher;
 
-      // Relay events to top window. This must be done before H5P.init
-      // since events may be fired on initialization.
-      H5P.externalDispatcher.on('*', function (event) {
-        trigger.call(this, event);
-      });
+      // Make sure we are not relaying to the same dispatcher, then we will get an eternal loop
+      if (parentDispatcher !== H5P.externalDispatcher && parentDispatcher.trigger !== undefined) {
+        // Relay events to top window. This must be done before H5P.init
+        // since events may be fired on initialization.
+        H5P.externalDispatcher.on('*', function (event) {
+          parentDispatcher.trigger.call(this, event);
+        });
+      }
     }
     catch(error) { /* Intentionally do not log */}
 
