@@ -2910,13 +2910,20 @@ H5P.createTitle = function (rawTitle, maxLength) {
      * @member {boolean} H5P.externalEmbed
      */
 
-    // Relay events to top window. This must be done before H5P.init
-    // since events may be fired on initialization.
-    if (H5P.isFramed && H5P.externalEmbed === false) {
+    // The approach below will make sure all externalDispatcher events will be relayed to parent
+    // window if the browser allows it.
+    try {
+      // The line below will throw an exception if the parent window is not served by h5p.com 
+      // (e.g for iframe embeds)
+      const trigger = window.parent.H5P.externalDispatcher.trigger;
+
+      // Relay events to top window. This must be done before H5P.init
+      // since events may be fired on initialization.
       H5P.externalDispatcher.on('*', function (event) {
-        window.parent.H5P.externalDispatcher.trigger.call(this, event);
+        trigger.call(this, event);
       });
     }
+    catch(error) { /* Intentionally do not log */}
 
     /**
      * Prevent H5P Core from initializing. Must be overriden before document ready.
