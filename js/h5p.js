@@ -55,7 +55,7 @@ if (H5P.fullScreenBrowserPrefix !== undefined && // Native fullscreen support
 )) {
   for (let content in H5PIntegration.contents) {
     if (H5PIntegration.contents.hasOwnProperty(content) && H5PIntegration.contents[content].library) { // Content has content type
-      if (['H5P.Chase', 'H5P.MultiPoll', 'H5P.WordCloud', 'H5P.Emoticon', 'H5P.DragQuestion', 'H5P.ThreeImage'].indexOf(H5PIntegration.contents[content].library.split(' ')[0]) !== -1) {
+      if (['H5P.DragQuestion', 'H5P.ThreeImage', 'H5P.InteractiveBook'].indexOf(H5PIntegration.contents[content].library.split(' ')[0]) !== -1) {
         // Use semi-fullscreen due to touch gestures and UI on top when using native fullscreen
         delete H5P.fullScreenBrowserPrefix;
         break;
