@@ -76,7 +76,7 @@ H5P.Tooltip = (function () {
     // Default options
     options = options || {};
     options.classes = options.classes || [];
-    options.ariaHidden = options.ariaHidden || true;
+    options.ariaHidden = options.ariaHidden ?? true;
     options.tooltipSource = options.tooltipSource || 'aria-label';
     options.position = (options.position && Position.allowed.includes(options.position))
       ? options.position
