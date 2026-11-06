@@ -20,6 +20,19 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
   };
 
   /**
+   * Check whether localStorage is accessible.
+   * @return {boolean} True, if window.localStorage is accessible, else false.
+   */
+  RequestQueue.prototype.isLocalStorageAccessible = function () {
+    try {
+      return (window.localStorage) ? true : false;
+    }
+    catch (event) {
+      return false;
+    }
+  };
+
+  /**
    * Add request to queue. Only supports posts currently.
    *
    * @param {string} url
@@ -27,7 +40,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @returns {boolean}
    */
   RequestQueue.prototype.add = function (url, data) {
-    if (!window.localStorage) {
+    if (!this.isLocalStorageAccessible()) {
       return false;
     }
 
@@ -56,7 +69,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @returns {boolean|Array} Stored requests
    */
   RequestQueue.prototype.getStoredRequests = function () {
-    if (!window.localStorage) {
+    if (!this.isLocalStorageAccessible()) {
       return false;
     }
 
@@ -74,7 +87,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    * @returns {boolean} True if the storage was successfully cleared
    */
   RequestQueue.prototype.clearQueue = function () {
-    if (!window.localStorage) {
+    if (!this.isLocalStorageAccessible()) {
       return false;
     }
 
@@ -89,7 +102,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
    */
   RequestQueue.prototype.resumeQueue = function () {
     // Not supported
-    if (!H5PIntegration || !window.navigator || !window.localStorage) {
+    if (!H5PIntegration || !window.navigator || !this.isLocalStorageAccessible()) {
       return false;
     }
 
@@ -203,6 +216,21 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
  * @type {offlineRequestQueue}
  */
 H5P.OfflineRequestQueue = (function (RequestQueue, Dialog) {
+
+  let localStorageSupported;
+  try {
+    localStorageSupported = (window.localStorage !== undefined);
+  }
+  catch (exception) {
+    localStorageSupported = false;
+  }
+
+  if (!localStorageSupported) {
+    // Return dummy class with the same interface, but which does nothing:
+    return function () {
+      this.add = function () {};
+    };
+  }
 
   /**
    * Constructor
