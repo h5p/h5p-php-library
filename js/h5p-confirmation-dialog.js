@@ -10,6 +10,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
    * @param [options.cancelText] Cancel dialog button text
    * @param [options.confirmText] Confirm dialog button text
    * @param [options.hideCancel] Hide cancel button
+   * @param [options.hideConfirm] Hide confirm button
    * @param [options.hideExit] Hide exit button
    * @param [options.skipRestoreFocus] Skip restoring focus when hiding the dialog
    * @param [options.classes] Extra classes for popup
@@ -64,6 +65,10 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         return;
       }
 
+      if (!focusableButtons.length) {
+        return;
+      }
+
       event.preventDefault();
 
       const currentIndex = focusableButtons.indexOf(event.target);
@@ -107,6 +112,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     popup.setAttribute('role', 'alertdialog');
+    popup.setAttribute('tabindex', '-1');
     popup.setAttribute('aria-modal', 'true');
     popup.setAttribute('aria-labelledby', `h5p-confirmation-dialog-header-text-${uniqueId}`);
     popup.setAttribute('aria-describedby', `h5p-confirmation-dialog-text-${uniqueId}`);
@@ -174,23 +180,25 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
     }
 
     // Confirm button
-    const confirmButton = document.createElement('button');
-    if (!options.theme) {
-      confirmButton.classList.add('h5p-core-button');
-    }
-    // confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
-    confirmButton.setAttribute('aria-label', options.confirmText);
+    if (!options.hideConfirm) {
+      const confirmButton = document.createElement('button');
+      if (!options.theme) {
+        confirmButton.classList.add('h5p-core-button');
+      }
+      // confirmButton.classList.add('h5p-confirmation-dialog-confirm-button');
+      confirmButton.setAttribute('aria-label', options.confirmText);
 
-    if (options.theme) {
-      confirmButton.classList.add('h5p-theme-button', 'h5p-theme-primary-cta');
-      confirmButton.classList.add('h5p-theme-check');
-    }
+      if (options.theme) {
+        confirmButton.classList.add('h5p-theme-button', 'h5p-theme-primary-cta');
+        confirmButton.classList.add('h5p-theme-check');
+      }
 
-    confirmButton.addEventListener('click', dialogConfirmed);
-    const confirmText = document.createElement('span');
-    confirmText.textContent = options.confirmText;
-    confirmButton.appendChild(confirmText);
-    buttons.appendChild(confirmButton);
+      confirmButton.addEventListener('click', dialogConfirmed);
+      const confirmText = document.createElement('span');
+      confirmText.textContent = options.confirmText;
+      confirmButton.appendChild(confirmText);
+      buttons.appendChild(confirmButton);
+    }
 
     let focusableButtons = [...buttons.childNodes];
 
@@ -207,6 +215,13 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
         popup.appendChild(exitButton);
       }
       focusableButtons.push(exitButton);
+    }
+
+    /**
+     * Move focus into the dialog. Dialogs without buttons, get the focus on the popup itself.
+     */
+    function focusFirstElement() {
+      (buttons.firstChild || popup).focus();
     }
 
     // Wrapper element
@@ -333,7 +348,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       fitToContainer(offsetTop);
       popup.classList.remove('hidden');
       popupBackground.addEventListener('transitionend', () => {
-        buttons.firstChild.focus();
+        focusFirstElement();
       }, { once: true });
       popupBackground.classList.remove('hiding');
       disableUnderlay();
@@ -353,7 +368,7 @@ H5P.ConfirmationDialog = (function (EventDispatcher) {
       // user may change this setting at any time.
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
       if (prefersReducedMotion.matches) {
-        buttons.firstChild.focus();
+        focusFirstElement();
       }
 
       return this;
