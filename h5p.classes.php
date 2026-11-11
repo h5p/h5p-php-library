@@ -864,6 +864,9 @@ class H5PValidator {
       if (preg_match('/(^[\._]|\/[\._]|\\\[\._])/', $fileName) !== 0) {
         continue; // Skip any file or folder starting with a . or _
       }
+      elseif (substr($fileName, -1) === '/') {
+        continue; // Skip directory records
+      }
       elseif ($fileName === 'h5p.json') {
         $mainH5pExists = TRUE;
       }
@@ -943,6 +946,10 @@ class H5PValidator {
 
       if (preg_match('/(^[\._]|\/[\._]|\\\[\._])/', $fileName) !== 0) {
         continue; // Skip any file or folder starting with a . or _
+      }
+
+      if (substr($fileName, -1) === '/') {
+        continue; // Skip directory records
       }
 
       $isContentFile = (substr($fileName, 0, 8) === 'content/');
