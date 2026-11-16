@@ -191,7 +191,7 @@ H5P.RequestQueue = (function ($, EventDispatcher) {
       }
     }, configOverride);
 
-    H5P.attachToastTo(H5P.jQuery('.h5p-content:first')[0], msg, config);
+    H5P.attachToastTo(H5P.jQuery('.h5p-content').first()[0], msg, config);
   };
 
   return RequestQueue;
