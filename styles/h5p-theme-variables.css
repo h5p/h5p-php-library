@@ -11,7 +11,8 @@
   --h5p-theme-contrast-cta-white: #006FBF;
 
   --h5p-theme-contrast-cta-light: color-mix(in srgb, var(--h5p-theme-main-cta-base), transparent 90%);
-
+  --h5p-theme-contrast-cta-dark: #0094FE;
+	
   --h5p-theme-secondary-cta-light: #F5F7FA;
   --h5p-theme-secondary-cta-dark: #D3DCE9;
   --h5p-theme-secondary-contrast-cta: #202122;
