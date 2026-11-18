@@ -2043,6 +2043,12 @@ abstract class H5PDisplayOptionBehaviour {
   const CONTROLLED_BY_PERMISSIONS = 4;
 }
 
+abstract class H5PSaveContentStorages {
+  const NONE = 0;
+  const DATABASE = 1;
+  const LOCALSTORAGE = 2;
+  const DATABASE_LOCALSTORAGE = 3;
+  
 abstract class H5PContentHubSyncStatus {
   const NOT_SYNCED = 0;
   const SYNCED = 1;
