@@ -2079,7 +2079,7 @@ class H5PCore {
 
   public static $coreApi = array(
     'majorVersion' => 1,
-    'minorVersion' => 28
+    'minorVersion' => 29
   );
   public static $styles = array(
     'styles/h5p-fonts.css',
