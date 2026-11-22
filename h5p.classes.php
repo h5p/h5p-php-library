@@ -980,6 +980,11 @@ class H5PValidator {
     $zip->close();
     unlink($tmpPath);
 
+    if (!is_dir($tmpDir)) {
+      $this->h5pF->setErrorMessage($this->h5pF->t('The package does not contain any libraries that could be installed'), 'no-libraries-in-package');
+      return FALSE;
+    }
+    
     if ($canInstall) {
       // Process and validate libraries using the unpacked library folders
       $files = scandir($tmpDir);
