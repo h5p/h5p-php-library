@@ -123,7 +123,9 @@
     action: 'ready'
   };
   for (var i = 0; i < iframes.length; i++) {
-    if (iframes[i].src.indexOf('h5p') !== -1) {
+    // Moodle's H5P plugin uses /mod/hvp/ rather than an h5p URL.
+    if (iframes[i].src.indexOf('h5p') !== -1 ||
+        /\/mod\/hvp\/embed\.php(?:[?#]|$)/.test(iframes[i].src)) {
       iframes[i].contentWindow.postMessage(ready, '*');
     }
   }
