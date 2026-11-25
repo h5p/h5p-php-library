@@ -214,19 +214,19 @@ H5P.Tooltip = (function () {
       if (options.position === 'top') {
         // Places it centered above
         tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
-        tooltip.style.top = `${triggerRect.top - tooltipRect.height - 4}px`;
+        tooltip.style.top = `${triggerRect.top - tooltipRect.height}px`;
       }
       else if (options.position === 'bottom') {
         // Places it centered below
         tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
-        tooltip.style.top = `${triggerRect.bottom + 4}px`;
+        tooltip.style.top = `${triggerRect.bottom}px`;
       }
       else if (options.position === 'left') {
-        tooltip.style.left = `${triggerRect.left - tooltipRect.width - 4}px`;
+        tooltip.style.left = `${triggerRect.left - tooltipRect.width}px`;
         tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
       }
       else if (options.position === 'right') {
-        tooltip.style.left = `${triggerRect.right + 4}px`;
+        tooltip.style.left = `${triggerRect.right}px`;
         tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
       }
 
