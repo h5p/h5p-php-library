@@ -106,6 +106,7 @@ H5P.Tooltip = (function () {
     tooltip.textContent = parseString(options.text || triggeringElement.getAttribute(options.tooltipSource) || '');
     tooltip.setAttribute('aria-hidden', options.ariaHidden);
     tooltip.classList.add(...options.classes);
+    tooltip.dataset.position = options.position;
 
     document.body.appendChild(tooltip);
 
@@ -315,7 +316,7 @@ H5P.Tooltip = (function () {
     triggeringElement.addEventListener('click', hideTooltip);
     tooltip.addEventListener('mouseenter', () => {
       clearTimeout(triggerMouseLeaveTimer);
-      clearTimeout(triggerMouseLeaveTimer);
+      clearTimeout(hideTooltipTimer);
     });
     tooltip.addEventListener('mouseleave', hideTooltip);
 
