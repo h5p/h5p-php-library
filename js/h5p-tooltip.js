@@ -6,6 +6,18 @@ H5P.Tooltip = (function () {
     default: 'top',
   };
 
+  const TriggerMode = {
+    HOVER: 'hover',
+    CLICK: 'click',
+    DEFAULT: 'hover',
+  };
+
+  const TooltipClasses = {
+    BASE: 'h5p-tooltip',
+    VISIBLE: 'h5p-tooltip-visible',
+    NARROW: 'h5p-tooltip-narrow',
+  };
+
   /** {number} DELAY_SHOW_MS Delay before tooltip is shown */
   const DELAY_SHOW_MS = 500;
 
@@ -62,6 +74,8 @@ H5P.Tooltip = (function () {
    * @param {String} options.position Where the tooltip should appear in relation to the
    *  triggeringElement. Accepted positions are "top" (default), "left", "right" and "bottom"
    * @param {String} options.tooltipSource
+   * @param {String} options.triggerMode The trigger mode for the tooltip.
+   * Accepted trigger modes are "hover" (default) and "click"
    *
    * @returns {object} returns all the public functions
    *
@@ -71,7 +85,7 @@ H5P.Tooltip = (function () {
   function Tooltip(triggeringElement, options) {
     // Make sure tooltips have unique id
     H5P.Tooltip.uniqueId += 1;
-    const tooltipId = `h5p-tooltip-${H5P.Tooltip.uniqueId}`;
+    const tooltipId = `${TooltipClasses.BASE}-${H5P.Tooltip.uniqueId}`;
 
     // Default options
     options = options || {};
@@ -81,11 +95,14 @@ H5P.Tooltip = (function () {
     options.position = (options.position && Position.allowed.includes(options.position))
       ? options.position
       : Position.default;
+    options.triggerMode = Object.values(TriggerMode).includes(options.triggerMode)
+      ? options.triggerMode
+      : TriggerMode.DEFAULT;
 
     // Add our internal classes
-    options.classes.push('h5p-tooltip');
+    options.classes.push(`${TooltipClasses.BASE}`);
     if (options.position === 'left' || options.position === 'right') {
-      options.classes.push('h5p-tooltip-narrow');
+      options.classes.push(TooltipClasses.NARROW);
     }
 
     // Initiate state
@@ -95,7 +112,7 @@ H5P.Tooltip = (function () {
     // Function used by the escape listener
     const hideOnEscape = function (event) {
       if (event.key === 'Escape') {
-        tooltip.classList.remove('h5p-tooltip-visible');
+        tooltip.classList.remove(TooltipClasses.VISIBLE);
       }
     };
 
@@ -127,8 +144,8 @@ H5P.Tooltip = (function () {
 
       tooltip.textContent = parseString(options.text || updatedText);
 
-      if (tooltip.textContent.trim().length === 0 && tooltip.classList.contains('h5p-tooltip-visible')) {
-        tooltip.classList.remove('h5p-tooltip-visible');
+      if (tooltip.textContent.trim().length === 0 && tooltip.classList.contains(TooltipClasses.VISIBLE)) {
+        tooltip.classList.remove(TooltipClasses.VISIBLE);
       }
     });
     this.observer.observe(triggeringElement, {
@@ -189,7 +206,7 @@ H5P.Tooltip = (function () {
       tooltip.style.left = '';
       tooltip.style.top = '';
 
-      tooltip.classList.add('h5p-tooltip-visible');
+      tooltip.classList.add(TooltipClasses.VISIBLE);
 
       // Add listener to iframe body, as esc keypress would not be detected otherwise
       document.body.addEventListener('keydown', hideOnEscape, true);
@@ -281,7 +298,7 @@ H5P.Tooltip = (function () {
         clearTimeout(showTooltipTimer); // Prevent from showing while supposed to hide
 
         const cleanupTooltip = () => {
-          tooltip.classList.remove('h5p-tooltip-visible');
+          tooltip.classList.remove(TooltipClasses.VISIBLE);
           document.body.removeEventListener('keydown', hideOnEscape, true); // Remove iframe body listener
         };
 
@@ -294,6 +311,23 @@ H5P.Tooltip = (function () {
         else {
           cleanupTooltip();
         }
+      }
+    };
+
+    /**
+     * Toggles the tooltip visibility based on the trigger mode and current state
+     */
+    const toggleTooltip = function (event) {
+      if (options.triggerMode === TriggerMode.CLICK) {
+        if (tooltip.classList.contains(TooltipClasses.VISIBLE)) {
+          hideTooltip(event);
+        }
+        else {
+          showTooltip(event, false);
+        }
+      }
+      else {
+        hideTooltip(event);
       }
     };
 
@@ -310,7 +344,7 @@ H5P.Tooltip = (function () {
       }
     });
     triggeringElement.addEventListener('focusout', hideTooltip);
-    triggeringElement.addEventListener('click', hideTooltip);
+    triggeringElement.addEventListener('click', toggleTooltip);
     tooltip.addEventListener('mouseenter', () => {
       clearTimeout(triggerMouseLeaveTimer);
     });
@@ -342,7 +376,7 @@ H5P.Tooltip = (function () {
      */
     this.hide = function () {
       hover = focus = false;
-      tooltip.classList.remove('h5p-tooltip-visible');
+      tooltip.classList.remove(TooltipClasses.VISIBLE);
     };
 
     /**
