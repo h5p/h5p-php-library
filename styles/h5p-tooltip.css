@@ -29,15 +29,12 @@
 .h5p-tooltip[data-position="top"] {
   transform: translateY(calc(-1 * var(--tooltip-offset)));
 }
-
 .h5p-tooltip[data-position="bottom"] {
   transform: translateY(var(--tooltip-offset));
 }
-
 .h5p-tooltip[data-position="left"] {
   transform: translateX(calc(-1 * var(--tooltip-offset)));
 }
-
 .h5p-tooltip[data-position="right"] {
   transform: translateX(var(--tooltip-offset));
 }
