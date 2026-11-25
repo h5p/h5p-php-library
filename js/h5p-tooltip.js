@@ -315,6 +315,7 @@ H5P.Tooltip = (function () {
     triggeringElement.addEventListener('click', hideTooltip);
     tooltip.addEventListener('mouseenter', () => {
       clearTimeout(triggerMouseLeaveTimer);
+      clearTimeout(triggerMouseLeaveTimer);
     });
     tooltip.addEventListener('mouseleave', hideTooltip);
 
