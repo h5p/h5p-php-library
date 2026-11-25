@@ -332,15 +332,23 @@ H5P.Tooltip = (function () {
     };
 
     // Add event listeners to triggeringElement
-    triggeringElement.addEventListener('mouseenter', showTooltip);
+    triggeringElement.addEventListener('mouseenter', (event) => {
+      if (options.triggerMode === TriggerMode.HOVER) {
+        showTooltip(event);
+      }
+    });
     triggeringElement.addEventListener('mouseleave', (event) => {
-      triggerMouseLeaveTimer = setTimeout(() => {
-        hideTooltip(event);
-      }, 1);
+      if (options.triggerMode === TriggerMode.HOVER) {
+        triggerMouseLeaveTimer = setTimeout(() => {
+          hideTooltip(event);
+        }, 1);
+      }
     });
     triggeringElement.addEventListener('focusin', (event) => {
-      if (!usingMouse) {
-        showTooltip(event);
+      if (options.triggerMode === TriggerMode.HOVER) {
+        if (!usingMouse) {
+          showTooltip(event);
+        }
       }
     });
     triggeringElement.addEventListener('focusout', hideTooltip);
