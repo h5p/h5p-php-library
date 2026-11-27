@@ -248,6 +248,7 @@ H5P.Tooltip = (function () {
           tooltip.dataset.overflow = Position.LEFT;
         }
         else if (tooltipRect.right > rootRect.width) {
+          tooltip.style.left = '';
           tooltip.dataset.overflow = Position.RIGHT;
         }
       }
