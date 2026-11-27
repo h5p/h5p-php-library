@@ -1,10 +1,13 @@
 /* global H5P */
 H5P.Tooltip = (function () {
   // Position (allowed and default)
-  const Position = {
-    allowed: ['top', 'bottom', 'left', 'right'],
-    default: 'top',
-  };
+  const Position = Object.freeze({
+    TOP: 'top',
+    BOTTOM: 'bottom',
+    LEFT: 'left',
+    RIGHT: 'right',
+    DEFAULT: 'top',
+  });
 
   /** {number} DELAY_SHOW_MS Delay before tooltip is shown */
   const DELAY_SHOW_MS = 500;
@@ -78,13 +81,13 @@ H5P.Tooltip = (function () {
     options.classes = options.classes || [];
     options.ariaHidden = options.ariaHidden ?? true;
     options.tooltipSource = options.tooltipSource || 'aria-label';
-    options.position = (options.position && Position.allowed.includes(options.position))
+    options.position = Object.values(Position).includes(options.position)
       ? options.position
-      : Position.default;
+      : Position.DEFAULT;
 
     // Add our internal classes
     options.classes.push('h5p-tooltip');
-    if (options.position === 'left' || options.position === 'right') {
+    if (options.position === Position.LEFT || options.position === Position.RIGHT) {
       options.classes.push('h5p-tooltip-narrow');
     }
 
@@ -211,21 +214,21 @@ H5P.Tooltip = (function () {
       const triggerRect = triggeringElement.getBoundingClientRect();
       let tooltipRect = tooltip.getBoundingClientRect();
 
-      if (options.position === 'top') {
+      if (options.position === Position.TOP) {
         // Places it centered above
         tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
         tooltip.style.top = `${triggerRect.top - tooltipRect.height}px`;
       }
-      else if (options.position === 'bottom') {
+      else if (options.position === Position.BOTTOM) {
         // Places it centered below
         tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
         tooltip.style.top = `${triggerRect.bottom}px`;
       }
-      else if (options.position === 'left') {
+      else if (options.position === Position.LEFT) {
         tooltip.style.left = `${triggerRect.left - tooltipRect.width}px`;
         tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
       }
-      else if (options.position === 'right') {
+      else if (options.position === Position.RIGHT) {
         tooltip.style.left = `${triggerRect.right}px`;
         tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
       }
@@ -241,11 +244,12 @@ H5P.Tooltip = (function () {
         // tooltip either left or right if it's placed outside the root element
         tooltipRect = tooltip.getBoundingClientRect();
         if (tooltipRect.left < 0) {
-          tooltip.style.left = '12px';
+          tooltip.style.left = '';
+          tooltip.dataset.overflow = Position.LEFT;
         }
         else if (tooltipRect.right > rootRect.width) {
-          tooltip.style.left = '';
-          tooltip.style.right = '12px';
+          tooltip.style.right = '';
+          tooltip.dataset.overflow = Position.RIGHT;
         }
       }
     };
