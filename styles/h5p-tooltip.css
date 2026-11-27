@@ -1,26 +1,19 @@
 .h5p-tooltip {
   --tooltip-offset: 4px;
-
   --tooltip-overflow-offset: 12px;
   display: none;
   position: absolute;
-
   z-index: 110;
-
   font-size: 0.88rem;
   text-align: left;
-
   padding: 0.38rem 0.63rem;
   white-space: normal;
   word-break: break-word;
   width: max-content;
   max-width: min(300px, 90%);
-  outline: 4px solid transparent;
   border-radius: 4px;
-
   background: #414141;
   color: #FFF;
-
   cursor: default;
   translate: var(--tooltip-translateX) var(--tooltip-translateY);
 }
