@@ -190,9 +190,8 @@ H5P.Tooltip = (function () {
       }
 
       // Reset placement
-      tooltip.style.left = '';
-      tooltip.style.top = '';
-
+      setTooltipPosition('', '');
+      tooltip.dataset.overflow = '';
       tooltip.classList.add('h5p-tooltip-visible');
 
       // Add listener to iframe body, as esc keypress would not be detected otherwise
@@ -210,27 +209,23 @@ H5P.Tooltip = (function () {
         // DOM element
         h5pContainer = triggeringElement.closest('.h5p-container');
       }
-      const rootRect = h5pContainer ? h5pContainer.getBoundingClientRect() : document.documentElement.getBoundingClientRect();
+      const rootRect = h5pContainer
+        ? h5pContainer.getBoundingClientRect()
+        : document.documentElement.getBoundingClientRect();
       const triggerRect = triggeringElement.getBoundingClientRect();
       let tooltipRect = tooltip.getBoundingClientRect();
 
       if (options.position === Position.TOP) {
-        // Places it centered above
-        tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
-        tooltip.style.top = `${triggerRect.top - tooltipRect.height}px`;
+        setTooltipPosition(triggerRect.left + (triggerRect.width / 2), triggerRect.top);
       }
       else if (options.position === Position.BOTTOM) {
-        // Places it centered below
-        tooltip.style.left = `${triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2)}px`;
-        tooltip.style.top = `${triggerRect.bottom}px`;
+        setTooltipPosition(triggerRect.left + (triggerRect.width / 2), triggerRect.bottom);
       }
       else if (options.position === Position.LEFT) {
-        tooltip.style.left = `${triggerRect.left - tooltipRect.width}px`;
-        tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
+        setTooltipPosition(triggerRect.left, triggerRect.top + (triggerRect.height / 2));
       }
       else if (options.position === Position.RIGHT) {
-        tooltip.style.left = `${triggerRect.right}px`;
-        tooltip.style.top = `${triggerRect.top + (triggerRect.height - tooltipRect.height) / 2}px`;
+        setTooltipPosition(triggerRect.right, triggerRect.top + (triggerRect.height / 2));
       }
 
       tooltipRect = tooltip.getBoundingClientRect();
@@ -252,6 +247,17 @@ H5P.Tooltip = (function () {
           tooltip.dataset.overflow = Position.RIGHT;
         }
       }
+    };
+
+    /**
+     * Sets the position of the tooltip
+     *
+     * @param {number} left The left position in number of pixels
+     * @param {number} top The top position in number of pixels
+     */
+    const setTooltipPosition = function (left, top) {
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
     };
 
     /**
