@@ -6,11 +6,11 @@ H5P.Tooltip = (function () {
     default: 'top',
   };
 
-  const TriggerMode = {
+  const TriggerMode = Object.freeze({
     HOVER: 'hover',
     CLICK: 'click',
     DEFAULT: 'hover',
-  };
+  });
 
   const TooltipClasses = {
     BASE: 'h5p-tooltip',
